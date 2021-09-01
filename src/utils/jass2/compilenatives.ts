@@ -2,7 +2,7 @@ import TokenStream from './tokenstream';
 
 function compileGetters(params: { type: string, name: string }[]) {
   return params.map((p, i) => {
-    let type = p.type;
+    const type = p.type;
 
     if (type === 'code') {
       return `let ${p.name} = luaL_ref(L, LUA_REGISTRYINDEX);`;
@@ -57,12 +57,12 @@ function compileReturn(type: string) {
 }
 
 function compileNative(stream: TokenStream, isConstant: boolean) {
-  let name = stream.readSafe();
-  let params = [];
+  const name = stream.readSafe();
+  const params = [];
 
   stream.read(); // takes
 
-  let token = stream.readSafe(); // nothing or type
+  const token = stream.readSafe(); // nothing or type
 
   if (token !== 'nothing') {
     params.push({ type: token, name: stream.readSafe() });
@@ -74,9 +74,9 @@ function compileNative(stream: TokenStream, isConstant: boolean) {
     stream.read(); // returns
   }
 
-  let returnType = stream.readSafe();
+  const returnType = stream.readSafe();
 
-  let decl = `
+  const decl = `
 /**
  * ${isConstant ? 'constant ' : ''}native ${name} takes ${params.length ? params.map((p) => `${p.type} ${p.name}`).join(', ') : 'nothing'} returns ${returnType}
  */
@@ -98,9 +98,9 @@ export default function bind(C: Context) {\nlet L = C.L;\n${names.map((name) => 
 }
 
 export default function compileNatives(jass: string) {
-  let stream = new TokenStream(jass);
-  let names = [];
-  let decls = [];
+  const stream = new TokenStream(jass);
+  const names = [];
+  const decls = [];
   let token;
 
   while ((token = stream.read()) !== undefined) {
@@ -113,7 +113,7 @@ export default function compileNatives(jass: string) {
     }
 
     if (token === 'native') {
-      let { name, decl } = compileNative(stream, isConstant);
+      const { name, decl } = compileNative(stream, isConstant);
 
       names.push(name);
       decls.push(decl);

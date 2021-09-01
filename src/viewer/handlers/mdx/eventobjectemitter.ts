@@ -11,14 +11,14 @@ export default abstract class EventObjectEmitter extends MdxEmitter {
   lastValue: number = 0;
 
   updateEmission(dt: number) {
-    let instance = <MdxModelInstance>this.instance;
+    const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      let emitterObject = <EventObjectEmitterObject>this.emitterObject;
+      const emitterObject = <EventObjectEmitterObject>this.emitterObject;
 
       emitterObject.getValue(valueHeap, instance);
 
-      let value = valueHeap[0];
+      const value = valueHeap[0];
 
       if (value === 1 && value !== this.lastValue) {
         this.currentEmission += 1;

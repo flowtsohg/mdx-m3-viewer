@@ -9,12 +9,12 @@ export default class War3MapMmp {
   icons: MinimapIcon[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.u1 = stream.readInt32();
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let icon = new MinimapIcon();
+      const icon = new MinimapIcon();
 
       icon.load(stream);
 
@@ -23,12 +23,12 @@ export default class War3MapMmp {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.u1);
     stream.writeUint32(this.icons.length);
 
-    for (let icon of this.icons) {
+    for (const icon of this.icons) {
       icon.save(stream);
     }
 

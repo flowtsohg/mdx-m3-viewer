@@ -10,15 +10,15 @@ export default class TokenStream {
   }
 
   read() {
-    let buffer = this.buffer;
-    let length = buffer.length;
+    const buffer = this.buffer;
+    const length = buffer.length;
     let inComment = false;
     let inString = false;
     let inIdString = false;
     let token = '';
 
     while (this.index < length) {
-      let c = buffer[this.index++];
+      const c = buffer[this.index++];
 
       if (inComment) {
         if (c === '\n') {
@@ -54,7 +54,7 @@ export default class TokenStream {
           this.index--;
           return token;
         } else {
-          let c2 = buffer[this.index];
+          const c2 = buffer[this.index];
 
           if (c === '=' && c2 === '=') {
             this.index++;
@@ -103,14 +103,16 @@ export default class TokenStream {
         return token;
       }
     }
+
+    return;
   }
 
   /**
    * Reads the next token without advancing the stream.
    */
   peek() {
-    let index = this.index;
-    let value = this.read();
+    const index = this.index;
+    const value = this.read();
 
     this.index = index;
 
@@ -118,7 +120,7 @@ export default class TokenStream {
   }
 
   readSafe() {
-    let token = this.read();
+    const token = this.read();
 
     if (token === undefined) {
       throw new Error('Premature end of stream reached');

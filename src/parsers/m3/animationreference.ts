@@ -1,4 +1,4 @@
-import BinaryStream from '../../common/binarystream'
+import BinaryStream from '../../common/binarystream';
 
 /**
  * The base class to all animation references.

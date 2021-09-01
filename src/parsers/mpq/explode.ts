@@ -130,7 +130,7 @@ const offs2EB4 = new Uint8Array(0x100);
 
 function GenDecodeTabs(positions: Uint8Array, start_indexes: Uint8Array, length_bits: Uint8Array) {
   for (let i = 0, elements = start_indexes.length; i < elements; i++) {
-    let length = 1 << length_bits[i];
+    const length = 1 << length_bits[i];
 
     for (let index = start_indexes[i]; index < 0x100; index += length) {
       positions[index] = i;
@@ -143,7 +143,7 @@ function GenAscTabs() {
   let acc, add;
 
   for (let count = 0x00FF; pChCodeAsc >= 0; pChCodeAsc--, count--) {
-    let pChBitsAsc = count;
+    const pChBitsAsc = count;
     let bits_asc = ChBitsAsc[pChBitsAsc];
 
     if (bits_asc <= 8) {
@@ -231,7 +231,7 @@ function DecodeLit(pWork: TDcmpStruct) {
     let extra_length_bits;
 
     if ((extra_length_bits = ExLenBits[length_code]) != 0) {
-      let extra_length = pWork.bit_buff & ((1 << extra_length_bits) - 1);
+      const extra_length = pWork.bit_buff & ((1 << extra_length_bits) - 1);
 
       if (WasteBits(pWork, extra_length_bits)) {
         if ((length_code + extra_length) != 0x10E) {
@@ -250,7 +250,7 @@ function DecodeLit(pWork: TDcmpStruct) {
   }
 
   if (pWork.ctype == CMP_BINARY) {
-    let uncompressed_byte = pWork.bit_buff & 0xFF;
+    const uncompressed_byte = pWork.bit_buff & 0xFF;
 
     if (WasteBits(pWork, 8)) {
       return 0x306;
@@ -291,8 +291,8 @@ function DecodeLit(pWork: TDcmpStruct) {
 }
 
 function DecodeDist(pWork: TDcmpStruct, rep_length: number) {
-  let dist_pos_code = DistPosCodes[pWork.bit_buff & 0xFF];
-  let dist_pos_bits = DistBits[dist_pos_code];
+  const dist_pos_code = DistPosCodes[pWork.bit_buff & 0xFF];
+  const dist_pos_bits = DistBits[dist_pos_code];
 
   if (WasteBits(pWork, dist_pos_bits)) {
     return 0;
@@ -346,7 +346,7 @@ function Expand(pWork: TDcmpStruct) {
 }
 
 export default function explode(bytes: Uint8Array) {
-  let pWork = new TDcmpStruct(bytes);
+  const pWork = new TDcmpStruct(bytes);
 
   if (pWork.in_buff.byteLength <= 4) {
     throw new Error('Bad data');

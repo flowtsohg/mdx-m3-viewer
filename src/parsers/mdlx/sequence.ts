@@ -37,7 +37,7 @@ export default class Sequence {
   readMdl(stream: TokenStream) {
     this.name = stream.read();
 
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Interval') {
         stream.readVector(this.interval);
       } else if (token === 'NonLooping') {

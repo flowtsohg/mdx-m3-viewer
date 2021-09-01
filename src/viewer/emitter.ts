@@ -26,7 +26,7 @@ export default abstract class Emitter {
     // Emit new objects if needed.
     this.updateEmission(dt);
 
-    let currentEmission = this.currentEmission;
+    const currentEmission = this.currentEmission;
 
     if (currentEmission >= 1) {
       for (let i = 0; i < currentEmission; i += 1) {
@@ -39,10 +39,10 @@ export default abstract class Emitter {
    * Clear any emitted objects.
    */
   clear() {
-    let objects = this.objects;
+    const objects = this.objects;
 
     for (let i = 0, l = this.alive; i < l; i++) {
-      let object = objects[i];
+      const object = objects[i];
 
       object.health = 0;
     }
@@ -51,7 +51,7 @@ export default abstract class Emitter {
   }
 
   emitObject(emitData?: any) {
-    let objects = this.objects;
+    const objects = this.objects;
 
     // If there are no unused objects, create a new one.
     if (this.alive === objects.length) {
@@ -59,7 +59,7 @@ export default abstract class Emitter {
     }
 
     // Get the first unused object.
-    let object = objects[this.alive];
+    const object = objects[this.alive];
 
     object.index = this.alive;
 
@@ -68,7 +68,7 @@ export default abstract class Emitter {
     this.alive += 1;
     this.currentEmission -= 1;
 
-    let scene = <Scene>this.instance.scene;
+    const scene = <Scene>this.instance.scene;
 
     scene.emittedObjectUpdater.add(object);
 
@@ -76,11 +76,11 @@ export default abstract class Emitter {
   }
 
   kill(object: EmittedObject) {
-    let objects = this.objects;
+    const objects = this.objects;
 
     this.alive -= 1;
 
-    let otherObject = objects[this.alive];
+    const otherObject = objects[this.alive];
 
     objects[object.index] = otherObject;
     objects[this.alive] = object;

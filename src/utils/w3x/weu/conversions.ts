@@ -59,13 +59,13 @@ const HAS_IMPLICIT_CODE = new Set([
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
-  let name = ensureNameSafety(trigger.name);
-  let events = [];
-  let conditions = [];
-  let actions = [];
+  const name = ensureNameSafety(trigger.name);
+  const events = [];
+  const conditions = [];
+  const actions = [];
 
   // Separate the events/conditions/actions.
-  for (let eca of trigger.ecas) {
+  for (const eca of trigger.ecas) {
     if (eca.type === 0) {
       events.push(eca);
     } else if (eca.type === 1) {
@@ -75,29 +75,29 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     }
   }
 
-  let functions = [];
+  const functions = [];
 
   if (events.length || conditions.length || actions.length) {
-    let initBody = [];
-    let conditionsBody = [];
-    let actionsBody = [];
+    const initBody = [];
+    const conditionsBody = [];
+    const actionsBody = [];
 
     // Reference the global trigger that WE generates.
-    let triggerName = `gg_trg_${name}`;
+    const triggerName = `gg_trg_${name}`;
 
     // Events don't explicitly define the trigger parameter.
     // Therefore it is created here, and prepended below to the parameters of each event.
-    let triggerParameter = new Parameter();
+    const triggerParameter = new Parameter();
     triggerParameter.type = 3;
     triggerParameter.value = triggerName;
 
     initBody.push(`set ${triggerName} = CreateTrigger()`);
 
     // Convert the events.
-    for (let event of events) {
+    for (const event of events) {
       event.parameters.unshift(triggerParameter);
 
-      for (let eca of convertFunctionCall(data, event, callbacks)) {
+      for (const eca of convertFunctionCall(data, event, callbacks)) {
         initBody.push(eca.parameters[0].value);
       }
     }
@@ -106,8 +106,8 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     if (conditions.length) {
       initBody.push(`call TriggerAddCondition(${triggerName}, Condition(function Trig_${name}_Conditions)`);
 
-      for (let condition of conditions) {
-        for (let eca of convertFunctionCall(data, condition, callbacks)) {
+      for (const condition of conditions) {
+        for (const eca of convertFunctionCall(data, condition, callbacks)) {
           conditionsBody.push(`if ${eca.parameters[0].value} then\r\n return true\r\nendif`);
         }
       }
@@ -117,8 +117,8 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     if (actions.length) {
       initBody.push(`call TriggerAddAction(${triggerName}, function Trig_${name}_Actions)`);
 
-      for (let action of actions) {
-        for (let eca of convertFunctionCall(data, action, callbacks)) {
+      for (const action of actions) {
+        for (const eca of convertFunctionCall(data, action, callbacks)) {
           actionsBody.push(eca.parameters[0].value);
         }
       }
@@ -147,26 +147,26 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]) {
-  let name = object.name;
-  let ecas: string[] = [];
-  let parameters = object.parameters;
-  let signature = data.triggerData.getFunction(object.type, object.name);
+  const name = object.name;
+  const ecas: string[] = [];
+  const parameters = object.parameters;
+  const signature = data.triggerData.getFunction(object.type, object.name);
 
   if (!signature) {
     throw new Error(`Could not find a function signature: ${name}. Stack: ${data.stackToString()}`);
   }
 
   let { args, scriptName } = signature;
-  let argCount = args.length;
+  const argCount = args.length;
   let isCode = false;
   let isBoolexpr = false;
   let isScriptCode = false;
-  let ecaObject = <ECA>object; // Get correct typing for the cases where the object is known to be an ECA.
+  const ecaObject = <ECA>object; // Get correct typing for the cases where the object is known to be an ECA.
 
   scriptName = scriptName || object.name;
 
   if (argCount) {
-    let lastArg = args[argCount - 1];
+    const lastArg = args[argCount - 1];
 
     if (lastArg === 'code' || HAS_IMPLICIT_CODE.has(name)) {
       isCode = true;
@@ -202,7 +202,7 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     if (loopName === 'A' || loopName === 'B') {
       index = `bj_forLoop${loopName}Index`;
 
-      let indexEnd = `${index}End`;
+      const indexEnd = `${index}End`;
 
       ecas.push(`set ${index} = ${convertParameter(data, parameters[0], args[0], callbacks)}`);
       ecas.push(`set ${indexEnd} = ${convertParameter(data, parameters[1], args[1], callbacks)}`);
@@ -216,10 +216,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
       ecas.push(`exitwhen ${index} > ${convertParameter(data, parameters[2], args[2], callbacks)}`);
     }
 
-    for (let action of ecaObject.ecas) {
-      let replacements = convertFunctionCall(data, action, callbacks);
+    for (const action of ecaObject.ecas) {
+      const replacements = convertFunctionCall(data, action, callbacks);
 
-      for (let replacement of replacements) {
+      for (const replacement of replacements) {
         ecas.push(`${replacement.parameters[0].value}`);
       }
     }
@@ -228,10 +228,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     ecas.push('endloop');
   } else if (name === 'IfThenElseMultiple') {
     let condition;
-    let thenActions = [];
-    let elseActions = [];
+    const thenActions = [];
+    const elseActions = [];
 
-    for (let eca of ecaObject.ecas) {
+    for (const eca of ecaObject.ecas) {
       if (eca.group === 0) {
         condition = eca;
       } else if (eca.group === 1) {
@@ -245,10 +245,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
       ecas.push(`if ${convertFunctionCall(data, condition, callbacks)[0].parameters[0].value} then`);
     }
 
-    for (let action of thenActions) {
-      let replacements = convertFunctionCall(data, action, callbacks);
+    for (const action of thenActions) {
+      const replacements = convertFunctionCall(data, action, callbacks);
 
-      for (let replacement of replacements) {
+      for (const replacement of replacements) {
         ecas.push(`${replacement.parameters[0].value}`);
       }
     }
@@ -256,10 +256,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     if (elseActions.length) {
       ecas.push('else');
 
-      for (let action of elseActions) {
-        let replacements = convertFunctionCall(data, action, callbacks);
+      for (const action of elseActions) {
+        const replacements = convertFunctionCall(data, action, callbacks);
 
-        for (let replacement of replacements) {
+        for (const replacement of replacements) {
           ecas.push(`${replacement.parameters[0].value}`);
         }
       }
@@ -267,13 +267,13 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
 
     ecas.push('endif');
   } else if (isCode || isBoolexpr) {
-    let triggerName = data.getTriggerName();
-    let callbackName = `Trig_${ensureNameSafety(triggerName)}_Func${callbacks.length}`;
+    const triggerName = data.getTriggerName();
+    const callbackName = `Trig_${ensureNameSafety(triggerName)}_Func${callbacks.length}`;
     let call = `function ${callbackName}`;
     let returnType = 'nothing';
     let callOrReturn = 'call';
     let lastParam = parameters.length - 1;
-    let isMultiple = object.name.endsWith('Multiple');
+    const isMultiple = object.name.endsWith('Multiple');
 
     if (isBoolexpr) {
       call = `Filter(${call})`;
@@ -288,10 +288,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     // The callback names are based on where they are in the callback array.
     // This breaks when one of the convert functions below need to create more callbacks before actually adding this one to the callbacks array.
     // To solve this, add a placeholder and save the index, and then use the index after converting everything.
-    let callbackIndex = callbacks.length;
+    const callbackIndex = callbacks.length;
     callbacks[callbackIndex] = 'NOTHING';
 
-    let callParams = [...parameters.slice(0, lastParam).map((value, index) => convertParameter(data, value, args[index], callbacks)), call];
+    const callParams = [...parameters.slice(0, lastParam).map((value, index) => convertParameter(data, value, args[index], callbacks)), call];
 
     if (object instanceof ECA) {
       ecas.push(`call ${scriptName}(${callParams.join(', ')})`);
@@ -342,10 +342,10 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertParameter(data: WeuData, parameter: Parameter, dataType: string, callbacks: string[]) {
-  let {type, value} = parameter;
+  const { type, value } = parameter;
 
   if (type === 0) {
-    let preset = data.triggerData.getPreset(value);
+    const preset = data.triggerData.getPreset(value);
 
     if (preset === undefined) {
       throw new Error(`Failed to find a preset: "${value}"`);
@@ -370,14 +370,14 @@ export function convertParameter(data: WeuData, parameter: Parameter, dataType: 
   } else if (parameter.type === 2) {
     return convertFunctionCall(data, <SubParameters>parameter.subParameters, callbacks)[0].parameters[0].value;
   } else if (parameter.type === 3) {
-    let baseType = data.triggerData.getBaseType(dataType);
+    const baseType = data.triggerData.getBaseType(dataType);
 
     // "value"
     // scriptcode needs to be converted as-is, and doesn't need quotes.
     if (baseType === 'string' && dataType !== 'scriptcode') {
       // Inline string table entries.
       if (value.startsWith('TRIGSTR') && data.stringTable) {
-        let string = data.stringTable.getString(value);
+        const string = data.stringTable.getString(value);
 
         if (string !== undefined) {
           return `"${string.replace(/\r\n/g, '\\r\n')}"`;

@@ -41,7 +41,7 @@ export class ImageTexture extends Texture {
   constructor(src: TexImageSource, resourceData: HandlerResourceData) {
     super(resourceData);
 
-    let gl = this.viewer.gl;
+    const gl = this.viewer.gl;
 
     this.webglResource = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.webglResource);

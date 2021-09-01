@@ -1,5 +1,5 @@
 import { version } from '../../../src/version';
-import ViewerUnitTester from '../../../src/utils/unittester';
+import UnitTester from '../unittester';
 import Component from '../../shared/component';
 import { createElement, showElement, hideElement, addElementToRow, addTextToRow } from '../../shared/domutils';
 import { wc3Solver } from '../solvers';
@@ -8,14 +8,14 @@ import { mdxPrimitivesTests } from '../tests/mdxprimitives';
 import { m3Tests } from '../tests/m3';
 import { baseTests } from '../tests/base';
 
-export default class UnitTester extends Component {
+export default class UnitTesterComponent extends Component {
   constructor(parentElement) {
     super();
 
     this.mismatchPercentageForFailure = 1;
     this.passed = 0;
 
-    let unitTester = new ViewerUnitTester(wc3Solver);
+    let unitTester = new UnitTester(wc3Solver);
 
     unitTester.add(mdxTests);
     unitTester.add(mdxPrimitivesTests);

@@ -75,8 +75,8 @@ export default function sstrhash2(key: string) {
 
   buffer.fill(0);
 
-  for (let char of key) {
-    let byte = char.charCodeAt(0);
+  for (const char of key) {
+    const byte = char.charCodeAt(0);
 
     if (byte < 97 || byte > 122) {
       if (byte === 47) {

@@ -26,7 +26,7 @@ export default class Cell {
   }
 
   remove(instance: ModelInstance) {
-    let index = this.instances.indexOf(instance);
+    const index = this.instances.indexOf(instance);
 
     this.instances.splice(index, 1);
   }

@@ -15,7 +15,7 @@ export default class BlockTable {
   }
 
   add(buffer: ArrayBuffer) {
-    let block = new MpqBlock();
+    const block = new MpqBlock();
 
     block.normalSize = buffer.byteLength;
 
@@ -35,15 +35,15 @@ export default class BlockTable {
   }
 
   load(bytes: Uint8Array) {
-    let entriesCount = bytes.byteLength / 16;
-    let uint32array = new Uint32Array(this.c.decryptBlock(bytes, BLOCK_TABLE_KEY).buffer);
+    const entriesCount = bytes.byteLength / 16;
+    const uint32array = new Uint32Array(this.c.decryptBlock(bytes, BLOCK_TABLE_KEY).buffer);
     let offset = 0;
 
     // Clear the table and add the needed empties.
     this.clear();
     this.addEmpties(entriesCount);
 
-    for (let block of this.entries) {
+    for (const block of this.entries) {
       block.load(uint32array.subarray(offset, offset + 4));
 
       offset += 4;
@@ -51,16 +51,16 @@ export default class BlockTable {
   }
 
   save(bytes: Uint8Array) {
-    let uint32array = new Uint32Array(this.entries.length * 4);
+    const uint32array = new Uint32Array(this.entries.length * 4);
     let offset = 0;
 
-    for (let block of this.entries) {
+    for (const block of this.entries) {
       block.save(uint32array.subarray(offset, offset + 4));
 
       offset += 4;
     }
 
-    let uint8array = new Uint8Array(uint32array.buffer);
+    const uint8array = new Uint8Array(uint32array.buffer);
 
     this.c.encryptBlock(uint8array, BLOCK_TABLE_KEY);
 

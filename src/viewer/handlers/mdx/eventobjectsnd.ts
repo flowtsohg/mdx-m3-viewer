@@ -9,20 +9,20 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
  */
 export default class EventObjectSnd extends EmittedObject {
   bind() {
-    let emitter = <EventObjectSndEmitter>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let viewer = instance.model.viewer;
-    let scene = <Scene>instance.scene;
+    const emitter = <EventObjectSndEmitter>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const viewer = instance.model.viewer;
+    const scene = <Scene>instance.scene;
 
     // Is audio enabled both viewer-wide and in this scene?
     if (viewer.audioEnabled && scene.audioEnabled) {
-      let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-      let node = instance.nodes[emitterObject.index];
-      let audioContext = <AudioContext>scene.audioContext;
-      let decodedBuffers = emitterObject.decodedBuffers;
-      let panner = audioContext.createPanner();
-      let source = audioContext.createBufferSource();
-      let location = node.worldLocation;
+      const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+      const node = instance.nodes[emitterObject.index];
+      const audioContext = <AudioContext>scene.audioContext;
+      const decodedBuffers = emitterObject.decodedBuffers;
+      const panner = audioContext.createPanner();
+      const source = audioContext.createBufferSource();
+      const location = node.worldLocation;
 
       // Panner settings.
       panner.positionX.value = location[0];

@@ -28,16 +28,16 @@ export default class SubParameters {
     this.beginParameters = stream.readInt32();
 
     if (this.beginParameters) {
-      let signature = triggerData.getFunction(this.type, this.name);
+      const signature = triggerData.getFunction(this.type, this.name);
 
       if (!signature) {
         throw new Error(`SubParameters "${this.name}:${this.type}": Unknown signature`);
       }
 
-      let args = signature.args;
+      const args = signature.args;
 
       for (let i = 0, l = args.length; i < l; i++) {
-        let parameter = new Parameter();
+        const parameter = new Parameter();
 
         try {
           parameter.load(stream, version, triggerData);
@@ -55,7 +55,7 @@ export default class SubParameters {
     stream.writeNull(this.name);
     stream.writeInt32(this.beginParameters);
 
-    for (let parameter of this.parameters) {
+    for (const parameter of this.parameters) {
       parameter.save(stream, version);
     }
   }
@@ -64,7 +64,7 @@ export default class SubParameters {
     let size = 9 + byteLengthUtf8(this.name);
 
     if (this.parameters.length) {
-      for (let parameter of this.parameters) {
+      for (const parameter of this.parameters) {
         size += parameter.getByteLength(version);
       }
     }

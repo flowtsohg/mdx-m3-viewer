@@ -30,7 +30,7 @@ export function basename(path: string) {
  */
 export function extname(path: string) {
   if (path && path.length) {
-    let index = path.lastIndexOf('.');
+    const index = path.lastIndexOf('.');
 
     if (index !== -1) {
       path = path.slice(index).toLowerCase();
@@ -50,7 +50,7 @@ export function extname(path: string) {
 export function name(path: string) {
   path = basename(path);
 
-  let index = path.lastIndexOf('.');
+  const index = path.lastIndexOf('.');
 
   if (index !== -1) {
     path = path.slice(0, index);

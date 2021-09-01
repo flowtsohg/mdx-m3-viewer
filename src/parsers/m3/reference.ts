@@ -24,16 +24,20 @@ export default class Reference {
     if (this.index && this.id !== 0 && this.entries !== 0) {
       return this.index[this.id].entries;
     }
+
+    return;
   }
 
   /**
    * Get the first entry this index entry references.
    */
   first() {
-    let entries = this.get();
+    const entries = this.get();
 
     if (entries) {
       return entries[0];
     }
+
+    return;
   }
 }

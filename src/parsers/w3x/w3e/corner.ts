@@ -20,12 +20,12 @@ export default class Corner {
   load(stream: BinaryStream) {
     this.groundHeight = (stream.readInt16() - 8192) / 512;
 
-    let waterAndEdge = stream.readInt16();
+    const waterAndEdge = stream.readInt16();
 
     this.waterHeight = ((waterAndEdge & 0x3FFF) - 8192) / 512;
     this.mapEdge = waterAndEdge & 0x4000;
 
-    let textureAndFlags = stream.readUint8();
+    const textureAndFlags = stream.readUint8();
 
     this.ramp = textureAndFlags & 0b00010000;
     this.blight = textureAndFlags & 0b00100000;
@@ -34,12 +34,12 @@ export default class Corner {
 
     this.groundTexture = textureAndFlags & 0b00001111;
 
-    let variation = stream.readUint8();
+    const variation = stream.readUint8();
 
     this.cliffVariation = (variation & 0b11100000) >>> 5;
     this.groundVariation = variation & 0b00011111;
 
-    let cliffTextureAndLayer = stream.readUint8();
+    const cliffTextureAndLayer = stream.readUint8();
 
     this.cliffTexture = (cliffTextureAndLayer & 0b11110000) >>> 4;
     this.layerHeight = cliffTextureAndLayer & 0b00001111;

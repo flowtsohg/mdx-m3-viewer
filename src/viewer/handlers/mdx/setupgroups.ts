@@ -35,10 +35,10 @@ function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Ob
 }
 
 export default function setupGroups(model: MdxModel) {
-  let opaqueBatches = [];
+  const opaqueBatches = [];
   let translucentBatches = [];
 
-  for (let batch of model.batches) {
+  for (const batch of model.batches) {
     if (batch.layer.filterMode < 2) {
       opaqueBatches.push(batch);
     } else {
@@ -46,11 +46,11 @@ export default function setupGroups(model: MdxModel) {
     }
   }
 
-  let opaqueGroups = model.opaqueGroups;
-  let translucentGroups = model.translucentGroups;
+  const opaqueGroups = model.opaqueGroups;
+  const translucentGroups = model.translucentGroups;
   let currentGroup = null;
 
-  for (let object of opaqueBatches) {
+  for (const object of opaqueBatches) {
     if (!currentGroup || !matchingGroup(currentGroup, object)) {
       currentGroup = <BatchGroup>createMatchingGroup(model, object);
 
@@ -65,11 +65,11 @@ export default function setupGroups(model: MdxModel) {
 
   // Sort between all of the translucent batches and emitters based on their priority planes.
   // Event objects have no explicit priority planes, and default to 0.
-  let objects = [...translucentBatches, ...model.eventObjects, ...model.particleEmitters2, ...model.ribbonEmitters].sort((a, b) => getPrio(a) - getPrio(b));
+  const objects = [...translucentBatches, ...model.eventObjects, ...model.particleEmitters2, ...model.ribbonEmitters].sort((a, b) => getPrio(a) - getPrio(b));
 
   currentGroup = null;
 
-  for (let object of objects) {
+  for (const object of objects) {
     if (object instanceof Batch || object.geometryEmitterType !== -1) {
       if (!currentGroup || !matchingGroup(currentGroup, object)) {
         currentGroup = createMatchingGroup(model, object);

@@ -11,8 +11,8 @@ export default class Model {
   model: ModelHeader | null = null;
 
   load(src: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(src);
-    let header = new Md34();
+    const stream = new BinaryStream(src);
+    const header = new Md34();
 
     header.load(stream, 11, this.index);
 
@@ -27,7 +27,7 @@ export default class Model {
       this.index[i] = new IndexEntry(stream, this.index);
     }
 
-    let modelEntries = this.index[header.model.id].entries;
+    const modelEntries = this.index[header.model.id].entries;
 
     if (modelEntries) {
       this.model = <ModelHeader>modelEntries[0];

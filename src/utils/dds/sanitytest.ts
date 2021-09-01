@@ -6,11 +6,11 @@ import { DdsImage } from '../../parsers/dds/image';
  */
 export default function sanityTest(texture: DdsImage) {
   
-  let nodes = [];
-  let width = texture.width;
-  let height = texture.height;
-  let mipmaps = texture.mipmaps();
-  let expectedMipmaps = Math.log2(Math.max(width, height));
+  const nodes = [];
+  const width = texture.width;
+  const height = texture.height;
+  const mipmaps = texture.mipmaps();
+  const expectedMipmaps = Math.log2(Math.max(width, height));
 
   if (mipmaps < expectedMipmaps) {
     nodes.push({ type: 'warning', message: `Expected ${expectedMipmaps} mipmaps, but got ${mipmaps}` });

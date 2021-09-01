@@ -31,11 +31,11 @@ export class BlpImage {
   pallete: Uint8Array | null = null;
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let bytes = bytesOf(buffer)
+    const bytes = bytesOf(buffer);
 
     // This includes the JPG header size, in case its a JPG image.
     // Otherwise, the last element is ignored.
-    let header = new Int32Array(bytes.buffer, 0, 40);
+    const header = new Int32Array(bytes.buffer, 0, 40);
 
     if (header[0] !== BLP1_MAGIC) {
       throw new Error('WrongMagicNumber');
@@ -63,15 +63,15 @@ export class BlpImage {
   }
 
   getMipmap(level: number) {
-    let uint8array = <Uint8Array>this.uint8array;
-    let offset = this.mipmapOffsets[level];
-    let size = this.mipmapSizes[level];
+    const uint8array = <Uint8Array>this.uint8array;
+    const offset = this.mipmapOffsets[level];
+    const size = this.mipmapSizes[level];
     let imageData: ImageData;
 
     if (this.content === CONTENT_JPG) {
-      let jpgHeader = <Uint8Array>this.jpgHeader;
-      let data = new Uint8Array(jpgHeader.length + size);
-      let jpegImage = new JpegImage();
+      const jpgHeader = <Uint8Array>this.jpgHeader;
+      const data = new Uint8Array(jpgHeader.length + size);
+      const jpegImage = new JpegImage();
 
       data.set(jpgHeader);
       data.set(uint8array.subarray(offset, offset + size), jpgHeader.length);
@@ -83,11 +83,11 @@ export class BlpImage {
 
       jpegImage.getData(imageData);
     } else {
-      let pallete = <Uint8Array>this.pallete;
-      let width = Math.max(this.width / (1 << level), 1); // max of 1 because for non-square textures one dimension will eventually be <1.
-      let height = Math.max(this.height / (1 << level), 1);
-      let size = width * height;
-      let alphaBits = this.alphaBits;
+      const pallete = <Uint8Array>this.pallete;
+      const width = Math.max(this.width / (1 << level), 1); // max of 1 because for non-square textures one dimension will eventually be <1.
+      const height = Math.max(this.height / (1 << level), 1);
+      const size = width * height;
+      const alphaBits = this.alphaBits;
       let bitStream;
       let bitsToByte = 0;
 
@@ -98,11 +98,11 @@ export class BlpImage {
         bitsToByte = convertBitRange(alphaBits, 8);
       }
 
-      let data = imageData.data;
+      const data = imageData.data;
 
       for (let i = 0; i < size; i++) {
-        let dataIndex = i * 4;
-        let paletteIndex = uint8array[offset + i] * 4;
+        const dataIndex = i * 4;
+        const paletteIndex = uint8array[offset + i] * 4;
 
         // BGRA->RGBA
         data[dataIndex] = pallete[paletteIndex + 2];
@@ -123,7 +123,7 @@ export class BlpImage {
   mipmaps() {
     let mipmaps = 0;
 
-    for (let size of this.mipmapSizes) {
+    for (const size of this.mipmapSizes) {
       if (size > 0) {
         mipmaps += 1;
       }
@@ -133,10 +133,10 @@ export class BlpImage {
   }
 
   hasFakeMipmaps() {
-    let offsets = this.mipmapOffsets;
+    const offsets = this.mipmapOffsets;
 
     for (let i = 0; i < 16; i++) {
-      let offset = offsets[i];
+      const offset = offsets[i];
 
       if (offset > 0) {
         for (let j = i + 1; j < 16; j++) {

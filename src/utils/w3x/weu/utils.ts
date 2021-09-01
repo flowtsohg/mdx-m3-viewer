@@ -7,7 +7,7 @@ import SubParameters from '../../../parsers/w3x/wtg/subparameters';
  * Creates a new Custom Script or comment ECA with the given data.
  */
 export function createCustomScriptOrCommentECA(data: string, isComment: boolean) {
-  let eca = new ECA();
+  const eca = new ECA();
 
   eca.type = 2; // Action
 
@@ -19,7 +19,7 @@ export function createCustomScriptOrCommentECA(data: string, isComment: boolean)
 
   eca.isEnabled = 1;
 
-  let parameter = new Parameter();
+  const parameter = new Parameter();
 
   parameter.type = 3; // String
   parameter.value = data;
@@ -44,7 +44,7 @@ export function createCustomScriptECA(script: string) {
 // }
 
 function subParametersToEca(subParameters: SubParameters, group: number) {
-  let eca = new ECA();
+  const eca = new ECA();
 
   eca.name = subParameters.name;
   eca.type = subParameters.type;
@@ -57,10 +57,10 @@ function subParametersToEca(subParameters: SubParameters, group: number) {
 
 export function convertSingleToMultiple(eca: ECA) {
   if (eca.name === 'IfThenElse') {
-    let parameters = eca.parameters;
-    let ifParam = subParametersToEca(<SubParameters>parameters[0].subParameters, 0);
-    let thenParam = subParametersToEca(<SubParameters>parameters[1].subParameters, 1);
-    let elseParam = subParametersToEca(<SubParameters>parameters[2].subParameters, 2);
+    const parameters = eca.parameters;
+    const ifParam = subParametersToEca(<SubParameters>parameters[0].subParameters, 0);
+    const thenParam = subParametersToEca(<SubParameters>parameters[1].subParameters, 1);
+    const elseParam = subParametersToEca(<SubParameters>parameters[2].subParameters, 2);
 
     eca.name = 'IfThenElseMultiple';
     eca.parameters.length = 0;
@@ -68,7 +68,7 @@ export function convertSingleToMultiple(eca: ECA) {
 
     return true;
   } else if (eca.name === 'ForGroup' || eca.name === 'ForForce') {
-    let action = subParametersToEca(<SubParameters>eca.parameters[1].subParameters, 0);
+    const action = subParametersToEca(<SubParameters>eca.parameters[1].subParameters, 0);
 
     eca.name = `${eca.name}Multiple`;
     eca.parameters.length = 1;
@@ -110,17 +110,17 @@ const SCRIPT_LINE_LENGTH = 239;
  *   call BJDebugMsg("hi")
  */
 export function ensureCustomScriptCodeSafety(ecas: ECA[]) {
-  let outputEcas = [];
+  const outputEcas = [];
 
-  for (let eca of ecas) {
+  for (const eca of ecas) {
     if (eca.name === 'CustomScriptCode') {
-      let script = eca.parameters[0].value;
-      let scriptByteLength = byteLengthUtf8(script);
+      const script = eca.parameters[0].value;
+      const scriptByteLength = byteLengthUtf8(script);
 
       if (scriptByteLength > SCRIPT_LINE_LENGTH) {
-        let chunks = splitUtf8ByteLength(script, SCRIPT_LINE_LENGTH);
-        let lines = chunks.length;
-        let lastLine = lines - 1;
+        const chunks = splitUtf8ByteLength(script, SCRIPT_LINE_LENGTH);
+        const lines = chunks.length;
+        const lastLine = lines - 1;
 
         for (let i = 0; i < lines; i++) {
           let text = '';
@@ -137,7 +137,7 @@ export function ensureCustomScriptCodeSafety(ecas: ECA[]) {
             text += '/*';
           }
 
-          let customScript = createCustomScriptECA(text);
+          const customScript = createCustomScriptECA(text);
 
           customScript.group = eca.group;
 

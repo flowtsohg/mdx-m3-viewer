@@ -9,12 +9,12 @@ export default class War3MapImp {
   entries: Map<string, Import> = new Map();
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readUint32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let entry = new Import();
+      const entry = new Import();
 
       entry.load(stream);
 
@@ -27,12 +27,12 @@ export default class War3MapImp {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeUint32(this.version);
     stream.writeUint32(this.entries.size);
 
-    for (let entry of this.entries.values()) {
+    for (const entry of this.entries.values()) {
       entry.save(stream);
     }
 
@@ -42,7 +42,7 @@ export default class War3MapImp {
   getByteLength() {
     let size = 8;
 
-    for (let entry of this.entries.values()) {
+    for (const entry of this.entries.values()) {
       size += entry.getByteLength();
     }
 
@@ -51,7 +51,7 @@ export default class War3MapImp {
 
   set(path: string) {
     if (!this.entries.has(path)) {
-      let entry = new Import();
+      const entry = new Import();
 
       entry.isCustom = 10;
       entry.path = path;
@@ -73,7 +73,7 @@ export default class War3MapImp {
   }
 
   rename(path: string, newPath: string) {
-    let entry = this.entries.get(path);
+    const entry = this.entries.get(path);
 
     if (entry) {
       entry.isCustom = 10;

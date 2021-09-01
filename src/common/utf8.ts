@@ -1,5 +1,5 @@
-let decoder = new TextDecoder();
-let encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const encoder = new TextEncoder();
 
 /**
  * Decode bytes as a UTF8 string.
@@ -40,12 +40,12 @@ export function byteLengthUtf8(str: string) {
  * @see https://stackoverflow.com/a/18729931
  */
 export function splitUtf8ByteLength(str: string, chunkBytelength: number) {
-  let chunks = [];
+  const chunks = [];
   let pos = 0;
   let bytes = 0;
 
   for (let i = 0, l = str.length; i < l; i++) {
-    let code = str.charCodeAt(i);
+    const code = str.charCodeAt(i);
 
     if (code < 0x80) {
       bytes += 1;
@@ -59,7 +59,7 @@ export function splitUtf8ByteLength(str: string, chunkBytelength: number) {
     }
 
     if (bytes >= chunkBytelength - 3) {
-      chunks.push(str.substr(pos, i))
+      chunks.push(str.substr(pos, i));
 
       pos += i;
       bytes = 0;

@@ -11,12 +11,12 @@ export default class TgaImage {
   data: ImageData | null = null;
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let bytes = bytesOf(buffer);
-    let tga = new TgaLoader();
+    const bytes = bytesOf(buffer);
+    const tga = new TgaLoader();
 
     tga.load(bytes);
 
-    let header = tga.header;
+    const header = tga.header;
 
     this.width = header.width;
     this.height = header.height;

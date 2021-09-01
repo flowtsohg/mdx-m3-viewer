@@ -6,7 +6,7 @@ export function searchHeader(bytes: Uint8Array) {
   let offset = -1;
 
   for (let i = 0, l = Math.ceil(bytes.byteLength / 512); i < l; i++) {
-    let base = i * 512;
+    const base = i * 512;
 
     // Test 'MPQ\x1A'.
     if (bytes[base] === 77 && bytes[base + 1] === 80 && bytes[base + 2] === 81 && bytes[base + 3] === 26) {

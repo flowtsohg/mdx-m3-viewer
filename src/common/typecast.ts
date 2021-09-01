@@ -263,7 +263,7 @@ export function numberToUint32(number: number) {
 export function stringToBase256(string: string) {
   let number = 0;
 
-  for (let c of string) {
+  for (const c of string) {
     number = number * 256 + c.charCodeAt(0);
   }
 
@@ -274,7 +274,7 @@ export function stringToBase256(string: string) {
  * Interperts a number as a base 256 string.
  */
 export function base256ToString(number: number) {
-  let array = [];
+  const array = [];
 
   while (number > 0) {
     array.push(String.fromCharCode(number % 256));

@@ -38,8 +38,8 @@ const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffe
 
 export default {
   load(viewer: ModelViewer, pathSolver?: PathSolver, reforged: boolean = false) {
-    let gl = viewer.gl;
-    let webgl = viewer.webgl;
+    const gl = viewer.gl;
+    const webgl = viewer.webgl;
 
     // Bone textures.
     if (!webgl.ensureExtension('OES_texture_float')) {
@@ -51,23 +51,23 @@ export default {
       throw new Error('MDX: No instanced rendering support!');
     }
 
-    let standardShader = webgl.createShader(standardVert, standardFrag);
-    let extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
-    let hdSkinShader = webgl.createShader('#define SKIN\n' + hdVert, hdFrag);
-    let hdVertexGroupShader = webgl.createShader(hdVert, hdFrag);
-    let particlesShader = webgl.createShader(particlesVert, particlesFrag);
+    const standardShader = webgl.createShader(standardVert, standardFrag);
+    const extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
+    const hdSkinShader = webgl.createShader('#define SKIN\n' + hdVert, hdFrag);
+    const hdVertexGroupShader = webgl.createShader(hdVert, hdFrag);
+    const particlesShader = webgl.createShader(particlesVert, particlesFrag);
 
-    let rectBuffer = <WebGLBuffer>gl.createBuffer();
+    const rectBuffer = <WebGLBuffer>gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
-    let teamColors: MdxTexture[] = [];
-    let teamGlows: MdxTexture[] = [];
+    const teamColors: MdxTexture[] = [];
+    const teamGlows: MdxTexture[] = [];
 
-    let eventObjectTables: { [key: string]: GenericResource[] } = {};
+    const eventObjectTables: { [key: string]: GenericResource[] } = {};
 
-    let handlerData: MdxHandlerObject = {
+    const handlerData: MdxHandlerObject = {
       pathSolver,
       reforged,
       // Shaders.
@@ -95,19 +95,19 @@ export default {
   },
   resource: Model,
   loadTeamTextures(viewer: ModelViewer) {
-    let { pathSolver, reforged, teamColors, teamGlows } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
+    const { pathSolver, reforged, teamColors, teamGlows } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
 
     if (teamColors.length === 0) {
-      let teams = reforged ? 28 : 16;
-      let ext = reforged ? 'dds' : 'blp';
-      let params = reforged ? { reforged: true } : undefined;
+      const teams = reforged ? 28 : 16;
+      const ext = reforged ? 'dds' : 'blp';
+      const params = reforged ? { reforged: true } : undefined;
 
       for (let i = 0; i < teams; i++) {
-        let id = `${i}`.padStart(2, '0');
-        let end = `${id}.${ext}`;
+        const id = `${i}`.padStart(2, '0');
+        const end = `${id}.${ext}`;
 
-        let teamColor = new MdxTexture(1, true, true);
-        let teamGlow = new MdxTexture(2, true, true);
+        const teamColor = new MdxTexture(1, true, true);
+        const teamGlow = new MdxTexture(2, true, true);
 
         viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${end}`, pathSolver, params)
           .then((texture) => teamColor.texture = <Texture>texture);
@@ -126,11 +126,11 @@ export default {
     }
 
     for (let i = 1, l = tables.length; i < l; i++) {
-      let raceRow = (<MappedData>tables[i].data).getRow(file);
+      const raceRow = (<MappedData>tables[i].data).getRow(file);
 
       if (raceRow) {
-        let flags = <string>raceRow.Flags;
-        let filePath = <string>raceRow.Filepath;
+        const flags = <string>raceRow['Flags'];
+        const filePath = <string>raceRow['Filepath'];
 
         if (flags === 'SD_ONLY') {
           if (!isHd) {
@@ -145,6 +145,8 @@ export default {
         }
       }
     }
+
+    return;
   },
   async getEventObjectData(viewer: ModelViewer, type: string, id: string, isHd: boolean) {
     // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
@@ -152,18 +154,18 @@ export default {
       return;
     }
 
-    let { pathSolver, reforged, eventObjectTables } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
-    let params = reforged ? { reforged: true } : undefined;
-    let safePathSolver = (src: any, params: any) => {
+    const { pathSolver, reforged, eventObjectTables } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
+    const params = reforged ? { reforged: true } : undefined;
+    const safePathSolver = (src: any, params: any) => {
       if (pathSolver) {
         return pathSolver(src, params);
       }
 
       return src;
-    }
+    };
 
     if (!eventObjectTables[type]) {
-      let paths = [];
+      const paths = [];
 
       if (type === 'SPN') {
         paths.push('Splats\\SpawnData.slk');
@@ -189,10 +191,10 @@ export default {
         }
       }
 
-      let promises = paths.map((path) => viewer.loadGeneric(safePathSolver(path, params), 'text', mappedDataCallback));
-      let resources = await Promise.all(promises);
+      const promises = paths.map((path) => viewer.loadGeneric(safePathSolver(path, params), 'text', mappedDataCallback));
+      const resources = await Promise.all(promises);
 
-      for (let resource of resources) {
+      for (const resource of resources) {
         if (!resource) {
           return;
         }
@@ -201,10 +203,10 @@ export default {
       eventObjectTables[type] = <GenericResource[]>resources;
     }
 
-    let tables = eventObjectTables[type];
-    let mappedData = <MappedData>tables[0].data;
+    const tables = eventObjectTables[type];
+    const mappedData = <MappedData>tables[0].data;
     let row: MappedDataRow | undefined;
-    let promises = [];
+    const promises = [];
 
     if (type === 'SND') {
       // How to get the sound row?
@@ -216,16 +218,16 @@ export default {
       if (reforged) {
         row = mappedData.findRow('AnimationEventCode', id);
       } else {
-        let lookupRow = (<MappedData>tables[1].data).getRow(id);
+        const lookupRow = (<MappedData>tables[1].data).getRow(id);
 
         if (lookupRow) {
-          row = mappedData.getRow(<string>lookupRow.SoundLabel);
+          row = mappedData.getRow(<string>lookupRow['SoundLabel']);
         }
       }
 
       if (row) {
-        for (let fileName of (<string>row.FileNames).split(',')) {
-          let file = this.getEventObjectSoundFile(fileName, reforged, isHd, tables);
+        for (const fileName of (<string>row['FileNames']).split(',')) {
+          const file = this.getEventObjectSoundFile(fileName, reforged, isHd, tables);
 
           if (file) {
             promises.push(viewer.loadGeneric(safePathSolver(file, params), 'arrayBuffer', decodedDataCallback));
@@ -238,22 +240,24 @@ export default {
 
       if (row) {
         if (type === 'SPN') {
-          promises.push(viewer.load((<string>row.Model).replace('.mdl', '.mdx'), safePathSolver, params));
+          promises.push(viewer.load((<string>row['Model']).replace('.mdl', '.mdx'), safePathSolver, params));
         } else if (type === 'SPL' || type === 'UBR') {
-          promises.push(viewer.load(`ReplaceableTextures\\Splats\\${row.file}${reforged ? '.dds' : '.blp'}`, safePathSolver, params));
+          promises.push(viewer.load(`ReplaceableTextures\\Splats\\${row['file']}${reforged ? '.dds' : '.blp'}`, safePathSolver, params));
         }
       }
     }
 
     if (row && promises.length) {
-      let resources = await Promise.all(promises);
+      const resources = await Promise.all(promises);
 
       // Make sure the resources actually loaded properly.
-      let filtered = <Resource[]>resources.filter((resource) => resource);
+      const filtered = <Resource[]>resources.filter((resource) => resource);
 
       if (filtered.length) {
         return { row, resources: filtered };
       }
     }
+
+    return;
   },
 };

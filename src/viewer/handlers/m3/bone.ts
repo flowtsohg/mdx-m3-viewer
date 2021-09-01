@@ -23,7 +23,7 @@ export default class M3Bone {
   real: number;
 
   constructor(bone: Bone) {
-    let flags = bone.flags;
+    const flags = bone.flags;
 
     this.name = <string>bone.name.get();
     this.parent = bone.parent;

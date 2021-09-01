@@ -12,10 +12,10 @@ export default class EmittedObjectUpdater {
   }
 
   update(dt: number) {
-    let objects = this.objects;
+    const objects = this.objects;
 
     for (let i = 0; i < this.alive; i++) {
-      let object = objects[i];
+      const object = objects[i];
 
       object.update(dt * object.emitter.instance.timeScale);
 

@@ -166,14 +166,14 @@ export default class Camera {
    * Recalculate the camera's transformation.
    */
   update() {
-    let location = this.location;
-    let rotation = this.rotation;
-    let inverseRotation = this.inverseRotation;
-    let viewMatrix = this.viewMatrix;
-    let projectionMatrix = this.projectionMatrix;
-    let viewProjectionMatrix = this.viewProjectionMatrix;
-    let vectors = this.vectors;
-    let billboardedVectors = this.billboardedVectors;
+    const location = this.location;
+    const rotation = this.rotation;
+    const inverseRotation = this.inverseRotation;
+    const viewMatrix = this.viewMatrix;
+    const projectionMatrix = this.projectionMatrix;
+    const viewProjectionMatrix = this.viewProjectionMatrix;
+    const vectors = this.vectors;
+    const billboardedVectors = this.billboardedVectors;
 
     // View -> Clip.
     if (this.isPerspective) {
@@ -241,12 +241,12 @@ export default class Camera {
    * Given a vector in screen space, return a ray from the near plane to the far plane.
    */
   screenToWorldRay(out: Float32Array, v: Float32Array, viewport: vec4) {
-    let a = vectorHeap;
-    let b = vectorHeap2;
-    let c = vectorHeap3;
-    let x = v[0];
-    let y = v[1];
-    let inverseViewProjectionMatrix = this.inverseViewProjectionMatrix;
+    const a = vectorHeap;
+    const b = vectorHeap2;
+    const c = vectorHeap3;
+    const x = v[0];
+    const y = v[1];
+    const inverseViewProjectionMatrix = this.inverseViewProjectionMatrix;
 
     // Intersection on the near-plane
     unproject(a, vec3.set(c, x, y, 0), inverseViewProjectionMatrix, viewport);

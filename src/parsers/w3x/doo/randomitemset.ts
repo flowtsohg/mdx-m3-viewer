@@ -9,7 +9,7 @@ export default class RandomItemSet {
 
   load(stream: BinaryStream) {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let item = new RandomItem();
+      const item = new RandomItem();
 
       item.load(stream);
 
@@ -20,7 +20,7 @@ export default class RandomItemSet {
   save(stream: BinaryStream) {
     stream.writeUint32(this.items.length);
 
-    for (let item of this.items) {
+    for (const item of this.items) {
       item.save(stream);
     }
   }

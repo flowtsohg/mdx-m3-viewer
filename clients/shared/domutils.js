@@ -36,6 +36,10 @@ export function createElement(options) {
       element.target = options.target;
     }
 
+    if (options.title) {
+      element.title = options.title;
+    }
+
     if (options.onclick) {
       element.addEventListener('click', (e) => options.onclick(e, options.component));
     }

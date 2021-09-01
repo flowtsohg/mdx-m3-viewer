@@ -75,8 +75,8 @@ export default class MdxModelInstance extends ModelInstance {
     }
 
     // Create the needed amount of shared nodes.
-    let sharedNodeData = createSkeletalNodes(model.genericObjects.length, MdxNode);
-    let nodes = sharedNodeData.nodes;
+    const sharedNodeData = createSkeletalNodes(model.genericObjects.length, MdxNode);
+    const nodes = sharedNodeData.nodes;
     let nodeIndex = 0;
 
     this.nodes.push(...nodes);
@@ -85,19 +85,19 @@ export default class MdxModelInstance extends ModelInstance {
     this.worldMatrices = sharedNodeData.worldMatrices;
 
     // And now initialize all of the nodes and objects
-    for (let bone of model.bones) {
+    for (const bone of model.bones) {
       this.initNode(nodes, nodes[nodeIndex++], bone);
     }
 
-    for (let light of model.lights) {
+    for (const light of model.lights) {
       this.initNode(nodes, nodes[nodeIndex++], light);
     }
 
-    for (let helper of model.helpers) {
+    for (const helper of model.helpers) {
       this.initNode(nodes, nodes[nodeIndex++], helper);
     }
 
-    for (let attachment of model.attachments) {
+    for (const attachment of model.attachments) {
       let attachmentInstance;
 
       // Attachments may have game models attached to them, such as Undead and Nightelf building animations.
@@ -110,32 +110,32 @@ export default class MdxModelInstance extends ModelInstance {
       this.initNode(nodes, nodes[nodeIndex++], attachment, attachmentInstance);
     }
 
-    for (let emitterObject of model.particleEmitters) {
-      let emitter = new ParticleEmitter(this, emitterObject);
+    for (const emitterObject of model.particleEmitters) {
+      const emitter = new ParticleEmitter(this, emitterObject);
 
       this.particleEmitters.push(emitter);
 
       this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let emitterObject of model.particleEmitters2) {
-      let emitter = new ParticleEmitter2(this, emitterObject);
+    for (const emitterObject of model.particleEmitters2) {
+      const emitter = new ParticleEmitter2(this, emitterObject);
 
       this.particleEmitters2.push(emitter);
 
       this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let emitterObject of model.ribbonEmitters) {
-      let emitter = new RibbonEmitter(this, emitterObject);
+    for (const emitterObject of model.ribbonEmitters) {
+      const emitter = new RibbonEmitter(this, emitterObject);
 
       this.ribbonEmitters.push(emitter);
 
       this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let emitterObject of model.eventObjects) {
-      let type = emitterObject.type;
+    for (const emitterObject of model.eventObjects) {
+      const type = emitterObject.type;
       let emitter;
 
       if (type === 'SPN') {
@@ -153,13 +153,13 @@ export default class MdxModelInstance extends ModelInstance {
       this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let collisionShape of model.collisionShapes) {
+    for (const collisionShape of model.collisionShapes) {
       this.initNode(nodes, nodes[nodeIndex++], collisionShape);
     }
 
     // Save a sorted array of all of the nodes, such that every child node comes after its parent.
     // This allows for flat iteration when updating.
-    let hierarchy = model.hierarchy;
+    const hierarchy = model.hierarchy;
 
     for (let i = 0, l = nodes.length; i < l; i++) {
       this.sortedNodes[i] = nodes[hierarchy[i]];
@@ -201,20 +201,20 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Clear all of the emitted objects that belong to this instance.
    */
-  clearEmittedObjects() {
-    for (let emitter of this.particleEmitters) {
+  override clearEmittedObjects() {
+    for (const emitter of this.particleEmitters) {
       emitter.clear();
     }
 
-    for (let emitter of this.particleEmitters2) {
+    for (const emitter of this.particleEmitters2) {
       emitter.clear();
     }
 
-    for (let emitter of this.ribbonEmitters) {
+    for (const emitter of this.ribbonEmitters) {
       emitter.clear();
     }
 
-    for (let emitter of this.eventObjectEmitters) {
+    for (const emitter of this.eventObjectEmitters) {
       emitter.clear();
     }
   }
@@ -249,7 +249,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Overriden to hide also attachment models.
    */
-  hide() {
+  override hide() {
     super.hide();
 
     this.resetAttachments();
@@ -260,39 +260,39 @@ export default class MdxModelInstance extends ModelInstance {
    * Nodes that are determined to not be visible will not be updated, nor will any of their children down the hierarchy.
    */
   updateNodes(dt: number, forced: boolean) {
-    let sequence = this.sequence;
-    let frame = this.frame;
-    let counter = this.counter;
-    let sortedNodes = this.sortedNodes;
-    let model = <MdxModel>this.model;
-    let sortedGenericObjects = model.sortedGenericObjects;
-    let scene = <Scene>this.scene;
+    const sequence = this.sequence;
+    const frame = this.frame;
+    const counter = this.counter;
+    const sortedNodes = this.sortedNodes;
+    const model = <MdxModel>this.model;
+    const sortedGenericObjects = model.sortedGenericObjects;
+    const scene = <Scene>this.scene;
 
     // Update the nodes
     for (let i = 0, l = sortedNodes.length; i < l; i++) {
-      let genericObject = sortedGenericObjects[i];
-      let node = sortedNodes[i];
-      let parent = <MdxNode | SkeletalNode>node.parent;
+      const genericObject = sortedGenericObjects[i];
+      const node = sortedNodes[i];
+      const parent = <MdxNode | SkeletalNode>node.parent;
       let wasDirty = forced || parent.wasDirty || genericObject.anyBillboarding;
-      let variants = genericObject.variants;
+      const variants = genericObject.variants;
 
       // Local node transformation.
       // Use variants to skip animation data when possible.
-      if (forced || variants.generic[sequence]) {
+      if (forced || variants['generic'][sequence]) {
         wasDirty = true;
 
         // Translation
-        if (forced || variants.translation[sequence]) {
+        if (forced || variants['translation'][sequence]) {
           genericObject.getTranslation(node.localLocation, sequence, frame, counter);
         }
 
         // Rotation
-        if (forced || variants.rotation[sequence]) {
+        if (forced || variants['rotation'][sequence]) {
           genericObject.getRotation(node.localRotation, sequence, frame, counter);
         }
 
         // Scale
-        if (forced || variants.scale[sequence]) {
+        if (forced || variants['scale'][sequence]) {
           genericObject.getScale(node.localScale, sequence, frame, counter);
         }
       }
@@ -316,7 +316,7 @@ export default class MdxModelInstance extends ModelInstance {
 
       // Recalculate and update child nodes.
       // Note that this only affects normal nodes such as instances, and not skeletal nodes.
-      for (let child of node.children) {
+      for (const child of node.children) {
         if (wasDirty) {
           child.recalculateTransformation();
         }
@@ -330,10 +330,8 @@ export default class MdxModelInstance extends ModelInstance {
    * If a model has no sequences or is running no sequence, it will only update once since it will never be forced to update.
    * This is generally the desired behavior, except when it is moved by the client.
    * Therefore, if an instance is transformed, always do a forced update.
-   *
-   * @override
    */
-  recalculateTransformation() {
+  override recalculateTransformation() {
     super.recalculateTransformation();
 
     this.forced = true;
@@ -343,26 +341,26 @@ export default class MdxModelInstance extends ModelInstance {
    * Update the batch data.
    */
   updateBatches(forced: boolean) {
-    let sequence = this.sequence;
-    let frame = this.frame;
-    let counter = this.counter;
-    let model = <MdxModel>this.model;
-    let geosets = model.geosets;
-    let layers = model.layers;
-    let geosetColors = this.geosetColors;
-    let layerAlphas = this.layerAlphas;
-    let layerTextures = this.layerTextures;
-    let uvAnims = this.uvAnims;
+    const sequence = this.sequence;
+    const frame = this.frame;
+    const counter = this.counter;
+    const model = <MdxModel>this.model;
+    const geosets = model.geosets;
+    const layers = model.layers;
+    const geosetColors = this.geosetColors;
+    const layerAlphas = this.layerAlphas;
+    const layerTextures = this.layerTextures;
+    const uvAnims = this.uvAnims;
 
     // Geosets
     for (let i = 0, l = geosets.length; i < l; i++) {
-      let geoset = geosets[i];
-      let geosetAnimation = geoset.geosetAnimation;
-      let geosetColor = geosetColors[i];
+      const geoset = geosets[i];
+      const geosetAnimation = geoset.geosetAnimation;
+      const geosetColor = geosetColors[i];
 
       if (geosetAnimation) {
         // Color
-        if (forced || geosetAnimation.variants.color[sequence]) {
+        if (forced || geosetAnimation.variants['color'][sequence]) {
           geosetAnimation.getColor(colorHeap, sequence, frame, counter);
 
           geosetColor[0] = colorHeap[0];
@@ -371,7 +369,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         // Alpha
-        if (forced || geosetAnimation.variants.alpha[sequence]) {
+        if (forced || geosetAnimation.variants['alpha'][sequence]) {
           geosetAnimation.getAlpha(alphaHeap, sequence, frame, counter);
 
           geosetColor[3] = alphaHeap[0];
@@ -386,19 +384,19 @@ export default class MdxModelInstance extends ModelInstance {
 
     // Layers
     for (let i = 0, l = layers.length; i < l; i++) {
-      let layer = layers[i];
-      let textureAnimation = layer.textureAnimation;
-      let uvAnim = uvAnims[i];
+      const layer = layers[i];
+      const textureAnimation = layer.textureAnimation;
+      const uvAnim = uvAnims[i];
 
       // Alpha
-      if (forced || layer.variants.alpha[sequence]) {
+      if (forced || layer.variants['alpha'][sequence]) {
         layer.getAlpha(alphaHeap, sequence, frame, counter);
 
         layerAlphas[i] = alphaHeap[0];
       }
 
       // Sprite animation
-      if (forced || layer.variants.textureId[sequence]) {
+      if (forced || layer.variants['textureId'][sequence]) {
         layer.getTextureId(textureIdHeap, sequence, frame, counter);
 
         layerTextures[i] = textureIdHeap[0];
@@ -406,7 +404,7 @@ export default class MdxModelInstance extends ModelInstance {
 
       if (textureAnimation) {
         // UV translation animation
-        if (forced || textureAnimation.variants.translation[sequence]) {
+        if (forced || textureAnimation.variants['translation'][sequence]) {
           textureAnimation.getTranslation(<Float32Array>translationHeap, sequence, frame, counter);
 
           uvAnim[0] = translationHeap[0];
@@ -414,7 +412,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         // UV rotation animation
-        if (forced || textureAnimation.variants.rotation[sequence]) {
+        if (forced || textureAnimation.variants['rotation'][sequence]) {
           textureAnimation.getRotation(<Float32Array>rotationHeap, sequence, frame, counter);
 
           uvAnim[2] = rotationHeap[2];
@@ -422,7 +420,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         // UV scale animation
-        if (forced || textureAnimation.variants.scale[sequence]) {
+        if (forced || textureAnimation.variants['scale'][sequence]) {
           textureAnimation.getScale(<Float32Array>scaleHeap, sequence, frame, counter);
 
           uvAnim[4] = scaleHeap[0];
@@ -443,39 +441,30 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
-  /**
-   * @override
-   */
-  renderOpaque() {
-    let model = <MdxModel>this.model;
+  override renderOpaque() {
+    const model = <MdxModel>this.model;
 
-    for (let group of model.opaqueGroups) {
+    for (const group of model.opaqueGroups) {
       group.render(this);
     }
   }
 
-  /**
-   * @override
-   */
-  renderTranslucent() {
-    let model = <MdxModel>this.model;
+  override renderTranslucent() {
+    const model = <MdxModel>this.model;
 
-    for (let group of model.translucentGroups) {
+    for (const group of model.translucentGroups) {
       group.render(this);
     }
   }
 
-  /**
-   * @override
-   */
-  updateAnimations(dt: number) {
-    let model = <MdxModel>this.model;
-    let sequenceId = this.sequence;
+  override updateAnimations(dt: number) {
+    const model = <MdxModel>this.model;
+    const sequenceId = this.sequence;
 
     if (sequenceId !== -1) {
-      let sequence = model.sequences[sequenceId];
-      let interval = sequence.interval;
-      let frameTime = dt * 1000;
+      const sequence = model.sequences[sequenceId];
+      const interval = sequence.interval;
+      const frameTime = dt * 1000;
 
       this.frame += frameTime;
       this.counter += frameTime;
@@ -498,7 +487,7 @@ export default class MdxModelInstance extends ModelInstance {
       }
     }
 
-    let forced = this.forced;
+    const forced = this.forced;
 
     if (sequenceId !== -1 || forced) {
       // Update the nodes
@@ -536,8 +525,8 @@ export default class MdxModelInstance extends ModelInstance {
    * Set the sequence of this instance.
    */
   setSequence(id: number) {
-    let model = <MdxModel>this.model;
-    let sequences = model.sequences;
+    const model = <MdxModel>this.model;
+    const sequences = model.sequences;
 
     this.sequence = id;
 
@@ -557,17 +546,14 @@ export default class MdxModelInstance extends ModelInstance {
     return this;
   }
 
-  /**
-   * @override
-   */
-  getBounds() {
-    let model = <MdxModel>this.model;
+  override getBounds() {
+    const model = <MdxModel>this.model;
 
     if (this.sequence === -1) {
       return model.bounds;
     }
 
-    let bounds = model.sequences[this.sequence].bounds;
+    const bounds = model.sequences[this.sequence].bounds;
 
     if (bounds.r === 0) {
       return model.bounds;
@@ -590,22 +576,24 @@ export default class MdxModelInstance extends ModelInstance {
    * Get an attachment node.
    */
   getAttachment(id: number) {
-    let model = <MdxModel>this.model;
-    let attachment = model.attachments[id];
+    const model = <MdxModel>this.model;
+    const attachment = model.attachments[id];
 
     if (attachment) {
       return this.nodes[attachment.index];
     }
+
+    return;
   }
 
   resetEventEmitters() {
-    for (let emitter of this.eventObjectEmitters) {
+    for (const emitter of this.eventObjectEmitters) {
       emitter.lastValue = 0;
     }
   }
 
   resetAttachments() {
-    for (let attachment of this.attachments) {
+    for (const attachment of this.attachments) {
       attachment.internalInstance.hide();
     }
   }

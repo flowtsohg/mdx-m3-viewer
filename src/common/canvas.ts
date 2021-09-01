@@ -1,14 +1,20 @@
-import { powerOfTwo } from './math';
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let canvas2: HTMLCanvasElement;
+let ctx2: CanvasRenderingContext2D;
 
-const canvas = document.createElement('canvas');
-const ctx = <CanvasRenderingContext2D>canvas.getContext('2d');
-const canvas2 = document.createElement('canvas');
-const ctx2 = <CanvasRenderingContext2D>canvas2.getContext('2d');
+// Only create the canvases and contexts in browsers.
+if (typeof window === 'object') {
+  canvas = document.createElement('canvas');
+  ctx = <CanvasRenderingContext2D>canvas.getContext('2d');
+  canvas2 = document.createElement('canvas');
+  ctx2 = <CanvasRenderingContext2D>canvas2.getContext('2d');
+}
 
 export function blobToImage(blob: Blob) {
   return new Promise((resolve: (image: HTMLImageElement) => void) => {
-    let url = URL.createObjectURL(blob);
-    let image = new Image();
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
 
     image.onload = () => {
       resolve(image);
@@ -24,8 +30,8 @@ export function blobToImage(blob: Blob) {
 
 export function blobToImageData(blob: Blob) {
   return new Promise((resolve, reject) => {
-    let url = URL.createObjectURL(blob);
-    let image = new Image();
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
 
     image.onload = () => {
       URL.revokeObjectURL(url);
@@ -69,7 +75,7 @@ export function imageDataToDataUrl(imageData: ImageData) {
 }
 
 export function imageDataToImage(imageData: ImageData) {
-  let image = new Image();
+  const image = new Image();
 
   image.src = imageDataToDataUrl(imageData);
 
@@ -77,8 +83,8 @@ export function imageDataToImage(imageData: ImageData) {
 }
 
 export function imageToImageData(image: TexImageSource) {
-  let width = image.width;
-  let height = image.height;
+  const width = image.width;
+  const height = image.height;
 
   canvas.width = width;
   canvas.height = height;

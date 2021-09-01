@@ -29,7 +29,7 @@ export default class SanityTestData {
 
   constructor(model: Model) {
     this.model = model;
-    this.current = { type: 'node', name: '', errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
+    this.current = { type: 'node', name: '', errors: 0, severe: 0, warnings: 0, unused: 0, nodes: []};
     this.stack = [this.current];
 
     this.addObjects(model.sequences);
@@ -59,12 +59,12 @@ export default class SanityTestData {
    */
   addObjects(objects: MdlxType[]) {
     if (objects.length) {
-      let areGeneric = objects[0] instanceof GenericObject;
+      const areGeneric = objects[0] instanceof GenericObject;
 
       for (let i = 0, l = objects.length; i < l; i++) {
-        let object = objects[i];
-        let name = getObjectName(object, i);
-        let node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
+        const object = objects[i];
+        const name = getObjectName(object, i);
+        const node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: []};
 
         if (!areGeneric) {
           node.uses = 0;
@@ -87,9 +87,9 @@ export default class SanityTestData {
     let node = this.map.get(object);
 
     if (!node) {
-      let name = getObjectName(object, index);
+      const name = getObjectName(object, index);
 
-      node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
+      node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: []};
     }
 
     this.current.nodes.push(node);
@@ -109,7 +109,7 @@ export default class SanityTestData {
    * Adds a reference to the node the given object maps to.
    */
   addReference(object: MdlxType) {
-    let node = <SanityTestNode>this.map.get(object);
+    const node = <SanityTestNode>this.map.get(object);
 
     if (node.uses !== undefined) {
       node.uses += 1;
@@ -120,7 +120,7 @@ export default class SanityTestData {
    * Add a reference to the current node.
    */
   addImplicitReference() {
-    let node = this.current;
+    const node = this.current;
 
     if (node.uses !== undefined) {
       node.uses += 1;
@@ -130,7 +130,7 @@ export default class SanityTestData {
   addError(message: string) {
     this.current.nodes.push({ type: 'error', message });
 
-    for (let node of this.stack) {
+    for (const node of this.stack) {
       node.errors += 1;
     }
   }
@@ -138,7 +138,7 @@ export default class SanityTestData {
   addSevere(message: string) {
     this.current.nodes.push({ type: 'severe', message });
 
-    for (let node of this.stack) {
+    for (const node of this.stack) {
       node.severe += 1;
     }
   }
@@ -146,7 +146,7 @@ export default class SanityTestData {
   addWarning(message: string) {
     this.current.nodes.push({ type: 'warning', message });
 
-    for (let node of this.stack) {
+    for (const node of this.stack) {
       node.warnings += 1;
     }
   }
@@ -154,7 +154,7 @@ export default class SanityTestData {
   addUnused(message: string) {
     this.current.nodes.push({ type: 'unused', message });
 
-    for (let node of this.stack) {
+    for (const node of this.stack) {
       node.unused += 1;
     }
   }

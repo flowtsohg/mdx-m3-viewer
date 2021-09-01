@@ -21,8 +21,8 @@ interface WEUTransformerTransformations {
 }
 
 function runTests(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation, convertedParameters: string[]) {
-  let parameters = object.parameters;
-  let tests = [];
+  const parameters = object.parameters;
+  const tests = [];
 
   if (mapping.test) {
     tests.push(mapping.test);
@@ -32,7 +32,7 @@ function runTests(data: WeuData, object: ECA | SubParameters, args: string[], ma
     tests.push(...mapping.tests);
   }
 
-  for (let [index, value] of tests) {
+  for (const [index, value] of tests) {
     // Convert and cache the parameter.
     if (convertedParameters[index] === undefined) {
       convertedParameters[index] = convertParameterInline(data, parameters[index], args[index]);
@@ -51,7 +51,7 @@ function setNameAndType(data: WeuData, object: ECA | SubParameters, name: string
   object.type = data.triggerData.getFunctionType(name);
 
   if (object instanceof SubParameters) {
-    let parameter = <Parameter>data.stack[1];
+    const parameter = <Parameter>data.stack[1];
 
     parameter.value = name;
   }
@@ -59,13 +59,13 @@ function setNameAndType(data: WeuData, object: ECA | SubParameters, name: string
 
 function setParameters(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation) {
   if (mapping.parameters) {
-    let parameters = object.parameters;
+    const parameters = object.parameters;
 
     object.parameters = mapping.parameters.map((value) => {
       if (typeof value === 'number') {
         return parameters[value];
       } else if (typeof value === 'string') {
-        let parameter = new Parameter();
+        const parameter = new Parameter();
 
         if (data.triggerData.getPreset(value)) {
           parameter.type = 0;
@@ -77,10 +77,10 @@ function setParameters(data: WeuData, object: ECA | SubParameters, args: string[
 
         return parameter;
       } else {
-        let whichParameter = value[0];
-        let whichOperator = value[1];
-        let operandValue = value[2];
-        let argType = args[whichParameter];
+        const whichParameter = value[0];
+        const whichOperator = value[1];
+        const operandValue = value[2];
+        const argType = args[whichParameter];
         let typedFunction;
         let mathOp;
 
@@ -102,24 +102,24 @@ function setParameters(data: WeuData, object: ECA | SubParameters, args: string[
           mathOp = 'OperatorDivide';
         }
 
-        let parameter = new Parameter();
+        const parameter = new Parameter();
 
         parameter.value = typedFunction;
         parameter.type = 2;
 
-        let subParameters = new SubParameters();
+        const subParameters = new SubParameters();
 
         subParameters.name = typedFunction;
         subParameters.type = 3;
 
-        let operandA = parameters[whichParameter];
+        const operandA = parameters[whichParameter];
 
-        let operator = new Parameter();
+        const operator = new Parameter();
 
         operator.type = 0;
         operator.value = mathOp;
 
-        let operandB = new Parameter();
+        const operandB = new Parameter();
 
         operandB.type = 3;
         operandB.value = `${operandValue}`;
@@ -138,7 +138,7 @@ function setParameters(data: WeuData, object: ECA | SubParameters, args: string[
 export default function transformer(transformations: WEUTransformerTransformations) {
   return function (data: WeuData, object: ECA | SubParameters) {
     // The signature for the input (to be replaced) function.
-    let signature = data.triggerData.getFunction(object.type, object.name);
+    const signature = data.triggerData.getFunction(object.type, object.name);
 
     // This can happen if there is a transformer that is implemented, however it's not found in the custom TriggerData.txt
     // Perhaps it will be worthwhile in the future to also query the signature from common.j, however that's an extra download etc.
@@ -149,20 +149,24 @@ export default function transformer(transformations: WEUTransformerTransformatio
       return false;
     }
 
-    let args = signature.args;
+    const args = signature.args;
 
     // A cache for converted parameters.
     // If there are multiple transformations, or transformations with multiple mappings, usually they branch on the same parameter(s).
     // The first time a parameter is tested, it will be converted, and stored here.
     // The next time it is tested, it will be fetched directly.
-    let convertedParameters: string[] = [];
+    const convertedParameters: string[] = [];
 
-    for (let [name, mappings] of Object.entries(transformations)) {
-      if (!Array.isArray(mappings)) {
-        mappings = [mappings];
+    for (const [name, mappings] of Object.entries(transformations)) {
+      let mappingAsArray;
+
+      if (Array.isArray(mappings)) {
+        mappingAsArray = mappings;
+      } else {
+        mappingAsArray = [mappings];
       }
 
-      for (let mapping of mappings) {
+      for (const mapping of mappingAsArray) {
         if (runTests(data, object, args, mapping, convertedParameters)) {
           setNameAndType(data, object, name);
           setParameters(data, object, args, mapping);

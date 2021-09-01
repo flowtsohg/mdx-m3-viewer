@@ -12,7 +12,7 @@ export default class GeosetAnimation extends AnimatedObject {
   geosetId: number = -1;
 
   readMdx(stream: BinaryStream) {
-    let size = stream.readUint32();
+    const size = stream.readUint32();
 
     this.alpha = stream.readFloat32();
     this.flags = stream.readUint32();
@@ -33,7 +33,7 @@ export default class GeosetAnimation extends AnimatedObject {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of super.readAnimatedBlock(stream)) {
+    for (const token of super.readAnimatedBlock(stream)) {
       if (token === 'DropShadow') {
         this.flags |= 0x1;
       } else if (token === 'static Alpha') {
@@ -76,7 +76,7 @@ export default class GeosetAnimation extends AnimatedObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 28 + super.getByteLength();
   }
 }

@@ -9,7 +9,7 @@ export default class War3MapWpm {
   pathing: Uint8Array = new Uint8Array(0);
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'MP3W') {
       return;
@@ -21,7 +21,7 @@ export default class War3MapWpm {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('MP3W');
     stream.writeInt32(this.version);

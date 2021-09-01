@@ -10,28 +10,28 @@ export default class War3MapWts {
   stringMap: Map<number, string> = new Map();
 
   load(buffer: string) {
-    let stream = new TokenStream(buffer);
+    const stream = new TokenStream(buffer);
     let token;
 
     // Find the first instance of "STRING".
     // There are some weird war3map.wts files that begin with the bytes "ï»¿", and this causes the tokenizer to see the first token as "ï»¿STRING".
     // Going to the first "STRING" means we can ignore any weird bytes that happened to be before.
-    let start = buffer.indexOf('STRING');
+    const start = buffer.indexOf('STRING');
 
     // Can war3map.wts have no entries? I don't know, might as well add a condition.
     if (start === -1) {
-      return;
+      throw new Error('Not a valid war3map.wts buffer');
     }
 
     stream.index = start;
 
     while ((token = stream.readToken())) {
       if (token === 'STRING') {
-        let index = stream.readInt();
+        const index = stream.readInt();
 
         stream.read(); // {
 
-        let end = buffer.indexOf('}', stream.index);
+        const end = buffer.indexOf('}', stream.index);
 
         // For broken files, keep whatever data can be kept, and throw an exception.
         if (end === -1) {
@@ -50,7 +50,7 @@ export default class War3MapWts {
   save() {
     let buffer = '';
 
-    for (let [key, value] of this.stringMap) {
+    for (const [key, value] of this.stringMap) {
       buffer += `STRING ${key}\r\n{\r\n${value}\r\n}\r\n\r\n`;
     }
 
@@ -70,6 +70,8 @@ export default class War3MapWts {
     } else {
       return this.stringMap.get(index);
     }
+
+    return;
   }
 
   /**

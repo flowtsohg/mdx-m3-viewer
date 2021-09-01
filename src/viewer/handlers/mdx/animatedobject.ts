@@ -13,14 +13,14 @@ export default class AnimatedObject {
   constructor(model: MdxModel, object: MdlxAnimatedObject) {
     this.model = model;
 
-    for (let animation of object.animations) {
+    for (const animation of object.animations) {
       this.animations.set(animation.name, createTypedSd(model, animation));
     }
   }
 
   getScalarValue(out: Uint32Array | Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: number) {
     if (sequence !== -1) {
-      let animation = this.animations.get(name);
+      const animation = this.animations.get(name);
 
       if (animation) {
         return animation.getValue(out, sequence, frame, counter);
@@ -34,7 +34,7 @@ export default class AnimatedObject {
 
   getVectorValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
     if (sequence !== -1) {
-      let animation = this.animations.get(name);
+      const animation = this.animations.get(name);
 
       if (animation) {
         return animation.getValue(out, sequence, frame, counter);
@@ -50,7 +50,7 @@ export default class AnimatedObject {
 
   getQuatValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
     if (sequence !== -1) {
-      let animation = this.animations.get(name);
+      const animation = this.animations.get(name);
 
       if (animation) {
         return animation.getValue(out, sequence, frame, counter);
@@ -66,9 +66,9 @@ export default class AnimatedObject {
   }
 
   addVariants(name: string, variantName: string) {
-    let animation = this.animations.get(name);
-    let sequences = this.model.sequences.length;
-    let variants = new Uint8Array(sequences);
+    const animation = this.animations.get(name);
+    const sequences = this.model.sequences.length;
+    const variants = new Uint8Array(sequences);
 
     if (animation) {
       for (let i = 0; i < sequences; i++) {
@@ -82,11 +82,11 @@ export default class AnimatedObject {
   }
 
   addVariantIntersection(names: string[], variantName: string) {
-    let sequences = this.model.sequences.length;
-    let variants = new Uint8Array(sequences);
+    const sequences = this.model.sequences.length;
+    const variants = new Uint8Array(sequences);
 
     for (let i = 0; i < sequences; i++) {
-      for (let name of names) {
+      for (const name of names) {
         if (this.variants[name][i]) {
           variants[i] = 1;
         }

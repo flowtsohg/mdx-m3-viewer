@@ -14,7 +14,7 @@ export default class CollisionShape extends GenericObject {
     super(0x2000);
   }
 
-  readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream) {
     super.readMdx(stream);
 
     this.type = stream.readUint32();
@@ -30,7 +30,7 @@ export default class CollisionShape extends GenericObject {
     }
   }
 
-  writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream) {
     super.writeMdx(stream);
 
     stream.writeUint32(this.type);
@@ -46,7 +46,7 @@ export default class CollisionShape extends GenericObject {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of super.readGenericBlock(stream)) {
+    for (const token of super.readGenericBlock(stream)) {
       if (token === 'Box') {
         this.type = 0;
       } else if (token === 'Plane') {
@@ -56,7 +56,7 @@ export default class CollisionShape extends GenericObject {
       } else if (token === 'Cylinder') {
         this.type = 3;
       } else if (token === 'Vertices') {
-        let count = stream.readInt();
+        const count = stream.readInt();
 
         stream.read(); // {
 
@@ -114,7 +114,7 @@ export default class CollisionShape extends GenericObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     let size = 16 + super.getByteLength();
 
     if (this.type !== 2) {

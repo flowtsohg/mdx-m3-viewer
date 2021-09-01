@@ -23,7 +23,7 @@ export default class M3Stc {
     this.priority = stc.priority;
     this.stsIndex = stc.stsIndex;
 
-    let uints = <Uint32Array>stc.animRefs.get();
+    const uints = <Uint32Array>stc.animRefs.get();
     const animRefs = new Uint16Array(uints.buffer);
 
     // Allows direct checks instead of loops
@@ -31,10 +31,10 @@ export default class M3Stc {
       this.animRefs[animIds[i]] = [animRefs[i * 2 + 1], animRefs[i * 2]];
     }
 
-    for (let sd of stc.sd) {
-      let container = new M3SdContainer();
+    for (const sd of stc.sd) {
+      const container = new M3SdContainer();
 
-      let sds = sd.get();
+      const sds = sd.get();
       if (sds) {
         container.addSds(<M3ParserSd[]>sds);
       }

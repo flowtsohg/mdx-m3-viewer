@@ -23,7 +23,7 @@ export default class MpqFile {
   buffer: Uint8Array | null = null;
 
   constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: Uint8Array | null, buffer: Uint8Array | null) {
-    let headerOffset = archive.headerOffset;
+    const headerOffset = archive.headerOffset;
 
     this.archive = archive;
     this.c = archive.c;
@@ -84,8 +84,8 @@ export default class MpqFile {
       return false;
     }
 
-    let hash = this.hash;
-    let block = this.block;
+    const hash = this.hash;
+    const block = this.block;
 
     // Reset the hash.
     hash.locale = 0;
@@ -114,13 +114,13 @@ export default class MpqFile {
       return false;
     }
 
-    let archive = this.archive;
-    let hash = this.hash;
-    let blockIndex = hash.blockIndex;
+    const archive = this.archive;
+    const hash = this.hash;
+    const blockIndex = hash.blockIndex;
 
     hash.delete();
 
-    for (let hash of archive.hashTable.entries) {
+    for (const hash of archive.hashTable.entries) {
       if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > blockIndex) {
         hash.blockIndex -= 1;
       }
@@ -145,16 +145,16 @@ export default class MpqFile {
       return false;
     }
 
-    let hash = this.hash;
-    let locale = hash.locale;
-    let platform = hash.platform;
-    let blockIndex = hash.blockIndex;
+    const hash = this.hash;
+    const locale = hash.locale;
+    const platform = hash.platform;
+    const blockIndex = hash.blockIndex;
 
     // First delete the current hash.
     // This will allow its entry to be reused in case it's the only empty/deleted entry in the hashtable.
     hash.delete();
 
-    let newHash = <MpqHash>this.archive.hashTable.add(newName, blockIndex);
+    const newHash = <MpqHash>this.archive.hashTable.add(newName, blockIndex);
 
     newHash.locale = locale;
     newHash.platform = platform;
@@ -174,12 +174,12 @@ export default class MpqFile {
       throw new Error(`File ${this.name}: Nothing to decode`);
     }
 
-    let archive = this.archive;
-    let block = this.block;
-    let c = archive.c;
-    let encryptionKey = c.computeFileKey(this.name, block);
-    let data = this.rawBuffer;
-    let flags = block.flags;
+    const archive = this.archive;
+    const block = this.block;
+    const c = archive.c;
+    const encryptionKey = c.computeFileKey(this.name, block);
+    const data = this.rawBuffer;
+    const flags = block.flags;
 
     // One buffer of raw data.
     // I don't know why having no flags means it's a chunk of memory rather than sectors.
@@ -209,10 +209,10 @@ export default class MpqFile {
       this.buffer = sector;
     } else {
       // One or more sectors of possibly encrypted and/or compressed data.
-      let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
+      const sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 
       // Alocate a buffer for the uncompressed block size
-      let buffer = new Uint8Array(block.normalSize);
+      const buffer = new Uint8Array(block.normalSize);
 
       // Get the sector offsets
       let sectorOffsets = new Uint32Array(data.buffer, 0, sectorCount + 1);
@@ -251,7 +251,7 @@ export default class MpqFile {
 
         // Some sectors have this flags instead of the compression flag + algorithm byte.
         if (flags & FILE_IMPLODE) {
-          sector = explode(sector)
+          sector = explode(sector);
         }
 
         // Add the sector bytes to the buffer
@@ -279,7 +279,7 @@ export default class MpqFile {
     if (bytes.byteLength === decompressedSize) {
       return bytes;
     } else {
-      let compressionMask = bytes[0];
+      const compressionMask = bytes[0];
 
       if (compressionMask & COMPRESSION_BZIP2) {
         throw new Error(`File ${this.name}: compression type 'bzip2' not supported`);
@@ -330,28 +330,28 @@ export default class MpqFile {
    */
   encode() {
     if (this.buffer !== null && this.rawBuffer === null) {
-      let data = this.buffer;
+      const data = this.buffer;
 
       if (isArchive(data)) {
         this.rawBuffer = this.buffer;
         this.block.compressedSize = this.buffer.byteLength;
         this.block.flags = FILE_EXISTS;
       } else {
-        let sectorSize = this.archive.sectorSize;
-        let sectorCount = Math.ceil(data.byteLength / sectorSize);
-        let offsets = new Uint32Array(sectorCount + 1);
+        const sectorSize = this.archive.sectorSize;
+        const sectorCount = Math.ceil(data.byteLength / sectorSize);
+        const offsets = new Uint32Array(sectorCount + 1);
         let offset = offsets.byteLength;
-        let sectors = [];
-        let compression = [];
+        const sectors = [];
+        const compression = [];
 
         // First offset is right after the offsets list.
         offsets[0] = offset;
 
         for (let i = 0; i < sectorCount; i++) {
-          let sectorOffset = i * sectorSize;
+          const sectorOffset = i * sectorSize;
           let sector = data.subarray(sectorOffset, sectorOffset + sectorSize);
           let size = sector.byteLength;
-          let compressed = deflate(sector);
+          const compressed = deflate(sector);
           let isCompressed = false;
 
           // If the compressed size of the sector is smaller than the uncompressed, use the compressed data.
@@ -370,7 +370,7 @@ export default class MpqFile {
 
         // Only use the compressed data if it's actually smaller than the uncompressed data.
         if (offset < data.byteLength) {
-          let rawBuffer = new Uint8Array(offset);
+          const rawBuffer = new Uint8Array(offset);
 
           // Write the offsets list.
           rawBuffer.set(new Uint8Array(offsets.buffer));
@@ -385,7 +385,7 @@ export default class MpqFile {
             }
 
             // Write the sector.
-            let sector = sectors[i];
+            const sector = sectors[i];
 
             rawBuffer.set(sector, offset);
             offset += sector.byteLength;
@@ -412,16 +412,16 @@ export default class MpqFile {
       return false;
     }
 
-    let archive = this.archive;
-    let block = this.block;
-    let c = archive.c;
-    let bytes = this.rawBuffer;
-    let flags = block.flags;
-    let encryptionKey = c.computeFileKey(this.name, block);
+    const archive = this.archive;
+    const block = this.block;
+    const c = archive.c;
+    const bytes = this.rawBuffer;
+    const flags = block.flags;
+    const encryptionKey = c.computeFileKey(this.name, block);
 
     block.offset = offset;
 
-    let newEncryptionKey = c.computeFileKey(this.name, block);
+    const newEncryptionKey = c.computeFileKey(this.name, block);
 
     if (flags & FILE_SINGLE_UNIT) {
       // Decrypt the chunk with the old key.
@@ -430,10 +430,10 @@ export default class MpqFile {
       // Encrypt the chunk with the new key.
       c.encryptBlock(bytes, newEncryptionKey);
     } else {
-      let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
+      const sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 
       // Get the sector offsets
-      let sectorOffsets = new Uint32Array(bytes.buffer, 0, sectorCount + 1);
+      const sectorOffsets = new Uint32Array(bytes.buffer, 0, sectorCount + 1);
 
       // Decrypt the sector offsets with the old key.
       c.decryptBlock(sectorOffsets, encryptionKey - 1);
@@ -442,7 +442,7 @@ export default class MpqFile {
       let end = sectorOffsets[1];
 
       for (let i = 0; i < sectorCount; i++) {
-        let sector = bytes.subarray(start, end);
+        const sector = bytes.subarray(start, end);
 
         // Decrypt the chunk with the old key.
         c.decryptBlock(sector, encryptionKey + i);
@@ -469,7 +469,7 @@ export default class MpqFile {
    * If the offset is different, and this file uses FILE_OFFSET_ADJUSTED_KEY encryption, it must be re-encrypted with the new offset.
    */
   offsetChanged(offset: number) {
-    let block = this.block;
+    const block = this.block;
 
     if (block.offset !== offset && block.flags & FILE_OFFSET_ADJUSTED_KEY) {
       if (this.nameResolved) {

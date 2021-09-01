@@ -36,7 +36,7 @@ export class TriggerData {
       presets = this.externalPresets;
     }
 
-    let triggerData = new IniFile();
+    const triggerData = new IniFile();
 
     triggerData.load(buffer);
 
@@ -72,24 +72,24 @@ export class TriggerData {
   }
 
   addTriggerTypes(types: StringObject, section: IniSection) {
-    for (let [key, value] of section) {
+    for (const [key, value] of section) {
       // We know the values are going to be strings.
-      let tokens = (<string>value).split(',');
+      const tokens = (<string>value).split(',');
 
       types[key.toLowerCase()] = tokens[4] || '';
     }
   }
 
   addTriggerDataFunctions(functions: FunctionObject, section: IniSection, skipped: number) {
-    for (let [key, value] of section) {
+    for (const [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
         // We know the values are going to be strings.
-        let tokens = value.split(',');
-        let args = [];
+        const tokens = value.split(',');
+        const args = [];
 
         // Can be used by actions to make aliases.
-        let scriptName = <string>section.get(`_${key}_scriptname`) || null;
+        const scriptName = <string>section.get(`_${key}_scriptname`) || null;
 
         let returnType = null;
 
@@ -99,7 +99,7 @@ export class TriggerData {
         }
 
         for (let i = skipped, l = tokens.length; i < l; i++) {
-          let token = tokens[i];
+          const token = tokens[i];
 
           // We don't care about constants.
           if (Number.isNaN(parseFloat(token)) && token !== 'nothing' && token !== '') {
@@ -113,9 +113,9 @@ export class TriggerData {
   }
 
   addTriggerDataPresets(presets: StringObject, section: IniSection) {
-    for (let [key, value] of section) {
+    for (const [key, value] of section) {
       // We know the values are going to be strings.
-      let tokens = value.split(',');
+      const tokens = value.split(',');
 
       // Note that the operators are enclosed by "" for some reason.
       // Note that string literals are enclosed by backticks.
@@ -124,19 +124,19 @@ export class TriggerData {
   }
 
   addJassFunctions(jass: string) {
-    let stream = new TokenStream(jass);
+    const stream = new TokenStream(jass);
     let token;
 
     while ((token = stream.read()) !== undefined) {
       if (token === 'native' || token === 'function') {
-        let scriptName = stream.read();
+        const scriptName = stream.read();
 
         if (scriptName) {
           token = stream.read();
 
           if (token === 'takes') {
-            let args = [];
-            let token = stream.readSafe(); // nothing or type
+            const args = [];
+            const token = stream.readSafe(); // nothing or type
 
             if (token !== 'nothing') {
               args.push(token);
@@ -144,7 +144,7 @@ export class TriggerData {
 
               while (stream.read() === ',') {
                 args.push(stream.readSafe());
-                stream.readSafe()
+                stream.readSafe();
               }
             } else {
               stream.read(); // returns
@@ -156,8 +156,8 @@ export class TriggerData {
               returnType = null;
             }
 
-            let name = scriptName.toLowerCase();
-            let signature = { args, scriptName, returnType };
+            const name = scriptName.toLowerCase();
+            const signature = { args, scriptName, returnType };
 
             // There is no way to know if this signature could be used as a TriggerAction or TriggerCall.
             // So try to always add to TriggerAction...
@@ -227,7 +227,7 @@ export class TriggerData {
   getFunctionType(name: string) {
     name = name.toLowerCase();
 
-    let functions = this.functions;
+    const functions = this.functions;
 
     for (let i = 0; i < 4; i++) {
       if (functions[i][name]) {

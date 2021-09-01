@@ -11,10 +11,10 @@ export default class RibbonEmitter extends MdxEmitter {
   last: Ribbon | null = null;
 
   updateEmission(dt: number) {
-    let instance = <MdxModelInstance>this.instance;
+    const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      let emitterObject = <RibbonEmitterObject>this.emitterObject;
+      const emitterObject = <RibbonEmitterObject>this.emitterObject;
 
       // It doesn't make sense to emit more than 1 ribbon at the same time.
       this.currentEmission += emitterObject.emissionRate * dt;
@@ -22,8 +22,8 @@ export default class RibbonEmitter extends MdxEmitter {
   }
 
   emit() {
-    let ribbon = <Ribbon>this.emitObject();
-    let last = this.last;
+    const ribbon = <Ribbon>this.emitObject();
+    const last = this.last;
 
     if (last) {
       last.next = ribbon;
@@ -35,11 +35,11 @@ export default class RibbonEmitter extends MdxEmitter {
     this.last = ribbon;
   }
 
-  kill(object: Ribbon) {
+  override kill(object: Ribbon) {
     super.kill(object);
 
-    let prev = object.prev;
-    let next = object.next;
+    const prev = object.prev;
+    const next = object.next;
 
     if (object === this.first) {
       this.first = next;

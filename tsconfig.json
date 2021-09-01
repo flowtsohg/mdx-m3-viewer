@@ -3,6 +3,11 @@
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "suppressImplicitAnyIndexErrors": true,
+    "noImplicitOverride": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
     "strict": true,
     "module": "commonjs",
     "lib": [

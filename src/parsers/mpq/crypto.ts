@@ -30,14 +30,14 @@ export default class MpqCrypto {
   }
 
   hash(name: string, key: number) {
-    let cryptTable = this.cryptTable;
+    const cryptTable = this.cryptTable;
     let seed1 = 0x7FED7FED;
     let seed2 = 0xEEEEEEEE;
 
     name = name.toUpperCase();
 
     for (let i = 0; i < name.length; i++) {
-      let ch = name.charCodeAt(i);
+      const ch = name.charCodeAt(i);
 
       seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
       seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
@@ -48,9 +48,9 @@ export default class MpqCrypto {
   }
 
   decryptBlock(data: Uint8Array | Uint32Array, key: number) {
-    let cryptTable = this.cryptTable;
+    const cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
-    let bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 
     for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
       // Update the seed.
@@ -80,9 +80,9 @@ export default class MpqCrypto {
   }
 
   encryptBlock(data: Uint8Array | Uint32Array, key: number) {
-    let cryptTable = this.cryptTable;
+    const cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
-    let bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 
     for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
       // Update the seed.
@@ -95,7 +95,7 @@ export default class MpqCrypto {
       bytesHeap[3] = bytes[i * 4 + 3];
 
       // Decrypted 32bit integer.
-      let decrypted = longHeap[0];
+      const decrypted = longHeap[0];
 
       // Encrypted 32bit integer.
       longHeap[0] ^= (key + seed);
@@ -115,8 +115,8 @@ export default class MpqCrypto {
   }
 
   computeFileKey(name: string, block: MpqBlock) {
-    let sepIndex = name.lastIndexOf('\\');
-    let pathlessName = name.substring(sepIndex + 1);
+    const sepIndex = name.lastIndexOf('\\');
+    const pathlessName = name.substring(sepIndex + 1);
     let encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);
 
     if (block.flags & FILE_OFFSET_ADJUSTED_KEY) {

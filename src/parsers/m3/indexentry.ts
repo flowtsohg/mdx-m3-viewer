@@ -22,7 +22,7 @@ import UnsupportedEntry from './unsupportedentry';
 
 
 // Mapping from entry tags, to their constructors and known version->size values.
-let tagMapping = {
+const tagMapping = {
   // Objects
   MD34: [Md34, { 11: 24 }],
   MODL: [ModelHeader, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
@@ -99,25 +99,25 @@ export default class IndexEntry {
   entries: Md34[] | ModelHeader[] | Sequence[] | Stc[] | Stg[] | Sts[] | Bone[] | Division[] | Region[] | Batch[] | MaterialReference[] | StandardMaterial[] | Layer[] | Event[] | BoundingSphere[] | AttachmentPoint[] | Camera[] | Sd[] | UnsupportedEntry[] | string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | Float32Array[];
 
   constructor(stream: BinaryStream, index: IndexEntry[]) {
-    let tag = reverse(stream.readBinary(4));
-    let offset = stream.readUint32();
-    let entriesCount = stream.readUint32();
-    let version = stream.readUint32();
+    const tag = reverse(stream.readBinary(4));
+    const offset = stream.readUint32();
+    const entriesCount = stream.readUint32();
+    const version = stream.readUint32();
 
     this.index = index;
     this.tag = tag;
     this.offset = offset;
     this.version = version;
 
-    let mapping = tagMapping[tag];
-    let readerOffset = stream.index;
+    const mapping = tagMapping[tag];
+    const readerOffset = stream.index;
 
     stream.seek(offset);
 
     // This is an object
     if (mapping) {
-      let constructor = mapping[0];
-      let entrySize = mapping[1][version];
+      const constructor = mapping[0];
+      const entrySize = mapping[1][version];
 
       if (!entrySize) {
         // Yey found a new version!
@@ -135,7 +135,7 @@ export default class IndexEntry {
         if (constructor === UnsupportedEntry) {
           this.entries[i] = new UnsupportedEntry(stream.substream(entrySize), version, index);
         } else {
-          let entry = new constructor();
+          const entry = new constructor();
 
           entry.load(stream.substream(entrySize), version, index);
 

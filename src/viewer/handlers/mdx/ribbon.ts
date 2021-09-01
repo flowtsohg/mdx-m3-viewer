@@ -21,16 +21,16 @@ export default class Ribbon extends EmittedObject {
   next: Ribbon | null = null;
 
   bind() {
-    let emitter = <RibbonEmitter>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let sequence = instance.sequence;
-    let frame = instance.frame;
-    let counter = instance.counter;
-    let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
-    let node = instance.nodes[emitterObject.index];
-    let [x, y, z] = node.pivot;
-    let worldMatrix = node.worldMatrix;
-    let vertices = this.vertices;
+    const emitter = <RibbonEmitter>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const sequence = instance.sequence;
+    const frame = instance.frame;
+    const counter = instance.counter;
+    const emitterObject = <RibbonEmitterObject>emitter.emitterObject;
+    const node = instance.nodes[emitterObject.index];
+    const [x, y, z] = node.pivot;
+    const worldMatrix = node.worldMatrix;
+    const vertices = this.vertices;
 
     this.health = emitter.emitterObject.lifeSpan;
 
@@ -60,15 +60,15 @@ export default class Ribbon extends EmittedObject {
     this.health -= dt;
 
     if (this.health > 0) {
-      let emitter = <RibbonEmitter>this.emitter;
-      let instance = <MdxModelInstance>emitter.instance;
-      let sequence = instance.sequence;
-      let frame = instance.frame;
-      let counter = instance.counter;
-      let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
-      let color = this.color;
-      let vertices = this.vertices;
-      let gravity = emitterObject.gravity * dt * dt;
+      const emitter = <RibbonEmitter>this.emitter;
+      const instance = <MdxModelInstance>emitter.instance;
+      const sequence = instance.sequence;
+      const frame = instance.frame;
+      const counter = instance.counter;
+      const emitterObject = <RibbonEmitterObject>emitter.emitterObject;
+      const color = this.color;
+      const vertices = this.vertices;
+      const gravity = emitterObject.gravity * dt * dt;
 
       emitterObject.getColor(colorHeap, sequence, frame, counter);
       emitterObject.getAlpha(alphaHeap, sequence, frame, counter);

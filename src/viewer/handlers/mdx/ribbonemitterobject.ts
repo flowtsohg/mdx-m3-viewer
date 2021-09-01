@@ -70,8 +70,8 @@ export default class RibbonEmitterObject extends GenericObject {
    * 
    * Therefore first check the alpha animation, and only if it's >0 check the visibility animation.
    */
-  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
-    let keyframe = this.getAlpha(out, sequence,frame,counter);
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    const keyframe = this.getAlpha(out, sequence,frame,counter);
     
     if (out[0] === 0) {
       return keyframe;

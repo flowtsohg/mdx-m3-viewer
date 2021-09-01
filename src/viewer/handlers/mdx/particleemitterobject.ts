@@ -58,7 +58,7 @@ export default class ParticleEmitterObject extends GenericObject {
     return this.getScalarValue(out, 'KPEE', sequence, frame, counter, this.emissionRate);
   }
 
-  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
     return this.getScalarValue(out, 'KPEV', sequence, frame, counter, 1);
   }
 }

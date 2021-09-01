@@ -19,11 +19,11 @@ export default class DdsTexture extends Texture {
       image.load(bufferOrImage);
     }
 
-    let viewer = this.viewer;
-    let gl = viewer.gl;
-    let webgl = viewer.webgl;
-    let compressedTextures = <WEBGL_compressed_texture_s3tc>webgl.extensions.WEBGL_compressed_texture_s3tc;
-    let format = image.format;
+    const viewer = this.viewer;
+    const gl = viewer.gl;
+    const webgl = viewer.webgl;
+    const compressedTextures = <WEBGL_compressed_texture_s3tc>webgl.extensions['WEBGL_compressed_texture_s3tc'];
+    const format = image.format;
     let internalFormat = 0;
 
     if (compressedTextures) {
@@ -36,7 +36,7 @@ export default class DdsTexture extends Texture {
       }
     }
 
-    let id = gl.createTexture();
+    const id = gl.createTexture();
 
     this.width = image.width;
     this.height = image.height;
@@ -44,7 +44,7 @@ export default class DdsTexture extends Texture {
 
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    let mipmaps = image.mipmaps();
+    const mipmaps = image.mipmaps();
 
     // DXT1 and ATI2 pixels are two bytes.
     // This generally doesn't matter, however, when having 1x2 or 2x1 mipmaps, it does.
@@ -56,7 +56,7 @@ export default class DdsTexture extends Texture {
     for (let i = 0; i < mipmaps; i++) {
       // Let the GPU handle the compressed data if it supports it.
       // Otherwise, decode the data on the client.
-      let { width, height, data } = image.getMipmap(i, internalFormat !== 0);
+      const { width, height, data } = image.getMipmap(i, internalFormat !== 0);
 
       if (internalFormat) {
         gl.compressedTexImage2D(gl.TEXTURE_2D, i, internalFormat, width, height, 0, data);

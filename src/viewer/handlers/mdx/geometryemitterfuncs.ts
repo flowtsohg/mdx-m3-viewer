@@ -75,24 +75,24 @@ export const EMITTER_EVENT_TEXTURE_OFFSET = 10000;
 export const SETTING_PARTICLES_HIGH = 2;
 
 function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
-  let instance = <MdxModelInstance>emitter.instance;
-  let objects = <Particle2[]>emitter.objects;
-  let byteView = <Uint8Array>buffer.byteView;
-  let floatView = <Float32Array>buffer.floatView;
-  let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
-  let modelSpace = emitterObject.modelSpace;
-  let tailLength = emitterObject.tailLength;
-  let node = emitter.node;
-  let teamColor = instance.teamColor;
+  const instance = <MdxModelInstance>emitter.instance;
+  const objects = <Particle2[]>emitter.objects;
+  const byteView = <Uint8Array>buffer.byteView;
+  const floatView = <Float32Array>buffer.floatView;
+  const emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
+  const modelSpace = emitterObject.modelSpace;
+  const tailLength = emitterObject.tailLength;
+  const node = emitter.node;
+  const teamColor = instance.teamColor;
   let offset = 0;
 
-  for (let object of objects) {
-    let byteOffset = offset * BYTES_PER_OBJECT;
-    let floatOffset = offset * FLOATS_PER_OBJECT;
-    let p0Offset = floatOffset + FLOAT_OFFSET_P0;
+  for (const object of objects) {
+    const byteOffset = offset * BYTES_PER_OBJECT;
+    const floatOffset = offset * FLOATS_PER_OBJECT;
+    const p0Offset = floatOffset + FLOAT_OFFSET_P0;
     let location = object.location;
-    let scale = object.scale;
-    let tail = object.tail;
+    const scale = object.scale;
+    const tail = object.tail;
 
     if (tail === HEAD) {
       // If this is a model space emitter, the location is in local space, so convert it to world space.
@@ -107,7 +107,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
       // Used to rotate XY particles to face their velocity on the XY plane.
       floatView[p0Offset + 3] = object.facing;
     } else {
-      let velocity = object.velocity;
+      const velocity = object.velocity;
       let start = startHeap;
       let end = location;
 
@@ -143,24 +143,24 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
 }
 
 function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
-  let instance = <MdxModelInstance>emitter.instance;
-  let textureOverrides = instance.textureOverrides;
-  let scene = <Scene>instance.scene;
-  let camera = scene.camera;
-  let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
-  let model = emitterObject.model;
-  let viewer = model.viewer;
-  let gl = viewer.gl;
-  let mdxCache = viewer.sharedCache.get('mdx');
-  let uniforms = shader.uniforms;
-  let colors = emitterObject.colors;
-  let intervals = emitterObject.intervals;
-  let replaceable = emitterObject.replaceableId;
+  const instance = <MdxModelInstance>emitter.instance;
+  const textureOverrides = instance.textureOverrides;
+  const scene = <Scene>instance.scene;
+  const camera = scene.camera;
+  const emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
+  const model = emitterObject.model;
+  const viewer = model.viewer;
+  const gl = viewer.gl;
+  const mdxCache = viewer.sharedCache.get('mdx');
+  const uniforms = shader.uniforms;
+  const colors = emitterObject.colors;
+  const intervals = emitterObject.intervals;
+  const replaceable = emitterObject.replaceableId;
   let vectors;
   let mdxTexture = <MdxTexture>emitterObject.internalTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
-  gl.uniform1f(uniforms.u_filterMode, emitterObject.filterMode);
+  gl.uniform1f(uniforms['u_filterMode'], emitterObject.filterMode);
 
   // Determine where this texture is coming from.
   // This is to get the texture wrap modes.
@@ -200,11 +200,11 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
     vectors = camera.billboardedVectors;
   }
 
-  gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
-  gl.uniform1f(uniforms.u_timeMiddle, emitterObject.timeMiddle);
-  gl.uniform1f(uniforms.u_columns, emitterObject.columns);
-  gl.uniform1f(uniforms.u_rows, emitterObject.rows);
-  gl.uniform1f(uniforms.u_teamColored, emitterObject.teamColored);
+  gl.uniform1f(uniforms['u_lifeSpan'], emitterObject.lifeSpan);
+  gl.uniform1f(uniforms['u_timeMiddle'], emitterObject.timeMiddle);
+  gl.uniform1f(uniforms['u_columns'], emitterObject.columns);
+  gl.uniform1f(uniforms['u_rows'], emitterObject.rows);
+  gl.uniform1f(uniforms['u_teamColored'], emitterObject.teamColored);
 
   gl.uniform3fv(uniforms['u_intervals[0]'], intervals[0]);
   gl.uniform3fv(uniforms['u_intervals[1]'], intervals[1]);
@@ -215,7 +215,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   gl.uniform4fv(uniforms['u_colors[1]'], colors[1]);
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 
-  gl.uniform3fv(uniforms.u_scaling, emitterObject.scaling);
+  gl.uniform3fv(uniforms['u_scaling'], emitterObject.scaling);
 
   if (emitterObject.head) {
     gl.uniform3fv(uniforms['u_vertices[0]'], vectors[0]);
@@ -225,32 +225,32 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   }
 
   if (emitterObject.tail) {
-    gl.uniform3fv(uniforms.u_cameraZ, camera.directionZ);
+    gl.uniform3fv(uniforms['u_cameraZ'], camera.directionZ);
   }
 }
 
 function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
   let object = <Ribbon>emitter.first;
-  let byteView = <Uint8Array>buffer.byteView;
-  let floatView = <Float32Array>buffer.floatView;
-  let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
-  let columns = emitterObject.columns;
-  let alive = emitter.alive;
-  let chainLengthFactor = 1 / (alive - 1);
+  const byteView = <Uint8Array>buffer.byteView;
+  const floatView = <Float32Array>buffer.floatView;
+  const emitterObject = <RibbonEmitterObject>emitter.emitterObject;
+  const columns = emitterObject.columns;
+  const alive = emitter.alive;
+  const chainLengthFactor = 1 / (alive - 1);
   let offset = 0;
 
   while (object.next) {
-    let next = object.next.vertices;
-    let byteOffset = offset * BYTES_PER_OBJECT;
-    let floatOffset = offset * FLOATS_PER_OBJECT;
-    let p0Offset = floatOffset + FLOAT_OFFSET_P0;
-    let colorOffset = byteOffset + BYTE_OFFSET_COLOR;
-    let leftRightTopOffset = byteOffset + BYTE_OFFSET_LEFT_RIGHT_TOP;
-    let left = ((object.slot % columns) + (1 - (offset * chainLengthFactor) - chainLengthFactor)) / columns;
-    let top = object.slot / columns;
-    let right = left + chainLengthFactor;
-    let vertices = object.vertices;
-    let color = object.color;
+    const next = object.next.vertices;
+    const byteOffset = offset * BYTES_PER_OBJECT;
+    const floatOffset = offset * FLOATS_PER_OBJECT;
+    const p0Offset = floatOffset + FLOAT_OFFSET_P0;
+    const colorOffset = byteOffset + BYTE_OFFSET_COLOR;
+    const leftRightTopOffset = byteOffset + BYTE_OFFSET_LEFT_RIGHT_TOP;
+    const left = ((object.slot % columns) + (1 - (offset * chainLengthFactor) - chainLengthFactor)) / columns;
+    const top = object.slot / columns;
+    const right = left + chainLengthFactor;
+    const vertices = object.vertices;
+    const color = object.color;
 
     floatView[p0Offset + 0] = vertices[0];
     floatView[p0Offset + 1] = vertices[1];
@@ -280,34 +280,34 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
 }
 
 function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader) {
-  let textureOverrides = emitter.instance.textureOverrides;
-  let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
-  let layer = emitterObject.layer;
-  let model = emitterObject.model;
-  let gl = model.viewer.gl;
-  let uniforms = shader.uniforms;
-  let texture = model.textures[layer.textureId];
-  let actualTexture = textureOverrides.get(layer.textureId) || texture.texture;
+  const textureOverrides = emitter.instance.textureOverrides;
+  const emitterObject = <RibbonEmitterObject>emitter.emitterObject;
+  const layer = emitterObject.layer;
+  const model = emitterObject.model;
+  const gl = model.viewer.gl;
+  const uniforms = shader.uniforms;
+  const texture = model.textures[layer.textureId];
+  const actualTexture = textureOverrides.get(layer.textureId) || texture.texture;
 
   layer.bind(shader);
 
-  gl.uniform1f(uniforms.u_filterMode, layer.filterMode);
+  gl.uniform1f(uniforms['u_filterMode'], layer.filterMode);
 
   model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
-  gl.uniform1f(uniforms.u_columns, emitterObject.columns);
-  gl.uniform1f(uniforms.u_rows, emitterObject.rows);
+  gl.uniform1f(uniforms['u_columns'], emitterObject.columns);
+  gl.uniform1f(uniforms['u_rows'], emitterObject.rows);
 }
 
 function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObjectUbrEmitter, buffer: ClientBuffer) {
-  let objects = <EventObjectSplUbr[]>emitter.objects;
-  let floatView = <Float32Array>buffer.floatView;
+  const objects = <EventObjectSplUbr[]>emitter.objects;
+  const floatView = <Float32Array>buffer.floatView;
   let offset = 0;
 
-  for (let object of objects) {
-    let floatOffset = offset * FLOATS_PER_OBJECT;
-    let p0Offset = floatOffset + FLOAT_OFFSET_P0;
-    let vertices = object.vertices;
+  for (const object of objects) {
+    const floatOffset = offset * FLOATS_PER_OBJECT;
+    const p0Offset = floatOffset + FLOAT_OFFSET_P0;
+    const vertices = object.vertices;
 
     floatView[p0Offset + 0] = vertices[0];
     floatView[p0Offset + 1] = vertices[1];
@@ -329,27 +329,27 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 }
 
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: Shader) {
-  let textureOverrides = emitter.instance.textureOverrides;
-  let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-  let intervalTimes = <Float32Array>emitterObject.intervalTimes;
-  let intervals = <Float32Array[]>emitterObject.intervals;
-  let colors = <Float32Array[]>emitterObject.colors;
-  let model = emitterObject.model;
-  let gl = model.viewer.gl;
-  let uniforms = shader.uniforms;
-  let texture = <MdxTexture>emitterObject.internalTexture;
-  let actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
+  const textureOverrides = emitter.instance.textureOverrides;
+  const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+  const intervalTimes = <Float32Array>emitterObject.intervalTimes;
+  const intervals = <Float32Array[]>emitterObject.intervals;
+  const colors = <Float32Array[]>emitterObject.colors;
+  const model = emitterObject.model;
+  const gl = model.viewer.gl;
+  const uniforms = shader.uniforms;
+  const texture = <MdxTexture>emitterObject.internalTexture;
+  const actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
-  gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
-  gl.uniform1f(uniforms.u_columns, emitterObject.columns);
-  gl.uniform1f(uniforms.u_rows, emitterObject.rows);
+  gl.uniform1f(uniforms['u_lifeSpan'], emitterObject.lifeSpan);
+  gl.uniform1f(uniforms['u_columns'], emitterObject.columns);
+  gl.uniform1f(uniforms['u_rows'], emitterObject.rows);
 
   // 3 because the uniform is shared with UBR, which has 3 values.
-  gl.uniform3f(uniforms.u_intervalTimes, intervalTimes[0], intervalTimes[1], 0);
+  gl.uniform3f(uniforms['u_intervalTimes'], intervalTimes[0], intervalTimes[1], 0);
 
   gl.uniform3fv(uniforms['u_intervals[0]'], intervals[0]);
   gl.uniform3fv(uniforms['u_intervals[1]'], intervals[1]);
@@ -360,26 +360,26 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 }
 
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: Shader) {
-  let textureOverrides = emitter.instance.textureOverrides;
-  let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-  let intervalTimes = <Float32Array>emitterObject.intervalTimes;
-  let colors = <Float32Array[]>emitterObject.colors;
-  let model = emitterObject.model;
-  let viewer = model.viewer;
-  let gl = viewer.gl;
-  let uniforms = shader.uniforms;
-  let texture = <MdxTexture>emitterObject.internalTexture;
-  let actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
+  const textureOverrides = emitter.instance.textureOverrides;
+  const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+  const intervalTimes = <Float32Array>emitterObject.intervalTimes;
+  const colors = <Float32Array[]>emitterObject.colors;
+  const model = emitterObject.model;
+  const viewer = model.viewer;
+  const gl = viewer.gl;
+  const uniforms = shader.uniforms;
+  const texture = <MdxTexture>emitterObject.internalTexture;
+  const actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
-  gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
-  gl.uniform1f(uniforms.u_columns, emitterObject.columns);
-  gl.uniform1f(uniforms.u_rows, emitterObject.rows);
+  gl.uniform1f(uniforms['u_lifeSpan'], emitterObject.lifeSpan);
+  gl.uniform1f(uniforms['u_columns'], emitterObject.columns);
+  gl.uniform1f(uniforms['u_rows'], emitterObject.rows);
 
-  gl.uniform3fv(uniforms.u_intervalTimes, intervalTimes);
+  gl.uniform3fv(uniforms['u_intervalTimes'], intervalTimes);
 
   gl.uniform4fv(uniforms['u_colors[0]'], colors[0]);
   gl.uniform4fv(uniforms['u_colors[1]'], colors[1]);
@@ -388,20 +388,20 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
 
 export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter, shader: Shader) {
   let alive = emitter.alive;
-  let emitterObject = <ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject>emitter.emitterObject;
-  let emitterType = emitterObject.geometryEmitterType;
+  const emitterObject = <ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject>emitter.emitterObject;
+  const emitterType = emitterObject.geometryEmitterType;
 
   if (emitterType === EMITTER_RIBBON) {
     alive -= 1;
   }
 
   if (alive > 0) {
-    let viewer = emitter.instance.model.viewer;
-    let buffer = viewer.buffer;
-    let gl = viewer.gl;
-    let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays
-    let size = alive * BYTES_PER_OBJECT;
-    let attribs = shader.attribs;
+    const viewer = emitter.instance.model.viewer;
+    const buffer = viewer.buffer;
+    const gl = viewer.gl;
+    const instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions['ANGLE_instanced_arrays'];
+    const size = alive * BYTES_PER_OBJECT;
+    const attribs = shader.attribs;
 
     buffer.reserve(size);
 
@@ -421,16 +421,16 @@ export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventO
 
     buffer.bindAndUpdate(size);
 
-    gl.uniform1i(shader.uniforms.u_emitter, emitterType);
+    gl.uniform1i(shader.uniforms['u_emitter'], emitterType);
 
-    gl.vertexAttribPointer(attribs.a_p0, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P0);
-    gl.vertexAttribPointer(attribs.a_p1, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P1);
-    gl.vertexAttribPointer(attribs.a_p2, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P2);
-    gl.vertexAttribPointer(attribs.a_p3, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P3);
-    gl.vertexAttribPointer(attribs.a_health, 1, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_HEALTH);
-    gl.vertexAttribPointer(attribs.a_color, 4, gl.UNSIGNED_BYTE, true, BYTES_PER_OBJECT, BYTE_OFFSET_COLOR);
-    gl.vertexAttribPointer(attribs.a_tail, 1, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_TAIL);
-    gl.vertexAttribPointer(attribs.a_leftRightTop, 3, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_LEFT_RIGHT_TOP);
+    gl.vertexAttribPointer(attribs['a_p0'], 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P0);
+    gl.vertexAttribPointer(attribs['a_p1'], 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P1);
+    gl.vertexAttribPointer(attribs['a_p2'], 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P2);
+    gl.vertexAttribPointer(attribs['a_p3'], 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P3);
+    gl.vertexAttribPointer(attribs['a_health'], 1, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_HEALTH);
+    gl.vertexAttribPointer(attribs['a_color'], 4, gl.UNSIGNED_BYTE, true, BYTES_PER_OBJECT, BYTE_OFFSET_COLOR);
+    gl.vertexAttribPointer(attribs['a_tail'], 1, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_TAIL);
+    gl.vertexAttribPointer(attribs['a_leftRightTop'], 3, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_LEFT_RIGHT_TOP);
 
     instancedArrays.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, alive);
   }

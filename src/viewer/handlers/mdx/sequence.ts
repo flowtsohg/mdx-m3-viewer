@@ -18,7 +18,7 @@ export default class Sequence {
     this.rarity = sequence.rarity;
     this.bounds = new Bounds();
 
-    let extent = sequence.extent;
+    const extent = sequence.extent;
     this.bounds.fromExtents(extent.min, extent.max);
   }
 }

@@ -14,18 +14,18 @@ export default class EventObjectSpn extends EmittedObject {
   constructor(emitter: EventObjectSpnEmitter) {
     super(emitter);
 
-    let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-    let internalModel = <MdxModel>emitterObject.internalModel;
+    const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+    const internalModel = <MdxModel>emitterObject.internalModel;
 
     this.internalInstance = <MdxModelInstance>internalModel.addInstance();
   }
 
   bind() {
-    let emitter = <EventObjectSpnEmitter>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let scene = <Scene>instance.scene;
-    let node = instance.nodes[emitter.emitterObject.index];
-    let internalInstance = <MdxModelInstance>this.internalInstance;
+    const emitter = <EventObjectSpnEmitter>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const scene = <Scene>instance.scene;
+    const node = instance.nodes[emitter.emitterObject.index];
+    const internalInstance = <MdxModelInstance>this.internalInstance;
 
     internalInstance.setScene(scene);
     internalInstance.setSequence(0);
@@ -36,8 +36,8 @@ export default class EventObjectSpn extends EmittedObject {
   }
 
   update(dt: number) {
-    let instance = this.internalInstance;
-    let model = <MdxModel>instance.model;
+    const instance = this.internalInstance;
+    const model = <MdxModel>instance.model;
 
     // Once the sequence finishes, this event object dies
     if (instance.frame >= model.sequences[0].interval[1]) {

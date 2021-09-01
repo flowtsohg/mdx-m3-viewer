@@ -7,7 +7,7 @@ import AnimatedObject from './animatedobject';
  */
 export default class TextureAnimation extends AnimatedObject {
   readMdx(stream: BinaryStream) {
-    let size = stream.readUint32();
+    const size = stream.readUint32();
 
     this.readAnimations(stream, size - 4);
   }
@@ -18,7 +18,7 @@ export default class TextureAnimation extends AnimatedObject {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Translation') {
         this.readAnimation(stream, 'KTAT');
       } else if (token === 'Rotation') {
@@ -39,7 +39,7 @@ export default class TextureAnimation extends AnimatedObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 4 + super.getByteLength();
   }
 }

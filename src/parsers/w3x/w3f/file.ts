@@ -30,7 +30,7 @@ export default class War3CampaignW3f {
   mapOrders: MapOrder[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
     this.campaignVersion = stream.readInt32();
@@ -53,7 +53,7 @@ export default class War3CampaignW3f {
     this.userInterface = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let mapTitle = new MapTitle();
+      const mapTitle = new MapTitle();
 
       mapTitle.load(stream);
 
@@ -61,7 +61,7 @@ export default class War3CampaignW3f {
     }
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let mapOrder = new MapOrder();
+      const mapOrder = new MapOrder();
 
       mapOrder.load(stream);
 
@@ -70,7 +70,7 @@ export default class War3CampaignW3f {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     stream.writeInt32(this.campaignVersion);
@@ -93,13 +93,13 @@ export default class War3CampaignW3f {
     stream.writeInt32(this.userInterface);
     stream.writeUint32(this.mapTitles.length);
 
-    for (let title of this.mapTitles) {
+    for (const title of this.mapTitles) {
       title.save(stream);
     }
 
     stream.writeUint32(this.mapOrders.length);
 
-    for (let order of this.mapOrders) {
+    for (const order of this.mapOrders) {
       order.save(stream);
     }
 
@@ -109,11 +109,11 @@ export default class War3CampaignW3f {
   getByteLength() {
     let size = 63 + byteLengthUtf8(this.name) + byteLengthUtf8(this.difficulty) + byteLengthUtf8(this.author) + byteLengthUtf8(this.description) + byteLengthUtf8(this.backgroundScreenPath) + byteLengthUtf8(this.minimapImagePath) + byteLengthUtf8(this.ambientSoundPath);
 
-    for (let title of this.mapTitles) {
+    for (const title of this.mapTitles) {
       size += title.getByteLength();
     }
 
-    for (let order of this.mapOrders) {
+    for (const order of this.mapOrders) {
       size += order.getByteLength();
     }
 

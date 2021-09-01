@@ -74,25 +74,25 @@ export class SkeletalNode {
    * Recalculate this skeletal node.
    */
   recalculateTransformation(scene: Scene) {
-    let localMatrix = this.localMatrix;
-    let localRotation = this.localRotation;
-    let localScale = this.localScale;
-    let worldMatrix = this.worldMatrix;
-    let worldLocation = this.worldLocation;
-    let worldRotation = this.worldRotation;
-    let worldScale = this.worldScale;
-    let pivot = this.pivot;
-    let inverseWorldLocation = this.inverseWorldLocation;
-    let inverseWorldRotation = this.inverseWorldRotation;
-    let inverseWorldScale = this.inverseWorldScale;
-    let parent = <SkeletalNode | Node>this.parent;
+    const localMatrix = this.localMatrix;
+    const localRotation = this.localRotation;
+    const localScale = this.localScale;
+    const worldMatrix = this.worldMatrix;
+    const worldLocation = this.worldLocation;
+    const worldRotation = this.worldRotation;
+    const worldScale = this.worldScale;
+    const pivot = this.pivot;
+    const inverseWorldLocation = this.inverseWorldLocation;
+    const inverseWorldRotation = this.inverseWorldRotation;
+    const inverseWorldScale = this.inverseWorldScale;
+    const parent = <SkeletalNode | Node>this.parent;
     let computedRotation;
     let computedScaling;
 
     if (this.dontInheritScaling) {
       computedScaling = scalingHeap;
 
-      let parentInverseScale = parent.inverseWorldScale;
+      const parentInverseScale = parent.inverseWorldScale;
       computedScaling[0] = parentInverseScale[0] * localScale[0];
       computedScaling[1] = parentInverseScale[1] * localScale[1];
       computedScaling[2] = parentInverseScale[2] * localScale[2];
@@ -103,7 +103,7 @@ export class SkeletalNode {
     } else {
       computedScaling = localScale;
 
-      let parentScale = parent.worldScale;
+      const parentScale = parent.worldScale;
       worldScale[0] = parentScale[0] * localScale[0];
       worldScale[1] = parentScale[1] * localScale[1];
       worldScale[2] = parentScale[2] * localScale[2];
@@ -119,7 +119,7 @@ export class SkeletalNode {
 
       quat.mul(computedRotation, computedRotation, localRotation);
     } else {
-      const {billboardedX, billboardedY, billboardedZ} = this;
+      const { billboardedX, billboardedY, billboardedZ } = this;
 
       if (billboardedX || billboardedY || billboardedZ) {
         if (billboardedX) {
@@ -178,9 +178,9 @@ export class SkeletalNode {
 
     // World location
     // vec3.transformMat4(worldLocation, pivot, worldMatrix);
-    let x = pivot[0];
-    let y = pivot[1];
-    let z = pivot[2];
+    const x = pivot[0];
+    const y = pivot[1];
+    const z = pivot[2];
     worldLocation[0] = worldMatrix[0] * x + worldMatrix[4] * y + worldMatrix[8] * z + worldMatrix[12];
     worldLocation[1] = worldMatrix[1] * x + worldMatrix[5] * y + worldMatrix[9] * z + worldMatrix[13];
     worldLocation[2] = worldMatrix[2] * x + worldMatrix[6] * y + worldMatrix[10] * z + worldMatrix[14];
@@ -209,55 +209,55 @@ const NODE_SHARED_SIZE = 65;
  * The returned object contains the node array itself, the backing buffer, and all of the different shared arrays.
  */
 export function createSkeletalNodes(count: number, Node: typeof SkeletalNode = SkeletalNode) {
-  let data = new Float32Array(count * NODE_SHARED_SIZE);
-  let nodes = [];
+  const data = new Float32Array(count * NODE_SHARED_SIZE);
+  const nodes = [];
   let offset = 0;
-  let count3 = count * 3;
-  let count4 = count * 4;
-  let count16 = count * 16;
+  const count3 = count * 3;
+  const count4 = count * 4;
+  const count16 = count * 16;
 
-  let pivots = data.subarray(offset, offset + count3);
+  const pivots = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let localLocations = data.subarray(offset, offset + count3);
+  const localLocations = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let localRotations = data.subarray(offset, offset + count4);
+  const localRotations = data.subarray(offset, offset + count4);
   offset += count4;
 
-  let localScales = data.subarray(offset, offset + count3);
+  const localScales = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let worldLocations = data.subarray(offset, offset + count3);
+  const worldLocations = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let worldRotations = data.subarray(offset, offset + count4);
+  const worldRotations = data.subarray(offset, offset + count4);
   offset += count4;
 
-  let worldScales = data.subarray(offset, offset + count3);
+  const worldScales = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let inverseWorldLocations = data.subarray(offset, offset + count3);
+  const inverseWorldLocations = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let invereseWorldRotations = data.subarray(offset, offset + count4);
+  const invereseWorldRotations = data.subarray(offset, offset + count4);
   offset += count4;
 
-  let inverseWorldScales = data.subarray(offset, offset + count3);
+  const inverseWorldScales = data.subarray(offset, offset + count3);
   offset += count3;
 
-  let localMatrices = data.subarray(offset, offset + count16);
+  const localMatrices = data.subarray(offset, offset + count16);
   offset += count16;
 
-  let worldMatrices = data.subarray(offset, offset + count16);
+  const worldMatrices = data.subarray(offset, offset + count16);
 
   for (let i = 0; i < count; i++) {
-    let i3 = i * 3;
-    let i33 = i3 + 3;
-    let i4 = i * 4;
-    let i44 = i4 + 4;
-    let i16 = i * 16;
-    let i1616 = i16 + 16;
+    const i3 = i * 3;
+    const i33 = i3 + 3;
+    const i4 = i * 4;
+    const i44 = i4 + 4;
+    const i16 = i * 16;
+    const i1616 = i16 + 16;
 
     nodes[i] = new Node(
       pivots.subarray(i3, i33),

@@ -10,12 +10,12 @@ const red = new Uint8Array(8);
 const green = new Uint8Array(8);
 
 function dx1Colors16(out: Uint16Array, color0: number, color1: number) {
-  let r0 = color0 & 0x1f;
-  let g0 = color0 & 0x7e0;
-  let b0 = color0 & 0xf800;
-  let r1 = color1 & 0x1f;
-  let g1 = color1 & 0x7e0;
-  let b1 = color1 & 0xf800;
+  const r0 = color0 & 0x1f;
+  const g0 = color0 & 0x7e0;
+  const b0 = color0 & 0xf800;
+  const r1 = color1 & 0x1f;
+  const g1 = color1 & 0x7e0;
+  const b1 = color1 & 0xf800;
 
   // Minimum and maximum colors.
   out[0] = color0;
@@ -27,12 +27,12 @@ function dx1Colors16(out: Uint16Array, color0: number, color1: number) {
 }
 
 function dx1Colors8(out: Uint8Array, color0: number, color1: number) {
-  let r0 = ((color0 >> 11) & 31) * dxt5to8;
-  let g0 = ((color0 >> 5) & 63) * dxt6to8;
-  let b0 = (color0 & 31) * dxt5to8;
-  let r1 = ((color1 >> 11) & 31) * dxt5to8;
-  let g1 = ((color1 >> 5) & 63) * dxt6to8;
-  let b1 = (color1 & 31) * dxt5to8;
+  const r0 = ((color0 >> 11) & 31) * dxt5to8;
+  const g0 = ((color0 >> 5) & 63) * dxt6to8;
+  const b0 = (color0 & 31) * dxt5to8;
+  const r1 = ((color1 >> 11) & 31) * dxt5to8;
+  const g1 = ((color1 >> 5) & 63) * dxt6to8;
+  const b1 = (color1 & 31) * dxt5to8;
 
   // Minimum and maximum colors.
   out[0] = r0;
@@ -103,24 +103,24 @@ function rgColors(out: Uint8Array, color0: number, color1: number) {
  * DXT1 is also known as BC1.
  */
 export function decodeDxt1(src: Uint8Array, width: number, height: number) {
-  let dst = new Uint16Array(width * height);
+  const dst = new Uint16Array(width * height);
 
   for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
     for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
-      let i = 8 * (blockY * blockWidth + blockX);
+      const i = 8 * (blockY * blockWidth + blockX);
 
       // Get the color values.
       dx1Colors16(dx1colors, src[i] + 256 * src[i + 1], src[i + 2] + 256 * src[i + 3]);
 
       // The offset to the first pixel in the destination.
-      let dstI = (blockY * 4) * width + blockX * 4;
+      const dstI = (blockY * 4) * width + blockX * 4;
 
       // All 32 color bits.
-      let bits = src[i + 4] | (src[i + 5] << 8) | (src[i + 6] << 16) | (src[i + 7] << 24);
+      const bits = src[i + 4] | (src[i + 5] << 8) | (src[i + 6] << 16) | (src[i + 7] << 24);
 
       for (let row = 0; row < 4; row++) {
-        let rowOffset = row * 8;
-        let dstOffset = dstI + row * width;
+        const rowOffset = row * 8;
+        const dstOffset = dstI + row * width;
 
         for (let column = 0; column < 4; column++) {
           dst[dstOffset + column] = dx1colors[(bits >> (rowOffset + column * 2)) & 3];
@@ -138,12 +138,12 @@ export function decodeDxt1(src: Uint8Array, width: number, height: number) {
  * DXT3 is also known as BC2.
  */
 export function decodeDxt3(src: Uint8Array, width: number, height: number) {
-  let dst = new Uint8Array(width * height * 4);
-  let rowBytes = width * 4;
+  const dst = new Uint8Array(width * height * 4);
+  const rowBytes = width * 4;
 
   for (let blockY = 0, blockHeight = width / 4; blockY < blockHeight; blockY++) {
     for (let blockX = 0, blockWidth = height / 4; blockX < blockWidth; blockX++) {
-      let i = 16 * (blockY * blockWidth + blockX);
+      const i = 16 * (blockY * blockWidth + blockX);
 
       // Get the color values.
       dx1Colors8(dx3colors, src[i + 8] + 256 * src[i + 9], src[i + 10] + 256 * src[i + 11]);
@@ -152,14 +152,14 @@ export function decodeDxt3(src: Uint8Array, width: number, height: number) {
 
       for (let row = 0; row < 4; row++) {
         // Get 16 bits of alpha indices.
-        let alphaBits = src[i + row * 2] + 256 * src[i + 1 + row * 2];
+        const alphaBits = src[i + row * 2] + 256 * src[i + 1 + row * 2];
 
         // Get 8 bits of color indices.
-        let colorBits = src[i + 12 + row];
+        const colorBits = src[i + 12 + row];
 
         for (let column = 0; column < 4; column++) {
-          let dstIndex = dstI + column * 4;
-          let colorIndex = ((colorBits >> (column * 2)) & 3) * 3;
+          const dstIndex = dstI + column * 4;
+          const colorIndex = ((colorBits >> (column * 2)) & 3) * 3;
 
           dst[dstIndex + 0] = dx3colors[colorIndex + 0];
           dst[dstIndex + 1] = dx3colors[colorIndex + 1];
@@ -181,12 +181,12 @@ export function decodeDxt3(src: Uint8Array, width: number, height: number) {
  * DXT5 is also known as BC3.
  */
 export function decodeDxt5(src: Uint8Array, width: number, height: number) {
-  let dst = new Uint8Array(width * height * 4);
-  let rowBytes = width * 4;
+  const dst = new Uint8Array(width * height * 4);
+  const rowBytes = width * 4;
 
   for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
     for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
-      let i = 16 * (blockY * blockWidth + blockX);
+      const i = 16 * (blockY * blockWidth + blockX);
 
       // Get the alpha values.
       dx5Alphas(dx5alphas, src[i], src[i + 1]);
@@ -200,21 +200,21 @@ export function decodeDxt5(src: Uint8Array, width: number, height: number) {
       // The outer loop is only needed because JS bitwise operators only work on 32bit integers, while the alpha flags contain 48 bits.
       // Processing is instead done in two blocks, where each one handles 24 bits, or two rows of 4 pixels.
       for (let block = 0; block < 2; block++) {
-        let alphaOffset = i + 2 + block * 3;
-        let colorOffset = i + 12 + block * 2;
+        const alphaOffset = i + 2 + block * 3;
+        const colorOffset = i + 12 + block * 2;
 
         // 24 alpha bits.
-        let alphaBits = src[alphaOffset] + 256 * (src[alphaOffset + 1] + 256 * src[alphaOffset + 2]);
+        const alphaBits = src[alphaOffset] + 256 * (src[alphaOffset + 1] + 256 * src[alphaOffset + 2]);
 
         // Go over two rows.
         for (let row = 0; row < 2; row++) {
-          let colorBits = src[colorOffset + row];
+          const colorBits = src[colorOffset + row];
 
           // Go over four columns.
           for (let column = 0; column < 4; column++) {
-            let dstIndex = dstI + column * 4;
-            let colorIndex = ((colorBits >> (column * 2)) & 3) * 3;
-            let alphaIndex = (alphaBits >> (row * 12 + column * 3)) & 7;
+            const dstIndex = dstI + column * 4;
+            const colorIndex = ((colorBits >> (column * 2)) & 3) * 3;
+            const alphaIndex = (alphaBits >> (row * 12 + column * 3)) & 7;
 
             // Set the pixel.
             dst[dstIndex + 0] = dx3colors[colorIndex + 0];
@@ -239,12 +239,12 @@ export function decodeDxt5(src: Uint8Array, width: number, height: number) {
  * RGTC is also known as BC5, ATI2, and 3Dc.
  */
 export function decodeRgtc(src: Uint8Array, width: number, height: number) {
-  let dst = new Uint8Array(width * height * 2);
-  let rowBytes = width * 2;
+  const dst = new Uint8Array(width * height * 2);
+  const rowBytes = width * 2;
 
   for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
     for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
-      let i = 16 * (blockY * blockWidth + blockX);
+      const i = 16 * (blockY * blockWidth + blockX);
 
       // Get the red colors.
       rgColors(red, src[i], src[i + 1]);
@@ -257,18 +257,18 @@ export function decodeRgtc(src: Uint8Array, width: number, height: number) {
 
       // Split to two blocks of two rows, because there are 48 color bits.
       for (let block = 0; block < 2; block++) {
-        let blockOffset = i + block * 3;
+        const blockOffset = i + block * 3;
 
         // Get 24 bits of the color indices.
-        let redbits = src[blockOffset + 2] + 256 * (src[blockOffset + 3] + 256 * src[blockOffset + 4]);
-        let greenbits = src[blockOffset + 10] + 256 * (src[blockOffset + 11] + 256 * src[blockOffset + 12]);
+        const redbits = src[blockOffset + 2] + 256 * (src[blockOffset + 3] + 256 * src[blockOffset + 4]);
+        const greenbits = src[blockOffset + 10] + 256 * (src[blockOffset + 11] + 256 * src[blockOffset + 12]);
 
         for (let row = 0; row < 2; row++) {
-          let rowOffset = row * 4;
+          const rowOffset = row * 4;
 
           for (let column = 0; column < 4; column++) {
-            let dstOffset = dstI + column * 2;
-            let shifts = 3 * (rowOffset + column);
+            const dstOffset = dstI + column * 2;
+            const shifts = 3 * (rowOffset + column);
 
             dst[dstOffset + 1] = red[(redbits >> shifts) & 7];
             dst[dstOffset + 2] = green[(greenbits >> shifts) & 7];

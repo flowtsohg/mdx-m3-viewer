@@ -18,18 +18,18 @@ export default class Parameter {
     this.type = stream.readInt32();
 
     if (this.type < -1 || this.type > 3) {
-      throw new Error(`Parameter: Bad type: ${this.type}`)
+      throw new Error(`Parameter: Bad type: ${this.type}`);
     }
 
     this.value = stream.readNull();
 
     if (stream.readInt32()) {
-      let subParameters = new SubParameters();
+      const subParameters = new SubParameters();
 
       try {
         subParameters.load(stream, version, triggerData);
       } catch (e) {
-        throw new Error(`Parameter "${this.value}": SubParameters ${e}`)
+        throw new Error(`Parameter "${this.value}": SubParameters ${e}`);
       }
 
       this.subParameters = subParameters;
@@ -44,7 +44,7 @@ export default class Parameter {
     }
 
     if (this.isArray) {
-      let arrayIndex = new Parameter();
+      const arrayIndex = new Parameter();
 
       try {
         arrayIndex.load(stream, version, triggerData);

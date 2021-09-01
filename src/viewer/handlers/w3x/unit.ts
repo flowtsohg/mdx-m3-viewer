@@ -20,7 +20,7 @@ export default class Unit extends Widget {
   constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow | undefined, unit: DooUnit) {
     super(map, model);
 
-    let instance = this.instance;
+    const instance = this.instance;
 
     instance.move(<vec3>unit.location);
     instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, unit.angle));
@@ -29,11 +29,11 @@ export default class Unit extends Widget {
     instance.setScene(map.worldScene);
 
     if (row) {
-      heapZ[2] = <number>row.moveHeight;
+      heapZ[2] = <number>row['moveHeight'];
 
       instance.move(heapZ);
-      instance.setVertexColor([<number>row.red / 255, <number>row.green / 255, <number>row.blue / 255, 1]);
-      instance.uniformScale(<number>row.modelScale);
+      instance.setVertexColor([<number>row['red'] / 255, <number>row['green'] / 255, <number>row['blue'] / 255, 1]);
+      instance.uniformScale(<number>row['modelScale']);
     }
 
     this.instance = instance;

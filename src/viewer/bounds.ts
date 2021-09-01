@@ -10,12 +10,12 @@ export default class Bounds {
   r: number = 0;
 
   fromExtents(min: Float32Array, max: Float32Array) {
-    let x = min[0];
-    let y = min[1];
-    let z = min[2];
-    let w = max[0] - x;
-    let d = max[1] - y;
-    let h = max[2] - z;
+    const x = min[0];
+    const y = min[1];
+    const z = min[2];
+    const w = max[0] - x;
+    const d = max[1] - y;
+    const h = max[2] - z;
 
     this.x = x + w / 2;
     this.y = y + d / 2;

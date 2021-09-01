@@ -25,7 +25,7 @@ function initialize() {
             parameters
           }
         });
-      }
+      };
     }
 
     const swap10 = swap([1, 0]);
@@ -922,7 +922,7 @@ export default function transformFunction(data: WeuData, object: ECA | SubParame
     initialize();
   }
 
-  let transform = transformers[object.name];
+  const transform = transformers[object.name];
 
   if (transform) {
     return transform(data, object);

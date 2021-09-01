@@ -8,7 +8,7 @@ export default class CustomTextTrigger {
   text: string = '';
 
   load(stream: BinaryStream) {
-    let textLength = stream.readInt32();
+    const textLength = stream.readInt32();
 
     if (textLength) {
       this.text = stream.read(textLength - 1);

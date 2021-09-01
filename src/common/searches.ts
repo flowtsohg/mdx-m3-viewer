@@ -1,11 +1,11 @@
 export function isStringInBytes(buffer: Uint8Array, target: string, offset: number = 0, length: number = Infinity) {
-  let start = Math.max(offset, 0);
-  let end = Math.min(start + length, buffer.length);
+  const start = Math.max(offset, 0);
+  const end = Math.min(start + length, buffer.length);
   let whichByte = 0;
   let targetByte = target.charCodeAt(0);
 
   for (let i = start; i < end; i++) {
-    let byte = buffer[i];
+    const byte = buffer[i];
 
     if (byte === targetByte) {
       whichByte += 1;
@@ -25,13 +25,13 @@ export function isStringInBytes(buffer: Uint8Array, target: string, offset: numb
 }
 
 export function isStringInString(buffer: string, target: string, offset: number = 0, length: number = Infinity) {
-  let start = Math.max(offset, 0);
-  let end = Math.min(start + length, buffer.length);
+  const start = Math.max(offset, 0);
+  const end = Math.min(start + length, buffer.length);
   let whichByte = 0;
   let targetByte = target[0];
 
   for (let i = start; i < end; i++) {
-    let byte = buffer[i];
+    const byte = buffer[i];
 
     if (byte === targetByte) {
       whichByte += 1;
@@ -51,8 +51,8 @@ export function isStringInString(buffer: string, target: string, offset: number 
 }
 
 export function boundIndexOf(buffer: Uint8Array, target: number, offset: number = 0, length: number = Infinity) {
-  let start = Math.max(offset, 0);
-  let end = Math.min(start + length, buffer.length);
+  const start = Math.max(offset, 0);
+  const end = Math.min(start + length, buffer.length);
 
   for (let i = start; i < end; i++) {
     if (buffer[i] === target) {

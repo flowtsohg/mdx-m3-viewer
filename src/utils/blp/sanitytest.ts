@@ -9,7 +9,7 @@ import { BlpImage } from '../../parsers/blp/image';
  * Sadly I don't quite know the rules.
  */
 function isMipmapFake(whichMipmap: number, mipmapOffsets: Uint32Array) {
-  let offset = mipmapOffsets[whichMipmap];
+  const offset = mipmapOffsets[whichMipmap];
 
   for (let i = 0; i < whichMipmap; i++) {
     if (mipmapOffsets[i] === offset) {
@@ -24,11 +24,11 @@ function isMipmapFake(whichMipmap: number, mipmapOffsets: Uint32Array) {
  * Tests for issues in BLP textures.
  */
 export default function sanityTest(texture: BlpImage) {
-  let nodes = [];
-  let content = texture.content;
-  let alphaBits = texture.alphaBits;
-  let mipmapOffsets = texture.mipmapOffsets;
-  let mipmapSizes = texture.mipmapSizes;
+  const nodes = [];
+  const content = texture.content;
+  const alphaBits = texture.alphaBits;
+  const mipmapOffsets = texture.mipmapOffsets;
+  const mipmapSizes = texture.mipmapSizes;
   let width = texture.width;
   let height = texture.height;
 
@@ -82,8 +82,8 @@ export default function sanityTest(texture: BlpImage) {
               nodes.push({ type: 'warning', message: `Mipmap ${i}: the JPG width (${mipmapData.width}) and height (${mipmapData.height}) do not match the mipmap width (${width}) and height (${height})` });
             }
           } else if (content === 1) {
-            let pixels = width * height;
-            let size = pixels + Math.ceil((pixels * alphaBits) / 8);
+            const pixels = width * height;
+            const size = pixels + Math.ceil((pixels * alphaBits) / 8);
 
             if (size !== mipmapSizes[i]) {
               nodes.push({ type: 'warning', message: `Mipmap ${i}: the declared size is ${mipmapSizes[i]}, but the real size is ${size}` });

@@ -1,77 +1,12 @@
-// @ts-ignore
-import * as resemble from '../../thirdparty/resemble';
-import seededRandom from '../common/seededrandom';
-import { blobToImage } from '../common/canvas';
-import ModelViewer from '../viewer/viewer';
-import { Resource } from '../viewer/resource';
-import Scene from '../viewer/scene';
-import Camera from '../viewer/camera';
-import mdxHandler from '../viewer/handlers/mdx/handler';
-import blpHandler from '../viewer/handlers/blp/handler';
-import ddsHandler from '../viewer/handlers/dds/handler';
-import tgaHandler from '../viewer/handlers/tga/handler';
-import m3Handler from '../viewer/handlers/m3/handler';
-import { PathSolver } from '../viewer/handlerresource';
-
-/**
- * The signature of a test loader.
- * 
- * The returned data will be passed to the handler.
- */
-type TestLoader = (viewer: ModelViewer) => any;
-
-/**
- * The signature of a test handler.
- */
-type TestHandler = (viewer: ModelViewer, scene: Scene, camera: Camera, data: any) => void;
-
-/**
- * The recursive test structure passed to the unit tester.
- * 
- * In reality either `load` and `test` should be defined, or `tests` should be defined.
- */
-interface RecursiveTest {
-  name: string;
-  load?: TestLoader;
-  test?: TestHandler;
-  tests?: RecursiveTest[];
-}
-
-/**
- * The internal type used by the tester.
- */
-interface Test {
-  name: string;
-  test: RecursiveTest;
-}
-
-/**
- * The result given to the callback when running the tests.
- */
-interface TestResult {
-  done: boolean;
-  value?: {
-    name: string;
-    testImage?: HTMLImageElement;
-    comparisonImage?: HTMLImageElement;
-    mismatchPercentage: number;
-  }
-}
-
-/**
- * The result given to the callback when downloading the tests.
- */
-interface DownloadResult {
-  done: boolean;
-  value?: {
-    name: string;
-    blob?: Blob;
-  }
-}
-
-interface ResembleResult {
-  rawMisMatchPercentage: number;
-}
+import * as resemble from '../thirdparty/resemble';
+import seededRandom from '../../src/common/seededrandom';
+import { blobToImage } from '../../src/common/canvas';
+import ModelViewer from '../../src/viewer/viewer';
+import mdxHandler from '../../src/viewer/handlers/mdx/handler';
+import blpHandler from '../../src/viewer/handlers/blp/handler';
+import ddsHandler from '../../src/viewer/handlers/dds/handler';
+import tgaHandler from '../../src/viewer/handlers/tga/handler';
+import m3Handler from '../../src/viewer/handlers/m3/handler';
 
 /**
  * A unit tester designed for the model viewer.
@@ -79,11 +14,7 @@ interface ResembleResult {
  * The image is then compared to another image generated from the same test, at a time when rendering it was considered "correct".
  */
 export default class UnitTester {
-  viewer: ModelViewer;
-  mathRandom: () => number = Math.random;
-  tests: Test[] = [];
-
-  constructor(wc3PathSolver: PathSolver) {
+  constructor(wc3PathSolver) {
     let canvas = document.createElement('canvas');
 
     canvas.width = canvas.height = 256;
@@ -101,12 +32,14 @@ export default class UnitTester {
     viewer.addHandler(m3Handler);
 
     this.viewer = viewer;
+    this.mathRandom = Math.random;
+    this.tests = [];
   }
 
   /**
    * Add a test or a hierarchy of tests.
    */
-  add(test: RecursiveTest) {
+  add(test) {
     if (test.tests) {
       this.addBaseName(test.tests, test.name);
     } else {
@@ -119,13 +52,13 @@ export default class UnitTester {
    * The callback will be called with the result of each one.
    * The results look like iterators: {done: true/false, value: undefine/result }.
    */
-  async test(callback: (testResult: TestResult) => void) {
+  async test(callback) {
     for (let test of this.tests) {
       let testBlob = await this.getTestBlob(test);
       let comparisonBlob = await this.getComparisonBlob(test);
 
       if (testBlob && comparisonBlob) {
-        let comparisonResult = await new Promise((resolve: (data: ResembleResult) => void) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data: ResembleResult) => resolve(data)));
+        let comparisonResult = await new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
         let testImage = await blobToImage(testBlob);
         let comparisonImage = await blobToImage(comparisonBlob);
 
@@ -153,7 +86,7 @@ export default class UnitTester {
    * The tests are not compared against anything.
    * This is used to update the "correct" results.
    */
-  async download(callback: (testResult: DownloadResult) => void) {
+  async download(callback) {
     for (let test of this.tests) {
       let name = test.name;
       let blob = await this.getTestBlob(test);
@@ -171,7 +104,7 @@ export default class UnitTester {
   /**
    * Is the given resource or array of resources ok?
    */
-  isDataAGo(data: Resource | Resource[]) {
+  isDataAGo(data) {
     if (data) {
       if (Array.isArray(data)) {
         for (let resource of data) {
@@ -190,9 +123,9 @@ export default class UnitTester {
   /**
    * Given a test, return a promise that will resolve to the blob that resulted from running the test.
    */
-  async getTestBlob(test: Test) {
-    let loadHandler = <TestLoader>test.test.load;
-    let testHandler = <TestHandler>test.test.test;
+  async getTestBlob(test) {
+    let loadHandler = test.test.load;
+    let testHandler = test.test.test;
     let viewer = this.viewer;
 
     // Clear the viewer
@@ -237,7 +170,7 @@ export default class UnitTester {
   /**
    * Given a test, return a promise that will resolve to the comparison image of this test.
    */
-  async getComparisonBlob(test: Test) {
+  async getComparisonBlob(test) {
     let response = await fetch(`compare/${test.name}.png`);
 
     if (response.ok) {
@@ -249,7 +182,7 @@ export default class UnitTester {
    * Adds tests from an hierarchy while appending their names.
    * Called automatically by add() if needed.
    */
-  addBaseName(tests: RecursiveTest[], baseName: string) {
+  addBaseName(tests, baseName) {
     for (let test of tests) {
       if (test.tests) {
         this.addBaseName(test.tests, baseName + '-' + test.name);

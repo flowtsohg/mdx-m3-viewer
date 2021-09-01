@@ -22,7 +22,7 @@ export default class Texture {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Image') {
         this.path = stream.read();
       } else if (token === 'ReplaceableId') {

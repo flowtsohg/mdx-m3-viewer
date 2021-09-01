@@ -10,10 +10,10 @@ const emissionRateHeap = new Float32Array(1);
  */
 export default class ParticleEmitter extends MdxEmitter {
   updateEmission(dt: number) {
-    let instance = <MdxModelInstance>this.instance;
+    const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      let emitterObject = <ParticleEmitterObject>this.emitterObject;
+      const emitterObject = <ParticleEmitterObject>this.emitterObject;
 
       emitterObject.getEmissionRate(emissionRateHeap, instance.sequence, instance.frame, instance.counter);
 

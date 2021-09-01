@@ -13,14 +13,14 @@ export default class Attachment extends GenericObject {
   constructor(model: MdxModel, attachment: MdlxAttachment, index: number) {
     super(model, attachment, index);
 
-    let path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
+    const path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
 
     this.path = path;
     this.attachmentId = attachment.attachmentId;
 
     // Second condition is against custom resources using arbitrary paths...
     if (path !== '' && path.indexOf('.mdx') != -1) {
-      let promise = model.viewer.load(path, model.pathSolver, model.solverParams);
+      const promise = model.viewer.load(path, model.pathSolver, model.solverParams);
 
       promise.then((model) => {
         if (model) {
@@ -32,7 +32,7 @@ export default class Attachment extends GenericObject {
     }
   }
 
-  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
     return this.getScalarValue(out, 'KATV', sequence, frame, counter, 1);
   }
 }

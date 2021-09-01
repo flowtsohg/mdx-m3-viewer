@@ -32,7 +32,7 @@ export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
     return new Promise((resolve: (data: FetchResult) => void) => {
-      let image = new Image();
+      const image = new Image();
 
       image.onload = () => {
         resolve({ ok: true, data: image });

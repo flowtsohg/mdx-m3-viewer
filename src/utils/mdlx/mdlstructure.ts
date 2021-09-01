@@ -27,7 +27,7 @@ interface MdlStructureNode {
 
 function mdlObjects(stream: TokenStream, model: Model, objects: (Sequence | Layer | Texture | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | Camera | CollisionShape | FaceEffect)[], out: MdlStructureNode[]) {
   if (objects.length) {
-    for (let [index, object] of objects.entries()) {
+    for (const [index, object] of objects.entries()) {
       object.writeMdl(stream, model.version);
       out.push({ name: getObjectName(object, index), source: stream.buffer });
       stream.clear();
@@ -37,8 +37,8 @@ function mdlObjects(stream: TokenStream, model: Model, objects: (Sequence | Laye
 
 function mdlObjectsBlock(stream: TokenStream, model: Model, objects: (Sequence | Texture | TextureAnimation)[], out: MdlStructureNode[]) {
   if (objects.length) {
-    let name = getObjectTypeName(objects[0]) + 's';
-    let nodes = <MdlStructureNode[]>[];
+    const name = getObjectTypeName(objects[0]) + 's';
+    const nodes = <MdlStructureNode[]>[];
 
     mdlObjects(stream, model, objects, nodes);
 
@@ -49,8 +49,8 @@ function mdlObjectsBlock(stream: TokenStream, model: Model, objects: (Sequence |
 }
 
 export default function mdlStructure(model: Model) {
-  let stream = new TokenStream();
-  let out = <MdlStructureNode[]>[];
+  const stream = new TokenStream();
+  const out = <MdlStructureNode[]>[];
 
   model.saveVersionBlock(stream);
   out.push({ name: 'Version', source: stream.buffer });
@@ -71,10 +71,10 @@ export default function mdlStructure(model: Model) {
   mdlObjectsBlock(stream, model, model.textures, out);
 
   if (model.materials.length) {
-    let nodes = [];
+    const nodes = [];
 
-    for (let [index, material] of model.materials.entries()) {
-      let layerNodes = <MdlStructureNode[]>[];
+    for (const [index, material] of model.materials.entries()) {
+      const layerNodes = <MdlStructureNode[]>[];
 
       mdlObjects(stream, model, material.layers, layerNodes);
 

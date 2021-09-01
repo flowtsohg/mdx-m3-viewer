@@ -24,11 +24,11 @@ export default class M3Skeleton {
   boneLookup: Uint16Array;
 
   constructor(instance: M3ModelInstance) {
-    let model = <M3Model>instance.model;
-    let bones = model.bones;
-    let boneLookup = model.boneLookup;
-    let sharedNodeData = createSkeletalNodes(bones.length, M3Node);
-    let nodes = sharedNodeData.nodes;
+    const model = <M3Model>instance.model;
+    const bones = model.bones;
+    const boneLookup = model.boneLookup;
+    const sharedNodeData = createSkeletalNodes(bones.length, M3Node);
+    const nodes = sharedNodeData.nodes;
 
     this.nodes = nodes;
     this.worldMatrices = sharedNodeData.worldMatrices;
@@ -42,7 +42,7 @@ export default class M3Skeleton {
 
     // Set the bone parent references
     for (let i = 0, l = bones.length; i < l; i++) {
-      let bone = bones[i];
+      const bone = bones[i];
 
       if (bone.parent === -1) {
         nodes[i].parent = instance;
@@ -57,14 +57,14 @@ export default class M3Skeleton {
   }
 
   update(dt: number) {
-    let instance = this.instance;
-    let scene = <Scene>instance.scene;
-    let nodes = this.nodes;
-    let modelNodes = this.modelNodes;
+    const instance = this.instance;
+    const scene = <Scene>instance.scene;
+    const nodes = this.nodes;
+    const modelNodes = this.modelNodes;
 
     for (let i = 0, l = nodes.length; i < l; i++) {
-      let node = nodes[i];
-      let modelNode = modelNodes[i];
+      const node = nodes[i];
+      const modelNode = modelNodes[i];
 
       this.getValue4(<Float32Array>node.localRotation, modelNode.rotation, instance);
       this.getValue3(<Float32Array>node.localLocation, modelNode.location, instance);
@@ -74,7 +74,7 @@ export default class M3Skeleton {
 
       // Recalculate and update child nodes.
       // Note that this only affects normal nodes such as instances, and not skeletal nodes.
-      for (let child of node.children) {
+      for (const child of node.children) {
         child.recalculateTransformation();
         child.update(dt);
       }
@@ -82,7 +82,7 @@ export default class M3Skeleton {
   }
 
   getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
-    let sequence = instance.sequence;
+    const sequence = instance.sequence;
 
     if (sequence !== -1) {
       return this.stg[sequence].getValueUnsafe(animRef, instance);
@@ -96,7 +96,7 @@ export default class M3Skeleton {
   }
 
   getValue2(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
+    const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];
@@ -105,7 +105,7 @@ export default class M3Skeleton {
   }
 
   getValue3(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
+    const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];
@@ -115,7 +115,7 @@ export default class M3Skeleton {
   }
 
   getValue4(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
+    const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];

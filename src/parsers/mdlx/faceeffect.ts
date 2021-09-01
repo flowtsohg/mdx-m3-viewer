@@ -21,7 +21,7 @@ export default class FaceEffect {
   readMdl(stream: TokenStream) {
     this.type = stream.read();
 
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Path') {
         this.path = stream.read();
       } else {

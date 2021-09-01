@@ -12,10 +12,10 @@ function sequenceSorter(a: FilteredSequence, b: FilteredSequence) {
 }
 
 function filterSequences(type: string, sequences: Sequence[]) {
-  let filtered = [];
+  const filtered = [];
 
   for (let i = 0, l = sequences.length; i < l; i++) {
-    let sequence = sequences[i],
+    const sequence = sequences[i],
       name = sequence.name.split('-')[0].replace(/\d/g, '').trim().toLowerCase();
 
     if (name === type) {
@@ -27,13 +27,13 @@ function filterSequences(type: string, sequences: Sequence[]) {
 }
 
 function selectSequence(type: string, sequences: Sequence[]) {
-  let filtered = filterSequences(type, sequences);
+  const filtered = filterSequences(type, sequences);
 
   filtered.sort(sequenceSorter);
 
   for (var i = 0, l = filtered.length; i < l; i++) {
-    let sequence = filtered[i].sequence;
-    let rarity = sequence.rarity;
+    const sequence = filtered[i].sequence;
+    const rarity = sequence.rarity;
 
     if (rarity === 0) {
       break;
@@ -44,17 +44,17 @@ function selectSequence(type: string, sequences: Sequence[]) {
     }
   }
 
-  let sequencesLeft = filtered.length - i;
-  let random = i + Math.floor(Math.random() * sequencesLeft);
-  let sequence = filtered[random];
+  const sequencesLeft = filtered.length - i;
+  const random = i + Math.floor(Math.random() * sequencesLeft);
+  const sequence = filtered[random];
 
   return sequence;
 }
 
 export default function randomStandSequence(target: MdxModelInstance) {
-  let model = <MdxModel>target.model;
-  let sequences = model.sequences;
-  let sequence = selectSequence('stand', sequences);
+  const model = <MdxModel>target.model;
+  const sequences = model.sequences;
+  const sequence = selectSequence('stand', sequences);
 
   if (sequence) {
     target.setSequence(sequence.index);

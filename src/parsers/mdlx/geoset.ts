@@ -75,7 +75,7 @@ export default class Geoset {
     this.extent.readMdx(stream);
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let extent = new Extent();
+      const extent = new Extent();
 
       extent.readMdx(stream);
 
@@ -144,7 +144,7 @@ export default class Geoset {
 
     stream.writeUint32(this.sequenceExtents.length);
 
-    for (let sequenceExtent of this.sequenceExtents) {
+    for (const sequenceExtent of this.sequenceExtents) {
       sequenceExtent.writeMdx(stream);
     }
 
@@ -165,7 +165,7 @@ export default class Geoset {
     stream.writeBinary('UVAS');
     stream.writeUint32(this.uvSets.length);
 
-    for (let uvSet of this.uvSets) {
+    for (const uvSet of this.uvSets) {
       stream.writeBinary('UVBS');
       stream.writeUint32(uvSet.length / 2);
       stream.writeFloat32Array(uvSet);
@@ -182,9 +182,9 @@ export default class Geoset {
         this.uvSets.push(<Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
       } else if (token === 'VertexGroup') {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
-        let vertexGroups = [];
+        const vertexGroups = [];
 
-        for (let vertexGroup of stream.readBlock()) {
+        for (const vertexGroup of stream.readBlock()) {
           vertexGroups.push(parseInt(vertexGroup));
         }
 
@@ -198,10 +198,10 @@ export default class Geoset {
         this.faceTypeGroups = new Uint32Array([4]);
 
         // Number of vectors the indices are spread over.
-        let vectors = stream.readInt();
+        const vectors = stream.readInt();
 
         // Total number of indices.
-        let count = stream.readInt();
+        const count = stream.readInt();
 
         stream.read(); // {
         stream.read(); // Triangles
@@ -213,16 +213,16 @@ export default class Geoset {
 
         stream.read(); // }
       } else if (token === 'Groups') {
-        let indices = [];
-        let groups = [];
+        const indices = [];
+        const groups = [];
 
         stream.readInt(); // matrices count
         stream.readInt(); // total indices
 
-        for (let _ of stream.readBlock()) {
+        for (const _ of stream.readBlock()) {
           let size = 0;
 
-          for (let index of stream.readBlock()) {
+          for (const index of stream.readBlock()) {
             indices.push(parseInt(index));
             size += 1;
           }
@@ -239,7 +239,7 @@ export default class Geoset {
       } else if (token === 'BoundsRadius') {
         this.extent.boundsRadius = stream.readFloat();
       } else if (token === 'Anim') {
-        let extent = new Extent();
+        const extent = new Extent();
 
         for (token of stream.readBlock()) {
           if (token === 'MinimumExtent') {
@@ -274,7 +274,7 @@ export default class Geoset {
     stream.writeVectorArrayBlock('Vertices', this.vertices, 3);
     stream.writeVectorArrayBlock('Normals', this.normals, 3);
 
-    for (let uvSet of this.uvSets) {
+    for (const uvSet of this.uvSets) {
       stream.writeVectorArrayBlock('TVertices', uvSet, 2);
     }
 
@@ -313,7 +313,7 @@ export default class Geoset {
 
     stream.startBlock('Groups', this.matrixGroups.length, this.matrixIndices.length);
     let index = 0;
-    for (let groupSize of this.matrixGroups) {
+    for (const groupSize of this.matrixGroups) {
       stream.writeVectorAttrib('Matrices', this.matrixIndices.subarray(index, index + groupSize));
       index += groupSize;
     }
@@ -321,7 +321,7 @@ export default class Geoset {
 
     this.extent.writeMdl(stream);
 
-    for (let sequenceExtent of this.sequenceExtents) {
+    for (const sequenceExtent of this.sequenceExtents) {
       stream.startBlock('Anim');
       sequenceExtent.writeMdl(stream);
       stream.endBlock();
@@ -360,7 +360,7 @@ export default class Geoset {
       }
     }
 
-    for (let uvSet of this.uvSets) {
+    for (const uvSet of this.uvSets) {
       size += 8 + uvSet.byteLength;
     }
 

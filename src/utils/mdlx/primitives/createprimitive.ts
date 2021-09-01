@@ -28,7 +28,6 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   let lines: boolean | undefined;
   let color: Float32Array | undefined;
   let texture: Texture | Promise<Texture> | undefined;
-  let pathSolver: PathSolver | undefined;
   let layerFlags = 0;
 
   if (material) {
@@ -41,35 +40,35 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
     }
   }
 
-  let model = new MdlxModel();
+  const model = new MdlxModel();
 
   // Extent
-  let extent = model.extent;
-  let r = primitive.boundingRadius;
+  const extent = model.extent;
+  const r = primitive.boundingRadius;
 
   extent.min.fill(-r);
   extent.max.fill(r);
   extent.boundsRadius = r;
 
   // Texture
-  let tex = new MdlxTexture();
+  const tex = new MdlxTexture();
 
   tex.path = 'PLACEHOLDER';
 
   model.textures[0] = tex;
 
-  pathSolver = (src) => {
+  const pathSolver = (src: any) => {
     if (src === model) {
       return model;
     }
 
     return texture;
-  }
+  };
 
   // Material
-  let mat = new MdlxMaterial();
+  const mat = new MdlxMaterial();
 
-  let layer = new MdlxLayer();
+  const layer = new MdlxLayer();
 
   layer.textureId = 0;
   layer.flags = layerFlags;
@@ -79,7 +78,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   model.materials[0] = mat;
 
   // Geoset
-  let geoset = new MdlxGeoset();
+  const geoset = new MdlxGeoset();
 
   geoset.vertices = primitive.vertices;
   geoset.uvSets[0] = primitive.uvs;
@@ -103,7 +102,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
 
   // Color via a geoset animation.
   if (color) {
-    let geosetAnimation = new MdlxGeosetAnimation();
+    const geosetAnimation = new MdlxGeosetAnimation();
 
     geosetAnimation.geosetId = 0;
     geosetAnimation.color = color;
@@ -112,7 +111,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   }
 
   // Bone - otherwise can't transform the instance.
-  let bone = new MdlxBone();
+  const bone = new MdlxBone();
 
   bone.objectId = 0;
 

@@ -126,7 +126,7 @@ export const animatedTypeNames = new Map([
 ]);
 
 export function hasAnimation(object: AnimatedObject, name: string) {
-  for (let animation of object.animations) {
+  for (const animation of object.animations) {
     if (animation.name === name) {
       return true;
     }
@@ -219,14 +219,14 @@ export function getObjectName(object: MdlxType, index: number) {
 }
 
 export function testObjects(data: SanityTestData, objects: MdlxType[], handler?: (data: SanityTestData, object: any, index: number) => void) {
-  let l = objects.length;
+  const l = objects.length;
 
   if (l) {
-    let isAnimated = objects[0] instanceof AnimatedObject;
-    let isGeneric = objects[0] instanceof GenericObject;
+    const isAnimated = objects[0] instanceof AnimatedObject;
+    const isGeneric = objects[0] instanceof GenericObject;
 
     for (let i = 0; i < l; i++) {
-      let object = objects[i];
+      const object = objects[i];
 
       data.push(object, i);
 
@@ -235,16 +235,16 @@ export function testObjects(data: SanityTestData, objects: MdlxType[], handler?:
       }
 
       if (isAnimated) {
-        let asAnimated = <AnimatedObject>object;
+        const asAnimated = <AnimatedObject>object;
 
         testObjects(data, asAnimated.animations, testAnimation);
       }
 
       if (isGeneric) {
-        let asGeneric = <GenericObject>object;
+        const asGeneric = <GenericObject>object;
 
-        let objectId = asGeneric.objectId;
-        let parentId = asGeneric.parentId;
+        const objectId = asGeneric.objectId;
+        const parentId = asGeneric.parentId;
 
         data.assertError(parentId === -1 || hasGenericObject(data, parentId), `Invalid parent ${parentId}`);
         data.assertError(objectId !== parentId, 'Same object and parent');
@@ -262,6 +262,8 @@ export function testReference<T extends MdlxType>(data: SanityTestData, objects:
     return objects[index];
   } else {
     data.addError(`Invalid ${typeNameIfError} ${index}`);
+
+    return;
   }
 }
 
@@ -269,7 +271,7 @@ export function testReference<T extends MdlxType>(data: SanityTestData, objects:
  * Get all of the texture indices referenced by a layer.
  */
 export function getTextureIds(layer: Layer) {
-  for (let animation of layer.animations) {
+  for (const animation of layer.animations) {
     if (animation.name === 'KMTF') {
       return unique(animation.values.map((value) => value[0]));
     }
@@ -279,7 +281,7 @@ export function getTextureIds(layer: Layer) {
 }
 
 function testVertexSkinning(data: SanityTestData, vertex: number, bone: number) {
-  let object = data.objects[bone];
+  const object = data.objects[bone];
 
   if (object) {
     if (!(object instanceof Bone)) {
@@ -297,18 +299,18 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
   if (data.model.version > 800 && geoset.skin.length) {
     data.assertWarning(geoset.vertexGroups.length === 0, 'This geoset has both skin/weights and vertex groups');
 
-    let skin = geoset.skin;
+    const skin = geoset.skin;
 
     for (let i = 0, l = skin.length / 8; i < l; i++) {
-      let offset = i * 8;
-      let bone0 = skin[offset];
-      let bone1 = skin[offset + 1];
-      let bone2 = skin[offset + 2];
-      let bone3 = skin[offset + 3];
-      let weight0 = skin[offset + 4];
-      let weight1 = skin[offset + 5];
-      let weight2 = skin[offset + 6];
-      let weight3 = skin[offset + 7];
+      const offset = i * 8;
+      const bone0 = skin[offset];
+      const bone1 = skin[offset + 1];
+      const bone2 = skin[offset + 2];
+      const bone3 = skin[offset + 3];
+      const weight0 = skin[offset + 4];
+      const weight1 = skin[offset + 5];
+      const weight2 = skin[offset + 6];
+      const weight3 = skin[offset + 7];
 
       if (weight0 > 0) {
         testVertexSkinning(data, i, bone0);
@@ -326,7 +328,7 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
         testVertexSkinning(data, i, bone3);
       }
 
-      let weight = weight0 + weight1 + weight2 + weight3;
+      const weight = weight0 + weight1 + weight2 + weight3;
 
       if (weight === 0) {
         data.addSevere(`Vertex ${i}: Not attached to anything`);
@@ -338,10 +340,10 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
     // A model having no bones at all is also valid.
     // I don't know if the skinning information in that case can be anything whatsoever, or if there are rules.
     if (data.model.bones.length) {
-      let vertexGroups = geoset.vertexGroups;
-      let matrixGroups = geoset.matrixGroups;
-      let matrixIndices = geoset.matrixIndices;
-      let slices = [];
+      const vertexGroups = geoset.vertexGroups;
+      const matrixGroups = geoset.matrixGroups;
+      const matrixIndices = geoset.matrixIndices;
+      const slices = [];
 
       for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
         slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
@@ -349,14 +351,14 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
       }
 
       for (let i = 0, l = vertexGroups.length; i < l; i++) {
-        let slice = slices[vertexGroups[i]];
+        const slice = slices[vertexGroups[i]];
 
         if (slice) {
-          for (let bone of slice) {
+          for (const bone of slice) {
             testVertexSkinning(data, i, bone);
           }
         } else {
-          let vertexGroup = vertexGroups[i];
+          const vertexGroup = vertexGroups[i];
 
           if (vertexGroup === 255) {
             data.addSevere(`Vertex ${i}: Not attached to anything`);
@@ -373,7 +375,7 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
  * Is the given ID a valid generic object?
  */
 function hasGenericObject(data: SanityTestData, id: number) {
-  for (let object of data.objects) {
+  for (const object of data.objects) {
     if (object.objectId === id) {
       return true;
     }
@@ -383,8 +385,8 @@ function hasGenericObject(data: SanityTestData, id: number) {
 }
 
 export function testAnimation(data: SanityTestData, animation: Animation) {
-  let name = animation.name;
-  let interpolationType = animation.interpolationType;
+  const name = animation.name;
+  const interpolationType = animation.interpolationType;
 
   // Particle emitter 2 variation animations are not implemented in Magos for the MDX format.
   data.assertWarning(name !== 'KP2R', 'Using a variation animation.');
@@ -399,10 +401,10 @@ export function testAnimation(data: SanityTestData, animation: Animation) {
 }
 
 export function cleanNode(node: SanityTestNode) {
-  let nodes = node.nodes;
+  const nodes = node.nodes;
 
   for (let i = nodes.length - 1; i >= 0; i--) {
-    let child = nodes[i];
+    const child = nodes[i];
 
     if (child.type === 'node') {
       if (child.errors || child.severe || child.warnings || child.unused || (child.uses !== undefined && !child.uses)) {
@@ -415,17 +417,19 @@ export function cleanNode(node: SanityTestNode) {
 }
 
 export function getAnimation(object: AnimatedObject, name: string) {
-  for (let animation of object.animations) {
+  for (const animation of object.animations) {
     if (animation.name === name) {
       return animation;
     }
   }
+
+  return;
 }
 
 export function testExtent(data: SanityTestData, extent: Extent) {
   data.push(extent, 0);
 
-  let { max, min } = extent;
+  const { max, min } = extent;
 
   if ((max[0] - min[0] < 0) || (max[1] - min[1] < 0) || (max[2] - min[2] < 0)) {
     data.addWarning('Negative extents');

@@ -11,7 +11,7 @@ export default class MpqHash {
   blockIndex: number = HASH_ENTRY_EMPTY;
 
   load(bytes: Uint32Array) {
-    let localePlatform = bytes[2];
+    const localePlatform = bytes[2];
 
     this.nameA = bytes[0];
     this.nameB = bytes[1];

@@ -1,13 +1,13 @@
 import TokenStream from './tokenstream';
 
 export default function jass2lua(jass: string) {
-  let stream = new TokenStream(jass);
-  let tokens = [];
+  const stream = new TokenStream(jass);
+  const tokens = [];
   let token;
 
   while ((token = stream.read()) !== undefined) {
     if (token === 'function') {
-      let name = stream.readSafe();
+      const name = stream.readSafe();
 
       stream.read(); // takes
 
@@ -29,14 +29,14 @@ export default function jass2lua(jass: string) {
 
       stream.read(); // return type
 
-      let header = `function ${name}(${params})`;
-      let body = [];
+      const header = `function ${name}(${params})`;
+      const body = [];
 
       while ((token = stream.readSafe()) !== 'endfunction') {
         if (token === 'local') {
           stream.read(); // type
 
-          let arrayOrName = stream.readSafe();
+          const arrayOrName = stream.readSafe();
 
           if (arrayOrName === 'array') {
             body.push(`local ${stream.readSafe()}={}`);
@@ -54,7 +54,7 @@ export default function jass2lua(jass: string) {
         } else if (token === 'exitwhen') {
           body.push(`if ${stream.readUntil('\n')} then break end\n`);
         } else if (token === 'return') {
-          let value = stream.readUntil('\n');
+          const value = stream.readUntil('\n');
 
           token = stream.peek();
 
@@ -66,7 +66,7 @@ export default function jass2lua(jass: string) {
             body.push(`if 1 then return ${value} end\n`);
           }
         } else if (token === '\n') {
-          let lastLine = body[body.length - 1];
+          const lastLine = body[body.length - 1];
 
           if (lastLine && lastLine[lastLine.length - 1] !== '\n') {
             body.push('\n');
@@ -85,7 +85,7 @@ export default function jass2lua(jass: string) {
             token = stream.read();
           }
 
-          let arrayOrName = stream.read();
+          const arrayOrName = stream.read();
 
           if (arrayOrName === 'array') {
             tokens.push(`${stream.readSafe()}={}`);

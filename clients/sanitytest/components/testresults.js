@@ -1,6 +1,7 @@
 import { imageDataToImage } from "../../../src/common/canvas";
 import Component from "../../shared/component";
 import { createElement } from "../../shared/domutils";
+import getTooltip from "./tooltips";
 
 export default class TestResults extends Component {
   constructor(results, mipmaps = null) {
@@ -62,6 +63,7 @@ class TestResultsNode extends Component {
 
     let className = '';
     let textContent = '';
+    let tooltip = '';
 
     if (node.type === 'node') {
       className = 'bold';
@@ -69,9 +71,10 @@ class TestResultsNode extends Component {
     } else {
       className = node.type;
       textContent = node.message;
+      tooltip = getTooltip(textContent);
     }
 
-    createElement({ className, textContent, container: this.container });
+    createElement({ className, textContent, title: tooltip, container: this.container });
 
     this.node = node;
     this.nodes = [];

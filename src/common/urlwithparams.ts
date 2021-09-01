@@ -5,10 +5,10 @@
  */
 export default function urlWithParams(src: string, params: object) {
   if (params) {
-    let entries = Object.entries(params);
+    const entries = Object.entries(params);
 
     if (entries.length) {
-      let encodedParams = entries.map(([key, value]) => `${key}=${value}`).join('&');
+      const encodedParams = entries.map(([key, value]) => `${key}=${value}`).join('&');
       let separator = '&';
 
       if (src.indexOf('?') === -1) {

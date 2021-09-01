@@ -14,12 +14,12 @@ export default class EventObjectSplUbr extends EmittedObject {
   vertices: Float32Array = new Float32Array(12);
 
   bind() {
-    let emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-    let vertices = this.vertices;
-    let scale = emitterObject.scale;
-    let { worldLocation, worldRotation } = instance.nodes[emitterObject.index];
+    const emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+    const vertices = this.vertices;
+    const scale = emitterObject.scale;
+    const { worldLocation, worldRotation } = instance.nodes[emitterObject.index];
 
     this.health = emitterObject.lifeSpan;
 

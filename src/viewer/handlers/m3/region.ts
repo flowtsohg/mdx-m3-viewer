@@ -14,9 +14,9 @@ export default class M3Region {
   elements: number;
 
   constructor(model: M3Model, region: M3ParserRegion, triangles: Uint16Array, elementArray: Uint16Array, offset: number) {
-    let firstVertexIndex = region.firstVertexIndex;
-    let triangleIndicesCount = region.triangleIndicesCount;
-    let firstTriangleIndex = region.firstTriangleIndex;
+    const firstVertexIndex = region.firstVertexIndex;
+    const triangleIndicesCount = region.triangleIndicesCount;
+    const firstTriangleIndex = region.firstTriangleIndex;
 
     // Note for implementors: the one original vertex indices array could be used with access to the base-vertex draw elements function.
     // See https://www.opengl.org/sdk/docs/man3/xhtml/glDrawElementsBaseVertex.xml
@@ -35,10 +35,10 @@ export default class M3Region {
   }
 
   render(shader: Shader) {
-    let gl = this.gl;
+    const gl = this.gl;
 
-    gl.uniform1f(shader.uniforms.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
-    gl.uniform1f(shader.uniforms.u_boneWeightPairsCount, this.boneWeightPairsCount);
+    gl.uniform1f(shader.uniforms['u_firstBoneLookupIndex'], this.firstBoneLookupIndex);
+    gl.uniform1f(shader.uniforms['u_boneWeightPairsCount'], this.boneWeightPairsCount);
 
     gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset);
   }

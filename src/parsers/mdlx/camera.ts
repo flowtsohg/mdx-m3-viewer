@@ -14,7 +14,7 @@ export default class Camera extends AnimatedObject {
   targetPosition: Float32Array = new Float32Array(3);
 
   readMdx(stream: BinaryStream) {
-    let size = stream.readUint32();
+    const size = stream.readUint32();
 
     this.name = stream.read(80);
     stream.readFloat32Array(this.position);
@@ -88,7 +88,7 @@ export default class Camera extends AnimatedObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 120 + super.getByteLength();
   }
 }

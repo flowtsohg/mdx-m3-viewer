@@ -13,6 +13,11 @@
       "error",
       2
     ],
-    "no-extra-semi": 2
+    "no-tabs": "error",
+    "semi": "error",
+    "no-extra-semi": 2,
+    "prefer-const": "error",
+    "object-curly-spacing": [ "error", "always", { "arraysInObjects": false, "objectsInObjects": false }],
+    "array-bracket-spacing": ["error", "never"]
   }
 }

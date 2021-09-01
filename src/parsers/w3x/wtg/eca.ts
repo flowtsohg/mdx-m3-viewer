@@ -33,16 +33,16 @@ export default class ECA {
 
     this.isEnabled = stream.readInt32();
 
-    let signature = triggerData.getFunction(this.type, this.name);
+    const signature = triggerData.getFunction(this.type, this.name);
 
     if (!signature) {
       throw new Error(`ECA "${this.name}:${this.type}": Unknown signature`);
     }
 
-    let args = signature.args;
+    const args = signature.args;
 
     for (let i = 0, l = args.length; i < l; i++) {
-      let parameter = new Parameter();
+      const parameter = new Parameter();
 
       try {
         parameter.load(stream, version, triggerData);
@@ -55,7 +55,7 @@ export default class ECA {
 
     if (version === 7) {
       for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let eca = new ECA();
+        const eca = new ECA();
 
         try {
           eca.load(stream, version, true, triggerData);
@@ -78,14 +78,14 @@ export default class ECA {
     stream.writeNull(this.name);
     stream.writeInt32(this.isEnabled);
 
-    for (let parameter of this.parameters) {
+    for (const parameter of this.parameters) {
       parameter.save(stream, version);
     }
 
     if (version === 7) {
       stream.writeUint32(this.ecas.length);
 
-      for (let eca of this.ecas) {
+      for (const eca of this.ecas) {
         eca.save(stream, version);
       }
     }
@@ -98,14 +98,14 @@ export default class ECA {
       size += 4;
     }
 
-    for (let parameter of this.parameters) {
+    for (const parameter of this.parameters) {
       size += parameter.getByteLength(version);
     }
 
     if (version === 7) {
       size += 4;
 
-      for (let eca of this.ecas) {
+      for (const eca of this.ecas) {
         size += eca.getByteLength(version);
       }
     }

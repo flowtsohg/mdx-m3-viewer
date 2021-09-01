@@ -12,4 +12,6 @@ export function decodeAudioData(buffer: ArrayBuffer) {
   if (audioContext) {
     return audioContext.decodeAudioData(buffer);
   }
+
+  return;
 }

@@ -12,7 +12,7 @@ export default class BitStream {
   bits: number = 0;
 
   constructor(buffer: ArrayBuffer | Uint8Array, byteOffset?: number, byteLength?: number) {
-    let bytes = bytesOf(buffer);
+    const bytes = bytesOf(buffer);
 
     // For browsers not supporting the spec.
     // Once upon a time I reported this issue on the Firefox tracker.
@@ -38,7 +38,7 @@ export default class BitStream {
    * Read a number of bits.
    */
   readBits(bits: number) {
-    let data = this.peekBits(bits);
+    const data = this.peekBits(bits);
 
     this.bitBuffer >>>= bits;
     this.bits -= bits;

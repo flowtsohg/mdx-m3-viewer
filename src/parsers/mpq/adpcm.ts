@@ -84,19 +84,18 @@ function DecodeSample(PredictedSample: number, EncodedSample: number, StepSize: 
 }
 
 export default function DecompressADPCM(pvInBuffer: Uint8Array, ChannelCount: number) {
-  let is = new BinaryStream(pvInBuffer);
-  let os = <number[]>[];
+  const is = new BinaryStream(pvInBuffer);
+  const os = <number[]>[];
   let EncodedSample;
-  let BitShift;
-  let PredictedSamples = new Uint16Array(MAX_ADPCM_CHANNEL_COUNT);
-  let StepIndexes = new Uint16Array([INITIAL_ADPCM_STEP_INDEX, INITIAL_ADPCM_STEP_INDEX]);
+  const PredictedSamples = new Uint16Array(MAX_ADPCM_CHANNEL_COUNT);
+  const StepIndexes = new Uint16Array([INITIAL_ADPCM_STEP_INDEX, INITIAL_ADPCM_STEP_INDEX]);
   let ChannelIndex;
 
   is.readUint8();
-  BitShift = is.readUint8();
+  const BitShift = is.readUint8();
 
   for (let i = 0; i < ChannelCount; i++) {
-    let InitialSample = is.readUint16();
+    const InitialSample = is.readUint16();
 
     PredictedSamples[i] = InitialSample;
 
@@ -115,7 +114,7 @@ export default function DecompressADPCM(pvInBuffer: Uint8Array, ChannelCount: nu
         StepIndexes[ChannelIndex]--;
       }
 
-      os.push(PredictedSamples[ChannelIndex])
+      os.push(PredictedSamples[ChannelIndex]);
     } else if (EncodedSample == 0x81) {
       StepIndexes[ChannelIndex] += 8;
 
@@ -125,12 +124,12 @@ export default function DecompressADPCM(pvInBuffer: Uint8Array, ChannelCount: nu
 
       ChannelIndex = (ChannelIndex + 1) % ChannelCount;
     } else {
-      let StepIndex = StepIndexes[ChannelIndex];
-      let StepSize = StepSizeTable[StepIndex];
+      const StepIndex = StepIndexes[ChannelIndex];
+      const StepSize = StepSizeTable[StepIndex];
 
       PredictedSamples[ChannelIndex] = DecodeSample(PredictedSamples[ChannelIndex], EncodedSample, StepSize, StepSize >> BitShift);
 
-      os.push(PredictedSamples[ChannelIndex])
+      os.push(PredictedSamples[ChannelIndex]);
 
       StepIndexes[ChannelIndex] = GetNextStepIndex(StepIndex, EncodedSample);
     }

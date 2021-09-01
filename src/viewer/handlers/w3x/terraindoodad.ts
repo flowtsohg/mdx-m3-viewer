@@ -17,14 +17,14 @@ export default class TerrainDoodad {
   row: MappedDataRow;
 
   constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow, doodad: DooTerrainDoodad) {
-    let centeroffset = map.centerOffset;
-    let instance = <MdxModelInstance>model.addInstance();
+    const centeroffset = map.centerOffset;
+    const instance = <MdxModelInstance>model.addInstance();
 
     locationHeap[0] = doodad.location[0] * 128 + centeroffset[0] + 128;
     locationHeap[1] = doodad.location[1] * 128 + centeroffset[1] + 128;
 
     instance.move(locationHeap);
-    instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, degToRad(<number>row.fixedRot)));
+    instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, degToRad(<number>row['fixedRot'])));
     instance.setScene(map.worldScene);
 
     this.instance = instance;

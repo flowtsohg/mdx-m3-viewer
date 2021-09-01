@@ -32,7 +32,7 @@ export default class Trigger {
     this.category = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let eca = new ECA();
+      const eca = new ECA();
 
       try {
         eca.load(stream, version, false, triggerData);
@@ -59,7 +59,7 @@ export default class Trigger {
     stream.writeInt32(this.category);
     stream.writeUint32(this.ecas.length);
 
-    for (let eca of this.ecas) {
+    for (const eca of this.ecas) {
       eca.save(stream, version);
     }
   }
@@ -71,7 +71,7 @@ export default class Trigger {
       size += 4;
     }
 
-    for (let eca of this.ecas) {
+    for (const eca of this.ecas) {
       size += eca.getByteLength(version);
     }
 

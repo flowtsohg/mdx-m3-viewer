@@ -10,7 +10,7 @@ export default class M3Sts {
   constructor(sts: M3ParserSts) {
     this.animIds = {};
 
-    let animIds = <Uint32Array>sts.animIds.get();
+    const animIds = <Uint32Array>sts.animIds.get();
 
     // Allows direct checks instead of loops
     for (let i = 0, l = animIds.length; i < l; i++) {

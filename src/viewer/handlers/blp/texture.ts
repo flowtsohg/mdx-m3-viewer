@@ -20,15 +20,15 @@ export default class BlpTexture extends Texture {
       image.load(bufferOrImage);
     }
 
-    let viewer = this.viewer;
-    let gl = viewer.gl;
+    const viewer = this.viewer;
+    const gl = viewer.gl;
 
-    let id = gl.createTexture();
+    const id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-    let isPOT = isPowerOfTwo(image.width) && isPowerOfTwo(image.height);
+    const isPOT = isPowerOfTwo(image.width) && isPowerOfTwo(image.height);
 
     if (!isPOT) {
       // Required for NPOT textures.
@@ -36,11 +36,11 @@ export default class BlpTexture extends Texture {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
-    let mipmaps = image.mipmaps();
+    const mipmaps = image.mipmaps();
 
     // If there is one mipmap, or fake mipmaps, or it's an NPOT image, use just the first mipmap. Otherwise load all of them.
     if (mipmaps === 1 || image.hasFakeMipmaps() || !isPOT) {
-      let imageData = image.getMipmap(0);
+      const imageData = image.getMipmap(0);
 
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
@@ -52,7 +52,7 @@ export default class BlpTexture extends Texture {
       let height = image.height;
 
       for (let i = 0; i < mipmaps; i++) {
-        let imageData = image.getMipmap(i);
+        const imageData = image.getMipmap(i);
 
         // Don't use the image data dimensions directly.
         // Some JPG mipmaps out there have wrong sizes.

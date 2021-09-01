@@ -92,42 +92,42 @@ export default class MdxModel extends Model {
       }
     }
 
-    let viewer = this.viewer;
-    let pathSolver = this.pathSolver;
-    let solverParams = this.solverParams;
-    let reforged = parser.version > 800;
-    let texturesExt = reforged ? '.dds' : '.blp';
+    const viewer = this.viewer;
+    const pathSolver = this.pathSolver;
+    const solverParams = this.solverParams;
+    const reforged = parser.version > 800;
+    const texturesExt = reforged ? '.dds' : '.blp';
     let hasTeamColors = false;
 
     this.reforged = reforged;
     this.name = parser.name;
 
     // Initialize the bounds.
-    let extent = parser.extent;
+    const extent = parser.extent;
     this.bounds.fromExtents(extent.min, extent.max);
 
     // Sequences
-    for (let sequence of parser.sequences) {
+    for (const sequence of parser.sequences) {
       this.sequences.push(new Sequence(sequence));
     }
 
     // Global sequences
-    for (let globalSequence of parser.globalSequences) {
+    for (const globalSequence of parser.globalSequences) {
       this.globalSequences.push(globalSequence);
     }
 
     // Texture animations
-    for (let textureAnimation of parser.textureAnimations) {
+    for (const textureAnimation of parser.textureAnimations) {
       this.textureAnimations.push(new TextureAnimation(this, textureAnimation));
     }
 
     // Materials
     let layerId = 0;
-    for (let material of parser.materials) {
-      let layers = [];
+    for (const material of parser.materials) {
+      const layers = [];
 
-      for (let layer of material.layers) {
-        let vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
+      for (const layer of material.layers) {
+        const vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
 
         layers.push(vLayer);
 
@@ -150,12 +150,12 @@ export default class MdxModel extends Model {
     }
 
     // Textures.
-    let textures = parser.textures;
+    const textures = parser.textures;
     for (let i = 0, l = textures.length; i < l; i++) {
-      let texture = textures[i];
+      const texture = textures[i];
       let path = texture.path;
-      let replaceableId = texture.replaceableId;
-      let flags = texture.flags;
+      const replaceableId = texture.replaceableId;
+      const flags = texture.flags;
 
       if (replaceableId !== 0) {
         path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
@@ -165,7 +165,7 @@ export default class MdxModel extends Model {
         }
       }
 
-      let mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
+      const mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
 
       viewer.load(path, pathSolver, solverParams)
         .then((texture) => {
@@ -178,7 +178,7 @@ export default class MdxModel extends Model {
     }
 
     // Geoset animations
-    for (let geosetAnimation of parser.geosetAnimations) {
+    for (const geosetAnimation of parser.geosetAnimations) {
       this.geosetAnimations.push(new GeosetAnimation(this, geosetAnimation));
     }
 
@@ -188,33 +188,33 @@ export default class MdxModel extends Model {
     let objectId = 0;
 
     // Bones
-    for (let bone of parser.bones) {
+    for (const bone of parser.bones) {
       this.bones.push(new Bone(this, bone, objectId++));
     }
 
     // Lights
-    for (let light of parser.lights) {
+    for (const light of parser.lights) {
       this.lights.push(new Light(this, light, objectId++));
     }
 
     // Helpers
-    for (let helper of parser.helpers) {
+    for (const helper of parser.helpers) {
       this.helpers.push(new Helper(this, helper, objectId++));
     }
 
     // Attachments
-    for (let attachment of parser.attachments) {
+    for (const attachment of parser.attachments) {
       this.attachments.push(new Attachment(this, attachment, objectId++));
     }
 
     // Particle emitters
-    for (let particleEmitter of parser.particleEmitters) {
+    for (const particleEmitter of parser.particleEmitters) {
       this.particleEmitters.push(new ParticleEmitterObject(this, particleEmitter, objectId++));
     }
 
     // Particle emitters 2
-    for (let particleEmitter2 of parser.particleEmitters2) {
-      let emitter = new ParticleEmitter2Object(this, particleEmitter2, objectId++);
+    for (const particleEmitter2 of parser.particleEmitters2) {
+      const emitter = new ParticleEmitter2Object(this, particleEmitter2, objectId++);
 
       this.particleEmitters2.push(emitter);
 
@@ -224,22 +224,22 @@ export default class MdxModel extends Model {
     }
 
     // Ribbon emitters
-    for (let ribbonEmitter of parser.ribbonEmitters) {
+    for (const ribbonEmitter of parser.ribbonEmitters) {
       this.ribbonEmitters.push(new RibbonEmitterObject(this, ribbonEmitter, objectId++));
     }
 
     // Cameras
-    for (let camera of parser.cameras) {
+    for (const camera of parser.cameras) {
       this.cameras.push(new Camera(this, camera));
     }
 
     // Event objects
-    for (let eventObject of parser.eventObjects) {
+    for (const eventObject of parser.eventObjects) {
       this.eventObjects.push(new EventObjectEmitterObject(this, eventObject, objectId++));
     }
 
     // Collision shapes
-    for (let collisionShape of parser.collisionShapes) {
+    for (const collisionShape of parser.collisionShapes) {
       this.collisionShapes.push(new CollisionShape(this, collisionShape, objectId++));
     }
 
@@ -272,7 +272,7 @@ export default class MdxModel extends Model {
 
   setupHierarchy(parent: number) {
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
-      let object = this.genericObjects[i];
+      const object = this.genericObjects[i];
 
       if (object.parentId === parent) {
         this.hierarchy.push(i);

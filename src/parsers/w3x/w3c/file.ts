@@ -9,12 +9,12 @@ export default class War3MapW3c {
   cameras: Camera[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let camera = new Camera();
+      const camera = new Camera();
 
       camera.load(stream, buildVersion);
 
@@ -23,12 +23,12 @@ export default class War3MapW3c {
   }
 
   save(buildVersion: number) {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
 
     stream.writeInt32(this.version);
     stream.writeUint32(this.cameras.length);
 
-    for (let camera of this.cameras) {
+    for (const camera of this.cameras) {
       camera.save(stream, buildVersion);
     }
 
@@ -38,7 +38,7 @@ export default class War3MapW3c {
   getByteLength(buildVersion: number) {
     let size = 8;
 
-    for (let camera of this.cameras) {
+    for (const camera of this.cameras) {
       size += camera.getByteLength(buildVersion);
     }
 

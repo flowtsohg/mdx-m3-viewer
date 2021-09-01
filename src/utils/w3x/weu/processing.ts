@@ -11,11 +11,11 @@ import transformPreset from './transformations/presets';
 export function processTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
   data.push(trigger);
 
-  let eventsAndConditions = [];
-  let actions = [];
+  const eventsAndConditions = [];
+  const actions = [];
 
-  for (let eca of trigger.ecas) {
-    let type = eca.type;
+  for (const eca of trigger.ecas) {
+    const type = eca.type;
 
     if (type === 0 || type === 1) {
       eventsAndConditions.push(eca);
@@ -24,10 +24,10 @@ export function processTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     }
   }
 
-  let outputEcas = [];
+  const outputEcas = [];
 
-  for (let eventOrCondition of eventsAndConditions) {
-    let result = processECA(data, eventOrCondition, callbacks);
+  for (const eventOrCondition of eventsAndConditions) {
+    const result = processECA(data, eventOrCondition, callbacks);
 
     if (result.convert) {
       data.pop();
@@ -37,11 +37,11 @@ export function processTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     outputEcas.push(eventOrCondition);
   }
 
-  for (let action of actions) {
-    let result = processECA(data, action, callbacks);
+  for (const action of actions) {
+    const result = processECA(data, action, callbacks);
 
     if (result.convert) {
-      let customScripts = convertFunctionCall(data, action, callbacks);
+      const customScripts = convertFunctionCall(data, action, callbacks);
 
       data.change('inlinecustomscript', result.reason, customScripts.map((eca) => eca.parameters[0].value).join('\n'));
       outputEcas.push(...customScripts);
@@ -60,10 +60,10 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
   data.push(eca);
 
   // Test if this function call, or anything down its hierarchy, needs to be converted to custom script.
-  let result = processFunctionCall(data, eca, callbacks);
+  const result = processFunctionCall(data, eca, callbacks);
 
   if (result.convert) {
-    let reason = result.reason;
+    const reason = result.reason;
 
     // If conversion is needed, try first to see if this is a RoC control flow ECA, and convert it to its TFT equivalent.
     // This includes things like IfThenElse (RoC) and IfThenElseMultiple (TFT).
@@ -71,7 +71,7 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
     if (convertSingleToMultiple(eca)) {
       // If the test passes here (that is, false is returned), the TFT conversion allowed to handle the conversion down the hierarchy.
       // In this case, this ECA no longer needs to be converted to custom script.
-      let result = processFunctionCall(data, eca, callbacks);
+      const result = processFunctionCall(data, eca, callbacks);
 
       if (result.convert) {
         data.pop();
@@ -85,11 +85,11 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
     }
   }
 
-  let outputEcas = [];
+  const outputEcas = [];
 
   // Test the child ECAs if there are any.
-  for (let child of eca.ecas) {
-    let result = processECA(data, child, callbacks);
+  for (const child of eca.ecas) {
+    const result = processECA(data, child, callbacks);
 
     if (result.convert) {
       let customScripts;
@@ -127,7 +127,7 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
       }
 
       // All of the custom scripts should be in the same group as the original child.
-      for (let script of customScripts) {
+      for (const script of customScripts) {
         script.group = child.group;
       }
 
@@ -145,7 +145,7 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
 }
 
 function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]) {
-  let name = object.name;
+  const name = object.name;
 
   // Check if this object can be converted back to normal GUI.
   // If it's already normal GUI, nothing will happen.
@@ -161,10 +161,10 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
   // Check the parameters.
   // Note that they will also be checked if GUI was inlined.
   // This is needed, because the inline functions don't check the parameters, only move them around.
-  for (let parameter of object.parameters) {
+  for (const parameter of object.parameters) {
     // Check for custom presets.
     if (parameter.type === 0 && data.triggerData.isCustomPreset(parameter.value)) {
-      let value = parameter.value;
+      const value = parameter.value;
 
       if (transformPreset(data, parameter)) {
         data.change('inlinepreset', value, parameter.value);
@@ -173,7 +173,7 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
       }
     }
 
-    let result = processParameter(data, parameter, callbacks);
+    const result = processParameter(data, parameter, callbacks);
 
     if (result.convert) {
       return result;
@@ -186,8 +186,8 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
 function processParameter(data: WeuData, parameter: Parameter, callbacks: string[]): { convert: boolean, reason: string } {
   data.push(parameter);
 
-  let type = parameter.type;
-  let value = parameter.value;
+  const type = parameter.type;
+  const value = parameter.value;
 
   if (type === 1) {
     if (value.startsWith('gg_')) {
@@ -195,7 +195,7 @@ function processParameter(data: WeuData, parameter: Parameter, callbacks: string
       data.updateGUIReference(value, true);
     }
   } else if (type === 2) {
-    let result = processSubParameters(data, <SubParameters>parameter.subParameters, callbacks);
+    const result = processSubParameters(data, <SubParameters>parameter.subParameters, callbacks);
 
     if (result.convert) {
       data.pop();
@@ -204,10 +204,10 @@ function processParameter(data: WeuData, parameter: Parameter, callbacks: string
   }
 
   // If this is an array element, test the array index.
-  let index = parameter.arrayIndex;
+  const index = parameter.arrayIndex;
 
   if (index) {
-    let result = processParameter(data, index, callbacks);
+    const result = processParameter(data, index, callbacks);
 
     if (result.convert) {
       data.pop();
@@ -222,7 +222,7 @@ function processParameter(data: WeuData, parameter: Parameter, callbacks: string
 function processSubParameters(data: WeuData, subParameters: SubParameters, callbacks: string[]) {
   data.push(subParameters);
 
-  let result = processFunctionCall(data, subParameters, callbacks);
+  const result = processFunctionCall(data, subParameters, callbacks);
 
   if (result.convert) {
     data.pop();

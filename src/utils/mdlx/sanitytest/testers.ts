@@ -20,14 +20,14 @@ import { sequenceNames, replaceableIds, testObjects, testReference, getTextureId
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
-  let version = data.model.version;
+  const version = data.model.version;
 
   if (version !== 800 && version !== 900 && version !== 1000) {
-    data.addWarning(`Unknown version: ${version}`)
+    data.addWarning(`Unknown version: ${version}`);
   }
 
   if (version === 900) {
-    data.addError('Version 900 is not supported by Warcrft 3')
+    data.addError('Version 900 is not supported by Warcrft 3');
   }
 
   if (data.model.animationFile !== '') {
@@ -38,7 +38,7 @@ export function testHeader(data: SanityTestData) {
 }
 
 export function testSequences(data: SanityTestData) {
-  let sequences = data.model.sequences;
+  const sequences = data.model.sequences;
 
   if (sequences.length) {
     testObjects(data, sequences, testSequence);
@@ -51,16 +51,16 @@ export function testSequences(data: SanityTestData) {
 }
 
 function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
-  let name = sequence.name;
-  let tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/);
+  const name = sequence.name;
+  const tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/);
   let token = tokens[0];
-  let interval = sequence.interval;
-  let length = interval[1] - interval[0];
-  let sequences = data.model.sequences;
+  const interval = sequence.interval;
+  const length = interval[1] - interval[0];
+  const sequences = data.model.sequences;
 
   for (let i = 0; i < index; i++) {
-    let otherSequence = sequences[i];
-    let otherInterval = otherSequence.interval;
+    const otherSequence = sequences[i];
+    const otherInterval = otherSequence.interval;
 
     // Reforged fixed these weird issues with sequence ordering.
     if (data.model.version === 800) {
@@ -99,7 +99,7 @@ export function testGlobalSequence(data: SanityTestData, sequence: number) {
 }
 
 export function testTextures(data: SanityTestData) {
-  let textures = data.model.textures;
+  const textures = data.model.textures;
 
   if (textures.length) {
     testObjects(data, textures, testTexture);
@@ -109,9 +109,9 @@ export function testTextures(data: SanityTestData) {
 }
 
 function testTexture(data: SanityTestData, texture: Texture) {
-  let replaceableId = texture.replaceableId;
-  let path = texture.path.toLowerCase();
-  let ext = extname(path);
+  const replaceableId = texture.replaceableId;
+  const path = texture.path.toLowerCase();
+  const ext = extname(path);
 
   data.assertError(path === '' || ext === '.blp' || ext === '.tga' || ext === '.tif' || ext === '.dds', `Corrupted path: "${path}"`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID: ${replaceableId}`);
@@ -119,8 +119,8 @@ function testTexture(data: SanityTestData, texture: Texture) {
 }
 
 export function testMaterial(data: SanityTestData, material: Material) {
-  let layers = material.layers;
-  let shader = material.shader;
+  const layers = material.layers;
+  const shader = material.shader;
 
   if (data.model.version > 800) {
     data.assertWarning(shader === '' || shader === 'Shader_SD_FixedFunction' || shader === 'Shader_HD_DefaultUnit', `Unknown shader: "${shader}"`);
@@ -134,27 +134,27 @@ export function testMaterial(data: SanityTestData, material: Material) {
 }
 
 function testLayer(data: SanityTestData, layer: Layer) {
-  let textures = data.model.textures;
-  let textureAnimations = data.model.textureAnimations;
+  const textures = data.model.textures;
+  const textureAnimations = data.model.textureAnimations;
 
-  for (let textureId of getTextureIds(layer)) {
+  for (const textureId of getTextureIds(layer)) {
     testReference(data, textures, textureId, 'texture');
   }
 
-  let textureAnimationId = layer.textureAnimationId;
+  const textureAnimationId = layer.textureAnimationId;
 
   if (textureAnimationId !== -1) {
     testReference(data, textureAnimations, textureAnimationId, 'texture animation');
   }
 
-  let filterMode = layer.filterMode;
+  const filterMode = layer.filterMode;
 
   data.assertWarning(filterMode >= 0 && filterMode <= 6, `Invalid filter mode: ${layer.filterMode}`);
 }
 
 export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) {
-  let geosetAnimations = data.model.geosetAnimations;
-  let material = testReference(data, data.model.materials, geoset.materialId, 'material');
+  const geosetAnimations = data.model.geosetAnimations;
+  const material = testReference(data, data.model.materials, geoset.materialId, 'material');
   let isHd = false;
 
   if (material && material.shader === 'Shader_HD_DefaultUnit') {
@@ -178,7 +178,7 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
   testGeosetSkinning(data, geoset);
 
   if (geosetAnimations.length) {
-    let references = [];
+    const references = [];
 
     for (let j = 0, k = geosetAnimations.length; j < k; j++) {
       if (geosetAnimations[j].geosetId === index) {
@@ -204,14 +204,14 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
 
   testExtent(data, geoset.extent);
 
-  for (let extent of geoset.sequenceExtents) {
+  for (const extent of geoset.sequenceExtents) {
     testExtent(data, extent);
   }
 }
 
 export function testGeosetAnimation(data: SanityTestData, geosetAnimation: GeosetAnimation) {
-  let geosets = data.model.geosets;
-  let geosetId = geosetAnimation.geosetId;
+  const geosets = data.model.geosets;
+  const geosetId = geosetAnimation.geosetId;
 
   data.addImplicitReference();
 
@@ -221,17 +221,17 @@ export function testGeosetAnimation(data: SanityTestData, geosetAnimation: Geose
 const SUPPOSED_ALPHA_THRESHOLD = 0.1;
 
 export function testBone(data: SanityTestData, bone: Bone) {
-  let geosets = data.model.geosets;
-  let geosetAnimations = data.model.geosetAnimations;
-  let geosetId = bone.geosetId;
-  let geosetAnimationId = bone.geosetAnimationId;
+  const geosets = data.model.geosets;
+  const geosetAnimations = data.model.geosetAnimations;
+  const geosetId = bone.geosetId;
+  const geosetAnimationId = bone.geosetAnimationId;
 
   if (geosetId !== -1) {
     testReference(data, geosets, geosetId, 'geoset');
   }
 
   if (geosetAnimationId !== -1 && testReference(data, geosetAnimations, geosetAnimationId, 'geoset animation')) {
-    let geosetAnimation = geosetAnimations[geosetAnimationId];
+    const geosetAnimation = geosetAnimations[geosetAnimationId];
 
     if (geosetId !== -1 && geosetAnimation.alpha < SUPPOSED_ALPHA_THRESHOLD && !hasAnimation(geosetAnimation, 'KGAO')) {
       data.addSevere(`Referencing geoset ${geosetId + 1} and geoset animation ${geosetAnimationId + 1} with a 0 alpha, the geoset may be invisible`);
@@ -240,7 +240,7 @@ export function testBone(data: SanityTestData, bone: Bone) {
 }
 
 export function testLight(data: SanityTestData, light: Light) {
-  let attenuation = light.attenuation;
+  const attenuation = light.attenuation;
 
   data.assertWarning(attenuation[0] >= 80, `Minimum attenuation should probably be bigger than or equal to 80, but is ${attenuation[0]}`);
   data.assertWarning(attenuation[1] <= 200, `Maximum attenuation should probably be smaller than or equal to 200, but is ${attenuation[0]}`);
@@ -248,10 +248,10 @@ export function testLight(data: SanityTestData, light: Light) {
 }
 
 export function testAttachments(data: SanityTestData) {
-  let attachments = data.model.attachments;
+  const attachments = data.model.attachments;
   let foundOrigin = false;
 
-  for (let attachment of attachments) {
+  for (const attachment of attachments) {
     const path = attachment.path;
 
     if (path.length) {
@@ -271,8 +271,8 @@ export function testAttachments(data: SanityTestData) {
 }
 
 export function testPivotPoints(data: SanityTestData) {
-  let pivotPoints = data.model.pivotPoints;
-  let objects = data.objects;
+  const pivotPoints = data.model.pivotPoints;
+  const objects = data.objects;
 
   data.assertWarning(pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
 }
@@ -284,11 +284,11 @@ export function testParticleEmitter(data: SanityTestData, emitter: ParticleEmitt
 }
 
 export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmitter2) {
-  let replaceableId = emitter.replaceableId;
+  const replaceableId = emitter.replaceableId;
 
   testReference(data, data.model.textures, emitter.textureId, 'texture');
 
-  let filterMode = emitter.filterMode;
+  const filterMode = emitter.filterMode;
 
   data.assertWarning(filterMode >= 0 && filterMode <= 4, `Invalid filter mode: ${emitter.filterMode}`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID: ${replaceableId}`);
@@ -306,7 +306,7 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 }
 
 export function testParticleEmitterPopcorn(data: SanityTestData, emitter: ParticleEmitterPopcorn) {
-  let path = emitter.path;
+  const path = emitter.path;
 
   if (path.length) {
     data.assertError(path.endsWith('.pkfx'), `Corrupted path: "${path}"`);
@@ -328,7 +328,7 @@ export function testCamera(data: SanityTestData, camera: Camera) {
 }
 
 export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
-  let path = faceEffect.path;
+  const path = faceEffect.path;
 
   if (path.length) {
     data.assertError(path.endsWith('.facefx') || path.endsWith('.facefx_ingame'), `Corrupted face effect path: "${path}"`);
@@ -338,8 +338,8 @@ export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
 }
 
 export function testBindPose(data: SanityTestData) {
-  let matrices = data.model.bindPose;
-  let objects = data.objects;
+  const matrices = data.model.bindPose;
+  const objects = data.objects;
 
   if (matrices.length && objects.length) { 
     // There's always an extra matrix for some reason.

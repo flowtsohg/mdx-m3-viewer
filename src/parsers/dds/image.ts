@@ -23,8 +23,8 @@ export class DdsImage {
   mipmapDatas: Uint8Array[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let bytes = bytesOf(buffer)
-    let header = new Int32Array(bytes.buffer, 0, 31);
+    const bytes = bytesOf(buffer);
+    const header = new Int32Array(bytes.buffer, 0, 31);
 
     if (header[0] !== DDS_MAGIC) {
       throw new Error('Wrong magic number');
@@ -34,7 +34,7 @@ export class DdsImage {
       throw new Error('Not FourCC');
     }
 
-    let fourCC = header[21];
+    const fourCC = header[21];
 
     if (fourCC !== FOURCC_DXT1 && fourCC !== FOURCC_DXT3 && fourCC !== FOURCC_DXT5 && fourCC !== FOURCC_ATI2) {
       throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`);
@@ -63,7 +63,7 @@ export class DdsImage {
     let offset = header[1] + 4;
 
     for (let i = 0; i < mipmaps; i++) {
-      let size = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockSize;
+      const size = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockSize;
 
       this.mipmapWidths[i] = width;
       this.mipmapHeights[i] = height;
@@ -80,9 +80,9 @@ export class DdsImage {
   }
 
   getMipmap(level: number, raw: boolean = false) {
-    let width = this.mipmapWidths[level];
-    let height = this.mipmapHeights[level];
-    let data = this.mipmapDatas[level];
+    const width = this.mipmapWidths[level];
+    const height = this.mipmapHeights[level];
+    const data = this.mipmapDatas[level];
     let mipmap: Uint16Array | Uint8Array;
 
     if (raw) {

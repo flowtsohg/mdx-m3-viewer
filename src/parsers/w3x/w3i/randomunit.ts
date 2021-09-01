@@ -18,7 +18,7 @@ export default class RandomUnit {
   save(stream: BinaryStream) {
     stream.writeInt32(this.chance);
 
-    for (let id of this.ids) {
+    for (const id of this.ids) {
       stream.writeBinary(id);
     }
   }

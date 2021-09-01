@@ -20,11 +20,11 @@ export default class ParticleEmitter2 extends MdxEmitter {
   }
 
   updateEmission(dt: number) {
-    let instance = <MdxModelInstance>this.instance;
+    const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      let emitterObject = <ParticleEmitter2Object>this.emitterObject;
-      let keyframe = emitterObject.getEmissionRate(emissionRateHeap, instance.sequence, instance.frame, instance.counter);
+      const emitterObject = <ParticleEmitter2Object>this.emitterObject;
+      const keyframe = emitterObject.getEmissionRate(emissionRateHeap, instance.sequence, instance.frame, instance.counter);
 
       if (emitterObject.squirt) {
         if (keyframe !== this.lastEmissionKey) {
@@ -39,7 +39,7 @@ export default class ParticleEmitter2 extends MdxEmitter {
   }
 
   emit() {
-    let emitterObject = <ParticleEmitter2Object>this.emitterObject;
+    const emitterObject = <ParticleEmitter2Object>this.emitterObject;
 
     if (emitterObject.head) {
       this.emitObject(0);

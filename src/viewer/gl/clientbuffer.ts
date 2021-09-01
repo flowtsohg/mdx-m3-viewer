@@ -18,7 +18,7 @@ export default class ClientBuffer {
 
   reserve(size: number) {
     if (this.size < size) {
-      let gl = this.gl;
+      const gl = this.gl;
 
       // Ensure the size is on a 4 byte boundary.
       this.size = Math.ceil(size / 4) * 4;
@@ -33,8 +33,8 @@ export default class ClientBuffer {
   }
 
   bindAndUpdate(size: number = this.size) {
-    let gl = this.gl;
-    let byteView = <Uint8Array>this.byteView;
+    const gl = this.gl;
+    const byteView = <Uint8Array>this.byteView;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, byteView.subarray(0, size));

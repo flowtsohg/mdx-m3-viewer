@@ -39,7 +39,7 @@ export default class Doodad {
       this.itemTable = stream.readUint32();
 
       for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let itemSet = new RandomItemSet();
+        const itemSet = new RandomItemSet();
 
         itemSet.load(stream);
 
@@ -68,7 +68,7 @@ export default class Doodad {
       stream.writeUint32(this.itemTable);
       stream.writeUint32(this.itemSets.length);
 
-      for (let itemSet of this.itemSets) {
+      for (const itemSet of this.itemSets) {
         itemSet.save(stream);
       }
     }
@@ -86,7 +86,7 @@ export default class Doodad {
     if (version > 7) {
       size += 8;
 
-      for (let itemSet of this.itemSets) {
+      for (const itemSet of this.itemSets) {
         size += itemSet.getByteLength();
       }
     }

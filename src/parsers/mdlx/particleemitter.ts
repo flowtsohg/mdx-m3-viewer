@@ -18,7 +18,7 @@ export default class ParticleEmitter extends GenericObject {
     super(0x1000);
   }
 
-  readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream) {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -35,7 +35,7 @@ export default class ParticleEmitter extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -145,7 +145,7 @@ export default class ParticleEmitter extends GenericObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 288 + super.getByteLength();
   }
 }

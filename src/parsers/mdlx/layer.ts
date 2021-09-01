@@ -92,7 +92,7 @@ export default class Layer extends AnimatedObject {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of super.readAnimatedBlock(stream)) {
+    for (const token of super.readAnimatedBlock(stream)) {
       if (token === 'FilterMode') {
         this.filterMode = filterModeToMdx[stream.read()];
       } else if (token === 'Unshaded') {
@@ -124,19 +124,19 @@ export default class Layer extends AnimatedObject {
       } else if (token === 'static EmissiveGain') {
         this.emissiveGain = stream.readFloat();
       } else if (token === 'EmissiveGain') {
-        this.readAnimation(stream, 'KMTE')
+        this.readAnimation(stream, 'KMTE');
       } else if (token === 'static FresnelColor') {
         stream.readVector(this.fresnelColor);
       } else if (token === 'FresnelColor') {
-        this.readAnimation(stream, 'KFC3')
+        this.readAnimation(stream, 'KFC3');
       } else if (token === 'static FresnelOpacity') {
         this.fresnelOpacity = stream.readFloat();
       } else if (token === 'FresnelOpacity') {
-        this.readAnimation(stream, 'KFCA')
+        this.readAnimation(stream, 'KFCA');
       } else if (token === 'static FresnelTeamColor') {
         this.fresnelTeamColor = stream.readFloat();
       } else if (token === 'FresnelTeamColor') {
-        this.readAnimation(stream, 'KFTC')
+        this.readAnimation(stream, 'KFTC');
       } else {
         throw new Error(`Unknown token in Layer: "${token}"`);
       }
@@ -215,7 +215,7 @@ export default class Layer extends AnimatedObject {
     stream.endBlock();
   }
 
-  getByteLength(version: number) {
+  override getByteLength(version: number) {
     let size = 28 + super.getByteLength();
 
     // See note above in readMdx.

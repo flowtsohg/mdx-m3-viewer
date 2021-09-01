@@ -9,27 +9,27 @@ export default class War3MapW3s {
   sounds: Sound[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let sound = new Sound();
+      const sound = new Sound();
 
-      sound.load(stream);
+      sound.load(stream, this.version);
 
       this.sounds[i] = sound;
     }
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     stream.writeUint32(this.sounds.length);
 
-    for (let sound of this.sounds) {
-      sound.save(stream);
+    for (const sound of this.sounds) {
+      sound.save(stream, this.version);
     }
 
     return stream.uint8array;
@@ -38,8 +38,8 @@ export default class War3MapW3s {
   getByteLength() {
     let size = 8;
 
-    for (let sound of this.sounds) {
-      size += sound.getByteLength();
+    for (const sound of this.sounds) {
+      size += sound.getByteLength(this.version);
     }
 
     return size;

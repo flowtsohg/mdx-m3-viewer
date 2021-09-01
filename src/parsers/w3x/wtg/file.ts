@@ -15,7 +15,7 @@ export default class War3MapWtg {
   triggers: Trigger[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array, triggerData: TriggerData) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'WTG!') {
       throw new Error('Not a WTG file');
@@ -24,7 +24,7 @@ export default class War3MapWtg {
     this.version = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let category = new TriggerCategory();
+      const category = new TriggerCategory();
 
       category.load(stream, this.version);
 
@@ -34,7 +34,7 @@ export default class War3MapWtg {
     this.u1 = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let variable = new Variable();
+      const variable = new Variable();
 
       variable.load(stream, this.version);
 
@@ -42,7 +42,7 @@ export default class War3MapWtg {
     }
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let trigger = new Trigger();
+      const trigger = new Trigger();
 
       try {
         trigger.load(stream, this.version, triggerData);
@@ -55,26 +55,26 @@ export default class War3MapWtg {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('WTG!');
     stream.writeInt32(this.version);
     stream.writeUint32(this.categories.length);
 
-    for (let category of this.categories) {
+    for (const category of this.categories) {
       category.save(stream, this.version);
     }
 
     stream.writeInt32(this.u1);
     stream.writeUint32(this.variables.length);
 
-    for (let variable of this.variables) {
+    for (const variable of this.variables) {
       variable.save(stream, this.version);
     }
 
     stream.writeUint32(this.triggers.length);
 
-    for (let trigger of this.triggers) {
+    for (const trigger of this.triggers) {
       trigger.save(stream, this.version);
     }
 
@@ -83,17 +83,17 @@ export default class War3MapWtg {
 
   getByteLength() {
     let size = 24;
-    let version = this.version;
+    const version = this.version;
 
-    for (let category of this.categories) {
+    for (const category of this.categories) {
       size += category.getByteLength(version);
     }
 
-    for (let variable of this.variables) {
+    for (const variable of this.variables) {
       size += variable.getByteLength(version);
     }
 
-    for (let trigger of this.triggers) {
+    for (const trigger of this.triggers) {
       size += trigger.getByteLength(version);
     }
 

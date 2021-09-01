@@ -14,7 +14,7 @@ export default class ModifiedObject {
     this.newId = stream.readBinary(4);
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let modification = new Modification();
+      const modification = new Modification();
 
       modification.load(stream, useOptionalInts);
 
@@ -37,7 +37,7 @@ export default class ModifiedObject {
 
     stream.writeUint32(this.modifications.length);
 
-    for (let modification of this.modifications) {
+    for (const modification of this.modifications) {
       modification.save(stream, useOptionalInts);
     }
   }
@@ -45,7 +45,7 @@ export default class ModifiedObject {
   getByteLength(useOptionalInts: boolean) {
     let size = 12;
 
-    for (let modification of this.modifications) {
+    for (const modification of this.modifications) {
       size += modification.getByteLength(useOptionalInts);
     }
 

@@ -76,7 +76,7 @@ export default class Unit {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let set = new DroppedItemSet();
+      const set = new DroppedItemSet();
 
       set.load(stream);
 
@@ -94,7 +94,7 @@ export default class Unit {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let item = new InventoryItem();
+      const item = new InventoryItem();
 
       item.load(stream);
 
@@ -102,7 +102,7 @@ export default class Unit {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let modifiedAbility = new ModifiedAbility();
+      const modifiedAbility = new ModifiedAbility();
 
       modifiedAbility.load(stream);
 
@@ -119,7 +119,7 @@ export default class Unit {
       this.positionInGroup = stream.readUint32();
     } else if (this.randomFlag === 2) {
       for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let randomUnit = new RandomUnit();
+        const randomUnit = new RandomUnit();
 
         randomUnit.load(stream);
 
@@ -155,7 +155,7 @@ export default class Unit {
 
     stream.writeInt32(this.droppedItemSets.length);
 
-    for (let droppedItemSet of this.droppedItemSets) {
+    for (const droppedItemSet of this.droppedItemSets) {
       droppedItemSet.save(stream);
     }
 
@@ -171,13 +171,13 @@ export default class Unit {
 
     stream.writeInt32(this.itemsInInventory.length);
 
-    for (let itemInInventory of this.itemsInInventory) {
+    for (const itemInInventory of this.itemsInInventory) {
       itemInInventory.save(stream);
     }
 
     stream.writeInt32(this.modifiedAbilities.length);
 
-    for (let modifiedAbility of this.modifiedAbilities) {
+    for (const modifiedAbility of this.modifiedAbilities) {
       modifiedAbility.save(stream);
     }
 
@@ -192,7 +192,7 @@ export default class Unit {
     } else if (this.randomFlag === 2) {
       stream.writeInt32(this.randomUnitTables.length);
 
-      for (let randomUnitTable of this.randomUnitTables) {
+      for (const randomUnitTable of this.randomUnitTables) {
         randomUnitTable.save(stream);
       }
     }
@@ -213,7 +213,7 @@ export default class Unit {
       size += 16;
     }
 
-    for (let droppedItemSet of this.droppedItemSets) {
+    for (const droppedItemSet of this.droppedItemSets) {
       size += droppedItemSet.getByteLength();
     }
 

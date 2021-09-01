@@ -6,7 +6,7 @@ import GenericObject from './genericobject';
  */
 export default class Helper extends GenericObject {
   readMdl(stream: TokenStream) {
-    for (let token of super.readGenericBlock(stream)) {
+    for (const token of super.readGenericBlock(stream)) {
       throw new Error(`Unknown token in Helper: "${token}"`);
     }
   }

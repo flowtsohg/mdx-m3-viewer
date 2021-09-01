@@ -9,19 +9,19 @@ const SKIN = 2;
 
 export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
   if (geosets.length > 0) {
-    let gl = model.viewer.gl;
+    const gl = model.viewer.gl;
     let positionBytes = 0;
     let normalBytes = 0;
     let uvBytes = 0;
     let skinBytes = 0;
     let faceBytes = 0;
-    let skinTypes = [];
+    const skinTypes = [];
 
     for (let i = 0, l = geosets.length; i < l; i++) {
-      let geoset = geosets[i];
+      const geoset = geosets[i];
 
       if (geoset.lod === 0 || geoset.lod === -1) {
-        let vertices = geoset.vertices.length / 3;
+        const vertices = geoset.vertices.length / 3;
 
         positionBytes += vertices * 12;
         normalBytes += vertices * 12;
@@ -34,7 +34,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         } else {
           let biggestGroup = 0;
 
-          for (let group of geoset.matrixGroups) {
+          for (const group of geoset.matrixGroups) {
             if (group > biggestGroup) {
               biggestGroup = group;
             }
@@ -81,23 +81,23 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faceBytes, gl.STATIC_DRAW);
 
     for (let i = 0, l = geosets.length; i < l; i++) {
-      let geoset = geosets[i];
+      const geoset = geosets[i];
 
       if (geoset.lod === 0 || geoset.lod === -1) {
-        let positions = geoset.vertices;
-        let normals = geoset.normals;
-        let uvSets = geoset.uvSets;
-        let faces = geoset.faces;
+        const positions = geoset.vertices;
+        const normals = geoset.normals;
+        const uvSets = geoset.uvSets;
+        const faces = geoset.faces;
         let skin;
-        let vertices = geoset.vertices.length / 3;
-        let skinType = skinTypes[i];
+        const vertices = geoset.vertices.length / 3;
+        const skinType = skinTypes[i];
 
         if (skinType === SKIN) {
           skin = geoset.skin;
         } else {
-          let matrixIndices = geoset.matrixIndices;
-          let vertexGroups = geoset.vertexGroups;
-          let matrixGroups = [];
+          const matrixIndices = geoset.matrixIndices;
+          const vertexGroups = geoset.vertexGroups;
+          const matrixGroups = [];
           let offset = 0;
 
           // Normally the shader supports up to 4 bones per vertex.
@@ -113,21 +113,21 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           skin = new SkinTypedArray(vertices * (maxBones + 1));
 
           // Slice the matrix groups.
-          for (let size of geoset.matrixGroups) {
+          for (const size of geoset.matrixGroups) {
             matrixGroups.push(matrixIndices.subarray(offset, offset + size));
             offset += size;
           }
 
           // Parse the skinning.
           for (let i = 0; i < vertices; i++) {
-            let matrixGroup = matrixGroups[vertexGroups[i]];
+            const matrixGroup = matrixGroups[vertexGroups[i]];
 
             offset = i * (maxBones + 1);
 
             // Somehow in some bad models a vertex group index refers to an invalid matrix group.
             // Such models are still loaded by the game.
             if (matrixGroup) {
-              let bones = Math.min(matrixGroup.length, maxBones);
+              const bones = Math.min(matrixGroup.length, maxBones);
 
               for (let j = 0; j < bones; j++) {
                 skin[offset + j] = matrixGroup[j] + 1; // 1 is added to diffrentiate between matrix 0, and no matrix.
@@ -138,18 +138,18 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           }
         }
 
-        let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
+        const vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
         model.geosets.push(vGeoset);
 
-        let material = model.materials[geoset.materialId];
-        let isHd = material.shader === 'Shader_HD_DefaultUnit';
+        const material = model.materials[geoset.materialId];
+        const isHd = material.shader === 'Shader_HD_DefaultUnit';
 
         if (isHd) {
           model.batches.push(new Batch(model.batches.length, vGeoset, material, skinType === SKIN, true));
         } else {
-          let isExtended = skinType === EXTENDED_VERTEX_GROUPS;
+          const isExtended = skinType === EXTENDED_VERTEX_GROUPS;
 
-          for (let layer of material.layers) {
+          for (const layer of material.layers) {
             model.batches.push(new Batch(model.batches.length, vGeoset, layer, isExtended, false));
           }
         }
@@ -163,7 +163,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         normalOffset += normals.byteLength;
 
         // Texture coordinates.
-        for (let uvSet of uvSets) {
+        for (const uvSet of uvSets) {
           gl.bufferSubData(gl.ARRAY_BUFFER, uvOffset, uvSet);
           uvOffset += uvSet.byteLength;
         }

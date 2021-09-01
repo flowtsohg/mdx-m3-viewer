@@ -42,21 +42,21 @@ export function createUnitCube() {
  * Creates a sphere geometry object.
  */
 export function createSphere(radius: number, stacks: number, slices: number) {
-  let points = (stacks + 1) * (slices + 1);
-  let vertices = new Float32Array(points * 3);
-  let uvs = new Float32Array(points * 2);
-  let faces = new Uint16Array(stacks * slices * 6);
-  let edges = new Uint16Array(stacks * slices * 6);
+  const points = (stacks + 1) * (slices + 1);
+  const vertices = new Float32Array(points * 3);
+  const uvs = new Float32Array(points * 2);
+  const faces = new Uint16Array(stacks * slices * 6);
+  const edges = new Uint16Array(stacks * slices * 6);
 
   for (let stack = 0, vOffset = 0, uOffset = 0; stack <= stacks; stack++) {
-    let theta = stack * Math.PI / stacks;
-    let sinTheta = Math.sin(theta);
-    let cosTheta = Math.cos(theta);
+    const theta = stack * Math.PI / stacks;
+    const sinTheta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
 
     for (let slice = 0; slice <= slices; slice += 1, vOffset += 3, uOffset += 2) {
-      let phi = slice * 2 * Math.PI / slices;
-      let sinPhi = Math.sin(phi);
-      let cosPhi = Math.cos(phi);
+      const phi = slice * 2 * Math.PI / slices;
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
 
       vertices[vOffset + 0] = cosPhi * sinTheta * radius;
       vertices[vOffset + 1] = sinPhi * sinTheta * radius;
@@ -69,8 +69,8 @@ export function createSphere(radius: number, stacks: number, slices: number) {
 
   for (let stack = 0, fOffset = 0; stack < stacks; stack++) {
     for (let slice = 0; slice < slices; slice += 1, fOffset += 6) {
-      let first = (stack * (slices + 1)) + slice;
-      let second = first + slices + 1;
+      const first = (stack * (slices + 1)) + slice;
+      const second = first + slices + 1;
 
       // Faces
       faces[fOffset + 0] = first;
@@ -115,19 +115,19 @@ export function createUnitSphere(stacks: number, slices: number) {
 export function createCylinder(radius: number, height: number, slices: number) {
   slices = Math.max(slices, 3);
 
-  let points = (slices + 1) * 2 + 2;
-  let vertices = new Float32Array(points * 3);
-  let uvs = new Float32Array(points * 2);
-  let faces = new Uint16Array(slices * 12);
-  let edges = new Uint16Array(slices * 10);
-  let step = (Math.PI * 2) / slices;
+  const points = (slices + 1) * 2 + 2;
+  const vertices = new Float32Array(points * 3);
+  const uvs = new Float32Array(points * 2);
+  const faces = new Uint16Array(slices * 12);
+  const edges = new Uint16Array(slices * 10);
+  const step = (Math.PI * 2) / slices;
   let vOffset = 0;
   let uOffset = 0;
 
   for (let slice = 0; slice < slices + 1; slice += 1, vOffset += 6, uOffset += 4) {
-    let x = Math.cos(step * slice) * radius;
-    let y = Math.sin(step * slice) * radius;
-    let u = slice / slices;
+    const x = Math.cos(step * slice) * radius;
+    const y = Math.sin(step * slice) * radius;
+    const u = slice / slices;
 
     vertices[vOffset + 0] = x;
     vertices[vOffset + 1] = y;
@@ -158,7 +158,7 @@ export function createCylinder(radius: number, height: number, slices: number) {
   uvs[uOffset + 3] = 0;
 
   for (let slice = 0, fOffset = 0, eOffset = 0; slice < slices; slice += 1, fOffset += 12, eOffset += 10) {
-    let first = slice * 2;
+    const first = slice * 2;
 
     // Faces
     faces[fOffset + 0] = first + 0;
@@ -214,11 +214,11 @@ export function createUnitCylinder(slices: number) {
  * Create a furstum geometry.
  */
 export function createFrustum(fieldOfView: number, aspectRatio: number, nearClipPlane: number, farClipPlane: number) {
-  let tanFov = 2 * Math.tan(fieldOfView / 2);
-  let nearHeight = (tanFov * nearClipPlane) / 2;
-  let nearWidth = (nearClipPlane * aspectRatio) / 2;
-  let farHeight = (tanFov * farClipPlane) / 2;
-  let farWidth = (farClipPlane * aspectRatio) / 2;
+  const tanFov = 2 * Math.tan(fieldOfView / 2);
+  const nearHeight = (tanFov * nearClipPlane) / 2;
+  const nearWidth = (nearClipPlane * aspectRatio) / 2;
+  const farHeight = (tanFov * farClipPlane) / 2;
+  const farWidth = (farClipPlane * aspectRatio) / 2;
 
   return {
     vertices: new Float32Array([

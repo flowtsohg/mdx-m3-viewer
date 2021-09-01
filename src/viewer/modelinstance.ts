@@ -109,10 +109,7 @@ export default abstract class ModelInstance extends Node {
     return scene.addInstance(this);
   }
 
-  /**
-   * @override
-   */
-  recalculateTransformation() {
+  override recalculateTransformation() {
     super.recalculateTransformation();
 
     if (this.scene) {
@@ -120,11 +117,8 @@ export default abstract class ModelInstance extends Node {
     }
   }
 
-  /**
-   * @override
-   */
-  update(dt: number) {
-    let scene = this.scene;
+  override update(dt: number) {
+    const scene = this.scene;
 
     if (scene && this.rendered && this.isVisible(scene.camera)) {
       // Add this instance to the render list.
@@ -151,21 +145,22 @@ export default abstract class ModelInstance extends Node {
   }
 
   isVisible(camera: Camera) {
-    let [x, y, z] = this.worldLocation;
-    let [sx, sy, sz] = this.worldScale;
-    let bounds = this.getBounds();
-    let planes = camera.planes;
+    const [x, y, z] = this.worldLocation;
+    const [sx, sy, sz] = this.worldScale;
+    const bounds = this.getBounds();
+    const planes = camera.planes;
+    let biggest = sx;
 
     // Get the biggest scaling dimension.
-    if (sy > sx) {
-      sx = sy;
+    if (sy > biggest) {
+      biggest = sy;
     }
 
-    if (sz > sx) {
-      sx = sz;
+    if (sz > biggest) {
+      biggest = sz;
     }
 
-    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z + bounds.z, bounds.r * sx, this.plane);
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z + bounds.z, bounds.r * biggest, this.plane);
 
     if (this.plane === -1) {
       this.depth = distanceToPlane3(planes[4], x, y, z);

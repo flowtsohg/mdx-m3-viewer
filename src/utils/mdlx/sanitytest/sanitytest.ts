@@ -7,7 +7,7 @@ import { testHeader, testSequences, testGlobalSequence, testTextures, testMateri
  * Run a sanity test on the model and return the results.
  */
 export default function sanityTest(model: Model) {
-  let data = new SanityTestData(model);
+  const data = new SanityTestData(model);
 
   // Run the tests.
   testHeader(data);
@@ -16,7 +16,7 @@ export default function sanityTest(model: Model) {
   testTextures(data);
   testObjects(data, model.materials, testMaterial);
   testObjects(data, model.textureAnimations);
-  testObjects(data, model.geosets, testGeoset)
+  testObjects(data, model.geosets, testGeoset);
   testObjects(data, model.geosetAnimations, testGeosetAnimation);
   testObjects(data, model.bones, testBone);
   testObjects(data, model.lights, testLight);
@@ -40,15 +40,16 @@ export default function sanityTest(model: Model) {
     testBindPose(data);
   }
 
-  let root = data.stack[0];
+  const root = data.stack[0];
 
   // Remove nodes that passed the test.
-  cleanNode(root)
+  cleanNode(root);
 
-  let { nodes, errors, severe, warnings, unused } = root;
+  const { nodes, errors, severe, warnings } = root;
+  let { unused } = root;
 
   // Add top-level objects that are not used.
-  for (let node of nodes) {
+  for (const node of nodes) {
     if (node.type === 'node') {
       if (node.uses === 0) {
         unused += 1;

@@ -35,7 +35,7 @@ export default class War3MapViewer extends ModelViewer {
   constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver, isReforged: boolean) {
     super(canvas);
 
-    let webgl = this.webgl;
+    const webgl = this.webgl;
 
     // Data textures.
     if (!webgl.ensureExtension('OES_texture_float')) {
@@ -65,7 +65,7 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   async loadBaseFiles() {
-    let promises = [
+    const promises = [
       this.loadBaseFile('TerrainArt\\Terrain.slk', 'text'),
       this.loadBaseFile('TerrainArt\\CliffTypes.slk', 'text'),
       this.loadBaseFile('TerrainArt\\Water.slk', 'text'),
@@ -90,7 +90,7 @@ export default class War3MapViewer extends ModelViewer {
       ];
     }
 
-    let [terrain, cliffTypes, water, doodads, doodadMetaData, destructableData, destructableMetaData, unitData, unitUi, itemData, unitMetaData] = await Promise.all(promises);
+    const [terrain, cliffTypes, water, doodads, doodadMetaData, destructableData, destructableMetaData, unitData, unitUi, itemData, unitMetaData] = await Promise.all(promises);
 
     if (!terrain || !cliffTypes || !water || !doodads || !doodadMetaData || !destructableData || !destructableMetaData || !unitData || !unitUi || !itemData || !unitMetaData) {
       throw new Error('Failed to load the base files');
@@ -109,7 +109,7 @@ export default class War3MapViewer extends ModelViewer {
     this.unitMetaData.load(unitMetaData.data);
 
     if (reforgedPromises) {
-      let [doodadSkins, destructableSkin, unitSkin, itemSkin] = await Promise.all(reforgedPromises);
+      const [doodadSkins, destructableSkin, unitSkin, itemSkin] = await Promise.all(reforgedPromises);
 
       if (!doodadSkins || !destructableSkin || !unitSkin || !itemSkin) {
         throw new Error('Failed to load the base Reforged files');
@@ -145,7 +145,7 @@ export default class War3MapViewer extends ModelViewer {
   /**
    * Update the map.
    */
-  update() {
+  override update() {
     if (this.map) {
       super.update();
 
@@ -156,7 +156,7 @@ export default class War3MapViewer extends ModelViewer {
   /**
    * Render the map.
    */
-  render() {
+  override render() {
     if (this.map) {
       this.map.render();
     }

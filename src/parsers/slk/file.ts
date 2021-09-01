@@ -9,17 +9,17 @@ export default class SlkFile {
       throw new Error('WrongMagicNumber');
     }
 
-    let rows = this.rows;
+    const rows = this.rows;
     let x = 0;
     let y = 0;
 
-    for (let line of buffer.split('\n')) {
+    for (const line of buffer.split('\n')) {
       // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
       // Therefore, just ignore it, since JavaScript arrays grow as they want either way
       if (line[0] !== 'B') {
-        for (let token of line.split(';')) {
-          let op = token[0];
-          let valueString = token.substring(1).trim();
+        for (const token of line.split(';')) {
+          const op = token[0];
+          const valueString = token.substring(1).trim();
           let value;
 
           if (op === 'X') {
@@ -53,14 +53,14 @@ export default class SlkFile {
   }
 
   save() {
-    let rows = this.rows;
-    let rowCount = rows.length;
-    let lines = [];
+    const rows = this.rows;
+    const rowCount = rows.length;
+    const lines = [];
     let biggestColumn = 0;
 
     for (let y = 0; y < rowCount; y++) {
-      let row = rows[y];
-      let columnCount = row.length;
+      const row = rows[y];
+      const columnCount = row.length;
 
       if (columnCount > biggestColumn) {
         biggestColumn = columnCount;
@@ -69,7 +69,7 @@ export default class SlkFile {
       let firstOfRow = true;
 
       for (let x = 0; x < columnCount; x++) {
-        let value = row[x];
+        const value = row[x];
 
         if (value !== undefined) {
           let encoded;

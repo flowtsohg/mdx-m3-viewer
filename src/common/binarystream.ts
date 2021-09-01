@@ -17,7 +17,7 @@ export default class BinaryStream {
   remaining: number;
 
   constructor(buffer: ArrayBuffer | Uint8Array, byteOffset?: number, byteLength?: number) {
-    let bytes = bytesOf(buffer);
+    const bytes = bytesOf(buffer);
 
     // For browsers not supporting the spec.
     // Once upon a time I reported this issue on the Firefox tracker.
@@ -39,7 +39,7 @@ export default class BinaryStream {
       throw new Error(`ByteStream: substream: want ${byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
+    const index = this.index;
 
     this.index += byteLength;
 
@@ -79,8 +79,8 @@ export default class BinaryStream {
       throw new Error(`ByteStream: read: premature end - want ${bytes} bytes but have ${this.remaining}`);
     }
 
-    let uint8array = this.uint8array;
-    let start = this.index;
+    const uint8array = this.uint8array;
+    const start = this.index;
     let end = boundIndexOf(uint8array, 0, start, bytes);
 
     if (end === -1) {
@@ -101,15 +101,15 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readNull: premature end - want at least 1 byte but have 0`);
     }
 
-    let uint8array = this.uint8array;
-    let start = this.index;
+    const uint8array = this.uint8array;
+    const start = this.index;
     let end = uint8array.indexOf(0, start);
 
     if (end === -1) {
       end = uint8array.length - 1;
     }
 
-    let bytes = end - start + 1;
+    const bytes = end - start + 1;
 
     this.index += bytes;
     this.remaining -= bytes;
@@ -125,8 +125,8 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readBinary: premature end - want ${bytes} bytes but have ${this.remaining}`);
     }
 
-    let uint8array = this.uint8array;
-    let index = this.index;
+    const uint8array = this.uint8array;
+    const index = this.index;
     let data = '';
 
     for (let i = 0; i < bytes; i++) {
@@ -147,9 +147,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readInt8: premature end - want 1 byte but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToInt8(uint8array[index]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToInt8(uint8array[index]);
 
     this.index += 1;
     this.remaining -= 1;
@@ -165,9 +165,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readInt16: premature end - want 2 bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToInt16(uint8array[index], uint8array[index + 1]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToInt16(uint8array[index], uint8array[index + 1]);
 
     this.index += 2;
     this.remaining -= 2;
@@ -184,9 +184,9 @@ export default class BinaryStream {
     }
 
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToInt32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToInt32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
     this.remaining -= 4;
@@ -202,7 +202,7 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint8: premature end - want 1 byte but have ${this.remaining}`);
     }
 
-    let data = this.uint8array[this.index];
+    const data = this.uint8array[this.index];
 
     this.index += 1;
     this.remaining -= 1;
@@ -218,9 +218,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint16: premature end - want 2 bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToUint16(uint8array[index], uint8array[index + 1]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToUint16(uint8array[index], uint8array[index + 1]);
 
     this.index += 2;
     this.remaining -= 2;
@@ -236,9 +236,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint32: premature end - want 4 bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToUint32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToUint32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
     this.remaining -= 4;
@@ -254,9 +254,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readFloat32: premature end - want 4 bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToFloat32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToFloat32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
     this.remaining -= 4;
@@ -272,9 +272,9 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readFloat64: premature end - want 8 bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let data = uint8ToFloat64(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3], uint8array[index + 4], uint8array[index + 5], uint8array[index + 6], uint8array[index + 7]);
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const data = uint8ToFloat64(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3], uint8array[index + 4], uint8array[index + 5], uint8array[index + 6], uint8array[index + 7]);
 
     this.index += 8;
     this.remaining -= 8;
@@ -294,8 +294,8 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readInt8Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
       view[i] = uint8ToInt8(uint8array[index + i]);
@@ -319,11 +319,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readInt16Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 2;
+      const offset = index + i * 2;
 
       view[i] = uint8ToInt16(uint8array[offset], uint8array[offset + 1]);
     }
@@ -346,11 +346,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readInt32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       view[i] = uint8ToInt32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
     }
@@ -373,8 +373,8 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint8Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
       view[i] = uint8array[index + i];
@@ -398,11 +398,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint16Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 2;
+      const offset = index + i * 2;
 
       view[i] = uint8ToUint16(uint8array[offset], uint8array[offset + 1]);
     }
@@ -425,11 +425,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readUint32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       view[i] = uint8ToUint32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
     }
@@ -452,11 +452,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readFloat32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       view[i] = uint8ToFloat32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
     }
@@ -479,11 +479,11 @@ export default class BinaryStream {
       throw new Error(`ByteStream: readFloat64Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
     }
 
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 8;
+      const offset = index + i * 8;
 
       view[i] = uint8ToFloat64(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3], uint8array[offset + 4], uint8array[offset + 5], uint8array[offset + 6], uint8array[offset + 7]);
     }
@@ -500,7 +500,7 @@ export default class BinaryStream {
    * Returns the number of bytes that were written,
    */
   write(utf8: string) {
-    let bytes = encodeUtf8(utf8);
+    const bytes = encodeUtf8(utf8);
 
     this.writeUint8Array(bytes);
 
@@ -513,7 +513,7 @@ export default class BinaryStream {
    * Returns the number of bytes that were written, including the terminating NULL.
    */
   writeNull(utf8: string) {
-    let bytes = this.write(utf8);
+    const bytes = this.write(utf8);
 
     this.index++;
     this.remaining--;
@@ -525,9 +525,9 @@ export default class BinaryStream {
    * Write a binary string.
    */
   writeBinary(value: string) {
-    let index = this.index;
-    let uint8array = this.uint8array;
-    let count = value.length;
+    const index = this.index;
+    const uint8array = this.uint8array;
+    const count = value.length;
 
     for (let i = 0; i < count; i++) {
       uint8array[index + i] = value.charCodeAt(i);
@@ -548,8 +548,8 @@ export default class BinaryStream {
    * Write a 16 bit signed integer.
    */
   writeInt16(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     int16ToUint8(uint8, value);
 
@@ -563,8 +563,8 @@ export default class BinaryStream {
    * Write a 32 bit signed integer.
    */
   writeInt32(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     int32ToUint8(uint8, value);
 
@@ -588,8 +588,8 @@ export default class BinaryStream {
    * Write a 16 bit unsigned integer.
    */
   writeUint16(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     uint16ToUint8(uint8, value);
 
@@ -603,8 +603,8 @@ export default class BinaryStream {
    * Write a 32 bit unsigned integer.
    */
   writeUint32(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     uint32ToUint8(uint8, value);
 
@@ -620,8 +620,8 @@ export default class BinaryStream {
    * Write a 32 bit float.
    */
   writeFloat32(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     float32ToUint8(uint8, value);
 
@@ -637,8 +637,8 @@ export default class BinaryStream {
    * Write a 64 bit float.
    */
   writeFloat64(value: number) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     float64ToUint8(uint8, value);
 
@@ -658,8 +658,8 @@ export default class BinaryStream {
    * Write an array of 8 bit signed integers.
    */
   writeInt8Array(view: Int8Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
       uint8array[index + i] = int8ToUint8(view[i]);
@@ -672,11 +672,11 @@ export default class BinaryStream {
    * Write an array of 16 bit signed integers.
    */
   writeInt16Array(view: Int16Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 2;
+      const offset = index + i * 2;
 
       int16ToUint8(uint8, view[i]);
 
@@ -691,11 +691,11 @@ export default class BinaryStream {
    * Write an array of 32 bit signed integers.
    */
   writeInt32Array(view: Int32Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       int32ToUint8(uint8, view[i]);
 
@@ -712,8 +712,8 @@ export default class BinaryStream {
    * Write an array of 8 bit unsigned integers.
    */
   writeUint8Array(view: Uint8Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
       uint8array[index + i] = view[i];
@@ -726,11 +726,11 @@ export default class BinaryStream {
    * Write an array of 16 bit unsigned integers.
    */
   writeUint16Array(view: Uint16Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 2;
+      const offset = index + i * 2;
 
       uint16ToUint8(uint8, view[i]);
 
@@ -745,11 +745,11 @@ export default class BinaryStream {
    * Write an array of 32 bit unsigned integers.
    */
   writeUint32Array(view: Uint32Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       uint32ToUint8(uint8, view[i]);
 
@@ -766,11 +766,11 @@ export default class BinaryStream {
    * Write an array of 32 bit floats.
    */
   writeFloat32Array(view: Float32Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 4;
+      const offset = index + i * 4;
 
       float32ToUint8(uint8, view[i]);
 
@@ -787,11 +787,11 @@ export default class BinaryStream {
    * Write an array of 64 bit floats.
    */
   writeFloat64Array(view: Float64Array) {
-    let index = this.index;
-    let uint8array = this.uint8array;
+    const index = this.index;
+    const uint8array = this.uint8array;
 
     for (let i = 0, l = view.length; i < l; i++) {
-      let offset = index + i * 8;
+      const offset = index + i * 8;
 
       float64ToUint8(uint8, view[i]);
 

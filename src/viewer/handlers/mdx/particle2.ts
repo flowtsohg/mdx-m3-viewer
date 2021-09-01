@@ -26,12 +26,12 @@ export default class Particle2 extends EmittedObject {
   facing = 0; // XYQuad
 
   bind(tail: number) {
-    let emitter = <ParticleEmitter2>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let sequence = instance.sequence;
-    let frame = instance.frame;
-    let counter = instance.counter;
-    let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
+    const emitter = <ParticleEmitter2>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const sequence = instance.sequence;
+    const frame = instance.frame;
+    const counter = instance.counter;
+    const emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
 
     emitterObject.getWidth(widthHeap, sequence, frame, counter);
     emitterObject.getLength(lengthHeap, sequence, frame, counter);
@@ -40,16 +40,16 @@ export default class Particle2 extends EmittedObject {
     emitterObject.getSpeed(speedHeap, sequence, frame, counter);
     emitterObject.getGravity(gravityHeap, sequence, frame, counter);
 
-    let node = emitter.node;
-    let pivot = node.pivot;
-    let scale = node.worldScale;
-    let width = widthHeap[0] * 0.5;
-    let length = lengthHeap[0] * 0.5;
-    let latitude = degToRad(latitudeHeap[0]);
-    let variation = variationHeap[0];
-    let speed = speedHeap[0];
-    let location = this.location;
-    let velocity = this.velocity;
+    const node = emitter.node;
+    const pivot = node.pivot;
+    const scale = node.worldScale;
+    const width = widthHeap[0] * 0.5;
+    const length = lengthHeap[0] * 0.5;
+    const latitude = degToRad(latitudeHeap[0]);
+    const variation = variationHeap[0];
+    const speed = speedHeap[0];
+    const location = this.location;
+    const velocity = this.velocity;
 
     this.health = emitterObject.lifeSpan;
     this.tail = tail;
@@ -103,8 +103,8 @@ export default class Particle2 extends EmittedObject {
     this.health -= dt;
 
     if (this.health > 0) {
-      let location = this.location;
-      let velocity = this.velocity;
+      const location = this.location;
+      const velocity = this.velocity;
 
       velocity[2] -= this.gravity * dt;
 

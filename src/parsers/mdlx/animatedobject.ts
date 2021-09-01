@@ -10,11 +10,11 @@ export default class AnimatedObject {
   animations: Animation[] = [];
 
   readAnimations(stream: BinaryStream, size: number) {
-    let end = stream.index + size;
+    const end = stream.index + size;
 
     while (stream.index < end) {
-      let name = stream.readBinary(4);
-      let animation = new animationMap[name][1]();
+      const name = stream.readBinary(4);
+      const animation = new animationMap[name][1]();
 
       animation.readMdx(stream, name);
 
@@ -23,7 +23,7 @@ export default class AnimatedObject {
   }
 
   writeAnimations(stream: BinaryStream) {
-    for (let animation of this.animations) {
+    for (const animation of this.animations) {
       animation.writeMdx(stream);
     }
   }
@@ -34,7 +34,7 @@ export default class AnimatedObject {
    * This makes the condition blocks in the parent objects linear and simple.
    */
   * readAnimatedBlock(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'static') {
         yield `static ${stream.read()}`;
       } else {
@@ -44,7 +44,7 @@ export default class AnimatedObject {
   }
 
   readAnimation(stream: TokenStream, name: string) {
-    let animation = new animationMap[name][1]();
+    const animation = new animationMap[name][1]();
 
     animation.readMdl(stream, name);
 
@@ -52,7 +52,7 @@ export default class AnimatedObject {
   }
 
   writeAnimation(stream: TokenStream, name: string) {
-    for (let animation of this.animations) {
+    for (const animation of this.animations) {
       if (animation.name === name) {
         animation.writeMdl(stream, animationMap[name][0]);
         return true;
@@ -68,7 +68,7 @@ export default class AnimatedObject {
   getByteLength(version?: number) {
     let size = 0;
 
-    for (let animation of this.animations) {
+    for (const animation of this.animations) {
       size += animation.getByteLength();
     }
 

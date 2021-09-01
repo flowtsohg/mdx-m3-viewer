@@ -38,7 +38,7 @@ export default class GenericObject extends AnimatedObject {
     this.parentId = object.parentId;
     this.pivot = <vec3>model.pivotPoints[object.objectId] || vec3.create();
 
-    let flags = object.flags;
+    const flags = object.flags;
 
     this.dontInheritTranslation = flags & 0x1;
     this.dontInheritRotation = flags & 0x2;

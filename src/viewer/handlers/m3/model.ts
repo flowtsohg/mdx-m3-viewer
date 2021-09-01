@@ -63,32 +63,32 @@ export default class M3Model extends Model {
       parser.load(bufferOrParser);
     }
 
-    let model = <M3ParserModel>parser.model;
-    let div = <Division>model.divisions.first();
+    const model = <M3ParserModel>parser.model;
+    const div = <Division>model.divisions.first();
 
     this.name = <string>model.modelName.get();
 
     this.setupGeometry(model, div);
 
-    let materialMaps = <MaterialReference[]>model.materialReferences.get();
+    const materialMaps = <MaterialReference[]>model.materialReferences.get();
 
     this.materialMaps = materialMaps;
 
     // Create concrete material objects for standard materials
 
-    let standardMaterials = <StandardMaterial[]>model.materials[0].get();
+    const standardMaterials = <StandardMaterial[]>model.materials[0].get();
 
     for (let i = 0, l = standardMaterials.length; i < l; i++) {
       this.materials[1].push(new M3StandardMaterial(this, i, standardMaterials[i]));
     }
 
     // Create concrete batch objects
-    for (let batch of <Batch[]>div.batches.get()) {
-      let regionId = batch.regionIndex;
-      let materialMap = materialMaps[batch.materialReferenceIndex];
+    for (const batch of <Batch[]>div.batches.get()) {
+      const regionId = batch.regionIndex;
+      const materialMap = materialMaps[batch.materialReferenceIndex];
 
       if (materialMap.materialType === 1) {
-        this.batches.push(new M3Batch(this.regions[regionId], this.materials[1][materialMap.materialIndex]))
+        this.batches.push(new M3Batch(this.regions[regionId], this.materials[1][materialMap.materialIndex]));
       }
     }
 
@@ -138,36 +138,36 @@ export default class M3Model extends Model {
 
     this.initialReference = <Float32Array[]>model.absoluteInverseBoneRestPositions.get();
 
-    for (let bone of <Bone[]>model.bones.get()) {
+    for (const bone of <Bone[]>model.bones.get()) {
       this.bones.push(new M3Bone(bone));
     }
 
     this.boneLookup = <Uint16Array>model.boneLookup.get();
 
-    let sequences = model.sequences.get();
+    const sequences = model.sequences.get();
     if (sequences) {
-      for (let sequence of <Sequence[]>sequences) {
+      for (const sequence of <Sequence[]>sequences) {
         this.sequences.push(new M3Sequence(sequence));
       }
     }
 
-    let stss = model.sts.get();
+    const stss = model.sts.get();
     if (stss) {
-      for (let sts of <Sts[]>stss) {
+      for (const sts of <Sts[]>stss) {
         this.sts.push(new M3Sts(sts));
       }
     }
 
-    let stcs = model.stc.get();
+    const stcs = model.stc.get();
     if (stcs) {
-      for (let stc of <Stc[]>stcs) {
+      for (const stc of <Stc[]>stcs) {
         this.stc.push(new M3Stc(stc));
       }
     }
 
-    let stgs = model.stg.get();
+    const stgs = model.stg.get();
     if (stgs) {
-      for (let stg of <Stg[]>stgs) {
+      for (const stg of <Stg[]>stgs) {
         this.stg.push(new M3Stg(stg, this.sts, this.stc));
       }
     }
@@ -191,16 +191,16 @@ export default class M3Model extends Model {
     }
     */
 
-    let attachmentPoints = model.attachmentPoints.get();
+    const attachmentPoints = model.attachmentPoints.get();
     if (attachmentPoints) {
-      for (let attachment of <AttachmentPoint[]>attachmentPoints) {
+      for (const attachment of <AttachmentPoint[]>attachmentPoints) {
         this.attachments.push(new M3AttachmentPoint(attachment));
       }
     }
 
-    let cameras = model.cameras.get();
+    const cameras = model.cameras.get();
     if (cameras) {
-      for (let camera of <Camera[]>cameras) {
+      for (const camera of <Camera[]>cameras) {
         this.cameras.push(new M3Camera(camera));
       }
     }
@@ -211,9 +211,9 @@ export default class M3Model extends Model {
   }
 
   setupGeometry(parser: M3ParserModel, div: M3ParserDivision) {
-    let gl = this.viewer.gl;
+    const gl = this.viewer.gl;
     let uvSetCount = 1;
-    let vertexFlags = parser.vertexFlags;
+    const vertexFlags = parser.vertexFlags;
 
     if (vertexFlags & 0x40000) {
       uvSetCount = 2;
@@ -223,30 +223,30 @@ export default class M3Model extends Model {
       uvSetCount = 4;
     }
 
-    let regions = <Region[]>div.regions.get();
+    const regions = <Region[]>div.regions.get();
     let totalElements = 0;
-    let offsets = [];
+    const offsets = [];
 
     for (let i = 0, l = regions.length; i < l; i++) {
       offsets[i] = totalElements;
       totalElements += regions[i].triangleIndicesCount;
     }
 
-    let elementArray = new Uint16Array(totalElements);
+    const elementArray = new Uint16Array(totalElements);
 
-    let triangles = <Uint16Array>div.triangles.get();
+    const triangles = <Uint16Array>div.triangles.get();
 
     for (let i = 0, l = regions.length; i < l; i++) {
       this.regions.push(new M3Region(this, regions[i], triangles, elementArray, offsets[i]));
     }
 
-    let vertices = <Uint8Array>parser.vertices.get();
+    const vertices = <Uint8Array>parser.vertices.get();
 
     this.elementBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementArray, gl.STATIC_DRAW);
 
-    let arrayBuffer = gl.createBuffer();
+    const arrayBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
@@ -256,7 +256,7 @@ export default class M3Model extends Model {
   }
 
   mapMaterial(index: number) {
-    let materialMap = this.materialMaps[index];
+    const materialMap = this.materialMaps[index];
 
     return this.materials[materialMap.materialType][materialMap.materialIndex];
   }

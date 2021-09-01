@@ -48,7 +48,7 @@ export default class WeuData {
   }
 
   getTriggerName() {
-    for (let node of this.stack) {
+    for (const node of this.stack) {
       if (node instanceof Trigger) {
         return node.name;
       }
@@ -67,7 +67,7 @@ export default class WeuData {
     // For now track only units and destructibles.
     // Not sure what else needs tracking.
     if (name.startsWith('gg_unit') || name.startsWith('gg_dest')) {
-      let preplacedObjects = this.preplacedObjects;
+      const preplacedObjects = this.preplacedObjects;
 
       // If the reference is already known to be used by GUI, no need to do anything.
       if (!preplacedObjects.get(name)) {
@@ -77,10 +77,10 @@ export default class WeuData {
   }
 
   saveGUIReferences(triggers: Trigger[], customTextTriggers: CustomTextTrigger[]) {
-    let references = [];
+    const references = [];
 
     // Get all of the references that are no longer references.
-    for (let [name, isGUI] of this.preplacedObjects) {
+    for (const [name, isGUI] of this.preplacedObjects) {
       if (!isGUI) {
         references.push(name);
       }
@@ -88,13 +88,13 @@ export default class WeuData {
 
     // If there are indeed missing references, add them to a new trigger.
     if (references.length) {
-      let trigger = new Trigger();
+      const trigger = new Trigger();
       trigger.name = 'PreplacedObjectReferences';
       trigger.isEnabled = 1;
       trigger.isInitiallyOff = 1;
 
-      for (let reference of references) {
-        let eca = new ECA();
+      for (const reference of references) {
+        const eca = new ECA();
         eca.type = 2;
         eca.isEnabled = 1;
 
@@ -104,7 +104,7 @@ export default class WeuData {
           eca.name = 'RemoveDestructable';
         }
 
-        let parameter = new Parameter();
+        const parameter = new Parameter();
         parameter.type = 1;
         parameter.value = reference;
 

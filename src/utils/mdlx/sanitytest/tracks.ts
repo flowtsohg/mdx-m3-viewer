@@ -5,17 +5,17 @@ import { testReference } from './utils';
 
 function getSequenceFromFrame(data: SanityTestData, frame: number, globalSequenceId: number) {
   if (globalSequenceId === -1) {
-    let sequences = data.model.sequences;
+    const sequences = data.model.sequences;
 
     for (let i = 0, l = sequences.length; i < l; i++) {
-      let interval = sequences[i].interval;
+      const interval = sequences[i].interval;
 
       if (frame >= interval[0] && frame <= interval[1]) {
         return i;
       }
     }
   } else {
-    let end = data.model.globalSequences[globalSequenceId];
+    const end = data.model.globalSequences[globalSequenceId];
 
     if (frame >= 0 && frame <= end) {
       return globalSequenceId;
@@ -29,17 +29,17 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
   let lastFrame = -Infinity;
 
   for (let i = 0, l = frames.length; i < l; i++) {
-    let frame = frames[i];
+    const frame = frames[i];
 
     data.assertWarning(frame >= 0, `Track ${i} has a negative frame ${frame}`);
 
     if (frame === lastFrame) {
       data.addWarning(`Track ${i} has the same frame ${frame} as track ${i - 1}`);
     } else if (frame < lastFrame) {
-      data.addSevere(`Track ${i} at frame ${frame} is lower than the track before it at ${lastFrame}`)
+      data.addSevere(`Track ${i} at frame ${frame} is lower than the track before it at ${lastFrame}`);
     }
 
-    let sequence = getSequenceFromFrame(data, frame, globalSequenceId);
+    const sequence = getSequenceFromFrame(data, frame, globalSequenceId);
 
     if (sequence !== -1) {
       separated[sequence].push(i);
@@ -74,9 +74,9 @@ function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Ar
   let d = 0;
 
   for (let i = 0, l = a.length; i < l; i++) {
-    let ai = a[i];
-    let d1 = Math.abs(ai - b[i]);
-    let d2 = Math.abs(ai - c[i]);
+    const ai = a[i];
+    const d1 = Math.abs(ai - b[i]);
+    const d2 = Math.abs(ai - c[i]);
 
     if (d1 > d) {
       d = d1;
@@ -101,7 +101,7 @@ function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32A
 }
 
 function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, object: Animation, frames: number[] | Uint32Array) {
-  let {globalSequenceId, interpolationType, values} = object;
+  const { globalSequenceId, interpolationType, values } = object;
   let start;
   let end;
 
@@ -111,15 +111,15 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
     [start, end] = [0, data.model.globalSequences[globalSequenceId]];
   }
 
-  let firstIndex = indices[0];
-  let lastIndex = indices[indices.length - 1];
-  let firstFrame = frames[firstIndex];
-  let lastFrame = frames[lastIndex];
+  const firstIndex = indices[0];
+  const lastIndex = indices[indices.length - 1];
+  const firstFrame = frames[firstIndex];
+  const lastFrame = frames[lastIndex];
 
   // Missing the opening track for a specific sequence can cause bugged warping with negative interpolations.
   if (interpolationType !== 0 && firstFrame !== start) {
-    let firstValue = values[firstIndex];
-    let lastValue = values[lastIndex];
+    const firstValue = values[firstIndex];
+    const lastValue = values[lastIndex];
 
     // If the first and last values are equal, even though there's warping, it won't do anything.
     if (!areValuesEqual(firstValue, lastValue)) {
@@ -133,9 +133,9 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
     let b = values[indices[1]];
 
     for (let i = 2, l = indices.length; i < l; i++) {
-      let c = values[indices[i]];
-      let index = indices[i - 1];
-      let d = getValuesDiff(a, b, c);
+      const c = values[indices[i]];
+      const index = indices[i - 1];
+      const d = getValuesDiff(a, b, c);
 
       if (d === 0) {
         data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index - 1} and ${index + 1}`);
@@ -162,8 +162,8 @@ export default function testTracks(data: SanityTestData, object: Animation | Eve
     framesOrTracks = object.tracks;
   }
 
-  let globalSequenceId = object.globalSequenceId;
-  let separated: number[][] = [];
+  const globalSequenceId = object.globalSequenceId;
+  const separated: number[][] = [];
 
   if (globalSequenceId === -1) {
     data.assertWarning(data.model.sequences.length > 0, 'This animation exists, but the model has no sequences');
@@ -180,7 +180,7 @@ export default function testTracks(data: SanityTestData, object: Animation | Eve
   // Since event objects work on the concept of notes, where a keyframe denotes emission, check just animation keyframe values.
   if (object instanceof Animation) {
     for (let i = 0, l = separated.length; i < l; i++) {
-      let indices = separated[i];
+      const indices = separated[i];
 
       if (indices && indices.length > 1) {
         testSequenceTracks(data, indices, i, object, framesOrTracks);

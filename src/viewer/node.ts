@@ -87,9 +87,9 @@ export class Node {
    * Sets the node's local location, rotation, and scale.
    */
   setTransformation(location: vec3, rotation: quat, scale: vec3) {
-    let localLocation = this.localLocation;
-    let localRotation = this.localRotation;
-    let localScale = this.localScale;
+    const localLocation = this.localLocation;
+    const localRotation = this.localRotation;
+    const localScale = this.localScale;
 
     localLocation[0] = location[0];
     localLocation[1] = location[1];
@@ -206,8 +206,8 @@ export class Node {
   setParent(parent?: Node | SkeletalNode) {
     // If the node already had a parent, detach from it first.
     if (this.parent) {
-      let children = this.parent.children;
-      let index = children.indexOf(this);
+      const children = this.parent.children;
+      const index = children.indexOf(this);
 
       if (index !== -1) {
         children.splice(index, 1);
@@ -230,28 +230,25 @@ export class Node {
    * Recalculate this node's transformation data.
    */
   recalculateTransformation() {
-    let parent = this.parent;
-    let localMatrix = this.localMatrix;
-    let localLocation = this.localLocation;
-    let localRotation = this.localRotation;
-    let localScale = this.localScale;
-    let worldMatrix = this.worldMatrix;
-    let worldLocation = this.worldLocation;
-    let worldRotation = this.worldRotation;
-    let worldScale = this.worldScale;
-    let inverseWorldLocation = this.inverseWorldLocation;
-    let inverseWorldRotation = this.inverseWorldRotation;
-    let inverseWorldScale = this.inverseWorldScale;
+    const parent = this.parent;
+    const localMatrix = this.localMatrix;
+    const localLocation = this.localLocation;
+    const localRotation = this.localRotation;
+    const localScale = this.localScale;
+    const worldMatrix = this.worldMatrix;
+    const worldLocation = this.worldLocation;
+    const worldRotation = this.worldRotation;
+    const worldScale = this.worldScale;
+    const inverseWorldLocation = this.inverseWorldLocation;
+    const inverseWorldRotation = this.inverseWorldRotation;
+    const inverseWorldScale = this.inverseWorldScale;
 
     if (parent) {
-      let computedLocation;
+      const computedLocation = locationHeap;
+      const parentPivot = parent.pivot;
       let computedRotation;
       let computedScaling;
-
-      let parentPivot = parent.pivot;
-
-      computedLocation = locationHeap;
-
+      
       computedLocation[0] = localLocation[0] + parentPivot[0];
       computedLocation[1] = localLocation[1] + parentPivot[1];
       computedLocation[2] = localLocation[2] + parentPivot[2];
@@ -274,7 +271,7 @@ export class Node {
       if (this.dontInheritScaling) {
         computedScaling = scalingHeap;
 
-        let parentInverseScale = parent.inverseWorldScale;
+        const parentInverseScale = parent.inverseWorldScale;
         computedScaling[0] = parentInverseScale[0] * localScale[0];
         computedScaling[1] = parentInverseScale[1] * localScale[1];
         computedScaling[2] = parentInverseScale[2] * localScale[2];
@@ -287,7 +284,7 @@ export class Node {
       } else {
         computedScaling = localScale;
 
-        let parentScale = parent.worldScale;
+        const parentScale = parent.worldScale;
         worldScale[0] = parentScale[0] * localScale[0];
         worldScale[1] = parentScale[1] * localScale[1];
         worldScale[2] = parentScale[2] * localScale[2];
@@ -360,7 +357,7 @@ export class Node {
     inverseWorldLocation[2] = -worldLocation[2];
     // vec3.negate(this.inverseWorldLocation, worldLocation);
 
-    for (let child of this.children) {
+    for (const child of this.children) {
       child.recalculateTransformation();
     }
   }
@@ -369,7 +366,7 @@ export class Node {
    * Update this node, and continue down the node hierarchy.
    */
   update(dt: number) {
-    for (let child of this.children) {
+    for (const child of this.children) {
       child.update(dt);
     }
   }

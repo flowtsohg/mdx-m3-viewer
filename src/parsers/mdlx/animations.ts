@@ -19,12 +19,12 @@ export abstract class Animation {
   abstract writeMdlValue(stream: TokenStream, name: string, value: Uint32Array | Float32Array): void;
 
   readMdx(stream: BinaryStream, name: string) {
-    let frames = this.frames;
-    let values = this.values;
-    let inTans = this.inTans;
-    let outTans = this.outTans;
-    let tracksCount = stream.readUint32();
-    let interpolationType = stream.readUint32();
+    const frames = this.frames;
+    const values = this.values;
+    const inTans = this.inTans;
+    const outTans = this.outTans;
+    const tracksCount = stream.readUint32();
+    const interpolationType = stream.readUint32();
 
     this.name = name;
     this.interpolationType = interpolationType;
@@ -42,12 +42,12 @@ export abstract class Animation {
   }
 
   writeMdx(stream: BinaryStream) {
-    let interpolationType = this.interpolationType;
-    let frames = this.frames;
-    let values = this.values;
-    let inTans = this.inTans;
-    let outTans = this.outTans;
-    let tracksCount = frames.length;
+    const interpolationType = this.interpolationType;
+    const frames = this.frames;
+    const values = this.values;
+    const inTans = this.inTans;
+    const outTans = this.outTans;
+    const tracksCount = frames.length;
 
     stream.writeBinary(this.name);
     stream.writeUint32(tracksCount);
@@ -66,19 +66,19 @@ export abstract class Animation {
   }
 
   readMdl(stream: TokenStream, name: string) {
-    let frames = this.frames;
-    let values = this.values;
-    let inTans = this.inTans;
-    let outTans = this.outTans;
+    const frames = this.frames;
+    const values = this.values;
+    const inTans = this.inTans;
+    const outTans = this.outTans;
 
     this.name = name;
 
-    let tracksCount = stream.readInt();
+    const tracksCount = stream.readInt();
 
     stream.read(); // {
 
     let interpolationType = 0;
-    let token = stream.read();
+    const token = stream.read();
 
     if (token === 'DontInterp') {
       interpolationType = 0;
@@ -115,12 +115,12 @@ export abstract class Animation {
   }
 
   writeMdl(stream: TokenStream, name: string) {
-    let interpolationType = this.interpolationType;
-    let frames = this.frames;
-    let values = this.values;
-    let inTans = this.inTans;
-    let outTans = this.outTans;
-    let tracksCount = frames.length;
+    const interpolationType = this.interpolationType;
+    const frames = this.frames;
+    const values = this.values;
+    const inTans = this.inTans;
+    const outTans = this.outTans;
+    const tracksCount = frames.length;
 
     stream.startBlock(name, this.frames.length);
 
@@ -157,11 +157,11 @@ export abstract class Animation {
   }
 
   getByteLength() {
-    let tracksCount = this.frames.length;
+    const tracksCount = this.frames.length;
     let size = 16;
 
     if (tracksCount) {
-      let bytesPerValue = this.values[0].byteLength;
+      const bytesPerValue = this.values[0].byteLength;
       let valuesPerTrack = 1;
 
       if (this.interpolationType > 1) {

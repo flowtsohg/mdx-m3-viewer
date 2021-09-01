@@ -35,7 +35,7 @@ export default class M3ModelInstance extends ModelInstance {
       this.setSequence(this.sequence);
     }
 
-    let boneLookup = <Uint16Array>model.boneLookup;
+    const boneLookup = <Uint16Array>model.boneLookup;
 
     this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
   }
@@ -50,23 +50,23 @@ export default class M3ModelInstance extends ModelInstance {
   }
 
   updateSkeletonAndBoneTexture(dt: number) {
-    let model = <M3Model>this.model;
-    let viewer = model.viewer;
-    let buffer = viewer.buffer;
-    let boneLookup = <Uint16Array>model.boneLookup;
-    let skeleton = <M3Skeleton>this.skeleton;
-    let nodes = skeleton.nodes;
-    let bindPose = model.initialReference;
-    let count = boneLookup.length;
-    let isAnimated = this.sequence !== -1;
-    let boneTexture = <DataTexture>this.boneTexture;
+    const model = <M3Model>this.model;
+    const viewer = model.viewer;
+    const buffer = viewer.buffer;
+    const boneLookup = <Uint16Array>model.boneLookup;
+    const skeleton = <M3Skeleton>this.skeleton;
+    const nodes = skeleton.nodes;
+    const bindPose = model.initialReference;
+    const count = boneLookup.length;
+    const isAnimated = this.sequence !== -1;
+    const boneTexture = <DataTexture>this.boneTexture;
 
     skeleton.update(dt);
 
     // Ensure there is enough memory for all of the instances data.
     buffer.reserve(count * 48);
 
-    let floatView = <Float32Array>buffer.floatView;
+    const floatView = <Float32Array>buffer.floatView;
     let finalMatrix;
 
     if (isAnimated) {
@@ -76,10 +76,10 @@ export default class M3ModelInstance extends ModelInstance {
     }
 
     for (let i = 0; i < count; i++) {
-      let offset = i * 12;
+      const offset = i * 12;
 
       if (isAnimated) {
-        let bone = boneLookup[i];
+        const bone = boneLookup[i];
 
         // Every bone has to be multiplied by its bind pose counterpart for rendering.
         finalMatrix = mat4.mul(boneHeap, nodes[bone].worldMatrix, <mat4>bindPose[bone]);
@@ -102,23 +102,23 @@ export default class M3ModelInstance extends ModelInstance {
     boneTexture.bindAndUpdate(floatView, boneTexture.width, 1);
   }
 
-  renderOpaque() {
-    let model = <M3Model>this.model;
-    let batches = model.batches;
+  override renderOpaque() {
+    const model = <M3Model>this.model;
+    const batches = model.batches;
 
     if (batches.length) {
-      let viewer = model.viewer;
-      let m3Cache = viewer.sharedCache.get('m3');
-      let gl = viewer.gl;
-      let vertexSize = model.vertexSize;
-      let uvSetCount = model.uvSetCount;
-      let shader = m3Cache.standardShaders[uvSetCount - 1];
-      let attribs = shader.attribs;
-      let uniforms = shader.uniforms;
-      let scene = <Scene>this.scene;
-      let camera = scene.camera;
-      let textureOverrides = this.textureOverrides;
-      let boneTexture = <DataTexture>this.boneTexture;
+      const viewer = model.viewer;
+      const m3Cache = viewer.sharedCache.get('m3');
+      const gl = viewer.gl;
+      const vertexSize = model.vertexSize;
+      const uvSetCount = model.uvSetCount;
+      const shader = m3Cache.standardShaders[uvSetCount - 1];
+      const attribs = shader.attribs;
+      const uniforms = shader.uniforms;
+      const scene = <Scene>this.scene;
+      const camera = scene.camera;
+      const textureOverrides = this.textureOverrides;
+      const boneTexture = <DataTexture>this.boneTexture;
 
       shader.use();
 
@@ -150,9 +150,9 @@ export default class M3ModelInstance extends ModelInstance {
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
-      for (let batch of batches) {
-        let material = batch.material;
-        let region = batch.region;
+      for (const batch of batches) {
+        const material = batch.material;
+        const region = batch.region;
 
         material.bind(shader, textureOverrides);
 
@@ -163,13 +163,13 @@ export default class M3ModelInstance extends ModelInstance {
     }
   }
 
-  updateAnimations(dt: number) {
-    let sequenceId = this.sequence;
+  override updateAnimations(dt: number) {
+    const sequenceId = this.sequence;
 
     if (sequenceId !== -1) {
-      let model = <M3Model>this.model;
-      let sequence = model.sequences[sequenceId];
-      let interval = sequence.interval;
+      const model = <M3Model>this.model;
+      const sequence = model.sequences[sequenceId];
+      const interval = sequence.interval;
 
       this.frame += dt * 1000;
 
@@ -206,7 +206,7 @@ export default class M3ModelInstance extends ModelInstance {
   }
 
   setSequence(id: number) {
-    let model = <M3Model>this.model;
+    const model = <M3Model>this.model;
     this.sequence = id;
     this.frame = 0;
 
@@ -229,11 +229,13 @@ export default class M3ModelInstance extends ModelInstance {
   }
 
   getAttachment(id: number) {
-    let model = <M3Model>this.model;
-    let attachment = model.attachments[id];
+    const model = <M3Model>this.model;
+    const attachment = model.attachments[id];
 
     if (attachment) {
       return (<M3Skeleton>this.skeleton).nodes[attachment.bone];
     }
+
+    return;
   }
 }

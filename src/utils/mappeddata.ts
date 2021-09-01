@@ -29,15 +29,15 @@ export class MappedData {
    */
   load(buffer: string) {
     if (buffer.startsWith('ID;')) {
-      let file = new SlkFile();
+      const file = new SlkFile();
       file.load(buffer);
 
-      let rows = file.rows;
-      let header = rows[0];
-      let map = this.map;
+      const rows = file.rows;
+      const header = rows[0];
+      const map = this.map;
 
       for (let i = 1, l = rows.length; i < l; i++) {
-        let row = rows[i];
+        const row = rows[i];
 
         // DialogueDemonBase.slk has an empty row.
         if (row) {
@@ -51,7 +51,7 @@ export class MappedData {
               map[name] = {};
             }
 
-            let mapped = map[name];
+            const mapped = map[name];
 
             for (let j = 0, k = header.length; j < k; j++) {
               let key = header[j];
@@ -67,20 +67,20 @@ export class MappedData {
         }
       }
     } else {
-      let file = new IniFile();
+      const file = new IniFile();
       file.load(buffer);
 
-      let sections = file.sections;
-      let map = this.map;
+      const sections = file.sections;
+      const map = this.map;
 
-      for (let [row, properties] of sections.entries()) {
+      for (const [row, properties] of sections.entries()) {
         if (!map[row]) {
           map[row] = {};
         }
 
-        let mapped = map[row];
+        const mapped = map[row];
 
-        for (let [name, property] of properties) {
+        for (const [name, property] of properties) {
           mapped[name] = property;
         }
       }
@@ -100,10 +100,12 @@ export class MappedData {
   }
 
   findRow(key: string, expectedValue: MappedDataValue) {
-    for (let row of Object.values(this.map)) {
+    for (const row of Object.values(this.map)) {
       if (row[key] === expectedValue) {
         return row;
       }
     }
+
+    return;
   }
 }

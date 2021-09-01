@@ -9,7 +9,7 @@ export default class DroppedItemSet {
 
   load(stream: BinaryStream) {
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let item = new DroppedItem();
+      const item = new DroppedItem();
 
       item.load(stream);
 
@@ -20,7 +20,7 @@ export default class DroppedItemSet {
   save(stream: BinaryStream) {
     stream.writeInt32(this.items.length);
 
-    for (let item of this.items) {
+    for (const item of this.items) {
       item.save(stream);
     }
   }

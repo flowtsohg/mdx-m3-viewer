@@ -20,11 +20,11 @@ export default class TgaTexture extends Texture {
       image.load(bufferOrImage);
     }
 
-    let width = image.width;
-    let height = image.height;
+    const width = image.width;
+    const height = image.height;
 
-    let gl = this.viewer.gl;
-    let id = gl.createTexture();
+    const gl = this.viewer.gl;
+    const id = gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, id);
 

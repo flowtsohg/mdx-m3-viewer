@@ -9,7 +9,7 @@ import Context from './context';
  * constant native ConvertRace takes integer i returns race
  */
 function ConvertRace(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.races[i]);
 
@@ -20,7 +20,7 @@ function ConvertRace(C: Context, L: lua_State) {
  * constant native ConvertAllianceType takes integer i returns alliancetype
  */
 function ConvertAllianceType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.allianceTypes[i]);
 
@@ -31,7 +31,7 @@ function ConvertAllianceType(C: Context, L: lua_State) {
  * constant native ConvertRacePref takes integer i returns racepreference
  */
 function ConvertRacePref(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.racePrefs[i]);
 
@@ -42,7 +42,7 @@ function ConvertRacePref(C: Context, L: lua_State) {
  * constant native ConvertIGameState takes integer i returns igamestate
  */
 function ConvertIGameState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.gameStates[i]);
 
@@ -53,7 +53,7 @@ function ConvertIGameState(C: Context, L: lua_State) {
  * constant native ConvertFGameState takes integer i returns fgamestate
  */
 function ConvertFGameState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.gameStates[i]);
 
@@ -64,7 +64,7 @@ function ConvertFGameState(C: Context, L: lua_State) {
  * constant native ConvertPlayerState takes integer i returns playerstate
  */
 function ConvertPlayerState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.playerStates[i]);
 
@@ -75,7 +75,7 @@ function ConvertPlayerState(C: Context, L: lua_State) {
  * constant native ConvertPlayerScore takes integer i returns playerscore
  */
 function ConvertPlayerScore(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.playerScores[i]);
 
@@ -86,7 +86,7 @@ function ConvertPlayerScore(C: Context, L: lua_State) {
  * constant native ConvertPlayerGameResult takes integer i returns playergameresult
  */
 function ConvertPlayerGameResult(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.playerGameResults[i]);
 
@@ -97,7 +97,7 @@ function ConvertPlayerGameResult(C: Context, L: lua_State) {
  * constant native ConvertUnitState takes integer i returns unitstate
  */
 function ConvertUnitState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.unitStates[i]);
 
@@ -108,7 +108,7 @@ function ConvertUnitState(C: Context, L: lua_State) {
  * constant native ConvertAIDifficulty takes integer i returns aidifficulty
  */
 function ConvertAIDifficulty(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.aiDifficulties[i]);
 
@@ -119,7 +119,7 @@ function ConvertAIDifficulty(C: Context, L: lua_State) {
  * constant native ConvertGameEvent takes integer i returns gameevent
  */
 function ConvertGameEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -130,7 +130,7 @@ function ConvertGameEvent(C: Context, L: lua_State) {
  * constant native ConvertPlayerEvent takes integer i returns playerevent
  */
 function ConvertPlayerEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -141,7 +141,7 @@ function ConvertPlayerEvent(C: Context, L: lua_State) {
  * constant native ConvertPlayerUnitEvent takes integer i returns playerunitevent
  */
 function ConvertPlayerUnitEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -152,7 +152,7 @@ function ConvertPlayerUnitEvent(C: Context, L: lua_State) {
  * constant native ConvertWidgetEvent takes integer i returns widgetevent
  */
 function ConvertWidgetEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -163,7 +163,7 @@ function ConvertWidgetEvent(C: Context, L: lua_State) {
  * constant native ConvertDialogEvent takes integer i returns dialogevent
  */
 function ConvertDialogEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -174,7 +174,7 @@ function ConvertDialogEvent(C: Context, L: lua_State) {
  * constant native ConvertUnitEvent takes integer i returns unitevent
  */
 function ConvertUnitEvent(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.events[i]);
 
@@ -185,7 +185,7 @@ function ConvertUnitEvent(C: Context, L: lua_State) {
  * constant native ConvertLimitOp takes integer i returns limitop
  */
 function ConvertLimitOp(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.limitOps[i]);
 
@@ -196,7 +196,7 @@ function ConvertLimitOp(C: Context, L: lua_State) {
  * constant native ConvertUnitType takes integer i returns unittype
  */
 function ConvertUnitType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.unitTypes[i]);
 
@@ -207,7 +207,7 @@ function ConvertUnitType(C: Context, L: lua_State) {
  * constant native ConvertGameSpeed takes integer i returns gamespeed
  */
 function ConvertGameSpeed(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.gameSpeeds[i]);
 
@@ -218,7 +218,7 @@ function ConvertGameSpeed(C: Context, L: lua_State) {
  * constant native ConvertPlacement takes integer i returns placement
  */
 function ConvertPlacement(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.placements[i]);
 
@@ -229,7 +229,7 @@ function ConvertPlacement(C: Context, L: lua_State) {
  * constant native ConvertStartLocPrio takes integer i returns startlocprio
  */
 function ConvertStartLocPrio(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.startLocPrios[i]);
 
@@ -240,7 +240,7 @@ function ConvertStartLocPrio(C: Context, L: lua_State) {
  * constant native ConvertGameDifficulty takes integer i returns gamedifficulty
  */
 function ConvertGameDifficulty(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.gameDifficulties[i]);
 
@@ -251,7 +251,7 @@ function ConvertGameDifficulty(C: Context, L: lua_State) {
  * constant native ConvertGameType takes integer i returns gametype
  */
 function ConvertGameType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.gameTypes[i]);
 
@@ -262,7 +262,7 @@ function ConvertGameType(C: Context, L: lua_State) {
  * constant native ConvertMapFlag takes integer i returns mapflag
  */
 function ConvertMapFlag(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.mapFlags[i]);
 
@@ -273,7 +273,7 @@ function ConvertMapFlag(C: Context, L: lua_State) {
  * constant native ConvertMapVisibility takes integer i returns mapvisibility
  */
 function ConvertMapVisibility(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   console.warn('ConvertMapVisibility used, but the implementation is unknown');
 
@@ -286,7 +286,7 @@ function ConvertMapVisibility(C: Context, L: lua_State) {
  * constant native ConvertMapSetting takes integer i returns mapsetting
  */
 function ConvertMapSetting(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   console.warn('ConvertMapSetting used, but the implementation is unknown');
 
@@ -299,7 +299,7 @@ function ConvertMapSetting(C: Context, L: lua_State) {
  * constant native ConvertMapDensity takes integer i returns mapdensity
  */
 function ConvertMapDensity(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.mapDensities[i]);
 
@@ -310,7 +310,7 @@ function ConvertMapDensity(C: Context, L: lua_State) {
  * constant native ConvertMapControl takes integer i returns mapcontrol
  */
 function ConvertMapControl(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.mapControls[i]);
 
@@ -321,7 +321,7 @@ function ConvertMapControl(C: Context, L: lua_State) {
  * constant native ConvertPlayerColor takes integer i returns playercolor
  */
 function ConvertPlayerColor(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.playerColors[i]);
 
@@ -332,7 +332,7 @@ function ConvertPlayerColor(C: Context, L: lua_State) {
  * constant native ConvertPlayerSlotState takes integer i returns playerslotstate
  */
 function ConvertPlayerSlotState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.playerSlotStates[i]);
 
@@ -343,7 +343,7 @@ function ConvertPlayerSlotState(C: Context, L: lua_State) {
  * constant native ConvertVolumeGroup takes integer i returns volumegroup
  */
 function ConvertVolumeGroup(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.volumeGroups[i]);
 
@@ -354,7 +354,7 @@ function ConvertVolumeGroup(C: Context, L: lua_State) {
  * constant native ConvertCameraField takes integer i returns camerafield
  */
 function ConvertCameraField(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.cameraFields[i]);
 
@@ -365,7 +365,7 @@ function ConvertCameraField(C: Context, L: lua_State) {
  * constant native ConvertBlendMode takes integer i returns blendmode
  */
 function ConvertBlendMode(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.blendModes[i]);
 
@@ -376,7 +376,7 @@ function ConvertBlendMode(C: Context, L: lua_State) {
  * constant native ConvertRarityControl takes integer i returns raritycontrol
  */
 function ConvertRarityControl(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.rarityControls[i]);
 
@@ -387,7 +387,7 @@ function ConvertRarityControl(C: Context, L: lua_State) {
  * constant native ConvertTexMapFlags takes integer i returns texmapflags
  */
 function ConvertTexMapFlags(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.texMapFlags[i]);
 
@@ -398,7 +398,7 @@ function ConvertTexMapFlags(C: Context, L: lua_State) {
  * constant native ConvertFogState takes integer i returns fogstate
  */
 function ConvertFogState(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.fogStates[i]);
 
@@ -409,7 +409,7 @@ function ConvertFogState(C: Context, L: lua_State) {
  * constant native ConvertEffectType takes integer i returns effecttype
  */
 function ConvertEffectType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.effectTypes[i]);
 
@@ -420,7 +420,7 @@ function ConvertEffectType(C: Context, L: lua_State) {
  * constant native ConvertVersion takes integer i returns version
  */
 function ConvertVersion(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.versions[i]);
 
@@ -431,7 +431,7 @@ function ConvertVersion(C: Context, L: lua_State) {
  * constant native ConvertItemType takes integer i returns itemtype
  */
 function ConvertItemType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.itemTypes[i]);
 
@@ -442,7 +442,7 @@ function ConvertItemType(C: Context, L: lua_State) {
  * constant native ConvertAttackType takes integer i returns attacktype
  */
 function ConvertAttackType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.attackTypes[i]);
 
@@ -453,7 +453,7 @@ function ConvertAttackType(C: Context, L: lua_State) {
  * constant native ConvertDamageType takes integer i returns damagetype
  */
 function ConvertDamageType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.damageTypes[i]);
 
@@ -464,7 +464,7 @@ function ConvertDamageType(C: Context, L: lua_State) {
  * constant native ConvertWeaponType takes integer i returns weapontype
  */
 function ConvertWeaponType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.weaponTypes[i]);
 
@@ -475,7 +475,7 @@ function ConvertWeaponType(C: Context, L: lua_State) {
  * constant native ConvertSoundType takes integer i returns soundtype
  */
 function ConvertSoundType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.soundTypes[i]);
 
@@ -486,7 +486,7 @@ function ConvertSoundType(C: Context, L: lua_State) {
  * constant native ConvertPathingType takes integer i returns pathingtype
  */
 function ConvertPathingType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.pathingTypes[i]);
 
@@ -497,7 +497,7 @@ function ConvertPathingType(C: Context, L: lua_State) {
  * constant native ConvertMouseButtonType takes integer i returns mousebuttontype
  */
 function ConvertMouseButtonType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.mouseButtonTypes[i]);
 
@@ -508,7 +508,7 @@ function ConvertMouseButtonType(C: Context, L: lua_State) {
  * constant native ConvertAnimType takes integer i returns animtype
  */
 function ConvertAnimType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.animTypes[i]);
 
@@ -519,7 +519,7 @@ function ConvertAnimType(C: Context, L: lua_State) {
  * constant native ConvertSubAnimType takes integer i returns subanimtype
  */
 function ConvertSubAnimType(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.constantHandles.subAnimTypes[i]);
 
@@ -530,7 +530,7 @@ function ConvertSubAnimType(C: Context, L: lua_State) {
  * constant native OrderId takes string orderIdString returns integer
  */
 function OrderId(C: Context, L: lua_State) {
-  let orderIdString = luaL_checkstring(L, 1);
+  const orderIdString = luaL_checkstring(L, 1);
   console.warn('OrderId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -540,7 +540,7 @@ function OrderId(C: Context, L: lua_State) {
  * constant native OrderId2String takes integer orderId returns string
  */
 function OrderId2String(C: Context, L: lua_State) {
-  let orderId = luaL_checkinteger(L, 1);
+  const orderId = luaL_checkinteger(L, 1);
   console.warn('OrderId2String was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -550,7 +550,7 @@ function OrderId2String(C: Context, L: lua_State) {
  * constant native UnitId takes string unitIdString returns integer
  */
 function UnitId(C: Context, L: lua_State) {
-  let unitIdString = luaL_checkstring(L, 1);
+  const unitIdString = luaL_checkstring(L, 1);
   console.warn('UnitId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -560,7 +560,7 @@ function UnitId(C: Context, L: lua_State) {
  * constant native UnitId2String takes integer unitId returns string
  */
 function UnitId2String(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
+  const unitId = luaL_checkinteger(L, 1);
   console.warn('UnitId2String was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -570,7 +570,7 @@ function UnitId2String(C: Context, L: lua_State) {
  * constant native AbilityId takes string abilityIdString returns integer
  */
 function AbilityId(C: Context, L: lua_State) {
-  let abilityIdString = luaL_checkstring(L, 1);
+  const abilityIdString = luaL_checkstring(L, 1);
   console.warn('AbilityId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -580,7 +580,7 @@ function AbilityId(C: Context, L: lua_State) {
  * constant native AbilityId2String takes integer abilityId returns string
  */
 function AbilityId2String(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
+  const abilityId = luaL_checkinteger(L, 1);
   console.warn('AbilityId2String was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -590,7 +590,7 @@ function AbilityId2String(C: Context, L: lua_State) {
  * constant native GetObjectName takes integer objectId returns string
  */
 function GetObjectName(C: Context, L: lua_State) {
-  let objectId = luaL_checkinteger(L, 1);
+  const objectId = luaL_checkinteger(L, 1);
   console.warn('GetObjectName was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -654,7 +654,7 @@ function GetPlayerNeutralAggressive(C: Context, L: lua_State) {
  * native Deg2Rad takes real degrees returns real
  */
 function Deg2Rad(C: Context, L: lua_State) {
-  let degrees = luaL_checknumber(L, 1);
+  const degrees = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, degrees * (Math.PI / 180));
 
@@ -665,7 +665,7 @@ function Deg2Rad(C: Context, L: lua_State) {
  * native Rad2Deg takes real radians returns real
  */
 function Rad2Deg(C: Context, L: lua_State) {
-  let radians = luaL_checknumber(L, 1);
+  const radians = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, radians * (180 / Math.PI));
 
@@ -676,7 +676,7 @@ function Rad2Deg(C: Context, L: lua_State) {
  * native Sin takes real radians returns real
  */
 function Sin(C: Context, L: lua_State) {
-  let radians = luaL_checknumber(L, 1);
+  const radians = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.sin(radians));
 
@@ -687,7 +687,7 @@ function Sin(C: Context, L: lua_State) {
  * native Cos takes real radians returns real
  */
 function Cos(C: Context, L: lua_State) {
-  let radians = luaL_checknumber(L, 1);
+  const radians = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.cos(radians));
 
@@ -698,7 +698,7 @@ function Cos(C: Context, L: lua_State) {
  * native Tan takes real radians returns real
  */
 function Tan(C: Context, L: lua_State) {
-  let radians = luaL_checknumber(L, 1);
+  const radians = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.tan(radians));
 
@@ -709,7 +709,7 @@ function Tan(C: Context, L: lua_State) {
  * native Asin takes real y returns real
  */
 function Asin(C: Context, L: lua_State) {
-  let y = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.asin(y));
 
@@ -720,7 +720,7 @@ function Asin(C: Context, L: lua_State) {
  * native Acos takes real x returns real
  */
 function Acos(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
+  const x = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.acos(x));
 
@@ -731,7 +731,7 @@ function Acos(C: Context, L: lua_State) {
  * native Atan takes real x returns real
  */
 function Atan(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
+  const x = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.atan(x));
 
@@ -742,8 +742,8 @@ function Atan(C: Context, L: lua_State) {
  * native Atan2 takes real y, real x returns real
  */
 function Atan2(C: Context, L: lua_State) {
-  let y = luaL_checknumber(L, 1);
-  let x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 1);
+  const x = luaL_checknumber(L, 2);
 
   lua_pushnumber(L, Math.atan2(y, x));
 
@@ -754,7 +754,7 @@ function Atan2(C: Context, L: lua_State) {
  * native SquareRoot takes real x returns real
  */
 function SquareRoot(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
+  const x = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, Math.sqrt(x));
 
@@ -765,8 +765,8 @@ function SquareRoot(C: Context, L: lua_State) {
  * native Pow takes real x, real power returns real
  */
 function Pow(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let power = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const power = luaL_checknumber(L, 2);
 
   lua_pushnumber(L, Math.pow(x, power));
 
@@ -777,7 +777,7 @@ function Pow(C: Context, L: lua_State) {
  * native I2R takes integer i returns real
  */
 function I2R(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
 
   lua_pushnumber(L, i);
 
@@ -788,7 +788,7 @@ function I2R(C: Context, L: lua_State) {
  * native R2I takes real r returns integer
  */
 function R2I(C: Context, L: lua_State) {
-  let r = luaL_checknumber(L, 1);
+  const r = luaL_checknumber(L, 1);
 
   lua_pushinteger(L, r | 0);
 
@@ -799,7 +799,7 @@ function R2I(C: Context, L: lua_State) {
  * native I2S takes integer i returns string
  */
 function I2S(C: Context, L: lua_State) {
-  let i = luaL_checkinteger(L, 1);
+  const i = luaL_checkinteger(L, 1);
   console.warn('I2S was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -809,7 +809,7 @@ function I2S(C: Context, L: lua_State) {
  * native R2S takes real r returns string
  */
 function R2S(C: Context, L: lua_State) {
-  let r = luaL_checknumber(L, 1);
+  const r = luaL_checknumber(L, 1);
   console.warn('R2S was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -819,9 +819,9 @@ function R2S(C: Context, L: lua_State) {
  * native R2SW takes real r, integer width, integer precision returns string
  */
 function R2SW(C: Context, L: lua_State) {
-  let r = luaL_checknumber(L, 1);
-  let width = luaL_checkinteger(L, 2);
-  let precision = luaL_checkinteger(L, 3);
+  const r = luaL_checknumber(L, 1);
+  const width = luaL_checkinteger(L, 2);
+  const precision = luaL_checkinteger(L, 3);
   console.warn('R2SW was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -831,7 +831,7 @@ function R2SW(C: Context, L: lua_State) {
  * native S2I takes string s returns integer
  */
 function S2I(C: Context, L: lua_State) {
-  let s = luaL_checkstring(L, 1);
+  const s = luaL_checkstring(L, 1);
   console.warn('S2I was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -841,7 +841,7 @@ function S2I(C: Context, L: lua_State) {
  * native S2R takes string s returns real
  */
 function S2R(C: Context, L: lua_State) {
-  let s = luaL_checkstring(L, 1);
+  const s = luaL_checkstring(L, 1);
   console.warn('S2R was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -851,7 +851,7 @@ function S2R(C: Context, L: lua_State) {
  * native GetHandleId takes handle h returns integer
  */
 function GetHandleId(C: Context, L: lua_State) {
-  let h = lua_touserdata(L, 1);
+  const h = lua_touserdata(L, 1);
 
   lua_pushinteger(L, h.handleId);
 
@@ -862,9 +862,9 @@ function GetHandleId(C: Context, L: lua_State) {
  * native SubString takes string source, integer start, integer end_ returns string
  */
 function SubString(C: Context, L: lua_State) {
-  let source = luaL_checkstring(L, 1);
-  let start = luaL_checkinteger(L, 2);
-  let end_ = luaL_checkinteger(L, 3);
+  const source = luaL_checkstring(L, 1);
+  const start = luaL_checkinteger(L, 2);
+  const end_ = luaL_checkinteger(L, 3);
   console.warn('SubString was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -874,7 +874,7 @@ function SubString(C: Context, L: lua_State) {
  * native StringLength takes string s returns integer
  */
 function StringLength(C: Context, L: lua_State) {
-  let s = luaL_checkstring(L, 1);
+  const s = luaL_checkstring(L, 1);
   console.warn('StringLength was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -884,8 +884,8 @@ function StringLength(C: Context, L: lua_State) {
  * native StringCase takes string source, boolean upper returns string
  */
 function StringCase(C: Context, L: lua_State) {
-  let source = luaL_checkstring(L, 1);
-  let upper = lua_toboolean(L, 2);
+  const source = luaL_checkstring(L, 1);
+  const upper = lua_toboolean(L, 2);
   console.warn('StringCase was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -895,7 +895,7 @@ function StringCase(C: Context, L: lua_State) {
  * native StringHash takes string s returns integer
  */
 function StringHash(C: Context, L: lua_State) {
-  let s = luaL_checkstring(L, 1);
+  const s = luaL_checkstring(L, 1);
   console.warn('StringHash was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -905,7 +905,7 @@ function StringHash(C: Context, L: lua_State) {
  * native GetLocalizedString takes string source returns string
  */
 function GetLocalizedString(C: Context, L: lua_State) {
-  let source = luaL_checkstring(L, 1);
+  const source = luaL_checkstring(L, 1);
   console.warn('GetLocalizedString was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -915,7 +915,7 @@ function GetLocalizedString(C: Context, L: lua_State) {
  * native GetLocalizedHotkey takes string source returns integer
  */
 function GetLocalizedHotkey(C: Context, L: lua_State) {
-  let source = luaL_checkstring(L, 1);
+  const source = luaL_checkstring(L, 1);
   console.warn('GetLocalizedHotkey was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -925,89 +925,89 @@ function GetLocalizedHotkey(C: Context, L: lua_State) {
  * native SetMapName takes string name returns nothing
  */
 function SetMapName(C: Context, L: lua_State) {
-  let name = luaL_checkstring(L, 1);
+  const name = luaL_checkstring(L, 1);
   console.warn('SetMapName was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMapDescription takes string description returns nothing
  */
 function SetMapDescription(C: Context, L: lua_State) {
-  let description = luaL_checkstring(L, 1);
+  const description = luaL_checkstring(L, 1);
   console.warn('SetMapDescription was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTeams takes integer teamcount returns nothing
  */
 function SetTeams(C: Context, L: lua_State) {
-  let teamcount = luaL_checkinteger(L, 1);
+  const teamcount = luaL_checkinteger(L, 1);
   console.warn('SetTeams was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayers takes integer playercount returns nothing
  */
 function SetPlayers(C: Context, L: lua_State) {
-  let playercount = luaL_checkinteger(L, 1);
+  const playercount = luaL_checkinteger(L, 1);
   console.warn('SetPlayers was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DefineStartLocation takes integer whichStartLoc, real x, real y returns nothing
  */
 function DefineStartLocation(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
 
   C.startLocations[whichStartLoc] = <JassLocation>C.addHandle(new JassLocation(x, y));
 
-  return 0
+  return 0;
 }
 
 /**
  * native DefineStartLocationLoc takes integer whichStartLoc, location whichLocation returns nothing
  */
 function DefineStartLocationLoc(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
   console.warn('DefineStartLocationLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetStartLocPrioCount takes integer whichStartLoc, integer prioSlotCount returns nothing
  */
 function SetStartLocPrioCount(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let prioSlotCount = luaL_checkinteger(L, 2);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const prioSlotCount = luaL_checkinteger(L, 2);
   console.warn('SetStartLocPrioCount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetStartLocPrio takes integer whichStartLoc, integer prioSlotIndex, integer otherStartLocIndex, startlocprio priority returns nothing
  */
 function SetStartLocPrio(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let prioSlotIndex = luaL_checkinteger(L, 2);
-  let otherStartLocIndex = luaL_checkinteger(L, 3);
-  let priority = lua_touserdata(L, 4);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const prioSlotIndex = luaL_checkinteger(L, 2);
+  const otherStartLocIndex = luaL_checkinteger(L, 3);
+  const priority = lua_touserdata(L, 4);
   console.warn('SetStartLocPrio was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetStartLocPrioSlot takes integer whichStartLoc, integer prioSlotIndex returns integer
  */
 function GetStartLocPrioSlot(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let prioSlotIndex = luaL_checkinteger(L, 2);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const prioSlotIndex = luaL_checkinteger(L, 2);
   console.warn('GetStartLocPrioSlot was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -1017,8 +1017,8 @@ function GetStartLocPrioSlot(C: Context, L: lua_State) {
  * native GetStartLocPrio takes integer whichStartLoc, integer prioSlotIndex returns startlocprio
  */
 function GetStartLocPrio(C: Context, L: lua_State) {
-  let whichStartLoc = luaL_checkinteger(L, 1);
-  let prioSlotIndex = luaL_checkinteger(L, 2);
+  const whichStartLoc = luaL_checkinteger(L, 1);
+  const prioSlotIndex = luaL_checkinteger(L, 2);
   console.warn('GetStartLocPrio was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1028,65 +1028,65 @@ function GetStartLocPrio(C: Context, L: lua_State) {
  * native SetGameTypeSupported takes gametype whichGameType, boolean value returns nothing
  */
 function SetGameTypeSupported(C: Context, L: lua_State) {
-  let whichGameType = lua_touserdata(L, 1);
-  let value = lua_toboolean(L, 2);
+  const whichGameType = lua_touserdata(L, 1);
+  const value = lua_toboolean(L, 2);
   console.warn('SetGameTypeSupported was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMapFlag takes mapflag whichMapFlag, boolean value returns nothing
  */
 function SetMapFlag(C: Context, L: lua_State) {
-  let whichMapFlag = lua_touserdata(L, 1);
-  let value = lua_toboolean(L, 2);
+  const whichMapFlag = lua_touserdata(L, 1);
+  const value = lua_toboolean(L, 2);
   console.warn('SetMapFlag was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetGamePlacement takes placement whichPlacementType returns nothing
  */
 function SetGamePlacement(C: Context, L: lua_State) {
-  let whichPlacementType = lua_touserdata(L, 1);
+  const whichPlacementType = lua_touserdata(L, 1);
   console.warn('SetGamePlacement was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetGameSpeed takes gamespeed whichspeed returns nothing
  */
 function SetGameSpeed(C: Context, L: lua_State) {
-  let whichspeed = lua_touserdata(L, 1);
+  const whichspeed = lua_touserdata(L, 1);
   console.warn('SetGameSpeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetGameDifficulty takes gamedifficulty whichdifficulty returns nothing
  */
 function SetGameDifficulty(C: Context, L: lua_State) {
-  let whichdifficulty = lua_touserdata(L, 1);
+  const whichdifficulty = lua_touserdata(L, 1);
   console.warn('SetGameDifficulty was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetResourceDensity takes mapdensity whichdensity returns nothing
  */
 function SetResourceDensity(C: Context, L: lua_State) {
-  let whichdensity = lua_touserdata(L, 1);
+  const whichdensity = lua_touserdata(L, 1);
   console.warn('SetResourceDensity was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCreatureDensity takes mapdensity whichdensity returns nothing
  */
 function SetCreatureDensity(C: Context, L: lua_State) {
-  let whichdensity = lua_touserdata(L, 1);
+  const whichdensity = lua_touserdata(L, 1);
   console.warn('SetCreatureDensity was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -1113,7 +1113,7 @@ function GetPlayers(C: Context, L: lua_State) {
  * native IsGameTypeSupported takes gametype whichGameType returns boolean
  */
 function IsGameTypeSupported(C: Context, L: lua_State) {
-  let whichGameType = lua_touserdata(L, 1);
+  const whichGameType = lua_touserdata(L, 1);
   console.warn('IsGameTypeSupported was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1133,7 +1133,7 @@ function GetGameTypeSelected(C: Context, L: lua_State) {
  * native IsMapFlagSet takes mapflag whichMapFlag returns boolean
  */
 function IsMapFlagSet(C: Context, L: lua_State) {
-  let whichMapFlag = lua_touserdata(L, 1);
+  const whichMapFlag = lua_touserdata(L, 1);
   console.warn('IsMapFlagSet was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1193,7 +1193,7 @@ function GetCreatureDensity(C: Context, L: lua_State) {
  * constant native GetStartLocationX takes integer whichStartLocation returns real
  */
 function GetStartLocationX(C: Context, L: lua_State) {
-  let whichStartLocation = luaL_checkinteger(L, 1);
+  const whichStartLocation = luaL_checkinteger(L, 1);
   console.warn('GetStartLocationX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -1203,7 +1203,7 @@ function GetStartLocationX(C: Context, L: lua_State) {
  * constant native GetStartLocationY takes integer whichStartLocation returns real
  */
 function GetStartLocationY(C: Context, L: lua_State) {
-  let whichStartLocation = luaL_checkinteger(L, 1);
+  const whichStartLocation = luaL_checkinteger(L, 1);
   console.warn('GetStartLocationY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -1213,7 +1213,7 @@ function GetStartLocationY(C: Context, L: lua_State) {
  * constant native GetStartLocationLoc takes integer whichStartLocation returns location
  */
 function GetStartLocationLoc(C: Context, L: lua_State) {
-  let whichStartLocation = luaL_checkinteger(L, 1);
+  const whichStartLocation = luaL_checkinteger(L, 1);
   console.warn('GetStartLocationLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1223,131 +1223,131 @@ function GetStartLocationLoc(C: Context, L: lua_State) {
  * native SetPlayerTeam takes player whichPlayer, integer whichTeam returns nothing
  */
 function SetPlayerTeam(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichTeam = luaL_checkinteger(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichTeam = luaL_checkinteger(L, 2);
   console.warn('SetPlayerTeam was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerStartLocation takes player whichPlayer, integer startLocIndex returns nothing
  */
 function SetPlayerStartLocation(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let startLocIndex = luaL_checkinteger(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const startLocIndex = luaL_checkinteger(L, 2);
 
   whichPlayer.startLocation = startLocIndex;
 
-  return 0
+  return 0;
 }
 
 /**
  * native ForcePlayerStartLocation takes player whichPlayer, integer startLocIndex returns nothing
  */
 function ForcePlayerStartLocation(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let startLocIndex = luaL_checkinteger(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const startLocIndex = luaL_checkinteger(L, 2);
   console.warn('ForcePlayerStartLocation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerColor takes player whichPlayer, playercolor color returns nothing
  */
 function SetPlayerColor(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let color = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const color = lua_touserdata(L, 2);
 
   whichPlayer.color = color;
 
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerAlliance takes player sourcePlayer, player otherPlayer, alliancetype whichAllianceSetting, boolean value returns nothing
  */
 function SetPlayerAlliance(C: Context, L: lua_State) {
-  let sourcePlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
-  let whichAllianceSetting = lua_touserdata(L, 3);
-  let value = lua_toboolean(L, 4);
+  const sourcePlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
+  const whichAllianceSetting = lua_touserdata(L, 3);
+  const value = lua_toboolean(L, 4);
   console.warn('SetPlayerAlliance was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerTaxRate takes player sourcePlayer, player otherPlayer, playerstate whichResource, integer rate returns nothing
  */
 function SetPlayerTaxRate(C: Context, L: lua_State) {
-  let sourcePlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
-  let whichResource = lua_touserdata(L, 3);
-  let rate = luaL_checkinteger(L, 4);
+  const sourcePlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
+  const whichResource = lua_touserdata(L, 3);
+  const rate = luaL_checkinteger(L, 4);
   console.warn('SetPlayerTaxRate was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerRacePreference takes player whichPlayer, racepreference whichRacePreference returns nothing
  */
 function SetPlayerRacePreference(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichRacePreference = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichRacePreference = lua_touserdata(L, 2);
   console.warn('SetPlayerRacePreference was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerRaceSelectable takes player whichPlayer, boolean value returns nothing
  */
 function SetPlayerRaceSelectable(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let value = lua_toboolean(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const value = lua_toboolean(L, 2);
 
   whichPlayer.raceSelectable = value;
 
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerController takes player whichPlayer, mapcontrol controlType returns nothing
  */
 function SetPlayerController(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let controlType = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const controlType = lua_touserdata(L, 2);
 
   whichPlayer.controller = controlType;
 
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerName takes player whichPlayer, string name returns nothing
  */
 function SetPlayerName(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
 
   whichPlayer.name = name;
 
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerOnScoreScreen takes player whichPlayer, boolean flag returns nothing
  */
 function SetPlayerOnScoreScreen(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetPlayerOnScoreScreen was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetPlayerTeam takes player whichPlayer returns integer
  */
 function GetPlayerTeam(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetPlayerTeam was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -1357,7 +1357,7 @@ function GetPlayerTeam(C: Context, L: lua_State) {
  * native GetPlayerStartLocation takes player whichPlayer returns integer
  */
 function GetPlayerStartLocation(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushinteger(L, whichPlayer.startLocation);
 
@@ -1368,7 +1368,7 @@ function GetPlayerStartLocation(C: Context, L: lua_State) {
  * native GetPlayerColor takes player whichPlayer returns playercolor
  */
 function GetPlayerColor(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushlightuserdata(L, whichPlayer.color);
 
@@ -1379,7 +1379,7 @@ function GetPlayerColor(C: Context, L: lua_State) {
  * native GetPlayerSelectable takes player whichPlayer returns boolean
  */
 function GetPlayerSelectable(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetPlayerSelectable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1389,7 +1389,7 @@ function GetPlayerSelectable(C: Context, L: lua_State) {
  * native GetPlayerController takes player whichPlayer returns mapcontrol
  */
 function GetPlayerController(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushlightuserdata(L, whichPlayer.controller);
 
@@ -1400,7 +1400,7 @@ function GetPlayerController(C: Context, L: lua_State) {
  * native GetPlayerSlotState takes player whichPlayer returns playerslotstate
  */
 function GetPlayerSlotState(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetPlayerSlotState was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1410,9 +1410,9 @@ function GetPlayerSlotState(C: Context, L: lua_State) {
  * native GetPlayerTaxRate takes player sourcePlayer, player otherPlayer, playerstate whichResource returns integer
  */
 function GetPlayerTaxRate(C: Context, L: lua_State) {
-  let sourcePlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
-  let whichResource = lua_touserdata(L, 3);
+  const sourcePlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
+  const whichResource = lua_touserdata(L, 3);
   console.warn('GetPlayerTaxRate was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -1422,8 +1422,8 @@ function GetPlayerTaxRate(C: Context, L: lua_State) {
  * native IsPlayerRacePrefSet takes player whichPlayer, racepreference pref returns boolean
  */
 function IsPlayerRacePrefSet(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let pref = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const pref = lua_touserdata(L, 2);
   console.warn('IsPlayerRacePrefSet was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1433,7 +1433,7 @@ function IsPlayerRacePrefSet(C: Context, L: lua_State) {
  * native GetPlayerName takes player whichPlayer returns string
  */
 function GetPlayerName(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushstring(L, whichPlayer.name);
 
@@ -1453,24 +1453,24 @@ function CreateTimer(C: Context, L: lua_State) {
  * native DestroyTimer takes timer whichTimer returns nothing
  */
 function DestroyTimer(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   // In case it's in the middle of running, remove it.
   C.timers.delete(whichTimer);
 
   C.freeHandle(whichTimer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native TimerStart takes timer whichTimer, real timeout, boolean periodic, code handlerFunc returns nothing
  */
 function TimerStart(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
-  let timeout = luaL_checknumber(L, 2);
-  let periodic = lua_toboolean(L, 3);
-  let handlerFunc = luaL_ref(L, LUA_REGISTRYINDEX);
+  const whichTimer = lua_touserdata(L, 1);
+  const timeout = luaL_checknumber(L, 2);
+  const periodic = lua_toboolean(L, 3);
+  const handlerFunc = luaL_ref(L, LUA_REGISTRYINDEX);
 
   whichTimer.elapsed = 0;
   whichTimer.timeout = timeout;
@@ -1479,14 +1479,14 @@ function TimerStart(C: Context, L: lua_State) {
 
   C.timers.add(whichTimer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native TimerGetElapsed takes timer whichTimer returns real
  */
 function TimerGetElapsed(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   lua_pushnumber(L, whichTimer.elapsed);
 
@@ -1497,7 +1497,7 @@ function TimerGetElapsed(C: Context, L: lua_State) {
  * native TimerGetRemaining takes timer whichTimer returns real
  */
 function TimerGetRemaining(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   lua_pushnumber(L, whichTimer.timeout - whichTimer.elapsed);
 
@@ -1508,7 +1508,7 @@ function TimerGetRemaining(C: Context, L: lua_State) {
  * native TimerGetTimeout takes timer whichTimer returns real
  */
 function TimerGetTimeout(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   lua_pushnumber(L, whichTimer.timeout);
 
@@ -1519,29 +1519,29 @@ function TimerGetTimeout(C: Context, L: lua_State) {
  * native PauseTimer takes timer whichTimer returns nothing
  */
 function PauseTimer(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   C.timers.delete(whichTimer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native ResumeTimer takes timer whichTimer returns nothing
  */
 function ResumeTimer(C: Context, L: lua_State) {
-  let whichTimer = lua_touserdata(L, 1);
+  const whichTimer = lua_touserdata(L, 1);
 
   C.timers.add(whichTimer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native GetExpiredTimer takes nothing returns timer
  */
 function GetExpiredTimer(C: Context, L: lua_State) {
-  let thread = C.currentThread;
+  const thread = C.currentThread;
 
   if (thread && thread.expiredTimer) {
     lua_pushlightuserdata(L, thread.expiredTimer);
@@ -1565,174 +1565,174 @@ function CreateGroup(C: Context, L: lua_State) {
  * native DestroyGroup takes group whichGroup returns nothing
  */
 function DestroyGroup(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
+  const whichGroup = lua_touserdata(L, 1);
 
   C.freeHandle(whichGroup);
 
-  return 0
+  return 0;
 }
 
 /**
  * native GroupAddUnit takes group whichGroup, unit whichUnit returns nothing
  */
 function GroupAddUnit(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
 
   whichGroup.units.add(whichUnit);
 
-  return 0
+  return 0;
 }
 
 /**
  * native GroupRemoveUnit takes group whichGroup, unit whichUnit returns nothing
  */
 function GroupRemoveUnit(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
 
   whichGroup.units.delete(whichUnit);
 
-  return 0
+  return 0;
 }
 
 /**
  * native GroupClear takes group whichGroup returns nothing
  */
 function GroupClear(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
+  const whichGroup = lua_touserdata(L, 1);
 
   whichGroup.units.clear();
 
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsOfType takes group whichGroup, string unitname, boolexpr filter returns nothing
  */
 function GroupEnumUnitsOfType(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let unitname = luaL_checkstring(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const unitname = luaL_checkstring(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('GroupEnumUnitsOfType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsOfPlayer takes group whichGroup, player whichPlayer, boolexpr filter returns nothing
  */
 function GroupEnumUnitsOfPlayer(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('GroupEnumUnitsOfPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsOfTypeCounted takes group whichGroup, string unitname, boolexpr filter, integer countLimit returns nothing
  */
 function GroupEnumUnitsOfTypeCounted(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let unitname = luaL_checkstring(L, 2);
-  let filter = lua_touserdata(L, 3);
-  let countLimit = luaL_checkinteger(L, 4);
+  const whichGroup = lua_touserdata(L, 1);
+  const unitname = luaL_checkstring(L, 2);
+  const filter = lua_touserdata(L, 3);
+  const countLimit = luaL_checkinteger(L, 4);
   console.warn('GroupEnumUnitsOfTypeCounted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRect takes group whichGroup, rect r, boolexpr filter returns nothing
  */
 function GroupEnumUnitsInRect(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let r = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('GroupEnumUnitsInRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRectCounted takes group whichGroup, rect r, boolexpr filter, integer countLimit returns nothing
  */
 function GroupEnumUnitsInRectCounted(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let r = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
-  let countLimit = luaL_checkinteger(L, 4);
+  const whichGroup = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
+  const countLimit = luaL_checkinteger(L, 4);
   console.warn('GroupEnumUnitsInRectCounted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRange takes group whichGroup, real x, real y, real radius, boolexpr filter returns nothing
  */
 function GroupEnumUnitsInRange(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let radius = luaL_checknumber(L, 4);
-  let filter = lua_touserdata(L, 5);
+  const whichGroup = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const radius = luaL_checknumber(L, 4);
+  const filter = lua_touserdata(L, 5);
   console.warn('GroupEnumUnitsInRange was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRangeOfLoc takes group whichGroup, location whichLocation, real radius, boolexpr filter returns nothing
  */
 function GroupEnumUnitsInRangeOfLoc(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let filter = lua_touserdata(L, 4);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const filter = lua_touserdata(L, 4);
   console.warn('GroupEnumUnitsInRangeOfLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRangeCounted takes group whichGroup, real x, real y, real radius, boolexpr filter, integer countLimit returns nothing
  */
 function GroupEnumUnitsInRangeCounted(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let radius = luaL_checknumber(L, 4);
-  let filter = lua_touserdata(L, 5);
-  let countLimit = luaL_checkinteger(L, 6);
+  const whichGroup = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const radius = luaL_checknumber(L, 4);
+  const filter = lua_touserdata(L, 5);
+  const countLimit = luaL_checkinteger(L, 6);
   console.warn('GroupEnumUnitsInRangeCounted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsInRangeOfLocCounted takes group whichGroup, location whichLocation, real radius, boolexpr filter, integer countLimit returns nothing
  */
 function GroupEnumUnitsInRangeOfLocCounted(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let filter = lua_touserdata(L, 4);
-  let countLimit = luaL_checkinteger(L, 5);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const filter = lua_touserdata(L, 4);
+  const countLimit = luaL_checkinteger(L, 5);
   console.warn('GroupEnumUnitsInRangeOfLocCounted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupEnumUnitsSelected takes group whichGroup, player whichPlayer, boolexpr filter returns nothing
  */
 function GroupEnumUnitsSelected(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('GroupEnumUnitsSelected was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GroupImmediateOrder takes group whichGroup, string order returns boolean
  */
 function GroupImmediateOrder(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
   console.warn('GroupImmediateOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1742,8 +1742,8 @@ function GroupImmediateOrder(C: Context, L: lua_State) {
  * native GroupImmediateOrderById takes group whichGroup, integer order returns boolean
  */
 function GroupImmediateOrderById(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
   console.warn('GroupImmediateOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1753,10 +1753,10 @@ function GroupImmediateOrderById(C: Context, L: lua_State) {
  * native GroupPointOrder takes group whichGroup, string order, real x, real y returns boolean
  */
 function GroupPointOrder(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('GroupPointOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1766,9 +1766,9 @@ function GroupPointOrder(C: Context, L: lua_State) {
  * native GroupPointOrderLoc takes group whichGroup, string order, location whichLocation returns boolean
  */
 function GroupPointOrderLoc(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
   console.warn('GroupPointOrderLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1778,10 +1778,10 @@ function GroupPointOrderLoc(C: Context, L: lua_State) {
  * native GroupPointOrderById takes group whichGroup, integer order, real x, real y returns boolean
  */
 function GroupPointOrderById(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('GroupPointOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1791,9 +1791,9 @@ function GroupPointOrderById(C: Context, L: lua_State) {
  * native GroupPointOrderByIdLoc takes group whichGroup, integer order, location whichLocation returns boolean
  */
 function GroupPointOrderByIdLoc(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
   console.warn('GroupPointOrderByIdLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1803,9 +1803,9 @@ function GroupPointOrderByIdLoc(C: Context, L: lua_State) {
  * native GroupTargetOrder takes group whichGroup, string order, widget targetWidget returns boolean
  */
 function GroupTargetOrder(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
   console.warn('GroupTargetOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1815,9 +1815,9 @@ function GroupTargetOrder(C: Context, L: lua_State) {
  * native GroupTargetOrderById takes group whichGroup, integer order, widget targetWidget returns boolean
  */
 function GroupTargetOrderById(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
+  const whichGroup = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
   console.warn('GroupTargetOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -1827,10 +1827,10 @@ function GroupTargetOrderById(C: Context, L: lua_State) {
  * native ForGroup takes group whichGroup, code callback returns nothing
  */
 function ForGroup(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
-  let callback = luaL_ref(L, LUA_REGISTRYINDEX);
+  const whichGroup = lua_touserdata(L, 1);
+  const callback = luaL_ref(L, LUA_REGISTRYINDEX);
 
-  for (let unit of whichGroup.units) {
+  for (const unit of whichGroup.units) {
     C.enumUnit = unit;
 
     C.call(callback);
@@ -1840,14 +1840,14 @@ function ForGroup(C: Context, L: lua_State) {
 
   luaL_unref(L, callback);
 
-  return 0
+  return 0;
 }
 
 /**
  * native FirstOfGroup takes group whichGroup returns unit
  */
 function FirstOfGroup(C: Context, L: lua_State) {
-  let whichGroup = lua_touserdata(L, 1);
+  const whichGroup = lua_touserdata(L, 1);
   console.warn('FirstOfGroup was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1866,99 +1866,99 @@ function CreateForce(C: Context, L: lua_State) {
  * native DestroyForce takes force whichForce returns nothing
  */
 function DestroyForce(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
+  const whichForce = lua_touserdata(L, 1);
 
   C.freeHandle(whichForce);
 
-  return 0
+  return 0;
 }
 
 /**
  * native ForceAddPlayer takes force whichForce, player whichPlayer returns nothing
  */
 function ForceAddPlayer(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichForce = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
 
   whichForce.players.add(whichPlayer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native ForceRemovePlayer takes force whichForce, player whichPlayer returns nothing
  */
 function ForceRemovePlayer(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichForce = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
 
   whichForce.players.delete(whichPlayer);
 
-  return 0
+  return 0;
 }
 
 /**
  * native ForceClear takes force whichForce returns nothing
  */
 function ForceClear(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
+  const whichForce = lua_touserdata(L, 1);
 
   whichForce.players.clear();
 
-  return 0
+  return 0;
 }
 
 /**
  * native ForceEnumPlayers takes force whichForce, boolexpr filter returns nothing
  */
 function ForceEnumPlayers(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let filter = lua_touserdata(L, 2);
+  const whichForce = lua_touserdata(L, 1);
+  const filter = lua_touserdata(L, 2);
   console.warn('ForceEnumPlayers was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForceEnumPlayersCounted takes force whichForce, boolexpr filter, integer countLimit returns nothing
  */
 function ForceEnumPlayersCounted(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let filter = lua_touserdata(L, 2);
-  let countLimit = luaL_checkinteger(L, 3);
+  const whichForce = lua_touserdata(L, 1);
+  const filter = lua_touserdata(L, 2);
+  const countLimit = luaL_checkinteger(L, 3);
   console.warn('ForceEnumPlayersCounted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForceEnumAllies takes force whichForce, player whichPlayer, boolexpr filter returns nothing
  */
 function ForceEnumAllies(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichForce = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('ForceEnumAllies was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForceEnumEnemies takes force whichForce, player whichPlayer, boolexpr filter returns nothing
  */
 function ForceEnumEnemies(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichForce = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('ForceEnumEnemies was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForForce takes force whichForce, code callback returns nothing
  */
 function ForForce(C: Context, L: lua_State) {
-  let whichForce = lua_touserdata(L, 1);
-  let callback = luaL_ref(L, LUA_REGISTRYINDEX);
+  const whichForce = lua_touserdata(L, 1);
+  const callback = luaL_ref(L, LUA_REGISTRYINDEX);
 
-  for (let player of whichForce.players) {
+  for (const player of whichForce.players) {
     C.enumPlayer = player;
 
     C.call(callback);
@@ -1968,17 +1968,17 @@ function ForForce(C: Context, L: lua_State) {
 
   luaL_unref(L, callback);
 
-  return 0
+  return 0;
 }
 
 /**
  * native Rect takes real minx, real miny, real maxx, real maxy returns rect
  */
 function Rect(C: Context, L: lua_State) {
-  let minx = luaL_checknumber(L, 1);
-  let miny = luaL_checknumber(L, 2);
-  let maxx = luaL_checknumber(L, 3);
-  let maxy = luaL_checknumber(L, 4);
+  const minx = luaL_checknumber(L, 1);
+  const miny = luaL_checknumber(L, 2);
+  const maxx = luaL_checknumber(L, 3);
+  const maxy = luaL_checknumber(L, 4);
   console.warn('Rect was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1988,8 +1988,8 @@ function Rect(C: Context, L: lua_State) {
  * native RectFromLoc takes location min, location max returns rect
  */
 function RectFromLoc(C: Context, L: lua_State) {
-  let min = lua_touserdata(L, 1);
-  let max = lua_touserdata(L, 2);
+  const min = lua_touserdata(L, 1);
+  const max = lua_touserdata(L, 2);
   console.warn('RectFromLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -1999,61 +1999,61 @@ function RectFromLoc(C: Context, L: lua_State) {
  * native RemoveRect takes rect whichRect returns nothing
  */
 function RemoveRect(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('RemoveRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetRect takes rect whichRect, real minx, real miny, real maxx, real maxy returns nothing
  */
 function SetRect(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
-  let minx = luaL_checknumber(L, 2);
-  let miny = luaL_checknumber(L, 3);
-  let maxx = luaL_checknumber(L, 4);
-  let maxy = luaL_checknumber(L, 5);
+  const whichRect = lua_touserdata(L, 1);
+  const minx = luaL_checknumber(L, 2);
+  const miny = luaL_checknumber(L, 3);
+  const maxx = luaL_checknumber(L, 4);
+  const maxy = luaL_checknumber(L, 5);
   console.warn('SetRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetRectFromLoc takes rect whichRect, location min, location max returns nothing
  */
 function SetRectFromLoc(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
-  let min = lua_touserdata(L, 2);
-  let max = lua_touserdata(L, 3);
+  const whichRect = lua_touserdata(L, 1);
+  const min = lua_touserdata(L, 2);
+  const max = lua_touserdata(L, 3);
   console.warn('SetRectFromLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MoveRectTo takes rect whichRect, real newCenterX, real newCenterY returns nothing
  */
 function MoveRectTo(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
-  let newCenterX = luaL_checknumber(L, 2);
-  let newCenterY = luaL_checknumber(L, 3);
+  const whichRect = lua_touserdata(L, 1);
+  const newCenterX = luaL_checknumber(L, 2);
+  const newCenterY = luaL_checknumber(L, 3);
   console.warn('MoveRectTo was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MoveRectToLoc takes rect whichRect, location newCenterLoc returns nothing
  */
 function MoveRectToLoc(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
-  let newCenterLoc = lua_touserdata(L, 2);
+  const whichRect = lua_touserdata(L, 1);
+  const newCenterLoc = lua_touserdata(L, 2);
   console.warn('MoveRectToLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetRectCenterX takes rect whichRect returns real
  */
 function GetRectCenterX(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectCenterX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2063,7 +2063,7 @@ function GetRectCenterX(C: Context, L: lua_State) {
  * native GetRectCenterY takes rect whichRect returns real
  */
 function GetRectCenterY(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectCenterY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2073,7 +2073,7 @@ function GetRectCenterY(C: Context, L: lua_State) {
  * native GetRectMinX takes rect whichRect returns real
  */
 function GetRectMinX(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectMinX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2083,7 +2083,7 @@ function GetRectMinX(C: Context, L: lua_State) {
  * native GetRectMinY takes rect whichRect returns real
  */
 function GetRectMinY(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectMinY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2093,7 +2093,7 @@ function GetRectMinY(C: Context, L: lua_State) {
  * native GetRectMaxX takes rect whichRect returns real
  */
 function GetRectMaxX(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectMaxX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2103,7 +2103,7 @@ function GetRectMaxX(C: Context, L: lua_State) {
  * native GetRectMaxY takes rect whichRect returns real
  */
 function GetRectMaxY(C: Context, L: lua_State) {
-  let whichRect = lua_touserdata(L, 1);
+  const whichRect = lua_touserdata(L, 1);
   console.warn('GetRectMaxY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2123,79 +2123,79 @@ function CreateRegion(C: Context, L: lua_State) {
  * native RemoveRegion takes region whichRegion returns nothing
  */
 function RemoveRegion(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
+  const whichRegion = lua_touserdata(L, 1);
   console.warn('RemoveRegion was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionAddRect takes region whichRegion, rect r returns nothing
  */
 function RegionAddRect(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let r = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 2);
   console.warn('RegionAddRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionClearRect takes region whichRegion, rect r returns nothing
  */
 function RegionClearRect(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let r = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 2);
   console.warn('RegionClearRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionAddCell takes region whichRegion, real x, real y returns nothing
  */
 function RegionAddCell(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const whichRegion = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('RegionAddCell was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionAddCellAtLoc takes region whichRegion, location whichLocation returns nothing
  */
 function RegionAddCellAtLoc(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
   console.warn('RegionAddCellAtLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionClearCell takes region whichRegion, real x, real y returns nothing
  */
 function RegionClearCell(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const whichRegion = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('RegionClearCell was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RegionClearCellAtLoc takes region whichRegion, location whichLocation returns nothing
  */
 function RegionClearCellAtLoc(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
   console.warn('RegionClearCellAtLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native Location takes real x, real y returns location
  */
 function Location(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('Location was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2205,27 +2205,27 @@ function Location(C: Context, L: lua_State) {
  * native RemoveLocation takes location whichLocation returns nothing
  */
 function RemoveLocation(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 1);
   console.warn('RemoveLocation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MoveLocation takes location whichLocation, real newX, real newY returns nothing
  */
 function MoveLocation(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
-  let newX = luaL_checknumber(L, 2);
-  let newY = luaL_checknumber(L, 3);
+  const whichLocation = lua_touserdata(L, 1);
+  const newX = luaL_checknumber(L, 2);
+  const newY = luaL_checknumber(L, 3);
   console.warn('MoveLocation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetLocationX takes location whichLocation returns real
  */
 function GetLocationX(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 1);
   console.warn('GetLocationX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2235,7 +2235,7 @@ function GetLocationX(C: Context, L: lua_State) {
  * native GetLocationY takes location whichLocation returns real
  */
 function GetLocationY(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 1);
   console.warn('GetLocationY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2245,7 +2245,7 @@ function GetLocationY(C: Context, L: lua_State) {
  * native GetLocationZ takes location whichLocation returns real
  */
 function GetLocationZ(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 1);
   console.warn('GetLocationZ was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -2255,8 +2255,8 @@ function GetLocationZ(C: Context, L: lua_State) {
  * native IsUnitInRegion takes region whichRegion, unit whichUnit returns boolean
  */
 function IsUnitInRegion(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
   console.warn('IsUnitInRegion was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -2266,9 +2266,9 @@ function IsUnitInRegion(C: Context, L: lua_State) {
  * native IsPointInRegion takes region whichRegion, real x, real y returns boolean
  */
 function IsPointInRegion(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const whichRegion = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('IsPointInRegion was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -2278,8 +2278,8 @@ function IsPointInRegion(C: Context, L: lua_State) {
  * native IsLocationInRegion takes region whichRegion, location whichLocation returns boolean
  */
 function IsLocationInRegion(C: Context, L: lua_State) {
-  let whichRegion = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
+  const whichRegion = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
   console.warn('IsLocationInRegion was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -2308,48 +2308,48 @@ function CreateTrigger(C: Context, L: lua_State) {
  * native DestroyTrigger takes trigger whichTrigger returns nothing
  */
 function DestroyTrigger(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
 
   // In case it's registered, remove it.
   C.triggers.delete(whichTrigger);
 
   C.freeHandle(whichTrigger);
 
-  return 0
+  return 0;
 }
 
 /**
  * native ResetTrigger takes trigger whichTrigger returns nothing
  */
 function ResetTrigger(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('ResetTrigger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableTrigger takes trigger whichTrigger returns nothing
  */
 function EnableTrigger(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('EnableTrigger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisableTrigger takes trigger whichTrigger returns nothing
  */
 function DisableTrigger(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('DisableTrigger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsTriggerEnabled takes trigger whichTrigger returns boolean
  */
 function IsTriggerEnabled(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('IsTriggerEnabled was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -2359,17 +2359,17 @@ function IsTriggerEnabled(C: Context, L: lua_State) {
  * native TriggerWaitOnSleeps takes trigger whichTrigger, boolean flag returns nothing
  */
 function TriggerWaitOnSleeps(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('TriggerWaitOnSleeps was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsTriggerWaitOnSleeps takes trigger whichTrigger returns boolean
  */
 function IsTriggerWaitOnSleeps(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('IsTriggerWaitOnSleeps was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -2456,7 +2456,7 @@ function GetEnumPlayer(C: Context, L: lua_State) {
  * constant native GetTriggeringTrigger takes nothing returns trigger
  */
 function GetTriggeringTrigger(C: Context, L: lua_State) {
-  let thread = C.currentThread;
+  const thread = C.currentThread;
 
   if (thread && thread.triggeringTrigger) {
     lua_pushlightuserdata(L, thread.triggeringTrigger);
@@ -2481,7 +2481,7 @@ function GetTriggerEventId(C: Context, L: lua_State) {
  * constant native GetTriggerEvalCount takes trigger whichTrigger returns integer
  */
 function GetTriggerEvalCount(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('GetTriggerEvalCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -2491,7 +2491,7 @@ function GetTriggerEvalCount(C: Context, L: lua_State) {
  * constant native GetTriggerExecCount takes trigger whichTrigger returns integer
  */
 function GetTriggerExecCount(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('GetTriggerExecCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -2501,17 +2501,17 @@ function GetTriggerExecCount(C: Context, L: lua_State) {
  * native ExecuteFunc takes string funcName returns nothing
  */
 function ExecuteFunc(C: Context, L: lua_State) {
-  let funcName = luaL_checkstring(L, 1);
+  const funcName = luaL_checkstring(L, 1);
   console.warn('ExecuteFunc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native And takes boolexpr operandA, boolexpr operandB returns boolexpr
  */
 function And(C: Context, L: lua_State) {
-  let operandA = lua_touserdata(L, 1);
-  let operandB = lua_touserdata(L, 2);
+  const operandA = lua_touserdata(L, 1);
+  const operandB = lua_touserdata(L, 2);
   console.warn('And was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2521,8 +2521,8 @@ function And(C: Context, L: lua_State) {
  * native Or takes boolexpr operandA, boolexpr operandB returns boolexpr
  */
 function Or(C: Context, L: lua_State) {
-  let operandA = lua_touserdata(L, 1);
-  let operandB = lua_touserdata(L, 2);
+  const operandA = lua_touserdata(L, 1);
+  const operandB = lua_touserdata(L, 2);
   console.warn('Or was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2532,7 +2532,7 @@ function Or(C: Context, L: lua_State) {
  * native Not takes boolexpr operand returns boolexpr
  */
 function Not(C: Context, L: lua_State) {
-  let operand = lua_touserdata(L, 1);
+  const operand = lua_touserdata(L, 1);
   console.warn('Not was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2542,7 +2542,7 @@ function Not(C: Context, L: lua_State) {
  * native Condition takes code func returns conditionfunc
  */
 function Condition(C: Context, L: lua_State) {
-  let func = luaL_ref(L, LUA_REGISTRYINDEX);
+  const func = luaL_ref(L, LUA_REGISTRYINDEX);
   console.warn('Condition was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2552,16 +2552,16 @@ function Condition(C: Context, L: lua_State) {
  * native DestroyCondition takes conditionfunc c returns nothing
  */
 function DestroyCondition(C: Context, L: lua_State) {
-  let c = lua_touserdata(L, 1);
+  const c = lua_touserdata(L, 1);
   console.warn('DestroyCondition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native Filter takes code func returns filterfunc
  */
 function Filter(C: Context, L: lua_State) {
-  let func = luaL_ref(L, LUA_REGISTRYINDEX);
+  const func = luaL_ref(L, LUA_REGISTRYINDEX);
   console.warn('Filter was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2571,28 +2571,28 @@ function Filter(C: Context, L: lua_State) {
  * native DestroyFilter takes filterfunc f returns nothing
  */
 function DestroyFilter(C: Context, L: lua_State) {
-  let f = lua_touserdata(L, 1);
+  const f = lua_touserdata(L, 1);
   console.warn('DestroyFilter was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DestroyBoolExpr takes boolexpr e returns nothing
  */
 function DestroyBoolExpr(C: Context, L: lua_State) {
-  let e = lua_touserdata(L, 1);
+  const e = lua_touserdata(L, 1);
   console.warn('DestroyBoolExpr was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerRegisterVariableEvent takes trigger whichTrigger, string varName, limitop opcode, real limitval returns event
  */
 function TriggerRegisterVariableEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let varName = luaL_checkstring(L, 2);
-  let opcode = lua_touserdata(L, 3);
-  let limitval = luaL_checknumber(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const varName = luaL_checkstring(L, 2);
+  const opcode = lua_touserdata(L, 3);
+  const limitval = luaL_checknumber(L, 4);
   console.warn('TriggerRegisterVariableEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2602,9 +2602,9 @@ function TriggerRegisterVariableEvent(C: Context, L: lua_State) {
  * native TriggerRegisterTimerEvent takes trigger whichTrigger, real timeout, boolean periodic returns event
  */
 function TriggerRegisterTimerEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let timeout = luaL_checknumber(L, 2);
-  let periodic = lua_toboolean(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const timeout = luaL_checknumber(L, 2);
+  const periodic = lua_toboolean(L, 3);
   console.warn('TriggerRegisterTimerEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2614,8 +2614,8 @@ function TriggerRegisterTimerEvent(C: Context, L: lua_State) {
  * native TriggerRegisterTimerExpireEvent takes trigger whichTrigger, timer t returns event
  */
 function TriggerRegisterTimerExpireEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let t = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const t = lua_touserdata(L, 2);
   console.warn('TriggerRegisterTimerExpireEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2625,10 +2625,10 @@ function TriggerRegisterTimerExpireEvent(C: Context, L: lua_State) {
  * native TriggerRegisterGameStateEvent takes trigger whichTrigger, gamestate whichState, limitop opcode, real limitval returns event
  */
 function TriggerRegisterGameStateEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let opcode = lua_touserdata(L, 3);
-  let limitval = luaL_checknumber(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const opcode = lua_touserdata(L, 3);
+  const limitval = luaL_checknumber(L, 4);
   console.warn('TriggerRegisterGameStateEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2638,8 +2638,8 @@ function TriggerRegisterGameStateEvent(C: Context, L: lua_State) {
  * native TriggerRegisterDialogEvent takes trigger whichTrigger, dialog whichDialog returns event
  */
 function TriggerRegisterDialogEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichDialog = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 2);
   console.warn('TriggerRegisterDialogEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2649,8 +2649,8 @@ function TriggerRegisterDialogEvent(C: Context, L: lua_State) {
  * native TriggerRegisterDialogButtonEvent takes trigger whichTrigger, button whichButton returns event
  */
 function TriggerRegisterDialogButtonEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichButton = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichButton = lua_touserdata(L, 2);
   console.warn('TriggerRegisterDialogButtonEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2670,8 +2670,8 @@ function GetEventGameState(C: Context, L: lua_State) {
  * native TriggerRegisterGameEvent takes trigger whichTrigger, gameevent whichGameEvent returns event
  */
 function TriggerRegisterGameEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichGameEvent = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichGameEvent = lua_touserdata(L, 2);
   console.warn('TriggerRegisterGameEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2691,9 +2691,9 @@ function GetWinningPlayer(C: Context, L: lua_State) {
  * native TriggerRegisterEnterRegion takes trigger whichTrigger, region whichRegion, boolexpr filter returns event
  */
 function TriggerRegisterEnterRegion(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichRegion = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichRegion = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('TriggerRegisterEnterRegion was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2723,9 +2723,9 @@ function GetEnteringUnit(C: Context, L: lua_State) {
  * native TriggerRegisterLeaveRegion takes trigger whichTrigger, region whichRegion, boolexpr filter returns event
  */
 function TriggerRegisterLeaveRegion(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichRegion = lua_touserdata(L, 2);
-  let filter = lua_touserdata(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichRegion = lua_touserdata(L, 2);
+  const filter = lua_touserdata(L, 3);
   console.warn('TriggerRegisterLeaveRegion was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2745,8 +2745,8 @@ function GetLeavingUnit(C: Context, L: lua_State) {
  * native TriggerRegisterTrackableHitEvent takes trigger whichTrigger, trackable t returns event
  */
 function TriggerRegisterTrackableHitEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let t = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const t = lua_touserdata(L, 2);
   console.warn('TriggerRegisterTrackableHitEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2756,8 +2756,8 @@ function TriggerRegisterTrackableHitEvent(C: Context, L: lua_State) {
  * native TriggerRegisterTrackableTrackEvent takes trigger whichTrigger, trackable t returns event
  */
 function TriggerRegisterTrackableTrackEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let t = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const t = lua_touserdata(L, 2);
   console.warn('TriggerRegisterTrackableTrackEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2827,7 +2827,7 @@ function GetTournamentFinishNowPlayer(C: Context, L: lua_State) {
  * constant native GetTournamentScore takes player whichPlayer returns integer
  */
 function GetTournamentScore(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetTournamentScore was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -2847,9 +2847,9 @@ function GetSaveBasicFilename(C: Context, L: lua_State) {
  * native TriggerRegisterPlayerEvent takes trigger whichTrigger, player whichPlayer, playerevent whichPlayerEvent returns event
  */
 function TriggerRegisterPlayerEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let whichPlayerEvent = lua_touserdata(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const whichPlayerEvent = lua_touserdata(L, 3);
   console.warn('TriggerRegisterPlayerEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -2869,10 +2869,10 @@ function GetTriggerPlayer(C: Context, L: lua_State) {
  * native TriggerRegisterPlayerUnitEvent takes trigger whichTrigger, player whichPlayer, playerunitevent whichPlayerUnitEvent, boolexpr filter returns event
  */
 function TriggerRegisterPlayerUnitEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let whichPlayerUnitEvent = lua_touserdata(L, 3);
-  let filter = lua_touserdata(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const whichPlayerUnitEvent = lua_touserdata(L, 3);
+  const filter = lua_touserdata(L, 4);
   console.warn('TriggerRegisterPlayerUnitEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3372,9 +3372,9 @@ function GetSpellTargetUnit(C: Context, L: lua_State) {
  * native TriggerRegisterPlayerAllianceChange takes trigger whichTrigger, player whichPlayer, alliancetype whichAlliance returns event
  */
 function TriggerRegisterPlayerAllianceChange(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let whichAlliance = lua_touserdata(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const whichAlliance = lua_touserdata(L, 3);
   console.warn('TriggerRegisterPlayerAllianceChange was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3384,11 +3384,11 @@ function TriggerRegisterPlayerAllianceChange(C: Context, L: lua_State) {
  * native TriggerRegisterPlayerStateEvent takes trigger whichTrigger, player whichPlayer, playerstate whichState, limitop opcode, real limitval returns event
  */
 function TriggerRegisterPlayerStateEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let whichState = lua_touserdata(L, 3);
-  let opcode = lua_touserdata(L, 4);
-  let limitval = luaL_checknumber(L, 5);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const whichState = lua_touserdata(L, 3);
+  const opcode = lua_touserdata(L, 4);
+  const limitval = luaL_checknumber(L, 5);
   console.warn('TriggerRegisterPlayerStateEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3408,10 +3408,10 @@ function GetEventPlayerState(C: Context, L: lua_State) {
  * native TriggerRegisterPlayerChatEvent takes trigger whichTrigger, player whichPlayer, string chatMessageToDetect, boolean exactMatchOnly returns event
  */
 function TriggerRegisterPlayerChatEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let chatMessageToDetect = luaL_checkstring(L, 3);
-  let exactMatchOnly = lua_toboolean(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const chatMessageToDetect = luaL_checkstring(L, 3);
+  const exactMatchOnly = lua_toboolean(L, 4);
   console.warn('TriggerRegisterPlayerChatEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3441,8 +3441,8 @@ function GetEventPlayerChatStringMatched(C: Context, L: lua_State) {
  * native TriggerRegisterDeathEvent takes trigger whichTrigger, widget whichWidget returns event
  */
 function TriggerRegisterDeathEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichWidget = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichWidget = lua_touserdata(L, 2);
   console.warn('TriggerRegisterDeathEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3452,7 +3452,7 @@ function TriggerRegisterDeathEvent(C: Context, L: lua_State) {
  * constant native GetTriggerUnit takes nothing returns unit
  */
 function GetTriggerUnit(C: Context, L: lua_State) {
-  let thread = C.currentThread;
+  const thread = C.currentThread;
 
   if (thread && thread.triggerUnit) {
     lua_pushlightuserdata(L, thread.triggerUnit);
@@ -3467,11 +3467,11 @@ function GetTriggerUnit(C: Context, L: lua_State) {
  * native TriggerRegisterUnitStateEvent takes trigger whichTrigger, unit whichUnit, unitstate whichState, limitop opcode, real limitval returns event
  */
 function TriggerRegisterUnitStateEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
-  let whichState = lua_touserdata(L, 3);
-  let opcode = lua_touserdata(L, 4);
-  let limitval = luaL_checknumber(L, 5);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
+  const whichState = lua_touserdata(L, 3);
+  const opcode = lua_touserdata(L, 4);
+  const limitval = luaL_checknumber(L, 5);
   console.warn('TriggerRegisterUnitStateEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3491,9 +3491,9 @@ function GetEventUnitState(C: Context, L: lua_State) {
  * native TriggerRegisterUnitEvent takes trigger whichTrigger, unit whichUnit, unitevent whichEvent returns event
  */
 function TriggerRegisterUnitEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
-  let whichEvent = lua_touserdata(L, 3);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
+  const whichEvent = lua_touserdata(L, 3);
   console.warn('TriggerRegisterUnitEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3533,10 +3533,10 @@ function GetEventDetectingPlayer(C: Context, L: lua_State) {
  * native TriggerRegisterFilterUnitEvent takes trigger whichTrigger, unit whichUnit, unitevent whichEvent, boolexpr filter returns event
  */
 function TriggerRegisterFilterUnitEvent(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
-  let whichEvent = lua_touserdata(L, 3);
-  let filter = lua_touserdata(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
+  const whichEvent = lua_touserdata(L, 3);
+  const filter = lua_touserdata(L, 4);
   console.warn('TriggerRegisterFilterUnitEvent was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3556,10 +3556,10 @@ function GetEventTargetUnit(C: Context, L: lua_State) {
  * native TriggerRegisterUnitInRange takes trigger whichTrigger, unit whichUnit, real range, boolexpr filter returns event
  */
 function TriggerRegisterUnitInRange(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
-  let range = luaL_checknumber(L, 3);
-  let filter = lua_touserdata(L, 4);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
+  const range = luaL_checknumber(L, 3);
+  const filter = lua_touserdata(L, 4);
   console.warn('TriggerRegisterUnitInRange was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3569,8 +3569,8 @@ function TriggerRegisterUnitInRange(C: Context, L: lua_State) {
  * native TriggerAddCondition takes trigger whichTrigger, boolexpr condition returns triggercondition
  */
 function TriggerAddCondition(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let condition = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const condition = lua_touserdata(L, 2);
   console.warn('TriggerAddCondition was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3580,27 +3580,27 @@ function TriggerAddCondition(C: Context, L: lua_State) {
  * native TriggerRemoveCondition takes trigger whichTrigger, triggercondition whichCondition returns nothing
  */
 function TriggerRemoveCondition(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichCondition = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichCondition = lua_touserdata(L, 2);
   console.warn('TriggerRemoveCondition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerClearConditions takes trigger whichTrigger returns nothing
  */
 function TriggerClearConditions(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('TriggerClearConditions was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerAddAction takes trigger whichTrigger, code actionFunc returns triggeraction
  */
 function TriggerAddAction(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
+  const whichTrigger = lua_touserdata(L, 1);
+  const actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
   console.warn('TriggerAddAction was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3610,49 +3610,49 @@ function TriggerAddAction(C: Context, L: lua_State) {
  * native TriggerRemoveAction takes trigger whichTrigger, triggeraction whichAction returns nothing
  */
 function TriggerRemoveAction(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
-  let whichAction = lua_touserdata(L, 2);
+  const whichTrigger = lua_touserdata(L, 1);
+  const whichAction = lua_touserdata(L, 2);
   console.warn('TriggerRemoveAction was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerClearActions takes trigger whichTrigger returns nothing
  */
 function TriggerClearActions(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('TriggerClearActions was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerSleepAction takes real timeout returns nothing
  */
 function TriggerSleepAction(C: Context, L: lua_State) {
-  let timeout = luaL_checknumber(L, 1);
+  const timeout = luaL_checknumber(L, 1);
 
   lua_pushnumber(L, timeout);
 
   lua_yield(L, 1);
 
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerWaitForSound takes sound s, real offset returns nothing
  */
 function TriggerWaitForSound(C: Context, L: lua_State) {
-  let s = lua_touserdata(L, 1);
-  let offset = luaL_checknumber(L, 2);
+  const s = lua_touserdata(L, 1);
+  const offset = luaL_checknumber(L, 2);
   console.warn('TriggerWaitForSound was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerEvaluate takes trigger whichTrigger returns boolean
  */
 function TriggerEvaluate(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('TriggerEvaluate was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -3662,18 +3662,18 @@ function TriggerEvaluate(C: Context, L: lua_State) {
  * native TriggerExecute takes trigger whichTrigger returns nothing
  */
 function TriggerExecute(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('TriggerExecute was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TriggerExecuteWait takes trigger whichTrigger returns nothing
  */
 function TriggerExecuteWait(C: Context, L: lua_State) {
-  let whichTrigger = lua_touserdata(L, 1);
+  const whichTrigger = lua_touserdata(L, 1);
   console.warn('TriggerExecuteWait was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -3682,7 +3682,7 @@ function TriggerExecuteWait(C: Context, L: lua_State) {
 function TriggerSyncStart(C: Context, L: lua_State) {
 
   console.warn('TriggerSyncStart was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -3691,14 +3691,14 @@ function TriggerSyncStart(C: Context, L: lua_State) {
 function TriggerSyncReady(C: Context, L: lua_State) {
 
   console.warn('TriggerSyncReady was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetWidgetLife takes widget whichWidget returns real
  */
 function GetWidgetLife(C: Context, L: lua_State) {
-  let whichWidget = lua_touserdata(L, 1);
+  const whichWidget = lua_touserdata(L, 1);
   console.warn('GetWidgetLife was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3708,17 +3708,17 @@ function GetWidgetLife(C: Context, L: lua_State) {
  * native SetWidgetLife takes widget whichWidget, real newLife returns nothing
  */
 function SetWidgetLife(C: Context, L: lua_State) {
-  let whichWidget = lua_touserdata(L, 1);
-  let newLife = luaL_checknumber(L, 2);
+  const whichWidget = lua_touserdata(L, 1);
+  const newLife = luaL_checknumber(L, 2);
   console.warn('SetWidgetLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetWidgetX takes widget whichWidget returns real
  */
 function GetWidgetX(C: Context, L: lua_State) {
-  let whichWidget = lua_touserdata(L, 1);
+  const whichWidget = lua_touserdata(L, 1);
   console.warn('GetWidgetX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3728,7 +3728,7 @@ function GetWidgetX(C: Context, L: lua_State) {
  * native GetWidgetY takes widget whichWidget returns real
  */
 function GetWidgetY(C: Context, L: lua_State) {
-  let whichWidget = lua_touserdata(L, 1);
+  const whichWidget = lua_touserdata(L, 1);
   console.warn('GetWidgetY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3748,12 +3748,12 @@ function GetTriggerWidget(C: Context, L: lua_State) {
  * native CreateDestructable takes integer objectid, real x, real y, real face, real scale, integer variation returns destructable
  */
 function CreateDestructable(C: Context, L: lua_State) {
-  let objectid = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let face = luaL_checknumber(L, 4);
-  let scale = luaL_checknumber(L, 5);
-  let variation = luaL_checkinteger(L, 6);
+  const objectid = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const face = luaL_checknumber(L, 4);
+  const scale = luaL_checknumber(L, 5);
+  const variation = luaL_checkinteger(L, 6);
   console.warn('CreateDestructable was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3763,13 +3763,13 @@ function CreateDestructable(C: Context, L: lua_State) {
  * native CreateDestructableZ takes integer objectid, real x, real y, real z, real face, real scale, integer variation returns destructable
  */
 function CreateDestructableZ(C: Context, L: lua_State) {
-  let objectid = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
-  let face = luaL_checknumber(L, 5);
-  let scale = luaL_checknumber(L, 6);
-  let variation = luaL_checkinteger(L, 7);
+  const objectid = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
+  const face = luaL_checknumber(L, 5);
+  const scale = luaL_checknumber(L, 6);
+  const variation = luaL_checkinteger(L, 7);
   console.warn('CreateDestructableZ was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3779,12 +3779,12 @@ function CreateDestructableZ(C: Context, L: lua_State) {
  * native CreateDeadDestructable takes integer objectid, real x, real y, real face, real scale, integer variation returns destructable
  */
 function CreateDeadDestructable(C: Context, L: lua_State) {
-  let objectid = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let face = luaL_checknumber(L, 4);
-  let scale = luaL_checknumber(L, 5);
-  let variation = luaL_checkinteger(L, 6);
+  const objectid = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const face = luaL_checknumber(L, 4);
+  const scale = luaL_checknumber(L, 5);
+  const variation = luaL_checkinteger(L, 6);
   console.warn('CreateDeadDestructable was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3794,13 +3794,13 @@ function CreateDeadDestructable(C: Context, L: lua_State) {
  * native CreateDeadDestructableZ takes integer objectid, real x, real y, real z, real face, real scale, integer variation returns destructable
  */
 function CreateDeadDestructableZ(C: Context, L: lua_State) {
-  let objectid = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
-  let face = luaL_checknumber(L, 5);
-  let scale = luaL_checknumber(L, 6);
-  let variation = luaL_checkinteger(L, 7);
+  const objectid = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
+  const face = luaL_checknumber(L, 5);
+  const scale = luaL_checknumber(L, 6);
+  const variation = luaL_checkinteger(L, 7);
   console.warn('CreateDeadDestructableZ was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -3810,35 +3810,35 @@ function CreateDeadDestructableZ(C: Context, L: lua_State) {
  * native RemoveDestructable takes destructable d returns nothing
  */
 function RemoveDestructable(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('RemoveDestructable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native KillDestructable takes destructable d returns nothing
  */
 function KillDestructable(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('KillDestructable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetDestructableInvulnerable takes destructable d, boolean flag returns nothing
  */
 function SetDestructableInvulnerable(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const d = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetDestructableInvulnerable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsDestructableInvulnerable takes destructable d returns boolean
  */
 function IsDestructableInvulnerable(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('IsDestructableInvulnerable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -3848,18 +3848,18 @@ function IsDestructableInvulnerable(C: Context, L: lua_State) {
  * native EnumDestructablesInRect takes rect r, boolexpr filter, code actionFunc returns nothing
  */
 function EnumDestructablesInRect(C: Context, L: lua_State) {
-  let r = lua_touserdata(L, 1);
-  let filter = lua_touserdata(L, 2);
-  let actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
+  const r = lua_touserdata(L, 1);
+  const filter = lua_touserdata(L, 2);
+  const actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
   console.warn('EnumDestructablesInRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetDestructableTypeId takes destructable d returns integer
  */
 function GetDestructableTypeId(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableTypeId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -3869,7 +3869,7 @@ function GetDestructableTypeId(C: Context, L: lua_State) {
  * native GetDestructableX takes destructable d returns real
  */
 function GetDestructableX(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3879,7 +3879,7 @@ function GetDestructableX(C: Context, L: lua_State) {
  * native GetDestructableY takes destructable d returns real
  */
 function GetDestructableY(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3889,17 +3889,17 @@ function GetDestructableY(C: Context, L: lua_State) {
  * native SetDestructableLife takes destructable d, real life returns nothing
  */
 function SetDestructableLife(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let life = luaL_checknumber(L, 2);
+  const d = lua_touserdata(L, 1);
+  const life = luaL_checknumber(L, 2);
   console.warn('SetDestructableLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetDestructableLife takes destructable d returns real
  */
 function GetDestructableLife(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableLife was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3909,17 +3909,17 @@ function GetDestructableLife(C: Context, L: lua_State) {
  * native SetDestructableMaxLife takes destructable d, real max returns nothing
  */
 function SetDestructableMaxLife(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let max = luaL_checknumber(L, 2);
+  const d = lua_touserdata(L, 1);
+  const max = luaL_checknumber(L, 2);
   console.warn('SetDestructableMaxLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetDestructableMaxLife takes destructable d returns real
  */
 function GetDestructableMaxLife(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableMaxLife was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3929,58 +3929,58 @@ function GetDestructableMaxLife(C: Context, L: lua_State) {
  * native DestructableRestoreLife takes destructable d, real life, boolean birth returns nothing
  */
 function DestructableRestoreLife(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let life = luaL_checknumber(L, 2);
-  let birth = lua_toboolean(L, 3);
+  const d = lua_touserdata(L, 1);
+  const life = luaL_checknumber(L, 2);
+  const birth = lua_toboolean(L, 3);
   console.warn('DestructableRestoreLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QueueDestructableAnimation takes destructable d, string whichAnimation returns nothing
  */
 function QueueDestructableAnimation(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkstring(L, 2);
+  const d = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkstring(L, 2);
   console.warn('QueueDestructableAnimation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetDestructableAnimation takes destructable d, string whichAnimation returns nothing
  */
 function SetDestructableAnimation(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkstring(L, 2);
+  const d = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkstring(L, 2);
   console.warn('SetDestructableAnimation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetDestructableAnimationSpeed takes destructable d, real speedFactor returns nothing
  */
 function SetDestructableAnimationSpeed(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let speedFactor = luaL_checknumber(L, 2);
+  const d = lua_touserdata(L, 1);
+  const speedFactor = luaL_checknumber(L, 2);
   console.warn('SetDestructableAnimationSpeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ShowDestructable takes destructable d, boolean flag returns nothing
  */
 function ShowDestructable(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const d = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('ShowDestructable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetDestructableOccluderHeight takes destructable d returns real
  */
 function GetDestructableOccluderHeight(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableOccluderHeight was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -3990,17 +3990,17 @@ function GetDestructableOccluderHeight(C: Context, L: lua_State) {
  * native SetDestructableOccluderHeight takes destructable d, real height returns nothing
  */
 function SetDestructableOccluderHeight(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
-  let height = luaL_checknumber(L, 2);
+  const d = lua_touserdata(L, 1);
+  const height = luaL_checknumber(L, 2);
   console.warn('SetDestructableOccluderHeight was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetDestructableName takes destructable d returns string
  */
 function GetDestructableName(C: Context, L: lua_State) {
-  let d = lua_touserdata(L, 1);
+  const d = lua_touserdata(L, 1);
   console.warn('GetDestructableName was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -4020,9 +4020,9 @@ function GetTriggerDestructable(C: Context, L: lua_State) {
  * native CreateItem takes integer itemid, real x, real y returns item
  */
 function CreateItem(C: Context, L: lua_State) {
-  let itemid = luaL_checkinteger(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const itemid = luaL_checkinteger(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('CreateItem was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4032,16 +4032,16 @@ function CreateItem(C: Context, L: lua_State) {
  * native RemoveItem takes item whichItem returns nothing
  */
 function RemoveItem(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('RemoveItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetItemPlayer takes item whichItem returns player
  */
 function GetItemPlayer(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemPlayer was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4051,7 +4051,7 @@ function GetItemPlayer(C: Context, L: lua_State) {
  * native GetItemTypeId takes item i returns integer
  */
 function GetItemTypeId(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
+  const i = lua_touserdata(L, 1);
   console.warn('GetItemTypeId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4061,7 +4061,7 @@ function GetItemTypeId(C: Context, L: lua_State) {
  * native GetItemX takes item i returns real
  */
 function GetItemX(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
+  const i = lua_touserdata(L, 1);
   console.warn('GetItemX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4071,7 +4071,7 @@ function GetItemX(C: Context, L: lua_State) {
  * native GetItemY takes item i returns real
  */
 function GetItemY(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
+  const i = lua_touserdata(L, 1);
   console.warn('GetItemY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4081,69 +4081,69 @@ function GetItemY(C: Context, L: lua_State) {
  * native SetItemPosition takes item i, real x, real y returns nothing
  */
 function SetItemPosition(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const i = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('SetItemPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemDropOnDeath takes item whichItem, boolean flag returns nothing
  */
 function SetItemDropOnDeath(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetItemDropOnDeath was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemDroppable takes item i, boolean flag returns nothing
  */
 function SetItemDroppable(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const i = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetItemDroppable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemPawnable takes item i, boolean flag returns nothing
  */
 function SetItemPawnable(C: Context, L: lua_State) {
-  let i = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const i = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetItemPawnable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemPlayer takes item whichItem, player whichPlayer, boolean changeColor returns nothing
  */
 function SetItemPlayer(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let changeColor = lua_toboolean(L, 3);
+  const whichItem = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const changeColor = lua_toboolean(L, 3);
   console.warn('SetItemPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemInvulnerable takes item whichItem, boolean flag returns nothing
  */
 function SetItemInvulnerable(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetItemInvulnerable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsItemInvulnerable takes item whichItem returns boolean
  */
 function IsItemInvulnerable(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemInvulnerable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4153,17 +4153,17 @@ function IsItemInvulnerable(C: Context, L: lua_State) {
  * native SetItemVisible takes item whichItem, boolean show returns nothing
  */
 function SetItemVisible(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let show = lua_toboolean(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const show = lua_toboolean(L, 2);
   console.warn('SetItemVisible was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsItemVisible takes item whichItem returns boolean
  */
 function IsItemVisible(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemVisible was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4173,7 +4173,7 @@ function IsItemVisible(C: Context, L: lua_State) {
  * native IsItemOwned takes item whichItem returns boolean
  */
 function IsItemOwned(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemOwned was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4183,7 +4183,7 @@ function IsItemOwned(C: Context, L: lua_State) {
  * native IsItemPowerup takes item whichItem returns boolean
  */
 function IsItemPowerup(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemPowerup was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4193,7 +4193,7 @@ function IsItemPowerup(C: Context, L: lua_State) {
  * native IsItemSellable takes item whichItem returns boolean
  */
 function IsItemSellable(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemSellable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4203,7 +4203,7 @@ function IsItemSellable(C: Context, L: lua_State) {
  * native IsItemPawnable takes item whichItem returns boolean
  */
 function IsItemPawnable(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('IsItemPawnable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4213,7 +4213,7 @@ function IsItemPawnable(C: Context, L: lua_State) {
  * native IsItemIdPowerup takes integer itemId returns boolean
  */
 function IsItemIdPowerup(C: Context, L: lua_State) {
-  let itemId = luaL_checkinteger(L, 1);
+  const itemId = luaL_checkinteger(L, 1);
   console.warn('IsItemIdPowerup was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4223,7 +4223,7 @@ function IsItemIdPowerup(C: Context, L: lua_State) {
  * native IsItemIdSellable takes integer itemId returns boolean
  */
 function IsItemIdSellable(C: Context, L: lua_State) {
-  let itemId = luaL_checkinteger(L, 1);
+  const itemId = luaL_checkinteger(L, 1);
   console.warn('IsItemIdSellable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4233,7 +4233,7 @@ function IsItemIdSellable(C: Context, L: lua_State) {
  * native IsItemIdPawnable takes integer itemId returns boolean
  */
 function IsItemIdPawnable(C: Context, L: lua_State) {
-  let itemId = luaL_checkinteger(L, 1);
+  const itemId = luaL_checkinteger(L, 1);
   console.warn('IsItemIdPawnable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4243,18 +4243,18 @@ function IsItemIdPawnable(C: Context, L: lua_State) {
  * native EnumItemsInRect takes rect r, boolexpr filter, code actionFunc returns nothing
  */
 function EnumItemsInRect(C: Context, L: lua_State) {
-  let r = lua_touserdata(L, 1);
-  let filter = lua_touserdata(L, 2);
-  let actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
+  const r = lua_touserdata(L, 1);
+  const filter = lua_touserdata(L, 2);
+  const actionFunc = luaL_ref(L, LUA_REGISTRYINDEX);
   console.warn('EnumItemsInRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetItemLevel takes item whichItem returns integer
  */
 function GetItemLevel(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4264,7 +4264,7 @@ function GetItemLevel(C: Context, L: lua_State) {
  * native GetItemType takes item whichItem returns itemtype
  */
 function GetItemType(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemType was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4274,17 +4274,17 @@ function GetItemType(C: Context, L: lua_State) {
  * native SetItemDropID takes item whichItem, integer unitId returns nothing
  */
 function SetItemDropID(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
   console.warn('SetItemDropID was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetItemName takes item whichItem returns string
  */
 function GetItemName(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemName was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -4294,7 +4294,7 @@ function GetItemName(C: Context, L: lua_State) {
  * native GetItemCharges takes item whichItem returns integer
  */
 function GetItemCharges(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemCharges was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4304,17 +4304,17 @@ function GetItemCharges(C: Context, L: lua_State) {
  * native SetItemCharges takes item whichItem, integer charges returns nothing
  */
 function SetItemCharges(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let charges = luaL_checkinteger(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const charges = luaL_checkinteger(L, 2);
   console.warn('SetItemCharges was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetItemUserData takes item whichItem returns integer
  */
 function GetItemUserData(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('GetItemUserData was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4324,21 +4324,21 @@ function GetItemUserData(C: Context, L: lua_State) {
  * native SetItemUserData takes item whichItem, integer data returns nothing
  */
 function SetItemUserData(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let data = luaL_checkinteger(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const data = luaL_checkinteger(L, 2);
   console.warn('SetItemUserData was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateUnit takes player id, integer unitid, real x, real y, real face returns unit
  */
 function CreateUnit(C: Context, L: lua_State) {
-  let id = lua_touserdata(L, 1);
-  let unitid = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let face = luaL_checknumber(L, 5);
+  const id = lua_touserdata(L, 1);
+  const unitid = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const face = luaL_checknumber(L, 5);
 
   lua_pushlightuserdata(L, C.addHandle(new JassUnit(id, unitid, x, y, face)));
 
@@ -4349,11 +4349,11 @@ function CreateUnit(C: Context, L: lua_State) {
  * native CreateUnitByName takes player whichPlayer, string unitname, real x, real y, real face returns unit
  */
 function CreateUnitByName(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let unitname = luaL_checkstring(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let face = luaL_checknumber(L, 5);
+  const whichPlayer = lua_touserdata(L, 1);
+  const unitname = luaL_checkstring(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const face = luaL_checknumber(L, 5);
   console.warn('CreateUnitByName was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4363,10 +4363,10 @@ function CreateUnitByName(C: Context, L: lua_State) {
  * native CreateUnitAtLoc takes player id, integer unitid, location whichLocation, real face returns unit
  */
 function CreateUnitAtLoc(C: Context, L: lua_State) {
-  let id = lua_touserdata(L, 1);
-  let unitid = luaL_checkinteger(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
-  let face = luaL_checknumber(L, 4);
+  const id = lua_touserdata(L, 1);
+  const unitid = luaL_checkinteger(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
+  const face = luaL_checknumber(L, 4);
   console.warn('CreateUnitAtLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4376,10 +4376,10 @@ function CreateUnitAtLoc(C: Context, L: lua_State) {
  * native CreateUnitAtLocByName takes player id, string unitname, location whichLocation, real face returns unit
  */
 function CreateUnitAtLocByName(C: Context, L: lua_State) {
-  let id = lua_touserdata(L, 1);
-  let unitname = luaL_checkstring(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
-  let face = luaL_checknumber(L, 4);
+  const id = lua_touserdata(L, 1);
+  const unitname = luaL_checkstring(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
+  const face = luaL_checknumber(L, 4);
   console.warn('CreateUnitAtLocByName was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4389,11 +4389,11 @@ function CreateUnitAtLocByName(C: Context, L: lua_State) {
  * native CreateCorpse takes player whichPlayer, integer unitid, real x, real y, real face returns unit
  */
 function CreateCorpse(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let unitid = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let face = luaL_checknumber(L, 5);
+  const whichPlayer = lua_touserdata(L, 1);
+  const unitid = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const face = luaL_checknumber(L, 5);
   console.warn('CreateCorpse was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -4403,169 +4403,169 @@ function CreateCorpse(C: Context, L: lua_State) {
  * native KillUnit takes unit whichUnit returns nothing
  */
 function KillUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('KillUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveUnit takes unit whichUnit returns nothing
  */
 function RemoveUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('RemoveUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ShowUnit takes unit whichUnit, boolean show returns nothing
  */
 function ShowUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let show = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const show = lua_toboolean(L, 2);
   console.warn('ShowUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitState takes unit whichUnit, unitstate whichUnitState, real newVal returns nothing
  */
 function SetUnitState(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichUnitState = lua_touserdata(L, 2);
-  let newVal = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichUnitState = lua_touserdata(L, 2);
+  const newVal = luaL_checknumber(L, 3);
   console.warn('SetUnitState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitX takes unit whichUnit, real newX returns nothing
  */
 function SetUnitX(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newX = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newX = luaL_checknumber(L, 2);
   console.warn('SetUnitX was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitY takes unit whichUnit, real newY returns nothing
  */
 function SetUnitY(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newY = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newY = luaL_checknumber(L, 2);
   console.warn('SetUnitY was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitPosition takes unit whichUnit, real newX, real newY returns nothing
  */
 function SetUnitPosition(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newX = luaL_checknumber(L, 2);
-  let newY = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const newX = luaL_checknumber(L, 2);
+  const newY = luaL_checknumber(L, 3);
   console.warn('SetUnitPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitPositionLoc takes unit whichUnit, location whichLocation returns nothing
  */
 function SetUnitPositionLoc(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
   console.warn('SetUnitPositionLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitFacing takes unit whichUnit, real facingAngle returns nothing
  */
 function SetUnitFacing(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let facingAngle = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const facingAngle = luaL_checknumber(L, 2);
   console.warn('SetUnitFacing was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitFacingTimed takes unit whichUnit, real facingAngle, real duration returns nothing
  */
 function SetUnitFacingTimed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let facingAngle = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const facingAngle = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('SetUnitFacingTimed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitMoveSpeed takes unit whichUnit, real newSpeed returns nothing
  */
 function SetUnitMoveSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newSpeed = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newSpeed = luaL_checknumber(L, 2);
   console.warn('SetUnitMoveSpeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitFlyHeight takes unit whichUnit, real newHeight, real rate returns nothing
  */
 function SetUnitFlyHeight(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newHeight = luaL_checknumber(L, 2);
-  let rate = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const newHeight = luaL_checknumber(L, 2);
+  const rate = luaL_checknumber(L, 3);
   console.warn('SetUnitFlyHeight was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitTurnSpeed takes unit whichUnit, real newTurnSpeed returns nothing
  */
 function SetUnitTurnSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newTurnSpeed = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newTurnSpeed = luaL_checknumber(L, 2);
   console.warn('SetUnitTurnSpeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitPropWindow takes unit whichUnit, real newPropWindowAngle returns nothing
  */
 function SetUnitPropWindow(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newPropWindowAngle = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newPropWindowAngle = luaL_checknumber(L, 2);
   console.warn('SetUnitPropWindow was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitAcquireRange takes unit whichUnit, real newAcquireRange returns nothing
  */
 function SetUnitAcquireRange(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let newAcquireRange = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const newAcquireRange = luaL_checknumber(L, 2);
   console.warn('SetUnitAcquireRange was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitCreepGuard takes unit whichUnit, boolean creepGuard returns nothing
  */
 function SetUnitCreepGuard(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let creepGuard = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const creepGuard = lua_toboolean(L, 2);
   console.warn('SetUnitCreepGuard was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetUnitAcquireRange takes unit whichUnit returns real
  */
 function GetUnitAcquireRange(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitAcquireRange was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4575,7 +4575,7 @@ function GetUnitAcquireRange(C: Context, L: lua_State) {
  * native GetUnitTurnSpeed takes unit whichUnit returns real
  */
 function GetUnitTurnSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitTurnSpeed was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4585,7 +4585,7 @@ function GetUnitTurnSpeed(C: Context, L: lua_State) {
  * native GetUnitPropWindow takes unit whichUnit returns real
  */
 function GetUnitPropWindow(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitPropWindow was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4595,7 +4595,7 @@ function GetUnitPropWindow(C: Context, L: lua_State) {
  * native GetUnitFlyHeight takes unit whichUnit returns real
  */
 function GetUnitFlyHeight(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitFlyHeight was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4605,7 +4605,7 @@ function GetUnitFlyHeight(C: Context, L: lua_State) {
  * native GetUnitDefaultAcquireRange takes unit whichUnit returns real
  */
 function GetUnitDefaultAcquireRange(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitDefaultAcquireRange was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4615,7 +4615,7 @@ function GetUnitDefaultAcquireRange(C: Context, L: lua_State) {
  * native GetUnitDefaultTurnSpeed takes unit whichUnit returns real
  */
 function GetUnitDefaultTurnSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitDefaultTurnSpeed was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4625,7 +4625,7 @@ function GetUnitDefaultTurnSpeed(C: Context, L: lua_State) {
  * native GetUnitDefaultPropWindow takes unit whichUnit returns real
  */
 function GetUnitDefaultPropWindow(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitDefaultPropWindow was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4635,7 +4635,7 @@ function GetUnitDefaultPropWindow(C: Context, L: lua_State) {
  * native GetUnitDefaultFlyHeight takes unit whichUnit returns real
  */
 function GetUnitDefaultFlyHeight(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitDefaultFlyHeight was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -4645,203 +4645,203 @@ function GetUnitDefaultFlyHeight(C: Context, L: lua_State) {
  * native SetUnitOwner takes unit whichUnit, player whichPlayer, boolean changeColor returns nothing
  */
 function SetUnitOwner(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let changeColor = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const changeColor = lua_toboolean(L, 3);
   console.warn('SetUnitOwner was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitColor takes unit whichUnit, playercolor whichColor returns nothing
  */
 function SetUnitColor(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichColor = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichColor = lua_touserdata(L, 2);
   console.warn('SetUnitColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitScale takes unit whichUnit, real scaleX, real scaleY, real scaleZ returns nothing
  */
 function SetUnitScale(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let scaleX = luaL_checknumber(L, 2);
-  let scaleY = luaL_checknumber(L, 3);
-  let scaleZ = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const scaleX = luaL_checknumber(L, 2);
+  const scaleY = luaL_checknumber(L, 3);
+  const scaleZ = luaL_checknumber(L, 4);
   console.warn('SetUnitScale was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitTimeScale takes unit whichUnit, real timeScale returns nothing
  */
 function SetUnitTimeScale(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let timeScale = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const timeScale = luaL_checknumber(L, 2);
   console.warn('SetUnitTimeScale was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitBlendTime takes unit whichUnit, real blendTime returns nothing
  */
 function SetUnitBlendTime(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let blendTime = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const blendTime = luaL_checknumber(L, 2);
   console.warn('SetUnitBlendTime was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitVertexColor takes unit whichUnit, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetUnitVertexColor(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichUnit = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('SetUnitVertexColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QueueUnitAnimation takes unit whichUnit, string whichAnimation returns nothing
  */
 function QueueUnitAnimation(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkstring(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkstring(L, 2);
   console.warn('QueueUnitAnimation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitAnimation takes unit whichUnit, string whichAnimation returns nothing
  */
 function SetUnitAnimation(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkstring(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkstring(L, 2);
   console.warn('SetUnitAnimation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitAnimationByIndex takes unit whichUnit, integer whichAnimation returns nothing
  */
 function SetUnitAnimationByIndex(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkinteger(L, 2);
   console.warn('SetUnitAnimationByIndex was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitAnimationWithRarity takes unit whichUnit, string whichAnimation, raritycontrol rarity returns nothing
  */
 function SetUnitAnimationWithRarity(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichAnimation = luaL_checkstring(L, 2);
-  let rarity = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichAnimation = luaL_checkstring(L, 2);
+  const rarity = lua_touserdata(L, 3);
   console.warn('SetUnitAnimationWithRarity was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddUnitAnimationProperties takes unit whichUnit, string animProperties, boolean add returns nothing
  */
 function AddUnitAnimationProperties(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let animProperties = luaL_checkstring(L, 2);
-  let add = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const animProperties = luaL_checkstring(L, 2);
+  const add = lua_toboolean(L, 3);
   console.warn('AddUnitAnimationProperties was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitLookAt takes unit whichUnit, string whichBone, unit lookAtTarget, real offsetX, real offsetY, real offsetZ returns nothing
  */
 function SetUnitLookAt(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichBone = luaL_checkstring(L, 2);
-  let lookAtTarget = lua_touserdata(L, 3);
-  let offsetX = luaL_checknumber(L, 4);
-  let offsetY = luaL_checknumber(L, 5);
-  let offsetZ = luaL_checknumber(L, 6);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichBone = luaL_checkstring(L, 2);
+  const lookAtTarget = lua_touserdata(L, 3);
+  const offsetX = luaL_checknumber(L, 4);
+  const offsetY = luaL_checknumber(L, 5);
+  const offsetZ = luaL_checknumber(L, 6);
   console.warn('SetUnitLookAt was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ResetUnitLookAt takes unit whichUnit returns nothing
  */
 function ResetUnitLookAt(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('ResetUnitLookAt was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitRescuable takes unit whichUnit, player byWhichPlayer, boolean flag returns nothing
  */
 function SetUnitRescuable(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let byWhichPlayer = lua_touserdata(L, 2);
-  let flag = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const byWhichPlayer = lua_touserdata(L, 2);
+  const flag = lua_toboolean(L, 3);
   console.warn('SetUnitRescuable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitRescueRange takes unit whichUnit, real range returns nothing
  */
 function SetUnitRescueRange(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let range = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const range = luaL_checknumber(L, 2);
   console.warn('SetUnitRescueRange was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetHeroStr takes unit whichHero, integer newStr, boolean permanent returns nothing
  */
 function SetHeroStr(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let newStr = luaL_checkinteger(L, 2);
-  let permanent = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const newStr = luaL_checkinteger(L, 2);
+  const permanent = lua_toboolean(L, 3);
   console.warn('SetHeroStr was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetHeroAgi takes unit whichHero, integer newAgi, boolean permanent returns nothing
  */
 function SetHeroAgi(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let newAgi = luaL_checkinteger(L, 2);
-  let permanent = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const newAgi = luaL_checkinteger(L, 2);
+  const permanent = lua_toboolean(L, 3);
   console.warn('SetHeroAgi was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetHeroInt takes unit whichHero, integer newInt, boolean permanent returns nothing
  */
 function SetHeroInt(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let newInt = luaL_checkinteger(L, 2);
-  let permanent = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const newInt = luaL_checkinteger(L, 2);
+  const permanent = lua_toboolean(L, 3);
   console.warn('SetHeroInt was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetHeroStr takes unit whichHero, boolean includeBonuses returns integer
  */
 function GetHeroStr(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let includeBonuses = lua_toboolean(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const includeBonuses = lua_toboolean(L, 2);
   console.warn('GetHeroStr was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4851,8 +4851,8 @@ function GetHeroStr(C: Context, L: lua_State) {
  * native GetHeroAgi takes unit whichHero, boolean includeBonuses returns integer
  */
 function GetHeroAgi(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let includeBonuses = lua_toboolean(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const includeBonuses = lua_toboolean(L, 2);
   console.warn('GetHeroAgi was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4862,8 +4862,8 @@ function GetHeroAgi(C: Context, L: lua_State) {
  * native GetHeroInt takes unit whichHero, boolean includeBonuses returns integer
  */
 function GetHeroInt(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let includeBonuses = lua_toboolean(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const includeBonuses = lua_toboolean(L, 2);
   console.warn('GetHeroInt was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4873,8 +4873,8 @@ function GetHeroInt(C: Context, L: lua_State) {
  * native UnitStripHeroLevel takes unit whichHero, integer howManyLevels returns boolean
  */
 function UnitStripHeroLevel(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let howManyLevels = luaL_checkinteger(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const howManyLevels = luaL_checkinteger(L, 2);
   console.warn('UnitStripHeroLevel was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4884,7 +4884,7 @@ function UnitStripHeroLevel(C: Context, L: lua_State) {
  * native GetHeroXP takes unit whichHero returns integer
  */
 function GetHeroXP(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('GetHeroXP was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4894,18 +4894,18 @@ function GetHeroXP(C: Context, L: lua_State) {
  * native SetHeroXP takes unit whichHero, integer newXpVal, boolean showEyeCandy returns nothing
  */
 function SetHeroXP(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let newXpVal = luaL_checkinteger(L, 2);
-  let showEyeCandy = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const newXpVal = luaL_checkinteger(L, 2);
+  const showEyeCandy = lua_toboolean(L, 3);
   console.warn('SetHeroXP was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetHeroSkillPoints takes unit whichHero returns integer
  */
 function GetHeroSkillPoints(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('GetHeroSkillPoints was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4915,8 +4915,8 @@ function GetHeroSkillPoints(C: Context, L: lua_State) {
  * native UnitModifySkillPoints takes unit whichHero, integer skillPointDelta returns boolean
  */
 function UnitModifySkillPoints(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let skillPointDelta = luaL_checkinteger(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const skillPointDelta = luaL_checkinteger(L, 2);
   console.warn('UnitModifySkillPoints was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4926,29 +4926,29 @@ function UnitModifySkillPoints(C: Context, L: lua_State) {
  * native AddHeroXP takes unit whichHero, integer xpToAdd, boolean showEyeCandy returns nothing
  */
 function AddHeroXP(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let xpToAdd = luaL_checkinteger(L, 2);
-  let showEyeCandy = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const xpToAdd = luaL_checkinteger(L, 2);
+  const showEyeCandy = lua_toboolean(L, 3);
   console.warn('AddHeroXP was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetHeroLevel takes unit whichHero, integer level, boolean showEyeCandy returns nothing
  */
 function SetHeroLevel(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let level = luaL_checkinteger(L, 2);
-  let showEyeCandy = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const level = luaL_checkinteger(L, 2);
+  const showEyeCandy = lua_toboolean(L, 3);
   console.warn('SetHeroLevel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetHeroLevel takes unit whichHero returns integer
  */
 function GetHeroLevel(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('GetHeroLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4958,7 +4958,7 @@ function GetHeroLevel(C: Context, L: lua_State) {
  * constant native GetUnitLevel takes unit whichUnit returns integer
  */
 function GetUnitLevel(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -4968,7 +4968,7 @@ function GetUnitLevel(C: Context, L: lua_State) {
  * native GetHeroProperName takes unit whichHero returns string
  */
 function GetHeroProperName(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('GetHeroProperName was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -4978,17 +4978,17 @@ function GetHeroProperName(C: Context, L: lua_State) {
  * native SuspendHeroXP takes unit whichHero, boolean flag returns nothing
  */
 function SuspendHeroXP(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SuspendHeroXP was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsSuspendedXP takes unit whichHero returns boolean
  */
 function IsSuspendedXP(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('IsSuspendedXP was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -4998,18 +4998,18 @@ function IsSuspendedXP(C: Context, L: lua_State) {
  * native SelectHeroSkill takes unit whichHero, integer abilcode returns nothing
  */
 function SelectHeroSkill(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let abilcode = luaL_checkinteger(L, 2);
+  const whichHero = lua_touserdata(L, 1);
+  const abilcode = luaL_checkinteger(L, 2);
   console.warn('SelectHeroSkill was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetUnitAbilityLevel takes unit whichUnit, integer abilcode returns integer
  */
 function GetUnitAbilityLevel(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilcode = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilcode = luaL_checkinteger(L, 2);
   console.warn('GetUnitAbilityLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5019,8 +5019,8 @@ function GetUnitAbilityLevel(C: Context, L: lua_State) {
  * native DecUnitAbilityLevel takes unit whichUnit, integer abilcode returns integer
  */
 function DecUnitAbilityLevel(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilcode = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilcode = luaL_checkinteger(L, 2);
   console.warn('DecUnitAbilityLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5030,8 +5030,8 @@ function DecUnitAbilityLevel(C: Context, L: lua_State) {
  * native IncUnitAbilityLevel takes unit whichUnit, integer abilcode returns integer
  */
 function IncUnitAbilityLevel(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilcode = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilcode = luaL_checkinteger(L, 2);
   console.warn('IncUnitAbilityLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5041,9 +5041,9 @@ function IncUnitAbilityLevel(C: Context, L: lua_State) {
  * native SetUnitAbilityLevel takes unit whichUnit, integer abilcode, integer level returns integer
  */
 function SetUnitAbilityLevel(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilcode = luaL_checkinteger(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilcode = luaL_checkinteger(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('SetUnitAbilityLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5053,10 +5053,10 @@ function SetUnitAbilityLevel(C: Context, L: lua_State) {
  * native ReviveHero takes unit whichHero, real x, real y, boolean doEyecandy returns boolean
  */
 function ReviveHero(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let doEyecandy = lua_toboolean(L, 4);
+  const whichHero = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const doEyecandy = lua_toboolean(L, 4);
   console.warn('ReviveHero was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5066,9 +5066,9 @@ function ReviveHero(C: Context, L: lua_State) {
  * native ReviveHeroLoc takes unit whichHero, location loc, boolean doEyecandy returns boolean
  */
 function ReviveHeroLoc(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
-  let loc = lua_touserdata(L, 2);
-  let doEyecandy = lua_toboolean(L, 3);
+  const whichHero = lua_touserdata(L, 1);
+  const loc = lua_touserdata(L, 2);
+  const doEyecandy = lua_toboolean(L, 3);
   console.warn('ReviveHeroLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5078,37 +5078,37 @@ function ReviveHeroLoc(C: Context, L: lua_State) {
  * native SetUnitExploded takes unit whichUnit, boolean exploded returns nothing
  */
 function SetUnitExploded(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let exploded = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const exploded = lua_toboolean(L, 2);
   console.warn('SetUnitExploded was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitInvulnerable takes unit whichUnit, boolean flag returns nothing
  */
 function SetUnitInvulnerable(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetUnitInvulnerable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PauseUnit takes unit whichUnit, boolean flag returns nothing
  */
 function PauseUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('PauseUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsUnitPaused takes unit whichHero returns boolean
  */
 function IsUnitPaused(C: Context, L: lua_State) {
-  let whichHero = lua_touserdata(L, 1);
+  const whichHero = lua_touserdata(L, 1);
   console.warn('IsUnitPaused was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5118,10 +5118,10 @@ function IsUnitPaused(C: Context, L: lua_State) {
  * native SetUnitPathing takes unit whichUnit, boolean flag returns nothing
  */
 function SetUnitPathing(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetUnitPathing was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -5130,24 +5130,24 @@ function SetUnitPathing(C: Context, L: lua_State) {
 function ClearSelection(C: Context, L: lua_State) {
 
   console.warn('ClearSelection was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SelectUnit takes unit whichUnit, boolean flag returns nothing
  */
 function SelectUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SelectUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetUnitPointValue takes unit whichUnit returns integer
  */
 function GetUnitPointValue(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitPointValue was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5157,7 +5157,7 @@ function GetUnitPointValue(C: Context, L: lua_State) {
  * native GetUnitPointValueByType takes integer unitType returns integer
  */
 function GetUnitPointValueByType(C: Context, L: lua_State) {
-  let unitType = luaL_checkinteger(L, 1);
+  const unitType = luaL_checkinteger(L, 1);
   console.warn('GetUnitPointValueByType was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5167,8 +5167,8 @@ function GetUnitPointValueByType(C: Context, L: lua_State) {
  * native UnitAddItem takes unit whichUnit, item whichItem returns boolean
  */
 function UnitAddItem(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
   console.warn('UnitAddItem was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5178,8 +5178,8 @@ function UnitAddItem(C: Context, L: lua_State) {
  * native UnitAddItemById takes unit whichUnit, integer itemId returns item
  */
 function UnitAddItemById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
   console.warn('UnitAddItemById was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5189,9 +5189,9 @@ function UnitAddItemById(C: Context, L: lua_State) {
  * native UnitAddItemToSlotById takes unit whichUnit, integer itemId, integer itemSlot returns boolean
  */
 function UnitAddItemToSlotById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
-  let itemSlot = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
+  const itemSlot = luaL_checkinteger(L, 3);
   console.warn('UnitAddItemToSlotById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5201,18 +5201,18 @@ function UnitAddItemToSlotById(C: Context, L: lua_State) {
  * native UnitRemoveItem takes unit whichUnit, item whichItem returns nothing
  */
 function UnitRemoveItem(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
   console.warn('UnitRemoveItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitRemoveItemFromSlot takes unit whichUnit, integer itemSlot returns item
  */
 function UnitRemoveItemFromSlot(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemSlot = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemSlot = luaL_checkinteger(L, 2);
   console.warn('UnitRemoveItemFromSlot was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5222,8 +5222,8 @@ function UnitRemoveItemFromSlot(C: Context, L: lua_State) {
  * native UnitHasItem takes unit whichUnit, item whichItem returns boolean
  */
 function UnitHasItem(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
   console.warn('UnitHasItem was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5233,8 +5233,8 @@ function UnitHasItem(C: Context, L: lua_State) {
  * native UnitItemInSlot takes unit whichUnit, integer itemSlot returns item
  */
 function UnitItemInSlot(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemSlot = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemSlot = luaL_checkinteger(L, 2);
   console.warn('UnitItemInSlot was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5244,7 +5244,7 @@ function UnitItemInSlot(C: Context, L: lua_State) {
  * native UnitInventorySize takes unit whichUnit returns integer
  */
 function UnitInventorySize(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitInventorySize was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5254,10 +5254,10 @@ function UnitInventorySize(C: Context, L: lua_State) {
  * native UnitDropItemPoint takes unit whichUnit, item whichItem, real x, real y returns boolean
  */
 function UnitDropItemPoint(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('UnitDropItemPoint was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5267,9 +5267,9 @@ function UnitDropItemPoint(C: Context, L: lua_State) {
  * native UnitDropItemSlot takes unit whichUnit, item whichItem, integer slot returns boolean
  */
 function UnitDropItemSlot(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
-  let slot = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
+  const slot = luaL_checkinteger(L, 3);
   console.warn('UnitDropItemSlot was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5279,9 +5279,9 @@ function UnitDropItemSlot(C: Context, L: lua_State) {
  * native UnitDropItemTarget takes unit whichUnit, item whichItem, widget target returns boolean
  */
 function UnitDropItemTarget(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
-  let target = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
+  const target = lua_touserdata(L, 3);
   console.warn('UnitDropItemTarget was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5291,8 +5291,8 @@ function UnitDropItemTarget(C: Context, L: lua_State) {
  * native UnitUseItem takes unit whichUnit, item whichItem returns boolean
  */
 function UnitUseItem(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
   console.warn('UnitUseItem was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5302,10 +5302,10 @@ function UnitUseItem(C: Context, L: lua_State) {
  * native UnitUseItemPoint takes unit whichUnit, item whichItem, real x, real y returns boolean
  */
 function UnitUseItemPoint(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('UnitUseItemPoint was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5315,9 +5315,9 @@ function UnitUseItemPoint(C: Context, L: lua_State) {
  * native UnitUseItemTarget takes unit whichUnit, item whichItem, widget target returns boolean
  */
 function UnitUseItemTarget(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichItem = lua_touserdata(L, 2);
-  let target = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 2);
+  const target = lua_touserdata(L, 3);
   console.warn('UnitUseItemTarget was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5327,7 +5327,7 @@ function UnitUseItemTarget(C: Context, L: lua_State) {
  * constant native GetUnitX takes unit whichUnit returns real
  */
 function GetUnitX(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5337,7 +5337,7 @@ function GetUnitX(C: Context, L: lua_State) {
  * constant native GetUnitY takes unit whichUnit returns real
  */
 function GetUnitY(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5347,7 +5347,7 @@ function GetUnitY(C: Context, L: lua_State) {
  * constant native GetUnitLoc takes unit whichUnit returns location
  */
 function GetUnitLoc(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5357,7 +5357,7 @@ function GetUnitLoc(C: Context, L: lua_State) {
  * constant native GetUnitFacing takes unit whichUnit returns real
  */
 function GetUnitFacing(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitFacing was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5367,7 +5367,7 @@ function GetUnitFacing(C: Context, L: lua_State) {
  * constant native GetUnitMoveSpeed takes unit whichUnit returns real
  */
 function GetUnitMoveSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitMoveSpeed was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5377,7 +5377,7 @@ function GetUnitMoveSpeed(C: Context, L: lua_State) {
  * constant native GetUnitDefaultMoveSpeed takes unit whichUnit returns real
  */
 function GetUnitDefaultMoveSpeed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitDefaultMoveSpeed was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5387,8 +5387,8 @@ function GetUnitDefaultMoveSpeed(C: Context, L: lua_State) {
  * constant native GetUnitState takes unit whichUnit, unitstate whichUnitState returns real
  */
 function GetUnitState(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichUnitState = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichUnitState = lua_touserdata(L, 2);
   console.warn('GetUnitState was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -5398,7 +5398,7 @@ function GetUnitState(C: Context, L: lua_State) {
  * constant native GetOwningPlayer takes unit whichUnit returns player
  */
 function GetOwningPlayer(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
 
   lua_pushlightuserdata(L, whichUnit.player);
 
@@ -5409,7 +5409,7 @@ function GetOwningPlayer(C: Context, L: lua_State) {
  * constant native GetUnitTypeId takes unit whichUnit returns integer
  */
 function GetUnitTypeId(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitTypeId was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5419,7 +5419,7 @@ function GetUnitTypeId(C: Context, L: lua_State) {
  * constant native GetUnitRace takes unit whichUnit returns race
  */
 function GetUnitRace(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitRace was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5429,7 +5429,7 @@ function GetUnitRace(C: Context, L: lua_State) {
  * constant native GetUnitName takes unit whichUnit returns string
  */
 function GetUnitName(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitName was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -5439,7 +5439,7 @@ function GetUnitName(C: Context, L: lua_State) {
  * constant native GetUnitFoodUsed takes unit whichUnit returns integer
  */
 function GetUnitFoodUsed(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitFoodUsed was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5449,7 +5449,7 @@ function GetUnitFoodUsed(C: Context, L: lua_State) {
  * constant native GetUnitFoodMade takes unit whichUnit returns integer
  */
 function GetUnitFoodMade(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitFoodMade was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5459,7 +5459,7 @@ function GetUnitFoodMade(C: Context, L: lua_State) {
  * constant native GetFoodMade takes integer unitId returns integer
  */
 function GetFoodMade(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
+  const unitId = luaL_checkinteger(L, 1);
   console.warn('GetFoodMade was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5469,7 +5469,7 @@ function GetFoodMade(C: Context, L: lua_State) {
  * constant native GetFoodUsed takes integer unitId returns integer
  */
 function GetFoodUsed(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
+  const unitId = luaL_checkinteger(L, 1);
   console.warn('GetFoodUsed was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5479,17 +5479,17 @@ function GetFoodUsed(C: Context, L: lua_State) {
  * native SetUnitUseFood takes unit whichUnit, boolean useFood returns nothing
  */
 function SetUnitUseFood(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let useFood = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const useFood = lua_toboolean(L, 2);
   console.warn('SetUnitUseFood was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetUnitRallyPoint takes unit whichUnit returns location
  */
 function GetUnitRallyPoint(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitRallyPoint was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5499,7 +5499,7 @@ function GetUnitRallyPoint(C: Context, L: lua_State) {
  * constant native GetUnitRallyUnit takes unit whichUnit returns unit
  */
 function GetUnitRallyUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitRallyUnit was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5509,7 +5509,7 @@ function GetUnitRallyUnit(C: Context, L: lua_State) {
  * constant native GetUnitRallyDestructable takes unit whichUnit returns destructable
  */
 function GetUnitRallyDestructable(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitRallyDestructable was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -5519,8 +5519,8 @@ function GetUnitRallyDestructable(C: Context, L: lua_State) {
  * constant native IsUnitInGroup takes unit whichUnit, group whichGroup returns boolean
  */
 function IsUnitInGroup(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichGroup = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichGroup = lua_touserdata(L, 2);
   console.warn('IsUnitInGroup was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5530,8 +5530,8 @@ function IsUnitInGroup(C: Context, L: lua_State) {
  * constant native IsUnitInForce takes unit whichUnit, force whichForce returns boolean
  */
 function IsUnitInForce(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichForce = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichForce = lua_touserdata(L, 2);
   console.warn('IsUnitInForce was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5541,8 +5541,8 @@ function IsUnitInForce(C: Context, L: lua_State) {
  * constant native IsUnitOwnedByPlayer takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitOwnedByPlayer(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitOwnedByPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5552,8 +5552,8 @@ function IsUnitOwnedByPlayer(C: Context, L: lua_State) {
  * constant native IsUnitAlly takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitAlly(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitAlly was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5563,8 +5563,8 @@ function IsUnitAlly(C: Context, L: lua_State) {
  * constant native IsUnitEnemy takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitEnemy(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitEnemy was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5574,8 +5574,8 @@ function IsUnitEnemy(C: Context, L: lua_State) {
  * constant native IsUnitVisible takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitVisible(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitVisible was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5585,8 +5585,8 @@ function IsUnitVisible(C: Context, L: lua_State) {
  * constant native IsUnitDetected takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitDetected(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitDetected was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5596,8 +5596,8 @@ function IsUnitDetected(C: Context, L: lua_State) {
  * constant native IsUnitInvisible takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitInvisible(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitInvisible was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5607,8 +5607,8 @@ function IsUnitInvisible(C: Context, L: lua_State) {
  * constant native IsUnitFogged takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitFogged(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitFogged was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5618,8 +5618,8 @@ function IsUnitFogged(C: Context, L: lua_State) {
  * constant native IsUnitMasked takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitMasked(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitMasked was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5629,8 +5629,8 @@ function IsUnitMasked(C: Context, L: lua_State) {
  * constant native IsUnitSelected takes unit whichUnit, player whichPlayer returns boolean
  */
 function IsUnitSelected(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsUnitSelected was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5640,8 +5640,8 @@ function IsUnitSelected(C: Context, L: lua_State) {
  * constant native IsUnitRace takes unit whichUnit, race whichRace returns boolean
  */
 function IsUnitRace(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichRace = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichRace = lua_touserdata(L, 2);
   console.warn('IsUnitRace was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5651,8 +5651,8 @@ function IsUnitRace(C: Context, L: lua_State) {
  * constant native IsUnitType takes unit whichUnit, unittype whichUnitType returns boolean
  */
 function IsUnitType(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichUnitType = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichUnitType = lua_touserdata(L, 2);
   console.warn('IsUnitType was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5662,8 +5662,8 @@ function IsUnitType(C: Context, L: lua_State) {
  * constant native IsUnit takes unit whichUnit, unit whichSpecifiedUnit returns boolean
  */
 function IsUnit(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichSpecifiedUnit = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichSpecifiedUnit = lua_touserdata(L, 2);
   console.warn('IsUnit was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5673,9 +5673,9 @@ function IsUnit(C: Context, L: lua_State) {
  * constant native IsUnitInRange takes unit whichUnit, unit otherUnit, real distance returns boolean
  */
 function IsUnitInRange(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let otherUnit = lua_touserdata(L, 2);
-  let distance = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const otherUnit = lua_touserdata(L, 2);
+  const distance = luaL_checknumber(L, 3);
   console.warn('IsUnitInRange was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5685,10 +5685,10 @@ function IsUnitInRange(C: Context, L: lua_State) {
  * constant native IsUnitInRangeXY takes unit whichUnit, real x, real y, real distance returns boolean
  */
 function IsUnitInRangeXY(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let distance = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const distance = luaL_checknumber(L, 4);
   console.warn('IsUnitInRangeXY was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5698,9 +5698,9 @@ function IsUnitInRangeXY(C: Context, L: lua_State) {
  * constant native IsUnitInRangeLoc takes unit whichUnit, location whichLocation, real distance returns boolean
  */
 function IsUnitInRangeLoc(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
-  let distance = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
+  const distance = luaL_checknumber(L, 3);
   console.warn('IsUnitInRangeLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5710,7 +5710,7 @@ function IsUnitInRangeLoc(C: Context, L: lua_State) {
  * constant native IsUnitHidden takes unit whichUnit returns boolean
  */
 function IsUnitHidden(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('IsUnitHidden was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5720,7 +5720,7 @@ function IsUnitHidden(C: Context, L: lua_State) {
  * constant native IsUnitIllusion takes unit whichUnit returns boolean
  */
 function IsUnitIllusion(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('IsUnitIllusion was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5730,8 +5730,8 @@ function IsUnitIllusion(C: Context, L: lua_State) {
  * constant native IsUnitInTransport takes unit whichUnit, unit whichTransport returns boolean
  */
 function IsUnitInTransport(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichTransport = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichTransport = lua_touserdata(L, 2);
   console.warn('IsUnitInTransport was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5741,7 +5741,7 @@ function IsUnitInTransport(C: Context, L: lua_State) {
  * constant native IsUnitLoaded takes unit whichUnit returns boolean
  */
 function IsUnitLoaded(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('IsUnitLoaded was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5751,7 +5751,7 @@ function IsUnitLoaded(C: Context, L: lua_State) {
  * constant native IsHeroUnitId takes integer unitId returns boolean
  */
 function IsHeroUnitId(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
+  const unitId = luaL_checkinteger(L, 1);
   console.warn('IsHeroUnitId was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5761,8 +5761,8 @@ function IsHeroUnitId(C: Context, L: lua_State) {
  * constant native IsUnitIdType takes integer unitId, unittype whichUnitType returns boolean
  */
 function IsUnitIdType(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
-  let whichUnitType = lua_touserdata(L, 2);
+  const unitId = luaL_checkinteger(L, 1);
+  const whichUnitType = lua_touserdata(L, 2);
   console.warn('IsUnitIdType was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5772,29 +5772,29 @@ function IsUnitIdType(C: Context, L: lua_State) {
  * native UnitShareVision takes unit whichUnit, player whichPlayer, boolean share returns nothing
  */
 function UnitShareVision(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
-  let share = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
+  const share = lua_toboolean(L, 3);
   console.warn('UnitShareVision was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitSuspendDecay takes unit whichUnit, boolean suspend returns nothing
  */
 function UnitSuspendDecay(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let suspend = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const suspend = lua_toboolean(L, 2);
   console.warn('UnitSuspendDecay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitAddType takes unit whichUnit, unittype whichUnitType returns boolean
  */
 function UnitAddType(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichUnitType = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichUnitType = lua_touserdata(L, 2);
   console.warn('UnitAddType was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5804,8 +5804,8 @@ function UnitAddType(C: Context, L: lua_State) {
  * native UnitRemoveType takes unit whichUnit, unittype whichUnitType returns boolean
  */
 function UnitRemoveType(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let whichUnitType = lua_touserdata(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const whichUnitType = lua_touserdata(L, 2);
   console.warn('UnitRemoveType was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5815,8 +5815,8 @@ function UnitRemoveType(C: Context, L: lua_State) {
  * native UnitAddAbility takes unit whichUnit, integer abilityId returns boolean
  */
 function UnitAddAbility(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilityId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilityId = luaL_checkinteger(L, 2);
   console.warn('UnitAddAbility was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5826,8 +5826,8 @@ function UnitAddAbility(C: Context, L: lua_State) {
  * native UnitRemoveAbility takes unit whichUnit, integer abilityId returns boolean
  */
 function UnitRemoveAbility(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilityId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilityId = luaL_checkinteger(L, 2);
   console.warn('UnitRemoveAbility was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5837,9 +5837,9 @@ function UnitRemoveAbility(C: Context, L: lua_State) {
  * native UnitMakeAbilityPermanent takes unit whichUnit, boolean permanent, integer abilityId returns boolean
  */
 function UnitMakeAbilityPermanent(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let permanent = lua_toboolean(L, 2);
-  let abilityId = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const permanent = lua_toboolean(L, 2);
+  const abilityId = luaL_checkinteger(L, 3);
   console.warn('UnitMakeAbilityPermanent was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5849,41 +5849,41 @@ function UnitMakeAbilityPermanent(C: Context, L: lua_State) {
  * native UnitRemoveBuffs takes unit whichUnit, boolean removePositive, boolean removeNegative returns nothing
  */
 function UnitRemoveBuffs(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let removePositive = lua_toboolean(L, 2);
-  let removeNegative = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const removePositive = lua_toboolean(L, 2);
+  const removeNegative = lua_toboolean(L, 3);
   console.warn('UnitRemoveBuffs was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitRemoveBuffsEx takes unit whichUnit, boolean removePositive, boolean removeNegative, boolean magic, boolean physical, boolean timedLife, boolean aura, boolean autoDispel returns nothing
  */
 function UnitRemoveBuffsEx(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let removePositive = lua_toboolean(L, 2);
-  let removeNegative = lua_toboolean(L, 3);
-  let magic = lua_toboolean(L, 4);
-  let physical = lua_toboolean(L, 5);
-  let timedLife = lua_toboolean(L, 6);
-  let aura = lua_toboolean(L, 7);
-  let autoDispel = lua_toboolean(L, 8);
+  const whichUnit = lua_touserdata(L, 1);
+  const removePositive = lua_toboolean(L, 2);
+  const removeNegative = lua_toboolean(L, 3);
+  const magic = lua_toboolean(L, 4);
+  const physical = lua_toboolean(L, 5);
+  const timedLife = lua_toboolean(L, 6);
+  const aura = lua_toboolean(L, 7);
+  const autoDispel = lua_toboolean(L, 8);
   console.warn('UnitRemoveBuffsEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitHasBuffsEx takes unit whichUnit, boolean removePositive, boolean removeNegative, boolean magic, boolean physical, boolean timedLife, boolean aura, boolean autoDispel returns boolean
  */
 function UnitHasBuffsEx(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let removePositive = lua_toboolean(L, 2);
-  let removeNegative = lua_toboolean(L, 3);
-  let magic = lua_toboolean(L, 4);
-  let physical = lua_toboolean(L, 5);
-  let timedLife = lua_toboolean(L, 6);
-  let aura = lua_toboolean(L, 7);
-  let autoDispel = lua_toboolean(L, 8);
+  const whichUnit = lua_touserdata(L, 1);
+  const removePositive = lua_toboolean(L, 2);
+  const removeNegative = lua_toboolean(L, 3);
+  const magic = lua_toboolean(L, 4);
+  const physical = lua_toboolean(L, 5);
+  const timedLife = lua_toboolean(L, 6);
+  const aura = lua_toboolean(L, 7);
+  const autoDispel = lua_toboolean(L, 8);
   console.warn('UnitHasBuffsEx was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5893,14 +5893,14 @@ function UnitHasBuffsEx(C: Context, L: lua_State) {
  * native UnitCountBuffsEx takes unit whichUnit, boolean removePositive, boolean removeNegative, boolean magic, boolean physical, boolean timedLife, boolean aura, boolean autoDispel returns integer
  */
 function UnitCountBuffsEx(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let removePositive = lua_toboolean(L, 2);
-  let removeNegative = lua_toboolean(L, 3);
-  let magic = lua_toboolean(L, 4);
-  let physical = lua_toboolean(L, 5);
-  let timedLife = lua_toboolean(L, 6);
-  let aura = lua_toboolean(L, 7);
-  let autoDispel = lua_toboolean(L, 8);
+  const whichUnit = lua_touserdata(L, 1);
+  const removePositive = lua_toboolean(L, 2);
+  const removeNegative = lua_toboolean(L, 3);
+  const magic = lua_toboolean(L, 4);
+  const physical = lua_toboolean(L, 5);
+  const timedLife = lua_toboolean(L, 6);
+  const aura = lua_toboolean(L, 7);
+  const autoDispel = lua_toboolean(L, 8);
   console.warn('UnitCountBuffsEx was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -5910,17 +5910,17 @@ function UnitCountBuffsEx(C: Context, L: lua_State) {
  * native UnitAddSleep takes unit whichUnit, boolean add returns nothing
  */
 function UnitAddSleep(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let add = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const add = lua_toboolean(L, 2);
   console.warn('UnitAddSleep was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitCanSleep takes unit whichUnit returns boolean
  */
 function UnitCanSleep(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitCanSleep was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5930,17 +5930,17 @@ function UnitCanSleep(C: Context, L: lua_State) {
  * native UnitAddSleepPerm takes unit whichUnit, boolean add returns nothing
  */
 function UnitAddSleepPerm(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let add = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const add = lua_toboolean(L, 2);
   console.warn('UnitAddSleepPerm was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitCanSleepPerm takes unit whichUnit returns boolean
  */
 function UnitCanSleepPerm(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitCanSleepPerm was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5950,7 +5950,7 @@ function UnitCanSleepPerm(C: Context, L: lua_State) {
  * native UnitIsSleeping takes unit whichUnit returns boolean
  */
 function UnitIsSleeping(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitIsSleeping was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5960,28 +5960,28 @@ function UnitIsSleeping(C: Context, L: lua_State) {
  * native UnitWakeUp takes unit whichUnit returns nothing
  */
 function UnitWakeUp(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitWakeUp was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitApplyTimedLife takes unit whichUnit, integer buffId, real duration returns nothing
  */
 function UnitApplyTimedLife(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let buffId = luaL_checkinteger(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const buffId = luaL_checkinteger(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('UnitApplyTimedLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitIgnoreAlarm takes unit whichUnit, boolean flag returns boolean
  */
 function UnitIgnoreAlarm(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('UnitIgnoreAlarm was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -5991,7 +5991,7 @@ function UnitIgnoreAlarm(C: Context, L: lua_State) {
  * native UnitIgnoreAlarmToggled takes unit whichUnit returns boolean
  */
 function UnitIgnoreAlarmToggled(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitIgnoreAlarmToggled was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6001,66 +6001,66 @@ function UnitIgnoreAlarmToggled(C: Context, L: lua_State) {
  * native UnitResetCooldown takes unit whichUnit returns nothing
  */
 function UnitResetCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('UnitResetCooldown was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitSetConstructionProgress takes unit whichUnit, integer constructionPercentage returns nothing
  */
 function UnitSetConstructionProgress(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let constructionPercentage = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const constructionPercentage = luaL_checkinteger(L, 2);
   console.warn('UnitSetConstructionProgress was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitSetUpgradeProgress takes unit whichUnit, integer upgradePercentage returns nothing
  */
 function UnitSetUpgradeProgress(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let upgradePercentage = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const upgradePercentage = luaL_checkinteger(L, 2);
   console.warn('UnitSetUpgradeProgress was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitPauseTimedLife takes unit whichUnit, boolean flag returns nothing
  */
 function UnitPauseTimedLife(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('UnitPauseTimedLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitSetUsesAltIcon takes unit whichUnit, boolean flag returns nothing
  */
 function UnitSetUsesAltIcon(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('UnitSetUsesAltIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitDamagePoint takes unit whichUnit, real delay, real radius, real x, real y, real amount, boolean attack, boolean ranged, attacktype attackType, damagetype damageType, weapontype weaponType returns boolean
  */
 function UnitDamagePoint(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let delay = luaL_checknumber(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let x = luaL_checknumber(L, 4);
-  let y = luaL_checknumber(L, 5);
-  let amount = luaL_checknumber(L, 6);
-  let attack = lua_toboolean(L, 7);
-  let ranged = lua_toboolean(L, 8);
-  let attackType = lua_touserdata(L, 9);
-  let damageType = lua_touserdata(L, 10);
-  let weaponType = lua_touserdata(L, 11);
+  const whichUnit = lua_touserdata(L, 1);
+  const delay = luaL_checknumber(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const x = luaL_checknumber(L, 4);
+  const y = luaL_checknumber(L, 5);
+  const amount = luaL_checknumber(L, 6);
+  const attack = lua_toboolean(L, 7);
+  const ranged = lua_toboolean(L, 8);
+  const attackType = lua_touserdata(L, 9);
+  const damageType = lua_touserdata(L, 10);
+  const weaponType = lua_touserdata(L, 11);
   console.warn('UnitDamagePoint was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6070,14 +6070,14 @@ function UnitDamagePoint(C: Context, L: lua_State) {
  * native UnitDamageTarget takes unit whichUnit, widget target, real amount, boolean attack, boolean ranged, attacktype attackType, damagetype damageType, weapontype weaponType returns boolean
  */
 function UnitDamageTarget(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let target = lua_touserdata(L, 2);
-  let amount = luaL_checknumber(L, 3);
-  let attack = lua_toboolean(L, 4);
-  let ranged = lua_toboolean(L, 5);
-  let attackType = lua_touserdata(L, 6);
-  let damageType = lua_touserdata(L, 7);
-  let weaponType = lua_touserdata(L, 8);
+  const whichUnit = lua_touserdata(L, 1);
+  const target = lua_touserdata(L, 2);
+  const amount = luaL_checknumber(L, 3);
+  const attack = lua_toboolean(L, 4);
+  const ranged = lua_toboolean(L, 5);
+  const attackType = lua_touserdata(L, 6);
+  const damageType = lua_touserdata(L, 7);
+  const weaponType = lua_touserdata(L, 8);
   console.warn('UnitDamageTarget was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6087,8 +6087,8 @@ function UnitDamageTarget(C: Context, L: lua_State) {
  * native IssueImmediateOrder takes unit whichUnit, string order returns boolean
  */
 function IssueImmediateOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
   console.warn('IssueImmediateOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6098,8 +6098,8 @@ function IssueImmediateOrder(C: Context, L: lua_State) {
  * native IssueImmediateOrderById takes unit whichUnit, integer order returns boolean
  */
 function IssueImmediateOrderById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
   console.warn('IssueImmediateOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6109,10 +6109,10 @@ function IssueImmediateOrderById(C: Context, L: lua_State) {
  * native IssuePointOrder takes unit whichUnit, string order, real x, real y returns boolean
  */
 function IssuePointOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('IssuePointOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6122,9 +6122,9 @@ function IssuePointOrder(C: Context, L: lua_State) {
  * native IssuePointOrderLoc takes unit whichUnit, string order, location whichLocation returns boolean
  */
 function IssuePointOrderLoc(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
   console.warn('IssuePointOrderLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6134,10 +6134,10 @@ function IssuePointOrderLoc(C: Context, L: lua_State) {
  * native IssuePointOrderById takes unit whichUnit, integer order, real x, real y returns boolean
  */
 function IssuePointOrderById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('IssuePointOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6147,9 +6147,9 @@ function IssuePointOrderById(C: Context, L: lua_State) {
  * native IssuePointOrderByIdLoc takes unit whichUnit, integer order, location whichLocation returns boolean
  */
 function IssuePointOrderByIdLoc(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let whichLocation = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const whichLocation = lua_touserdata(L, 3);
   console.warn('IssuePointOrderByIdLoc was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6159,9 +6159,9 @@ function IssuePointOrderByIdLoc(C: Context, L: lua_State) {
  * native IssueTargetOrder takes unit whichUnit, string order, widget targetWidget returns boolean
  */
 function IssueTargetOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
   console.warn('IssueTargetOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6171,9 +6171,9 @@ function IssueTargetOrder(C: Context, L: lua_State) {
  * native IssueTargetOrderById takes unit whichUnit, integer order, widget targetWidget returns boolean
  */
 function IssueTargetOrderById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
   console.warn('IssueTargetOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6183,11 +6183,11 @@ function IssueTargetOrderById(C: Context, L: lua_State) {
  * native IssueInstantPointOrder takes unit whichUnit, string order, real x, real y, widget instantTargetWidget returns boolean
  */
 function IssueInstantPointOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let instantTargetWidget = lua_touserdata(L, 5);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const instantTargetWidget = lua_touserdata(L, 5);
   console.warn('IssueInstantPointOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6197,11 +6197,11 @@ function IssueInstantPointOrder(C: Context, L: lua_State) {
  * native IssueInstantPointOrderById takes unit whichUnit, integer order, real x, real y, widget instantTargetWidget returns boolean
  */
 function IssueInstantPointOrderById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let instantTargetWidget = lua_touserdata(L, 5);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const instantTargetWidget = lua_touserdata(L, 5);
   console.warn('IssueInstantPointOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6211,10 +6211,10 @@ function IssueInstantPointOrderById(C: Context, L: lua_State) {
  * native IssueInstantTargetOrder takes unit whichUnit, string order, widget targetWidget, widget instantTargetWidget returns boolean
  */
 function IssueInstantTargetOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkstring(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
-  let instantTargetWidget = lua_touserdata(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkstring(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
+  const instantTargetWidget = lua_touserdata(L, 4);
   console.warn('IssueInstantTargetOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6224,10 +6224,10 @@ function IssueInstantTargetOrder(C: Context, L: lua_State) {
  * native IssueInstantTargetOrderById takes unit whichUnit, integer order, widget targetWidget, widget instantTargetWidget returns boolean
  */
 function IssueInstantTargetOrderById(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let order = luaL_checkinteger(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
-  let instantTargetWidget = lua_touserdata(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const order = luaL_checkinteger(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
+  const instantTargetWidget = lua_touserdata(L, 4);
   console.warn('IssueInstantTargetOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6237,10 +6237,10 @@ function IssueInstantTargetOrderById(C: Context, L: lua_State) {
  * native IssueBuildOrder takes unit whichPeon, string unitToBuild, real x, real y returns boolean
  */
 function IssueBuildOrder(C: Context, L: lua_State) {
-  let whichPeon = lua_touserdata(L, 1);
-  let unitToBuild = luaL_checkstring(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichPeon = lua_touserdata(L, 1);
+  const unitToBuild = luaL_checkstring(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('IssueBuildOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6250,10 +6250,10 @@ function IssueBuildOrder(C: Context, L: lua_State) {
  * native IssueBuildOrderById takes unit whichPeon, integer unitId, real x, real y returns boolean
  */
 function IssueBuildOrderById(C: Context, L: lua_State) {
-  let whichPeon = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const whichPeon = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('IssueBuildOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6263,9 +6263,9 @@ function IssueBuildOrderById(C: Context, L: lua_State) {
  * native IssueNeutralImmediateOrder takes player forWhichPlayer, unit neutralStructure, string unitToBuild returns boolean
  */
 function IssueNeutralImmediateOrder(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitToBuild = luaL_checkstring(L, 3);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitToBuild = luaL_checkstring(L, 3);
   console.warn('IssueNeutralImmediateOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6275,9 +6275,9 @@ function IssueNeutralImmediateOrder(C: Context, L: lua_State) {
  * native IssueNeutralImmediateOrderById takes player forWhichPlayer, unit neutralStructure, integer unitId returns boolean
  */
 function IssueNeutralImmediateOrderById(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitId = luaL_checkinteger(L, 3);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitId = luaL_checkinteger(L, 3);
   console.warn('IssueNeutralImmediateOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6287,11 +6287,11 @@ function IssueNeutralImmediateOrderById(C: Context, L: lua_State) {
  * native IssueNeutralPointOrder takes player forWhichPlayer, unit neutralStructure, string unitToBuild, real x, real y returns boolean
  */
 function IssueNeutralPointOrder(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitToBuild = luaL_checkstring(L, 3);
-  let x = luaL_checknumber(L, 4);
-  let y = luaL_checknumber(L, 5);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitToBuild = luaL_checkstring(L, 3);
+  const x = luaL_checknumber(L, 4);
+  const y = luaL_checknumber(L, 5);
   console.warn('IssueNeutralPointOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6301,11 +6301,11 @@ function IssueNeutralPointOrder(C: Context, L: lua_State) {
  * native IssueNeutralPointOrderById takes player forWhichPlayer, unit neutralStructure, integer unitId, real x, real y returns boolean
  */
 function IssueNeutralPointOrderById(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitId = luaL_checkinteger(L, 3);
-  let x = luaL_checknumber(L, 4);
-  let y = luaL_checknumber(L, 5);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitId = luaL_checkinteger(L, 3);
+  const x = luaL_checknumber(L, 4);
+  const y = luaL_checknumber(L, 5);
   console.warn('IssueNeutralPointOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6315,10 +6315,10 @@ function IssueNeutralPointOrderById(C: Context, L: lua_State) {
  * native IssueNeutralTargetOrder takes player forWhichPlayer, unit neutralStructure, string unitToBuild, widget target returns boolean
  */
 function IssueNeutralTargetOrder(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitToBuild = luaL_checkstring(L, 3);
-  let target = lua_touserdata(L, 4);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitToBuild = luaL_checkstring(L, 3);
+  const target = lua_touserdata(L, 4);
   console.warn('IssueNeutralTargetOrder was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6328,10 +6328,10 @@ function IssueNeutralTargetOrder(C: Context, L: lua_State) {
  * native IssueNeutralTargetOrderById takes player forWhichPlayer, unit neutralStructure, integer unitId, widget target returns boolean
  */
 function IssueNeutralTargetOrderById(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let neutralStructure = lua_touserdata(L, 2);
-  let unitId = luaL_checkinteger(L, 3);
-  let target = lua_touserdata(L, 4);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const neutralStructure = lua_touserdata(L, 2);
+  const unitId = luaL_checkinteger(L, 3);
+  const target = lua_touserdata(L, 4);
   console.warn('IssueNeutralTargetOrderById was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6341,7 +6341,7 @@ function IssueNeutralTargetOrderById(C: Context, L: lua_State) {
  * native GetUnitCurrentOrder takes unit whichUnit returns integer
  */
 function GetUnitCurrentOrder(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitCurrentOrder was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6351,27 +6351,27 @@ function GetUnitCurrentOrder(C: Context, L: lua_State) {
  * native SetResourceAmount takes unit whichUnit, integer amount returns nothing
  */
 function SetResourceAmount(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let amount = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const amount = luaL_checkinteger(L, 2);
   console.warn('SetResourceAmount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddResourceAmount takes unit whichUnit, integer amount returns nothing
  */
 function AddResourceAmount(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let amount = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const amount = luaL_checkinteger(L, 2);
   console.warn('AddResourceAmount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetResourceAmount takes unit whichUnit returns integer
  */
 function GetResourceAmount(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetResourceAmount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6381,7 +6381,7 @@ function GetResourceAmount(C: Context, L: lua_State) {
  * native WaygateGetDestinationX takes unit waygate returns real
  */
 function WaygateGetDestinationX(C: Context, L: lua_State) {
-  let waygate = lua_touserdata(L, 1);
+  const waygate = lua_touserdata(L, 1);
   console.warn('WaygateGetDestinationX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -6391,7 +6391,7 @@ function WaygateGetDestinationX(C: Context, L: lua_State) {
  * native WaygateGetDestinationY takes unit waygate returns real
  */
 function WaygateGetDestinationY(C: Context, L: lua_State) {
-  let waygate = lua_touserdata(L, 1);
+  const waygate = lua_touserdata(L, 1);
   console.warn('WaygateGetDestinationY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -6401,28 +6401,28 @@ function WaygateGetDestinationY(C: Context, L: lua_State) {
  * native WaygateSetDestination takes unit waygate, real x, real y returns nothing
  */
 function WaygateSetDestination(C: Context, L: lua_State) {
-  let waygate = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const waygate = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('WaygateSetDestination was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native WaygateActivate takes unit waygate, boolean activate returns nothing
  */
 function WaygateActivate(C: Context, L: lua_State) {
-  let waygate = lua_touserdata(L, 1);
-  let activate = lua_toboolean(L, 2);
+  const waygate = lua_touserdata(L, 1);
+  const activate = lua_toboolean(L, 2);
   console.warn('WaygateActivate was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native WaygateIsActive takes unit waygate returns boolean
  */
 function WaygateIsActive(C: Context, L: lua_State) {
-  let waygate = lua_touserdata(L, 1);
+  const waygate = lua_touserdata(L, 1);
   console.warn('WaygateIsActive was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6432,129 +6432,129 @@ function WaygateIsActive(C: Context, L: lua_State) {
  * native AddItemToAllStock takes integer itemId, integer currentStock, integer stockMax returns nothing
  */
 function AddItemToAllStock(C: Context, L: lua_State) {
-  let itemId = luaL_checkinteger(L, 1);
-  let currentStock = luaL_checkinteger(L, 2);
-  let stockMax = luaL_checkinteger(L, 3);
+  const itemId = luaL_checkinteger(L, 1);
+  const currentStock = luaL_checkinteger(L, 2);
+  const stockMax = luaL_checkinteger(L, 3);
   console.warn('AddItemToAllStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddItemToStock takes unit whichUnit, integer itemId, integer currentStock, integer stockMax returns nothing
  */
 function AddItemToStock(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
-  let currentStock = luaL_checkinteger(L, 3);
-  let stockMax = luaL_checkinteger(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
+  const currentStock = luaL_checkinteger(L, 3);
+  const stockMax = luaL_checkinteger(L, 4);
   console.warn('AddItemToStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddUnitToAllStock takes integer unitId, integer currentStock, integer stockMax returns nothing
  */
 function AddUnitToAllStock(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
-  let currentStock = luaL_checkinteger(L, 2);
-  let stockMax = luaL_checkinteger(L, 3);
+  const unitId = luaL_checkinteger(L, 1);
+  const currentStock = luaL_checkinteger(L, 2);
+  const stockMax = luaL_checkinteger(L, 3);
   console.warn('AddUnitToAllStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddUnitToStock takes unit whichUnit, integer unitId, integer currentStock, integer stockMax returns nothing
  */
 function AddUnitToStock(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
-  let currentStock = luaL_checkinteger(L, 3);
-  let stockMax = luaL_checkinteger(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
+  const currentStock = luaL_checkinteger(L, 3);
+  const stockMax = luaL_checkinteger(L, 4);
   console.warn('AddUnitToStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveItemFromAllStock takes integer itemId returns nothing
  */
 function RemoveItemFromAllStock(C: Context, L: lua_State) {
-  let itemId = luaL_checkinteger(L, 1);
+  const itemId = luaL_checkinteger(L, 1);
   console.warn('RemoveItemFromAllStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveItemFromStock takes unit whichUnit, integer itemId returns nothing
  */
 function RemoveItemFromStock(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
   console.warn('RemoveItemFromStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveUnitFromAllStock takes integer unitId returns nothing
  */
 function RemoveUnitFromAllStock(C: Context, L: lua_State) {
-  let unitId = luaL_checkinteger(L, 1);
+  const unitId = luaL_checkinteger(L, 1);
   console.warn('RemoveUnitFromAllStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveUnitFromStock takes unit whichUnit, integer unitId returns nothing
  */
 function RemoveUnitFromStock(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
   console.warn('RemoveUnitFromStock was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetAllItemTypeSlots takes integer slots returns nothing
  */
 function SetAllItemTypeSlots(C: Context, L: lua_State) {
-  let slots = luaL_checkinteger(L, 1);
+  const slots = luaL_checkinteger(L, 1);
   console.warn('SetAllItemTypeSlots was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetAllUnitTypeSlots takes integer slots returns nothing
  */
 function SetAllUnitTypeSlots(C: Context, L: lua_State) {
-  let slots = luaL_checkinteger(L, 1);
+  const slots = luaL_checkinteger(L, 1);
   console.warn('SetAllUnitTypeSlots was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetItemTypeSlots takes unit whichUnit, integer slots returns nothing
  */
 function SetItemTypeSlots(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let slots = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const slots = luaL_checkinteger(L, 2);
   console.warn('SetItemTypeSlots was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitTypeSlots takes unit whichUnit, integer slots returns nothing
  */
 function SetUnitTypeSlots(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let slots = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const slots = luaL_checkinteger(L, 2);
   console.warn('SetUnitTypeSlots was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetUnitUserData takes unit whichUnit returns integer
  */
 function GetUnitUserData(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('GetUnitUserData was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6564,17 +6564,17 @@ function GetUnitUserData(C: Context, L: lua_State) {
  * native SetUnitUserData takes unit whichUnit, integer data returns nothing
  */
 function SetUnitUserData(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let data = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const data = luaL_checkinteger(L, 2);
   console.warn('SetUnitUserData was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native Player takes integer number returns player
  */
 function Player(C: Context, L: lua_State) {
-  let number = luaL_checkinteger(L, 1);
+  const number = luaL_checkinteger(L, 1);
 
   lua_pushlightuserdata(L, C.players[number]);
 
@@ -6595,8 +6595,8 @@ function GetLocalPlayer(C: Context, L: lua_State) {
  * constant native IsPlayerAlly takes player whichPlayer, player otherPlayer returns boolean
  */
 function IsPlayerAlly(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
   console.warn('IsPlayerAlly was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6606,8 +6606,8 @@ function IsPlayerAlly(C: Context, L: lua_State) {
  * constant native IsPlayerEnemy takes player whichPlayer, player otherPlayer returns boolean
  */
 function IsPlayerEnemy(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
   console.warn('IsPlayerEnemy was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6617,8 +6617,8 @@ function IsPlayerEnemy(C: Context, L: lua_State) {
  * constant native IsPlayerInForce takes player whichPlayer, force whichForce returns boolean
  */
 function IsPlayerInForce(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichForce = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichForce = lua_touserdata(L, 2);
   console.warn('IsPlayerInForce was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6628,7 +6628,7 @@ function IsPlayerInForce(C: Context, L: lua_State) {
  * constant native IsPlayerObserver takes player whichPlayer returns boolean
  */
 function IsPlayerObserver(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('IsPlayerObserver was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6638,9 +6638,9 @@ function IsPlayerObserver(C: Context, L: lua_State) {
  * constant native IsVisibleToPlayer takes real x, real y, player whichPlayer returns boolean
  */
 function IsVisibleToPlayer(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let whichPlayer = lua_touserdata(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const whichPlayer = lua_touserdata(L, 3);
   console.warn('IsVisibleToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6650,8 +6650,8 @@ function IsVisibleToPlayer(C: Context, L: lua_State) {
  * constant native IsLocationVisibleToPlayer takes location whichLocation, player whichPlayer returns boolean
  */
 function IsLocationVisibleToPlayer(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichLocation = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsLocationVisibleToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6661,9 +6661,9 @@ function IsLocationVisibleToPlayer(C: Context, L: lua_State) {
  * constant native IsFoggedToPlayer takes real x, real y, player whichPlayer returns boolean
  */
 function IsFoggedToPlayer(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let whichPlayer = lua_touserdata(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const whichPlayer = lua_touserdata(L, 3);
   console.warn('IsFoggedToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6673,8 +6673,8 @@ function IsFoggedToPlayer(C: Context, L: lua_State) {
  * constant native IsLocationFoggedToPlayer takes location whichLocation, player whichPlayer returns boolean
  */
 function IsLocationFoggedToPlayer(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichLocation = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsLocationFoggedToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6684,9 +6684,9 @@ function IsLocationFoggedToPlayer(C: Context, L: lua_State) {
  * constant native IsMaskedToPlayer takes real x, real y, player whichPlayer returns boolean
  */
 function IsMaskedToPlayer(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let whichPlayer = lua_touserdata(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const whichPlayer = lua_touserdata(L, 3);
   console.warn('IsMaskedToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6696,8 +6696,8 @@ function IsMaskedToPlayer(C: Context, L: lua_State) {
  * constant native IsLocationMaskedToPlayer takes location whichLocation, player whichPlayer returns boolean
  */
 function IsLocationMaskedToPlayer(C: Context, L: lua_State) {
-  let whichLocation = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichLocation = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('IsLocationMaskedToPlayer was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6707,7 +6707,7 @@ function IsLocationMaskedToPlayer(C: Context, L: lua_State) {
  * constant native GetPlayerRace takes player whichPlayer returns race
  */
 function GetPlayerRace(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushlightuserdata(L, whichPlayer.race);
 
@@ -6718,7 +6718,7 @@ function GetPlayerRace(C: Context, L: lua_State) {
  * constant native GetPlayerId takes player whichPlayer returns integer
  */
 function GetPlayerId(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
 
   lua_pushinteger(L, whichPlayer.index);
 
@@ -6729,8 +6729,8 @@ function GetPlayerId(C: Context, L: lua_State) {
  * constant native GetPlayerUnitCount takes player whichPlayer, boolean includeIncomplete returns integer
  */
 function GetPlayerUnitCount(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let includeIncomplete = lua_toboolean(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const includeIncomplete = lua_toboolean(L, 2);
   console.warn('GetPlayerUnitCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6740,10 +6740,10 @@ function GetPlayerUnitCount(C: Context, L: lua_State) {
  * constant native GetPlayerTypedUnitCount takes player whichPlayer, string unitName, boolean includeIncomplete, boolean includeUpgrades returns integer
  */
 function GetPlayerTypedUnitCount(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let unitName = luaL_checkstring(L, 2);
-  let includeIncomplete = lua_toboolean(L, 3);
-  let includeUpgrades = lua_toboolean(L, 4);
+  const whichPlayer = lua_touserdata(L, 1);
+  const unitName = luaL_checkstring(L, 2);
+  const includeIncomplete = lua_toboolean(L, 3);
+  const includeUpgrades = lua_toboolean(L, 4);
   console.warn('GetPlayerTypedUnitCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6753,8 +6753,8 @@ function GetPlayerTypedUnitCount(C: Context, L: lua_State) {
  * constant native GetPlayerStructureCount takes player whichPlayer, boolean includeIncomplete returns integer
  */
 function GetPlayerStructureCount(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let includeIncomplete = lua_toboolean(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const includeIncomplete = lua_toboolean(L, 2);
   console.warn('GetPlayerStructureCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6764,8 +6764,8 @@ function GetPlayerStructureCount(C: Context, L: lua_State) {
  * constant native GetPlayerState takes player whichPlayer, playerstate whichPlayerState returns integer
  */
 function GetPlayerState(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichPlayerState = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichPlayerState = lua_touserdata(L, 2);
   console.warn('GetPlayerState was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6775,8 +6775,8 @@ function GetPlayerState(C: Context, L: lua_State) {
  * constant native GetPlayerScore takes player whichPlayer, playerscore whichPlayerScore returns integer
  */
 function GetPlayerScore(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichPlayerScore = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichPlayerScore = lua_touserdata(L, 2);
   console.warn('GetPlayerScore was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6786,9 +6786,9 @@ function GetPlayerScore(C: Context, L: lua_State) {
  * constant native GetPlayerAlliance takes player sourcePlayer, player otherPlayer, alliancetype whichAllianceSetting returns boolean
  */
 function GetPlayerAlliance(C: Context, L: lua_State) {
-  let sourcePlayer = lua_touserdata(L, 1);
-  let otherPlayer = lua_touserdata(L, 2);
-  let whichAllianceSetting = lua_touserdata(L, 3);
+  const sourcePlayer = lua_touserdata(L, 1);
+  const otherPlayer = lua_touserdata(L, 2);
+  const whichAllianceSetting = lua_touserdata(L, 3);
   console.warn('GetPlayerAlliance was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6798,7 +6798,7 @@ function GetPlayerAlliance(C: Context, L: lua_State) {
  * constant native GetPlayerHandicap takes player whichPlayer returns real
  */
 function GetPlayerHandicap(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetPlayerHandicap was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -6808,7 +6808,7 @@ function GetPlayerHandicap(C: Context, L: lua_State) {
  * constant native GetPlayerHandicapXP takes player whichPlayer returns real
  */
 function GetPlayerHandicapXP(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('GetPlayerHandicapXP was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -6818,39 +6818,39 @@ function GetPlayerHandicapXP(C: Context, L: lua_State) {
  * constant native SetPlayerHandicap takes player whichPlayer, real handicap returns nothing
  */
 function SetPlayerHandicap(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let handicap = luaL_checknumber(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const handicap = luaL_checknumber(L, 2);
   console.warn('SetPlayerHandicap was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native SetPlayerHandicapXP takes player whichPlayer, real handicap returns nothing
  */
 function SetPlayerHandicapXP(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let handicap = luaL_checknumber(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const handicap = luaL_checknumber(L, 2);
   console.warn('SetPlayerHandicapXP was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native SetPlayerTechMaxAllowed takes player whichPlayer, integer techid, integer maximum returns nothing
  */
 function SetPlayerTechMaxAllowed(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let maximum = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const maximum = luaL_checkinteger(L, 3);
   console.warn('SetPlayerTechMaxAllowed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetPlayerTechMaxAllowed takes player whichPlayer, integer techid returns integer
  */
 function GetPlayerTechMaxAllowed(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
   console.warn('GetPlayerTechMaxAllowed was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6860,31 +6860,31 @@ function GetPlayerTechMaxAllowed(C: Context, L: lua_State) {
  * constant native AddPlayerTechResearched takes player whichPlayer, integer techid, integer levels returns nothing
  */
 function AddPlayerTechResearched(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let levels = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const levels = luaL_checkinteger(L, 3);
   console.warn('AddPlayerTechResearched was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native SetPlayerTechResearched takes player whichPlayer, integer techid, integer setToLevel returns nothing
  */
 function SetPlayerTechResearched(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let setToLevel = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const setToLevel = luaL_checkinteger(L, 3);
   console.warn('SetPlayerTechResearched was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetPlayerTechResearched takes player whichPlayer, integer techid, boolean specificonly returns boolean
  */
 function GetPlayerTechResearched(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let specificonly = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const specificonly = lua_toboolean(L, 3);
   console.warn('GetPlayerTechResearched was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -6894,9 +6894,9 @@ function GetPlayerTechResearched(C: Context, L: lua_State) {
  * constant native GetPlayerTechCount takes player whichPlayer, integer techid, boolean specificonly returns integer
  */
 function GetPlayerTechCount(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let specificonly = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const specificonly = lua_toboolean(L, 3);
   console.warn('GetPlayerTechCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -6906,110 +6906,110 @@ function GetPlayerTechCount(C: Context, L: lua_State) {
  * native SetPlayerUnitsOwner takes player whichPlayer, integer newOwner returns nothing
  */
 function SetPlayerUnitsOwner(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let newOwner = luaL_checkinteger(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const newOwner = luaL_checkinteger(L, 2);
   console.warn('SetPlayerUnitsOwner was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CripplePlayer takes player whichPlayer, force toWhichPlayers, boolean flag returns nothing
  */
 function CripplePlayer(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let toWhichPlayers = lua_touserdata(L, 2);
-  let flag = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const toWhichPlayers = lua_touserdata(L, 2);
+  const flag = lua_toboolean(L, 3);
   console.warn('CripplePlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerAbilityAvailable takes player whichPlayer, integer abilid, boolean avail returns nothing
  */
 function SetPlayerAbilityAvailable(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let abilid = luaL_checkinteger(L, 2);
-  let avail = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const abilid = luaL_checkinteger(L, 2);
+  const avail = lua_toboolean(L, 3);
   console.warn('SetPlayerAbilityAvailable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetPlayerState takes player whichPlayer, playerstate whichPlayerState, integer value returns nothing
  */
 function SetPlayerState(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichPlayerState = lua_touserdata(L, 2);
-  let value = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichPlayerState = lua_touserdata(L, 2);
+  const value = luaL_checkinteger(L, 3);
   console.warn('SetPlayerState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemovePlayer takes player whichPlayer, playergameresult gameResult returns nothing
  */
 function RemovePlayer(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let gameResult = lua_touserdata(L, 2);
+  const whichPlayer = lua_touserdata(L, 1);
+  const gameResult = lua_touserdata(L, 2);
   console.warn('RemovePlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CachePlayerHeroData takes player whichPlayer returns nothing
  */
 function CachePlayerHeroData(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 1);
   console.warn('CachePlayerHeroData was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetFogStateRect takes player forWhichPlayer, fogstate whichState, rect where, boolean useSharedVision returns nothing
  */
 function SetFogStateRect(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let where = lua_touserdata(L, 3);
-  let useSharedVision = lua_toboolean(L, 4);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const where = lua_touserdata(L, 3);
+  const useSharedVision = lua_toboolean(L, 4);
   console.warn('SetFogStateRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetFogStateRadius takes player forWhichPlayer, fogstate whichState, real centerx, real centerY, real radius, boolean useSharedVision returns nothing
  */
 function SetFogStateRadius(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let centerx = luaL_checknumber(L, 3);
-  let centerY = luaL_checknumber(L, 4);
-  let radius = luaL_checknumber(L, 5);
-  let useSharedVision = lua_toboolean(L, 6);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const centerx = luaL_checknumber(L, 3);
+  const centerY = luaL_checknumber(L, 4);
+  const radius = luaL_checknumber(L, 5);
+  const useSharedVision = lua_toboolean(L, 6);
   console.warn('SetFogStateRadius was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetFogStateRadiusLoc takes player forWhichPlayer, fogstate whichState, location center, real radius, boolean useSharedVision returns nothing
  */
 function SetFogStateRadiusLoc(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let center = lua_touserdata(L, 3);
-  let radius = luaL_checknumber(L, 4);
-  let useSharedVision = lua_toboolean(L, 5);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const center = lua_touserdata(L, 3);
+  const radius = luaL_checknumber(L, 4);
+  const useSharedVision = lua_toboolean(L, 5);
   console.warn('SetFogStateRadiusLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FogMaskEnable takes boolean enable returns nothing
  */
 function FogMaskEnable(C: Context, L: lua_State) {
-  let enable = lua_toboolean(L, 1);
+  const enable = lua_toboolean(L, 1);
   console.warn('FogMaskEnable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7026,9 +7026,9 @@ function IsFogMaskEnabled(C: Context, L: lua_State) {
  * native FogEnable takes boolean enable returns nothing
  */
 function FogEnable(C: Context, L: lua_State) {
-  let enable = lua_toboolean(L, 1);
+  const enable = lua_toboolean(L, 1);
   console.warn('FogEnable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7045,11 +7045,11 @@ function IsFogEnabled(C: Context, L: lua_State) {
  * native CreateFogModifierRect takes player forWhichPlayer, fogstate whichState, rect where, boolean useSharedVision, boolean afterUnits returns fogmodifier
  */
 function CreateFogModifierRect(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let where = lua_touserdata(L, 3);
-  let useSharedVision = lua_toboolean(L, 4);
-  let afterUnits = lua_toboolean(L, 5);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const where = lua_touserdata(L, 3);
+  const useSharedVision = lua_toboolean(L, 4);
+  const afterUnits = lua_toboolean(L, 5);
   console.warn('CreateFogModifierRect was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7059,13 +7059,13 @@ function CreateFogModifierRect(C: Context, L: lua_State) {
  * native CreateFogModifierRadius takes player forWhichPlayer, fogstate whichState, real centerx, real centerY, real radius, boolean useSharedVision, boolean afterUnits returns fogmodifier
  */
 function CreateFogModifierRadius(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let centerx = luaL_checknumber(L, 3);
-  let centerY = luaL_checknumber(L, 4);
-  let radius = luaL_checknumber(L, 5);
-  let useSharedVision = lua_toboolean(L, 6);
-  let afterUnits = lua_toboolean(L, 7);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const centerx = luaL_checknumber(L, 3);
+  const centerY = luaL_checknumber(L, 4);
+  const radius = luaL_checknumber(L, 5);
+  const useSharedVision = lua_toboolean(L, 6);
+  const afterUnits = lua_toboolean(L, 7);
   console.warn('CreateFogModifierRadius was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7075,12 +7075,12 @@ function CreateFogModifierRadius(C: Context, L: lua_State) {
  * native CreateFogModifierRadiusLoc takes player forWhichPlayer, fogstate whichState, location center, real radius, boolean useSharedVision, boolean afterUnits returns fogmodifier
  */
 function CreateFogModifierRadiusLoc(C: Context, L: lua_State) {
-  let forWhichPlayer = lua_touserdata(L, 1);
-  let whichState = lua_touserdata(L, 2);
-  let center = lua_touserdata(L, 3);
-  let radius = luaL_checknumber(L, 4);
-  let useSharedVision = lua_toboolean(L, 5);
-  let afterUnits = lua_toboolean(L, 6);
+  const forWhichPlayer = lua_touserdata(L, 1);
+  const whichState = lua_touserdata(L, 2);
+  const center = lua_touserdata(L, 3);
+  const radius = luaL_checknumber(L, 4);
+  const useSharedVision = lua_toboolean(L, 5);
+  const afterUnits = lua_toboolean(L, 6);
   console.warn('CreateFogModifierRadiusLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7090,27 +7090,27 @@ function CreateFogModifierRadiusLoc(C: Context, L: lua_State) {
  * native DestroyFogModifier takes fogmodifier whichFogModifier returns nothing
  */
 function DestroyFogModifier(C: Context, L: lua_State) {
-  let whichFogModifier = lua_touserdata(L, 1);
+  const whichFogModifier = lua_touserdata(L, 1);
   console.warn('DestroyFogModifier was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FogModifierStart takes fogmodifier whichFogModifier returns nothing
  */
 function FogModifierStart(C: Context, L: lua_State) {
-  let whichFogModifier = lua_touserdata(L, 1);
+  const whichFogModifier = lua_touserdata(L, 1);
   console.warn('FogModifierStart was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FogModifierStop takes fogmodifier whichFogModifier returns nothing
  */
 function FogModifierStop(C: Context, L: lua_State) {
-  let whichFogModifier = lua_touserdata(L, 1);
+  const whichFogModifier = lua_touserdata(L, 1);
   console.warn('FogModifierStop was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7127,7 +7127,7 @@ function VersionGet(C: Context, L: lua_State) {
  * native VersionCompatible takes version whichVersion returns boolean
  */
 function VersionCompatible(C: Context, L: lua_State) {
-  let whichVersion = lua_touserdata(L, 1);
+  const whichVersion = lua_touserdata(L, 1);
   console.warn('VersionCompatible was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7137,7 +7137,7 @@ function VersionCompatible(C: Context, L: lua_State) {
  * native VersionSupported takes version whichVersion returns boolean
  */
 function VersionSupported(C: Context, L: lua_State) {
-  let whichVersion = lua_touserdata(L, 1);
+  const whichVersion = lua_touserdata(L, 1);
   console.warn('VersionSupported was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7147,28 +7147,28 @@ function VersionSupported(C: Context, L: lua_State) {
  * native EndGame takes boolean doScoreScreen returns nothing
  */
 function EndGame(C: Context, L: lua_State) {
-  let doScoreScreen = lua_toboolean(L, 1);
+  const doScoreScreen = lua_toboolean(L, 1);
   console.warn('EndGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ChangeLevel takes string newLevel, boolean doScoreScreen returns nothing
  */
 function ChangeLevel(C: Context, L: lua_State) {
-  let newLevel = luaL_checkstring(L, 1);
-  let doScoreScreen = lua_toboolean(L, 2);
+  const newLevel = luaL_checkstring(L, 1);
+  const doScoreScreen = lua_toboolean(L, 2);
   console.warn('ChangeLevel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RestartGame takes boolean doScoreScreen returns nothing
  */
 function RestartGame(C: Context, L: lua_State) {
-  let doScoreScreen = lua_toboolean(L, 1);
+  const doScoreScreen = lua_toboolean(L, 1);
   console.warn('RestartGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7177,25 +7177,25 @@ function RestartGame(C: Context, L: lua_State) {
 function ReloadGame(C: Context, L: lua_State) {
 
   console.warn('ReloadGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCampaignMenuRace takes race r returns nothing
  */
 function SetCampaignMenuRace(C: Context, L: lua_State) {
-  let r = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 1);
   console.warn('SetCampaignMenuRace was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCampaignMenuRaceEx takes integer campaignIndex returns nothing
  */
 function SetCampaignMenuRaceEx(C: Context, L: lua_State) {
-  let campaignIndex = luaL_checkinteger(L, 1);
+  const campaignIndex = luaL_checkinteger(L, 1);
   console.warn('SetCampaignMenuRaceEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7204,34 +7204,34 @@ function SetCampaignMenuRaceEx(C: Context, L: lua_State) {
 function ForceCampaignSelectScreen(C: Context, L: lua_State) {
 
   console.warn('ForceCampaignSelectScreen was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LoadGame takes string saveFileName, boolean doScoreScreen returns nothing
  */
 function LoadGame(C: Context, L: lua_State) {
-  let saveFileName = luaL_checkstring(L, 1);
-  let doScoreScreen = lua_toboolean(L, 2);
+  const saveFileName = luaL_checkstring(L, 1);
+  const doScoreScreen = lua_toboolean(L, 2);
   console.warn('LoadGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SaveGame takes string saveFileName returns nothing
  */
 function SaveGame(C: Context, L: lua_State) {
-  let saveFileName = luaL_checkstring(L, 1);
+  const saveFileName = luaL_checkstring(L, 1);
   console.warn('SaveGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RenameSaveDirectory takes string sourceDirName, string destDirName returns boolean
  */
 function RenameSaveDirectory(C: Context, L: lua_State) {
-  let sourceDirName = luaL_checkstring(L, 1);
-  let destDirName = luaL_checkstring(L, 2);
+  const sourceDirName = luaL_checkstring(L, 1);
+  const destDirName = luaL_checkstring(L, 2);
   console.warn('RenameSaveDirectory was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7241,7 +7241,7 @@ function RenameSaveDirectory(C: Context, L: lua_State) {
  * native RemoveSaveDirectory takes string sourceDirName returns boolean
  */
 function RemoveSaveDirectory(C: Context, L: lua_State) {
-  let sourceDirName = luaL_checkstring(L, 1);
+  const sourceDirName = luaL_checkstring(L, 1);
   console.warn('RemoveSaveDirectory was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7251,8 +7251,8 @@ function RemoveSaveDirectory(C: Context, L: lua_State) {
  * native CopySaveGame takes string sourceSaveName, string destSaveName returns boolean
  */
 function CopySaveGame(C: Context, L: lua_State) {
-  let sourceSaveName = luaL_checkstring(L, 1);
-  let destSaveName = luaL_checkstring(L, 2);
+  const sourceSaveName = luaL_checkstring(L, 1);
+  const destSaveName = luaL_checkstring(L, 2);
   console.warn('CopySaveGame was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7262,7 +7262,7 @@ function CopySaveGame(C: Context, L: lua_State) {
  * native SaveGameExists takes string saveName returns boolean
  */
 function SaveGameExists(C: Context, L: lua_State) {
-  let saveName = luaL_checkstring(L, 1);
+  const saveName = luaL_checkstring(L, 1);
   console.warn('SaveGameExists was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7274,24 +7274,24 @@ function SaveGameExists(C: Context, L: lua_State) {
 function SyncSelections(C: Context, L: lua_State) {
 
   console.warn('SyncSelections was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetFloatGameState takes fgamestate whichFloatGameState, real value returns nothing
  */
 function SetFloatGameState(C: Context, L: lua_State) {
-  let whichFloatGameState = lua_touserdata(L, 1);
-  let value = luaL_checknumber(L, 2);
+  const whichFloatGameState = lua_touserdata(L, 1);
+  const value = luaL_checknumber(L, 2);
   console.warn('SetFloatGameState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetFloatGameState takes fgamestate whichFloatGameState returns real
  */
 function GetFloatGameState(C: Context, L: lua_State) {
-  let whichFloatGameState = lua_touserdata(L, 1);
+  const whichFloatGameState = lua_touserdata(L, 1);
   console.warn('GetFloatGameState was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -7301,17 +7301,17 @@ function GetFloatGameState(C: Context, L: lua_State) {
  * native SetIntegerGameState takes igamestate whichIntegerGameState, integer value returns nothing
  */
 function SetIntegerGameState(C: Context, L: lua_State) {
-  let whichIntegerGameState = lua_touserdata(L, 1);
-  let value = luaL_checkinteger(L, 2);
+  const whichIntegerGameState = lua_touserdata(L, 1);
+  const value = luaL_checkinteger(L, 2);
   console.warn('SetIntegerGameState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * constant native GetIntegerGameState takes igamestate whichIntegerGameState returns integer
  */
 function GetIntegerGameState(C: Context, L: lua_State) {
-  let whichIntegerGameState = lua_touserdata(L, 1);
+  const whichIntegerGameState = lua_touserdata(L, 1);
   console.warn('GetIntegerGameState was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -7321,50 +7321,50 @@ function GetIntegerGameState(C: Context, L: lua_State) {
  * native SetTutorialCleared takes boolean cleared returns nothing
  */
 function SetTutorialCleared(C: Context, L: lua_State) {
-  let cleared = lua_toboolean(L, 1);
+  const cleared = lua_toboolean(L, 1);
   console.warn('SetTutorialCleared was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMissionAvailable takes integer campaignNumber, integer missionNumber, boolean available returns nothing
  */
 function SetMissionAvailable(C: Context, L: lua_State) {
-  let campaignNumber = luaL_checkinteger(L, 1);
-  let missionNumber = luaL_checkinteger(L, 2);
-  let available = lua_toboolean(L, 3);
+  const campaignNumber = luaL_checkinteger(L, 1);
+  const missionNumber = luaL_checkinteger(L, 2);
+  const available = lua_toboolean(L, 3);
   console.warn('SetMissionAvailable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCampaignAvailable takes integer campaignNumber, boolean available returns nothing
  */
 function SetCampaignAvailable(C: Context, L: lua_State) {
-  let campaignNumber = luaL_checkinteger(L, 1);
-  let available = lua_toboolean(L, 2);
+  const campaignNumber = luaL_checkinteger(L, 1);
+  const available = lua_toboolean(L, 2);
   console.warn('SetCampaignAvailable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetOpCinematicAvailable takes integer campaignNumber, boolean available returns nothing
  */
 function SetOpCinematicAvailable(C: Context, L: lua_State) {
-  let campaignNumber = luaL_checkinteger(L, 1);
-  let available = lua_toboolean(L, 2);
+  const campaignNumber = luaL_checkinteger(L, 1);
+  const available = lua_toboolean(L, 2);
   console.warn('SetOpCinematicAvailable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetEdCinematicAvailable takes integer campaignNumber, boolean available returns nothing
  */
 function SetEdCinematicAvailable(C: Context, L: lua_State) {
-  let campaignNumber = luaL_checkinteger(L, 1);
-  let available = lua_toboolean(L, 2);
+  const campaignNumber = luaL_checkinteger(L, 1);
+  const available = lua_toboolean(L, 2);
   console.warn('SetEdCinematicAvailable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7381,26 +7381,26 @@ function GetDefaultDifficulty(C: Context, L: lua_State) {
  * native SetDefaultDifficulty takes gamedifficulty g returns nothing
  */
 function SetDefaultDifficulty(C: Context, L: lua_State) {
-  let g = lua_touserdata(L, 1);
+  const g = lua_touserdata(L, 1);
   console.warn('SetDefaultDifficulty was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCustomCampaignButtonVisible takes integer whichButton, boolean visible returns nothing
  */
 function SetCustomCampaignButtonVisible(C: Context, L: lua_State) {
-  let whichButton = luaL_checkinteger(L, 1);
-  let visible = lua_toboolean(L, 2);
+  const whichButton = luaL_checkinteger(L, 1);
+  const visible = lua_toboolean(L, 2);
   console.warn('SetCustomCampaignButtonVisible was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetCustomCampaignButtonVisible takes integer whichButton returns boolean
  */
 function GetCustomCampaignButtonVisible(C: Context, L: lua_State) {
-  let whichButton = luaL_checkinteger(L, 1);
+  const whichButton = luaL_checkinteger(L, 1);
   console.warn('GetCustomCampaignButtonVisible was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7412,7 +7412,7 @@ function GetCustomCampaignButtonVisible(C: Context, L: lua_State) {
 function DoNotSaveReplay(C: Context, L: lua_State) {
 
   console.warn('DoNotSaveReplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7429,37 +7429,37 @@ function DialogCreate(C: Context, L: lua_State) {
  * native DialogDestroy takes dialog whichDialog returns nothing
  */
 function DialogDestroy(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 1);
   console.warn('DialogDestroy was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DialogClear takes dialog whichDialog returns nothing
  */
 function DialogClear(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 1);
   console.warn('DialogClear was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DialogSetMessage takes dialog whichDialog, string messageText returns nothing
  */
 function DialogSetMessage(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let messageText = luaL_checkstring(L, 2);
+  const whichDialog = lua_touserdata(L, 1);
+  const messageText = luaL_checkstring(L, 2);
   console.warn('DialogSetMessage was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DialogAddButton takes dialog whichDialog, string buttonText, integer hotkey returns button
  */
 function DialogAddButton(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let buttonText = luaL_checkstring(L, 2);
-  let hotkey = luaL_checkinteger(L, 3);
+  const whichDialog = lua_touserdata(L, 1);
+  const buttonText = luaL_checkstring(L, 2);
+  const hotkey = luaL_checkinteger(L, 3);
   console.warn('DialogAddButton was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7469,10 +7469,10 @@ function DialogAddButton(C: Context, L: lua_State) {
  * native DialogAddQuitButton takes dialog whichDialog, boolean doScoreScreen, string buttonText, integer hotkey returns button
  */
 function DialogAddQuitButton(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let doScoreScreen = lua_toboolean(L, 2);
-  let buttonText = luaL_checkstring(L, 3);
-  let hotkey = luaL_checkinteger(L, 4);
+  const whichDialog = lua_touserdata(L, 1);
+  const doScoreScreen = lua_toboolean(L, 2);
+  const buttonText = luaL_checkstring(L, 3);
+  const hotkey = luaL_checkinteger(L, 4);
   console.warn('DialogAddQuitButton was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7482,11 +7482,11 @@ function DialogAddQuitButton(C: Context, L: lua_State) {
  * native DialogDisplay takes player whichPlayer, dialog whichDialog, boolean flag returns nothing
  */
 function DialogDisplay(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichDialog = lua_touserdata(L, 2);
-  let flag = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 2);
+  const flag = lua_toboolean(L, 3);
   console.warn('DialogDisplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -7503,7 +7503,7 @@ function ReloadGameCachesFromDisk(C: Context, L: lua_State) {
  * native InitGameCache takes string campaignFile returns gamecache
  */
 function InitGameCache(C: Context, L: lua_State) {
-  let campaignFile = luaL_checkstring(L, 1);
+  const campaignFile = luaL_checkstring(L, 1);
   console.warn('InitGameCache was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7513,7 +7513,7 @@ function InitGameCache(C: Context, L: lua_State) {
  * native SaveGameCache takes gamecache whichCache returns boolean
  */
 function SaveGameCache(C: Context, L: lua_State) {
-  let whichCache = lua_touserdata(L, 1);
+  const whichCache = lua_touserdata(L, 1);
   console.warn('SaveGameCache was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7523,46 +7523,46 @@ function SaveGameCache(C: Context, L: lua_State) {
  * native StoreInteger takes gamecache cache, string missionKey, string key, integer value returns nothing
  */
 function StoreInteger(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let value = luaL_checkinteger(L, 4);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const value = luaL_checkinteger(L, 4);
   console.warn('StoreInteger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StoreReal takes gamecache cache, string missionKey, string key, real value returns nothing
  */
 function StoreReal(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let value = luaL_checknumber(L, 4);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const value = luaL_checknumber(L, 4);
   console.warn('StoreReal was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StoreBoolean takes gamecache cache, string missionKey, string key, boolean value returns nothing
  */
 function StoreBoolean(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let value = lua_toboolean(L, 4);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const value = lua_toboolean(L, 4);
   console.warn('StoreBoolean was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StoreUnit takes gamecache cache, string missionKey, string key, unit whichUnit returns boolean
  */
 function StoreUnit(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let whichUnit = lua_touserdata(L, 4);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const whichUnit = lua_touserdata(L, 4);
   console.warn('StoreUnit was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7572,10 +7572,10 @@ function StoreUnit(C: Context, L: lua_State) {
  * native StoreString takes gamecache cache, string missionKey, string key, string value returns boolean
  */
 function StoreString(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let value = luaL_checkstring(L, 4);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const value = luaL_checkstring(L, 4);
   console.warn('StoreString was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7585,64 +7585,64 @@ function StoreString(C: Context, L: lua_State) {
  * native SyncStoredInteger takes gamecache cache, string missionKey, string key returns nothing
  */
 function SyncStoredInteger(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('SyncStoredInteger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SyncStoredReal takes gamecache cache, string missionKey, string key returns nothing
  */
 function SyncStoredReal(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('SyncStoredReal was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SyncStoredBoolean takes gamecache cache, string missionKey, string key returns nothing
  */
 function SyncStoredBoolean(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('SyncStoredBoolean was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SyncStoredUnit takes gamecache cache, string missionKey, string key returns nothing
  */
 function SyncStoredUnit(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('SyncStoredUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SyncStoredString takes gamecache cache, string missionKey, string key returns nothing
  */
 function SyncStoredString(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('SyncStoredString was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native HaveStoredInteger takes gamecache cache, string missionKey, string key returns boolean
  */
 function HaveStoredInteger(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('HaveStoredInteger was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7652,9 +7652,9 @@ function HaveStoredInteger(C: Context, L: lua_State) {
  * native HaveStoredReal takes gamecache cache, string missionKey, string key returns boolean
  */
 function HaveStoredReal(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('HaveStoredReal was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7664,9 +7664,9 @@ function HaveStoredReal(C: Context, L: lua_State) {
  * native HaveStoredBoolean takes gamecache cache, string missionKey, string key returns boolean
  */
 function HaveStoredBoolean(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('HaveStoredBoolean was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7676,9 +7676,9 @@ function HaveStoredBoolean(C: Context, L: lua_State) {
  * native HaveStoredUnit takes gamecache cache, string missionKey, string key returns boolean
  */
 function HaveStoredUnit(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('HaveStoredUnit was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7688,9 +7688,9 @@ function HaveStoredUnit(C: Context, L: lua_State) {
  * native HaveStoredString takes gamecache cache, string missionKey, string key returns boolean
  */
 function HaveStoredString(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('HaveStoredString was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7700,83 +7700,83 @@ function HaveStoredString(C: Context, L: lua_State) {
  * native FlushGameCache takes gamecache cache returns nothing
  */
 function FlushGameCache(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
+  const cache = lua_touserdata(L, 1);
   console.warn('FlushGameCache was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredMission takes gamecache cache, string missionKey returns nothing
  */
 function FlushStoredMission(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
   console.warn('FlushStoredMission was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredInteger takes gamecache cache, string missionKey, string key returns nothing
  */
 function FlushStoredInteger(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('FlushStoredInteger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredReal takes gamecache cache, string missionKey, string key returns nothing
  */
 function FlushStoredReal(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('FlushStoredReal was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredBoolean takes gamecache cache, string missionKey, string key returns nothing
  */
 function FlushStoredBoolean(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('FlushStoredBoolean was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredUnit takes gamecache cache, string missionKey, string key returns nothing
  */
 function FlushStoredUnit(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('FlushStoredUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushStoredString takes gamecache cache, string missionKey, string key returns nothing
  */
 function FlushStoredString(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('FlushStoredString was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetStoredInteger takes gamecache cache, string missionKey, string key returns integer
  */
 function GetStoredInteger(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('GetStoredInteger was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -7786,9 +7786,9 @@ function GetStoredInteger(C: Context, L: lua_State) {
  * native GetStoredReal takes gamecache cache, string missionKey, string key returns real
  */
 function GetStoredReal(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('GetStoredReal was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -7798,9 +7798,9 @@ function GetStoredReal(C: Context, L: lua_State) {
  * native GetStoredBoolean takes gamecache cache, string missionKey, string key returns boolean
  */
 function GetStoredBoolean(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('GetStoredBoolean was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7810,9 +7810,9 @@ function GetStoredBoolean(C: Context, L: lua_State) {
  * native GetStoredString takes gamecache cache, string missionKey, string key returns string
  */
 function GetStoredString(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
   console.warn('GetStoredString was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -7822,13 +7822,13 @@ function GetStoredString(C: Context, L: lua_State) {
  * native RestoreUnit takes gamecache cache, string missionKey, string key, player forWhichPlayer, real x, real y, real facing returns unit
  */
 function RestoreUnit(C: Context, L: lua_State) {
-  let cache = lua_touserdata(L, 1);
-  let missionKey = luaL_checkstring(L, 2);
-  let key = luaL_checkstring(L, 3);
-  let forWhichPlayer = lua_touserdata(L, 4);
-  let x = luaL_checknumber(L, 5);
-  let y = luaL_checknumber(L, 6);
-  let facing = luaL_checknumber(L, 7);
+  const cache = lua_touserdata(L, 1);
+  const missionKey = luaL_checkstring(L, 2);
+  const key = luaL_checkstring(L, 3);
+  const forWhichPlayer = lua_touserdata(L, 4);
+  const x = luaL_checknumber(L, 5);
+  const y = luaL_checknumber(L, 6);
+  const facing = luaL_checknumber(L, 7);
   console.warn('RestoreUnit was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -7848,46 +7848,46 @@ function InitHashtable(C: Context, L: lua_State) {
  * native SaveInteger takes hashtable table, integer parentKey, integer childKey, integer value returns nothing
  */
 function SaveInteger(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let value = luaL_checkinteger(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const value = luaL_checkinteger(L, 4);
   console.warn('SaveInteger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SaveReal takes hashtable table, integer parentKey, integer childKey, real value returns nothing
  */
 function SaveReal(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let value = luaL_checknumber(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const value = luaL_checknumber(L, 4);
   console.warn('SaveReal was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SaveBoolean takes hashtable table, integer parentKey, integer childKey, boolean value returns nothing
  */
 function SaveBoolean(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let value = lua_toboolean(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const value = lua_toboolean(L, 4);
   console.warn('SaveBoolean was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SaveStr takes hashtable table, integer parentKey, integer childKey, string value returns boolean
  */
 function SaveStr(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let value = luaL_checkstring(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const value = luaL_checkstring(L, 4);
   console.warn('SaveStr was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7897,10 +7897,10 @@ function SaveStr(C: Context, L: lua_State) {
  * native SavePlayerHandle takes hashtable table, integer parentKey, integer childKey, player whichPlayer returns boolean
  */
 function SavePlayerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichPlayer = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 4);
   console.warn('SavePlayerHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7910,10 +7910,10 @@ function SavePlayerHandle(C: Context, L: lua_State) {
  * native SaveWidgetHandle takes hashtable table, integer parentKey, integer childKey, widget whichWidget returns boolean
  */
 function SaveWidgetHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichWidget = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichWidget = lua_touserdata(L, 4);
   console.warn('SaveWidgetHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7923,10 +7923,10 @@ function SaveWidgetHandle(C: Context, L: lua_State) {
  * native SaveDestructableHandle takes hashtable table, integer parentKey, integer childKey, destructable whichDestructable returns boolean
  */
 function SaveDestructableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichDestructable = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichDestructable = lua_touserdata(L, 4);
   console.warn('SaveDestructableHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7936,10 +7936,10 @@ function SaveDestructableHandle(C: Context, L: lua_State) {
  * native SaveItemHandle takes hashtable table, integer parentKey, integer childKey, item whichItem returns boolean
  */
 function SaveItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichItem = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichItem = lua_touserdata(L, 4);
   console.warn('SaveItemHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7949,10 +7949,10 @@ function SaveItemHandle(C: Context, L: lua_State) {
  * native SaveUnitHandle takes hashtable table, integer parentKey, integer childKey, unit whichUnit returns boolean
  */
 function SaveUnitHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichUnit = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 4);
   console.warn('SaveUnitHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7962,10 +7962,10 @@ function SaveUnitHandle(C: Context, L: lua_State) {
  * native SaveAbilityHandle takes hashtable table, integer parentKey, integer childKey, ability whichAbility returns boolean
  */
 function SaveAbilityHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichAbility = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichAbility = lua_touserdata(L, 4);
   console.warn('SaveAbilityHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7975,10 +7975,10 @@ function SaveAbilityHandle(C: Context, L: lua_State) {
  * native SaveTimerHandle takes hashtable table, integer parentKey, integer childKey, timer whichTimer returns boolean
  */
 function SaveTimerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTimer = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTimer = lua_touserdata(L, 4);
   console.warn('SaveTimerHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -7988,10 +7988,10 @@ function SaveTimerHandle(C: Context, L: lua_State) {
  * native SaveTriggerHandle takes hashtable table, integer parentKey, integer childKey, trigger whichTrigger returns boolean
  */
 function SaveTriggerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTrigger = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTrigger = lua_touserdata(L, 4);
   console.warn('SaveTriggerHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8001,10 +8001,10 @@ function SaveTriggerHandle(C: Context, L: lua_State) {
  * native SaveTriggerConditionHandle takes hashtable table, integer parentKey, integer childKey, triggercondition whichTriggercondition returns boolean
  */
 function SaveTriggerConditionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTriggercondition = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTriggercondition = lua_touserdata(L, 4);
   console.warn('SaveTriggerConditionHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8014,10 +8014,10 @@ function SaveTriggerConditionHandle(C: Context, L: lua_State) {
  * native SaveTriggerActionHandle takes hashtable table, integer parentKey, integer childKey, triggeraction whichTriggeraction returns boolean
  */
 function SaveTriggerActionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTriggeraction = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTriggeraction = lua_touserdata(L, 4);
   console.warn('SaveTriggerActionHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8027,10 +8027,10 @@ function SaveTriggerActionHandle(C: Context, L: lua_State) {
  * native SaveTriggerEventHandle takes hashtable table, integer parentKey, integer childKey, event whichEvent returns boolean
  */
 function SaveTriggerEventHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichEvent = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichEvent = lua_touserdata(L, 4);
   console.warn('SaveTriggerEventHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8040,10 +8040,10 @@ function SaveTriggerEventHandle(C: Context, L: lua_State) {
  * native SaveForceHandle takes hashtable table, integer parentKey, integer childKey, force whichForce returns boolean
  */
 function SaveForceHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichForce = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichForce = lua_touserdata(L, 4);
   console.warn('SaveForceHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8053,10 +8053,10 @@ function SaveForceHandle(C: Context, L: lua_State) {
  * native SaveGroupHandle takes hashtable table, integer parentKey, integer childKey, group whichGroup returns boolean
  */
 function SaveGroupHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichGroup = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichGroup = lua_touserdata(L, 4);
   console.warn('SaveGroupHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8066,10 +8066,10 @@ function SaveGroupHandle(C: Context, L: lua_State) {
  * native SaveLocationHandle takes hashtable table, integer parentKey, integer childKey, location whichLocation returns boolean
  */
 function SaveLocationHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichLocation = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichLocation = lua_touserdata(L, 4);
   console.warn('SaveLocationHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8079,10 +8079,10 @@ function SaveLocationHandle(C: Context, L: lua_State) {
  * native SaveRectHandle takes hashtable table, integer parentKey, integer childKey, rect whichRect returns boolean
  */
 function SaveRectHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichRect = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichRect = lua_touserdata(L, 4);
   console.warn('SaveRectHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8092,10 +8092,10 @@ function SaveRectHandle(C: Context, L: lua_State) {
  * native SaveBooleanExprHandle takes hashtable table, integer parentKey, integer childKey, boolexpr whichBoolexpr returns boolean
  */
 function SaveBooleanExprHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichBoolexpr = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichBoolexpr = lua_touserdata(L, 4);
   console.warn('SaveBooleanExprHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8105,10 +8105,10 @@ function SaveBooleanExprHandle(C: Context, L: lua_State) {
  * native SaveSoundHandle takes hashtable table, integer parentKey, integer childKey, sound whichSound returns boolean
  */
 function SaveSoundHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichSound = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichSound = lua_touserdata(L, 4);
   console.warn('SaveSoundHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8118,10 +8118,10 @@ function SaveSoundHandle(C: Context, L: lua_State) {
  * native SaveEffectHandle takes hashtable table, integer parentKey, integer childKey, effect whichEffect returns boolean
  */
 function SaveEffectHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichEffect = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichEffect = lua_touserdata(L, 4);
   console.warn('SaveEffectHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8131,10 +8131,10 @@ function SaveEffectHandle(C: Context, L: lua_State) {
  * native SaveUnitPoolHandle takes hashtable table, integer parentKey, integer childKey, unitpool whichUnitpool returns boolean
  */
 function SaveUnitPoolHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichUnitpool = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichUnitpool = lua_touserdata(L, 4);
   console.warn('SaveUnitPoolHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8144,10 +8144,10 @@ function SaveUnitPoolHandle(C: Context, L: lua_State) {
  * native SaveItemPoolHandle takes hashtable table, integer parentKey, integer childKey, itempool whichItempool returns boolean
  */
 function SaveItemPoolHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichItempool = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichItempool = lua_touserdata(L, 4);
   console.warn('SaveItemPoolHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8157,10 +8157,10 @@ function SaveItemPoolHandle(C: Context, L: lua_State) {
  * native SaveQuestHandle takes hashtable table, integer parentKey, integer childKey, quest whichQuest returns boolean
  */
 function SaveQuestHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichQuest = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichQuest = lua_touserdata(L, 4);
   console.warn('SaveQuestHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8170,10 +8170,10 @@ function SaveQuestHandle(C: Context, L: lua_State) {
  * native SaveQuestItemHandle takes hashtable table, integer parentKey, integer childKey, questitem whichQuestitem returns boolean
  */
 function SaveQuestItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichQuestitem = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichQuestitem = lua_touserdata(L, 4);
   console.warn('SaveQuestItemHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8183,10 +8183,10 @@ function SaveQuestItemHandle(C: Context, L: lua_State) {
  * native SaveDefeatConditionHandle takes hashtable table, integer parentKey, integer childKey, defeatcondition whichDefeatcondition returns boolean
  */
 function SaveDefeatConditionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichDefeatcondition = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichDefeatcondition = lua_touserdata(L, 4);
   console.warn('SaveDefeatConditionHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8196,10 +8196,10 @@ function SaveDefeatConditionHandle(C: Context, L: lua_State) {
  * native SaveTimerDialogHandle takes hashtable table, integer parentKey, integer childKey, timerdialog whichTimerdialog returns boolean
  */
 function SaveTimerDialogHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTimerdialog = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTimerdialog = lua_touserdata(L, 4);
   console.warn('SaveTimerDialogHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8209,10 +8209,10 @@ function SaveTimerDialogHandle(C: Context, L: lua_State) {
  * native SaveLeaderboardHandle takes hashtable table, integer parentKey, integer childKey, leaderboard whichLeaderboard returns boolean
  */
 function SaveLeaderboardHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichLeaderboard = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichLeaderboard = lua_touserdata(L, 4);
   console.warn('SaveLeaderboardHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8222,10 +8222,10 @@ function SaveLeaderboardHandle(C: Context, L: lua_State) {
  * native SaveMultiboardHandle takes hashtable table, integer parentKey, integer childKey, multiboard whichMultiboard returns boolean
  */
 function SaveMultiboardHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichMultiboard = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichMultiboard = lua_touserdata(L, 4);
   console.warn('SaveMultiboardHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8235,10 +8235,10 @@ function SaveMultiboardHandle(C: Context, L: lua_State) {
  * native SaveMultiboardItemHandle takes hashtable table, integer parentKey, integer childKey, multiboarditem whichMultiboarditem returns boolean
  */
 function SaveMultiboardItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichMultiboarditem = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichMultiboarditem = lua_touserdata(L, 4);
   console.warn('SaveMultiboardItemHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8248,10 +8248,10 @@ function SaveMultiboardItemHandle(C: Context, L: lua_State) {
  * native SaveTrackableHandle takes hashtable table, integer parentKey, integer childKey, trackable whichTrackable returns boolean
  */
 function SaveTrackableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTrackable = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTrackable = lua_touserdata(L, 4);
   console.warn('SaveTrackableHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8261,10 +8261,10 @@ function SaveTrackableHandle(C: Context, L: lua_State) {
  * native SaveDialogHandle takes hashtable table, integer parentKey, integer childKey, dialog whichDialog returns boolean
  */
 function SaveDialogHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichDialog = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichDialog = lua_touserdata(L, 4);
   console.warn('SaveDialogHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8274,10 +8274,10 @@ function SaveDialogHandle(C: Context, L: lua_State) {
  * native SaveButtonHandle takes hashtable table, integer parentKey, integer childKey, button whichButton returns boolean
  */
 function SaveButtonHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichButton = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichButton = lua_touserdata(L, 4);
   console.warn('SaveButtonHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8287,10 +8287,10 @@ function SaveButtonHandle(C: Context, L: lua_State) {
  * native SaveTextTagHandle takes hashtable table, integer parentKey, integer childKey, texttag whichTexttag returns boolean
  */
 function SaveTextTagHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichTexttag = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichTexttag = lua_touserdata(L, 4);
   console.warn('SaveTextTagHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8300,10 +8300,10 @@ function SaveTextTagHandle(C: Context, L: lua_State) {
  * native SaveLightningHandle takes hashtable table, integer parentKey, integer childKey, lightning whichLightning returns boolean
  */
 function SaveLightningHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichLightning = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichLightning = lua_touserdata(L, 4);
   console.warn('SaveLightningHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8313,10 +8313,10 @@ function SaveLightningHandle(C: Context, L: lua_State) {
  * native SaveImageHandle takes hashtable table, integer parentKey, integer childKey, image whichImage returns boolean
  */
 function SaveImageHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichImage = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichImage = lua_touserdata(L, 4);
   console.warn('SaveImageHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8326,10 +8326,10 @@ function SaveImageHandle(C: Context, L: lua_State) {
  * native SaveUbersplatHandle takes hashtable table, integer parentKey, integer childKey, ubersplat whichUbersplat returns boolean
  */
 function SaveUbersplatHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichUbersplat = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichUbersplat = lua_touserdata(L, 4);
   console.warn('SaveUbersplatHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8339,10 +8339,10 @@ function SaveUbersplatHandle(C: Context, L: lua_State) {
  * native SaveRegionHandle takes hashtable table, integer parentKey, integer childKey, region whichRegion returns boolean
  */
 function SaveRegionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichRegion = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichRegion = lua_touserdata(L, 4);
   console.warn('SaveRegionHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8352,10 +8352,10 @@ function SaveRegionHandle(C: Context, L: lua_State) {
  * native SaveFogStateHandle takes hashtable table, integer parentKey, integer childKey, fogstate whichFogState returns boolean
  */
 function SaveFogStateHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichFogState = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichFogState = lua_touserdata(L, 4);
   console.warn('SaveFogStateHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8365,10 +8365,10 @@ function SaveFogStateHandle(C: Context, L: lua_State) {
  * native SaveFogModifierHandle takes hashtable table, integer parentKey, integer childKey, fogmodifier whichFogModifier returns boolean
  */
 function SaveFogModifierHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichFogModifier = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichFogModifier = lua_touserdata(L, 4);
   console.warn('SaveFogModifierHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8378,10 +8378,10 @@ function SaveFogModifierHandle(C: Context, L: lua_State) {
  * native SaveAgentHandle takes hashtable table, integer parentKey, integer childKey, agent whichAgent returns boolean
  */
 function SaveAgentHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichAgent = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichAgent = lua_touserdata(L, 4);
   console.warn('SaveAgentHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8391,10 +8391,10 @@ function SaveAgentHandle(C: Context, L: lua_State) {
  * native SaveHashtableHandle takes hashtable table, integer parentKey, integer childKey, hashtable whichHashtable returns boolean
  */
 function SaveHashtableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
-  let whichHashtable = lua_touserdata(L, 4);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
+  const whichHashtable = lua_touserdata(L, 4);
   console.warn('SaveHashtableHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8404,9 +8404,9 @@ function SaveHashtableHandle(C: Context, L: lua_State) {
  * native LoadInteger takes hashtable table, integer parentKey, integer childKey returns integer
  */
 function LoadInteger(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadInteger was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -8416,9 +8416,9 @@ function LoadInteger(C: Context, L: lua_State) {
  * native LoadReal takes hashtable table, integer parentKey, integer childKey returns real
  */
 function LoadReal(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadReal was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -8428,9 +8428,9 @@ function LoadReal(C: Context, L: lua_State) {
  * native LoadBoolean takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function LoadBoolean(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadBoolean was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8440,9 +8440,9 @@ function LoadBoolean(C: Context, L: lua_State) {
  * native LoadStr takes hashtable table, integer parentKey, integer childKey returns string
  */
 function LoadStr(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadStr was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -8452,9 +8452,9 @@ function LoadStr(C: Context, L: lua_State) {
  * native LoadPlayerHandle takes hashtable table, integer parentKey, integer childKey returns player
  */
 function LoadPlayerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadPlayerHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8464,9 +8464,9 @@ function LoadPlayerHandle(C: Context, L: lua_State) {
  * native LoadWidgetHandle takes hashtable table, integer parentKey, integer childKey returns widget
  */
 function LoadWidgetHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadWidgetHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8476,9 +8476,9 @@ function LoadWidgetHandle(C: Context, L: lua_State) {
  * native LoadDestructableHandle takes hashtable table, integer parentKey, integer childKey returns destructable
  */
 function LoadDestructableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadDestructableHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8488,9 +8488,9 @@ function LoadDestructableHandle(C: Context, L: lua_State) {
  * native LoadItemHandle takes hashtable table, integer parentKey, integer childKey returns item
  */
 function LoadItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadItemHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8500,9 +8500,9 @@ function LoadItemHandle(C: Context, L: lua_State) {
  * native LoadUnitHandle takes hashtable table, integer parentKey, integer childKey returns unit
  */
 function LoadUnitHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadUnitHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8512,9 +8512,9 @@ function LoadUnitHandle(C: Context, L: lua_State) {
  * native LoadAbilityHandle takes hashtable table, integer parentKey, integer childKey returns ability
  */
 function LoadAbilityHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadAbilityHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8524,9 +8524,9 @@ function LoadAbilityHandle(C: Context, L: lua_State) {
  * native LoadTimerHandle takes hashtable table, integer parentKey, integer childKey returns timer
  */
 function LoadTimerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTimerHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8536,9 +8536,9 @@ function LoadTimerHandle(C: Context, L: lua_State) {
  * native LoadTriggerHandle takes hashtable table, integer parentKey, integer childKey returns trigger
  */
 function LoadTriggerHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTriggerHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8548,9 +8548,9 @@ function LoadTriggerHandle(C: Context, L: lua_State) {
  * native LoadTriggerConditionHandle takes hashtable table, integer parentKey, integer childKey returns triggercondition
  */
 function LoadTriggerConditionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTriggerConditionHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8560,9 +8560,9 @@ function LoadTriggerConditionHandle(C: Context, L: lua_State) {
  * native LoadTriggerActionHandle takes hashtable table, integer parentKey, integer childKey returns triggeraction
  */
 function LoadTriggerActionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTriggerActionHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8572,9 +8572,9 @@ function LoadTriggerActionHandle(C: Context, L: lua_State) {
  * native LoadTriggerEventHandle takes hashtable table, integer parentKey, integer childKey returns event
  */
 function LoadTriggerEventHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTriggerEventHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8584,9 +8584,9 @@ function LoadTriggerEventHandle(C: Context, L: lua_State) {
  * native LoadForceHandle takes hashtable table, integer parentKey, integer childKey returns force
  */
 function LoadForceHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadForceHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8596,9 +8596,9 @@ function LoadForceHandle(C: Context, L: lua_State) {
  * native LoadGroupHandle takes hashtable table, integer parentKey, integer childKey returns group
  */
 function LoadGroupHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadGroupHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8608,9 +8608,9 @@ function LoadGroupHandle(C: Context, L: lua_State) {
  * native LoadLocationHandle takes hashtable table, integer parentKey, integer childKey returns location
  */
 function LoadLocationHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadLocationHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8620,9 +8620,9 @@ function LoadLocationHandle(C: Context, L: lua_State) {
  * native LoadRectHandle takes hashtable table, integer parentKey, integer childKey returns rect
  */
 function LoadRectHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadRectHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8632,9 +8632,9 @@ function LoadRectHandle(C: Context, L: lua_State) {
  * native LoadBooleanExprHandle takes hashtable table, integer parentKey, integer childKey returns boolexpr
  */
 function LoadBooleanExprHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadBooleanExprHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8644,9 +8644,9 @@ function LoadBooleanExprHandle(C: Context, L: lua_State) {
  * native LoadSoundHandle takes hashtable table, integer parentKey, integer childKey returns sound
  */
 function LoadSoundHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadSoundHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8656,9 +8656,9 @@ function LoadSoundHandle(C: Context, L: lua_State) {
  * native LoadEffectHandle takes hashtable table, integer parentKey, integer childKey returns effect
  */
 function LoadEffectHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadEffectHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8668,9 +8668,9 @@ function LoadEffectHandle(C: Context, L: lua_State) {
  * native LoadUnitPoolHandle takes hashtable table, integer parentKey, integer childKey returns unitpool
  */
 function LoadUnitPoolHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadUnitPoolHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8680,9 +8680,9 @@ function LoadUnitPoolHandle(C: Context, L: lua_State) {
  * native LoadItemPoolHandle takes hashtable table, integer parentKey, integer childKey returns itempool
  */
 function LoadItemPoolHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadItemPoolHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8692,9 +8692,9 @@ function LoadItemPoolHandle(C: Context, L: lua_State) {
  * native LoadQuestHandle takes hashtable table, integer parentKey, integer childKey returns quest
  */
 function LoadQuestHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadQuestHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8704,9 +8704,9 @@ function LoadQuestHandle(C: Context, L: lua_State) {
  * native LoadQuestItemHandle takes hashtable table, integer parentKey, integer childKey returns questitem
  */
 function LoadQuestItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadQuestItemHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8716,9 +8716,9 @@ function LoadQuestItemHandle(C: Context, L: lua_State) {
  * native LoadDefeatConditionHandle takes hashtable table, integer parentKey, integer childKey returns defeatcondition
  */
 function LoadDefeatConditionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadDefeatConditionHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8728,9 +8728,9 @@ function LoadDefeatConditionHandle(C: Context, L: lua_State) {
  * native LoadTimerDialogHandle takes hashtable table, integer parentKey, integer childKey returns timerdialog
  */
 function LoadTimerDialogHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTimerDialogHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8740,9 +8740,9 @@ function LoadTimerDialogHandle(C: Context, L: lua_State) {
  * native LoadLeaderboardHandle takes hashtable table, integer parentKey, integer childKey returns leaderboard
  */
 function LoadLeaderboardHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadLeaderboardHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8752,9 +8752,9 @@ function LoadLeaderboardHandle(C: Context, L: lua_State) {
  * native LoadMultiboardHandle takes hashtable table, integer parentKey, integer childKey returns multiboard
  */
 function LoadMultiboardHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadMultiboardHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8764,9 +8764,9 @@ function LoadMultiboardHandle(C: Context, L: lua_State) {
  * native LoadMultiboardItemHandle takes hashtable table, integer parentKey, integer childKey returns multiboarditem
  */
 function LoadMultiboardItemHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadMultiboardItemHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8776,9 +8776,9 @@ function LoadMultiboardItemHandle(C: Context, L: lua_State) {
  * native LoadTrackableHandle takes hashtable table, integer parentKey, integer childKey returns trackable
  */
 function LoadTrackableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTrackableHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8788,9 +8788,9 @@ function LoadTrackableHandle(C: Context, L: lua_State) {
  * native LoadDialogHandle takes hashtable table, integer parentKey, integer childKey returns dialog
  */
 function LoadDialogHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadDialogHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8800,9 +8800,9 @@ function LoadDialogHandle(C: Context, L: lua_State) {
  * native LoadButtonHandle takes hashtable table, integer parentKey, integer childKey returns button
  */
 function LoadButtonHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadButtonHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8812,9 +8812,9 @@ function LoadButtonHandle(C: Context, L: lua_State) {
  * native LoadTextTagHandle takes hashtable table, integer parentKey, integer childKey returns texttag
  */
 function LoadTextTagHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadTextTagHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8824,9 +8824,9 @@ function LoadTextTagHandle(C: Context, L: lua_State) {
  * native LoadLightningHandle takes hashtable table, integer parentKey, integer childKey returns lightning
  */
 function LoadLightningHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadLightningHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8836,9 +8836,9 @@ function LoadLightningHandle(C: Context, L: lua_State) {
  * native LoadImageHandle takes hashtable table, integer parentKey, integer childKey returns image
  */
 function LoadImageHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadImageHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8848,9 +8848,9 @@ function LoadImageHandle(C: Context, L: lua_State) {
  * native LoadUbersplatHandle takes hashtable table, integer parentKey, integer childKey returns ubersplat
  */
 function LoadUbersplatHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadUbersplatHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8860,9 +8860,9 @@ function LoadUbersplatHandle(C: Context, L: lua_State) {
  * native LoadRegionHandle takes hashtable table, integer parentKey, integer childKey returns region
  */
 function LoadRegionHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadRegionHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8872,9 +8872,9 @@ function LoadRegionHandle(C: Context, L: lua_State) {
  * native LoadFogStateHandle takes hashtable table, integer parentKey, integer childKey returns fogstate
  */
 function LoadFogStateHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadFogStateHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8884,9 +8884,9 @@ function LoadFogStateHandle(C: Context, L: lua_State) {
  * native LoadFogModifierHandle takes hashtable table, integer parentKey, integer childKey returns fogmodifier
  */
 function LoadFogModifierHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadFogModifierHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8896,9 +8896,9 @@ function LoadFogModifierHandle(C: Context, L: lua_State) {
  * native LoadHashtableHandle takes hashtable table, integer parentKey, integer childKey returns hashtable
  */
 function LoadHashtableHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('LoadHashtableHandle was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -8908,9 +8908,9 @@ function LoadHashtableHandle(C: Context, L: lua_State) {
  * native HaveSavedInteger takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function HaveSavedInteger(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('HaveSavedInteger was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8920,9 +8920,9 @@ function HaveSavedInteger(C: Context, L: lua_State) {
  * native HaveSavedReal takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function HaveSavedReal(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('HaveSavedReal was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8932,9 +8932,9 @@ function HaveSavedReal(C: Context, L: lua_State) {
  * native HaveSavedBoolean takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function HaveSavedBoolean(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('HaveSavedBoolean was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8944,9 +8944,9 @@ function HaveSavedBoolean(C: Context, L: lua_State) {
  * native HaveSavedString takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function HaveSavedString(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('HaveSavedString was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8956,9 +8956,9 @@ function HaveSavedString(C: Context, L: lua_State) {
  * native HaveSavedHandle takes hashtable table, integer parentKey, integer childKey returns boolean
  */
 function HaveSavedHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('HaveSavedHandle was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -8968,82 +8968,82 @@ function HaveSavedHandle(C: Context, L: lua_State) {
  * native RemoveSavedInteger takes hashtable table, integer parentKey, integer childKey returns nothing
  */
 function RemoveSavedInteger(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('RemoveSavedInteger was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveSavedReal takes hashtable table, integer parentKey, integer childKey returns nothing
  */
 function RemoveSavedReal(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('RemoveSavedReal was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveSavedBoolean takes hashtable table, integer parentKey, integer childKey returns nothing
  */
 function RemoveSavedBoolean(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('RemoveSavedBoolean was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveSavedString takes hashtable table, integer parentKey, integer childKey returns nothing
  */
 function RemoveSavedString(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('RemoveSavedString was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveSavedHandle takes hashtable table, integer parentKey, integer childKey returns nothing
  */
 function RemoveSavedHandle(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
-  let childKey = luaL_checkinteger(L, 3);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
+  const childKey = luaL_checkinteger(L, 3);
   console.warn('RemoveSavedHandle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushParentHashtable takes hashtable table returns nothing
  */
 function FlushParentHashtable(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
+  const table = lua_touserdata(L, 1);
   console.warn('FlushParentHashtable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FlushChildHashtable takes hashtable table, integer parentKey returns nothing
  */
 function FlushChildHashtable(C: Context, L: lua_State) {
-  let table = lua_touserdata(L, 1);
-  let parentKey = luaL_checkinteger(L, 2);
+  const table = lua_touserdata(L, 1);
+  const parentKey = luaL_checkinteger(L, 2);
   console.warn('FlushChildHashtable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetRandomInt takes integer lowBound, integer highBound returns integer
  */
 function GetRandomInt(C: Context, L: lua_State) {
-  let lowBound = luaL_checkinteger(L, 1);
-  let highBound = luaL_checkinteger(L, 2);
+  const lowBound = luaL_checkinteger(L, 1);
+  const highBound = luaL_checkinteger(L, 2);
   console.warn('GetRandomInt was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -9053,8 +9053,8 @@ function GetRandomInt(C: Context, L: lua_State) {
  * native GetRandomReal takes real lowBound, real highBound returns real
  */
 function GetRandomReal(C: Context, L: lua_State) {
-  let lowBound = luaL_checknumber(L, 1);
-  let highBound = luaL_checknumber(L, 2);
+  const lowBound = luaL_checknumber(L, 1);
+  const highBound = luaL_checknumber(L, 2);
   console.warn('GetRandomReal was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -9074,41 +9074,41 @@ function CreateUnitPool(C: Context, L: lua_State) {
  * native DestroyUnitPool takes unitpool whichPool returns nothing
  */
 function DestroyUnitPool(C: Context, L: lua_State) {
-  let whichPool = lua_touserdata(L, 1);
+  const whichPool = lua_touserdata(L, 1);
   console.warn('DestroyUnitPool was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitPoolAddUnitType takes unitpool whichPool, integer unitId, real weight returns nothing
  */
 function UnitPoolAddUnitType(C: Context, L: lua_State) {
-  let whichPool = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
-  let weight = luaL_checknumber(L, 3);
+  const whichPool = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
+  const weight = luaL_checknumber(L, 3);
   console.warn('UnitPoolAddUnitType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitPoolRemoveUnitType takes unitpool whichPool, integer unitId returns nothing
  */
 function UnitPoolRemoveUnitType(C: Context, L: lua_State) {
-  let whichPool = lua_touserdata(L, 1);
-  let unitId = luaL_checkinteger(L, 2);
+  const whichPool = lua_touserdata(L, 1);
+  const unitId = luaL_checkinteger(L, 2);
   console.warn('UnitPoolRemoveUnitType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlaceRandomUnit takes unitpool whichPool, player forWhichPlayer, real x, real y, real facing returns unit
  */
 function PlaceRandomUnit(C: Context, L: lua_State) {
-  let whichPool = lua_touserdata(L, 1);
-  let forWhichPlayer = lua_touserdata(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
-  let facing = luaL_checknumber(L, 5);
+  const whichPool = lua_touserdata(L, 1);
+  const forWhichPlayer = lua_touserdata(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
+  const facing = luaL_checknumber(L, 5);
   console.warn('PlaceRandomUnit was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -9128,39 +9128,39 @@ function CreateItemPool(C: Context, L: lua_State) {
  * native DestroyItemPool takes itempool whichItemPool returns nothing
  */
 function DestroyItemPool(C: Context, L: lua_State) {
-  let whichItemPool = lua_touserdata(L, 1);
+  const whichItemPool = lua_touserdata(L, 1);
   console.warn('DestroyItemPool was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ItemPoolAddItemType takes itempool whichItemPool, integer itemId, real weight returns nothing
  */
 function ItemPoolAddItemType(C: Context, L: lua_State) {
-  let whichItemPool = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
-  let weight = luaL_checknumber(L, 3);
+  const whichItemPool = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
+  const weight = luaL_checknumber(L, 3);
   console.warn('ItemPoolAddItemType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ItemPoolRemoveItemType takes itempool whichItemPool, integer itemId returns nothing
  */
 function ItemPoolRemoveItemType(C: Context, L: lua_State) {
-  let whichItemPool = lua_touserdata(L, 1);
-  let itemId = luaL_checkinteger(L, 2);
+  const whichItemPool = lua_touserdata(L, 1);
+  const itemId = luaL_checkinteger(L, 2);
   console.warn('ItemPoolRemoveItemType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlaceRandomItem takes itempool whichItemPool, real x, real y returns item
  */
 function PlaceRandomItem(C: Context, L: lua_State) {
-  let whichItemPool = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const whichItemPool = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('PlaceRandomItem was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -9170,7 +9170,7 @@ function PlaceRandomItem(C: Context, L: lua_State) {
  * native ChooseRandomCreep takes integer level returns integer
  */
 function ChooseRandomCreep(C: Context, L: lua_State) {
-  let level = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 1);
   console.warn('ChooseRandomCreep was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -9190,7 +9190,7 @@ function ChooseRandomNPBuilding(C: Context, L: lua_State) {
  * native ChooseRandomItem takes integer level returns integer
  */
 function ChooseRandomItem(C: Context, L: lua_State) {
-  let level = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 1);
   console.warn('ChooseRandomItem was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -9200,8 +9200,8 @@ function ChooseRandomItem(C: Context, L: lua_State) {
  * native ChooseRandomItemEx takes itemtype whichType, integer level returns integer
  */
 function ChooseRandomItemEx(C: Context, L: lua_State) {
-  let whichType = lua_touserdata(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const whichType = lua_touserdata(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('ChooseRandomItemEx was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -9211,22 +9211,22 @@ function ChooseRandomItemEx(C: Context, L: lua_State) {
  * native SetRandomSeed takes integer seed returns nothing
  */
 function SetRandomSeed(C: Context, L: lua_State) {
-  let seed = luaL_checkinteger(L, 1);
+  const seed = luaL_checkinteger(L, 1);
   console.warn('SetRandomSeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTerrainFog takes real a, real b, real c, real d, real e returns nothing
  */
 function SetTerrainFog(C: Context, L: lua_State) {
-  let a = luaL_checknumber(L, 1);
-  let b = luaL_checknumber(L, 2);
-  let c = luaL_checknumber(L, 3);
-  let d = luaL_checknumber(L, 4);
-  let e = luaL_checknumber(L, 5);
+  const a = luaL_checknumber(L, 1);
+  const b = luaL_checknumber(L, 2);
+  const c = luaL_checknumber(L, 3);
+  const d = luaL_checknumber(L, 4);
+  const e = luaL_checknumber(L, 5);
   console.warn('SetTerrainFog was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9235,73 +9235,73 @@ function SetTerrainFog(C: Context, L: lua_State) {
 function ResetTerrainFog(C: Context, L: lua_State) {
 
   console.warn('ResetTerrainFog was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUnitFog takes real a, real b, real c, real d, real e returns nothing
  */
 function SetUnitFog(C: Context, L: lua_State) {
-  let a = luaL_checknumber(L, 1);
-  let b = luaL_checknumber(L, 2);
-  let c = luaL_checknumber(L, 3);
-  let d = luaL_checknumber(L, 4);
-  let e = luaL_checknumber(L, 5);
+  const a = luaL_checknumber(L, 1);
+  const b = luaL_checknumber(L, 2);
+  const c = luaL_checknumber(L, 3);
+  const d = luaL_checknumber(L, 4);
+  const e = luaL_checknumber(L, 5);
   console.warn('SetUnitFog was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTerrainFogEx takes integer style, real zstart, real zend, real density, real red, real green, real blue returns nothing
  */
 function SetTerrainFogEx(C: Context, L: lua_State) {
-  let style = luaL_checkinteger(L, 1);
-  let zstart = luaL_checknumber(L, 2);
-  let zend = luaL_checknumber(L, 3);
-  let density = luaL_checknumber(L, 4);
-  let red = luaL_checknumber(L, 5);
-  let green = luaL_checknumber(L, 6);
-  let blue = luaL_checknumber(L, 7);
+  const style = luaL_checkinteger(L, 1);
+  const zstart = luaL_checknumber(L, 2);
+  const zend = luaL_checknumber(L, 3);
+  const density = luaL_checknumber(L, 4);
+  const red = luaL_checknumber(L, 5);
+  const green = luaL_checknumber(L, 6);
+  const blue = luaL_checknumber(L, 7);
   console.warn('SetTerrainFogEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisplayTextToPlayer takes player toPlayer, real x, real y, string message returns nothing
  */
 function DisplayTextToPlayer(C: Context, L: lua_State) {
-  let toPlayer = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let message = luaL_checkstring(L, 4);
+  const toPlayer = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const message = luaL_checkstring(L, 4);
   console.warn('DisplayTextToPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisplayTimedTextToPlayer takes player toPlayer, real x, real y, real duration, string message returns nothing
  */
 function DisplayTimedTextToPlayer(C: Context, L: lua_State) {
-  let toPlayer = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
-  let message = luaL_checkstring(L, 5);
+  const toPlayer = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
+  const message = luaL_checkstring(L, 5);
   console.warn('DisplayTimedTextToPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisplayTimedTextFromPlayer takes player toPlayer, real x, real y, real duration, string message returns nothing
  */
 function DisplayTimedTextFromPlayer(C: Context, L: lua_State) {
-  let toPlayer = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
-  let message = luaL_checkstring(L, 5);
+  const toPlayer = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
+  const message = luaL_checkstring(L, 5);
   console.warn('DisplayTimedTextFromPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9310,62 +9310,62 @@ function DisplayTimedTextFromPlayer(C: Context, L: lua_State) {
 function ClearTextMessages(C: Context, L: lua_State) {
 
   console.warn('ClearTextMessages was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetDayNightModels takes string terrainDNCFile, string unitDNCFile returns nothing
  */
 function SetDayNightModels(C: Context, L: lua_State) {
-  let terrainDNCFile = luaL_checkstring(L, 1);
-  let unitDNCFile = luaL_checkstring(L, 2);
+  const terrainDNCFile = luaL_checkstring(L, 1);
+  const unitDNCFile = luaL_checkstring(L, 2);
   console.warn('SetDayNightModels was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSkyModel takes string skyModelFile returns nothing
  */
 function SetSkyModel(C: Context, L: lua_State) {
-  let skyModelFile = luaL_checkstring(L, 1);
+  const skyModelFile = luaL_checkstring(L, 1);
   console.warn('SetSkyModel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableUserControl takes boolean b returns nothing
  */
 function EnableUserControl(C: Context, L: lua_State) {
-  let b = lua_toboolean(L, 1);
+  const b = lua_toboolean(L, 1);
   console.warn('EnableUserControl was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableUserUI takes boolean b returns nothing
  */
 function EnableUserUI(C: Context, L: lua_State) {
-  let b = lua_toboolean(L, 1);
+  const b = lua_toboolean(L, 1);
   console.warn('EnableUserUI was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SuspendTimeOfDay takes boolean b returns nothing
  */
 function SuspendTimeOfDay(C: Context, L: lua_State) {
-  let b = lua_toboolean(L, 1);
+  const b = lua_toboolean(L, 1);
   console.warn('SuspendTimeOfDay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTimeOfDayScale takes real r returns nothing
  */
 function SetTimeOfDayScale(C: Context, L: lua_State) {
-  let r = luaL_checknumber(L, 1);
+  const r = luaL_checknumber(L, 1);
   console.warn('SetTimeOfDayScale was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9382,134 +9382,134 @@ function GetTimeOfDayScale(C: Context, L: lua_State) {
  * native ShowInterface takes boolean flag, real fadeDuration returns nothing
  */
 function ShowInterface(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
-  let fadeDuration = luaL_checknumber(L, 2);
+  const flag = lua_toboolean(L, 1);
+  const fadeDuration = luaL_checknumber(L, 2);
   console.warn('ShowInterface was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PauseGame takes boolean flag returns nothing
  */
 function PauseGame(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('PauseGame was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnitAddIndicator takes unit whichUnit, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function UnitAddIndicator(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichUnit = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('UnitAddIndicator was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddIndicator takes widget whichWidget, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function AddIndicator(C: Context, L: lua_State) {
-  let whichWidget = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichWidget = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('AddIndicator was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PingMinimap takes real x, real y, real duration returns nothing
  */
 function PingMinimap(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('PingMinimap was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PingMinimapEx takes real x, real y, real duration, integer red, integer green, integer blue, boolean extraEffects returns nothing
  */
 function PingMinimapEx(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
-  let red = luaL_checkinteger(L, 4);
-  let green = luaL_checkinteger(L, 5);
-  let blue = luaL_checkinteger(L, 6);
-  let extraEffects = lua_toboolean(L, 7);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
+  const red = luaL_checkinteger(L, 4);
+  const green = luaL_checkinteger(L, 5);
+  const blue = luaL_checkinteger(L, 6);
+  const extraEffects = lua_toboolean(L, 7);
   console.warn('PingMinimapEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableOcclusion takes boolean flag returns nothing
  */
 function EnableOcclusion(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('EnableOcclusion was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetIntroShotText takes string introText returns nothing
  */
 function SetIntroShotText(C: Context, L: lua_State) {
-  let introText = luaL_checkstring(L, 1);
+  const introText = luaL_checkstring(L, 1);
   console.warn('SetIntroShotText was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetIntroShotModel takes string introModelPath returns nothing
  */
 function SetIntroShotModel(C: Context, L: lua_State) {
-  let introModelPath = luaL_checkstring(L, 1);
+  const introModelPath = luaL_checkstring(L, 1);
   console.warn('SetIntroShotModel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableWorldFogBoundary takes boolean b returns nothing
  */
 function EnableWorldFogBoundary(C: Context, L: lua_State) {
-  let b = lua_toboolean(L, 1);
+  const b = lua_toboolean(L, 1);
   console.warn('EnableWorldFogBoundary was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayModelCinematic takes string modelName returns nothing
  */
 function PlayModelCinematic(C: Context, L: lua_State) {
-  let modelName = luaL_checkstring(L, 1);
+  const modelName = luaL_checkstring(L, 1);
   console.warn('PlayModelCinematic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayCinematic takes string movieName returns nothing
  */
 function PlayCinematic(C: Context, L: lua_State) {
-  let movieName = luaL_checkstring(L, 1);
+  const movieName = luaL_checkstring(L, 1);
   console.warn('PlayCinematic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForceUIKey takes string key returns nothing
  */
 function ForceUIKey(C: Context, L: lua_State) {
-  let key = luaL_checkstring(L, 1);
+  const key = luaL_checkstring(L, 1);
   console.warn('ForceUIKey was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9518,7 +9518,7 @@ function ForceUIKey(C: Context, L: lua_State) {
 function ForceUICancel(C: Context, L: lua_State) {
 
   console.warn('ForceUICancel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9527,25 +9527,25 @@ function ForceUICancel(C: Context, L: lua_State) {
 function DisplayLoadDialog(C: Context, L: lua_State) {
 
   console.warn('DisplayLoadDialog was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetAltMinimapIcon takes string iconPath returns nothing
  */
 function SetAltMinimapIcon(C: Context, L: lua_State) {
-  let iconPath = luaL_checkstring(L, 1);
+  const iconPath = luaL_checkstring(L, 1);
   console.warn('SetAltMinimapIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisableRestartMission takes boolean flag returns nothing
  */
 function DisableRestartMission(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('DisableRestartMission was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9562,136 +9562,136 @@ function CreateTextTag(C: Context, L: lua_State) {
  * native DestroyTextTag takes texttag t returns nothing
  */
 function DestroyTextTag(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
+  const t = lua_touserdata(L, 1);
   console.warn('DestroyTextTag was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagText takes texttag t, string s, real height returns nothing
  */
 function SetTextTagText(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let s = luaL_checkstring(L, 2);
-  let height = luaL_checknumber(L, 3);
+  const t = lua_touserdata(L, 1);
+  const s = luaL_checkstring(L, 2);
+  const height = luaL_checknumber(L, 3);
   console.warn('SetTextTagText was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagPos takes texttag t, real x, real y, real heightOffset returns nothing
  */
 function SetTextTagPos(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let heightOffset = luaL_checknumber(L, 4);
+  const t = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const heightOffset = luaL_checknumber(L, 4);
   console.warn('SetTextTagPos was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagPosUnit takes texttag t, unit whichUnit, real heightOffset returns nothing
  */
 function SetTextTagPosUnit(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
-  let heightOffset = luaL_checknumber(L, 3);
+  const t = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
+  const heightOffset = luaL_checknumber(L, 3);
   console.warn('SetTextTagPosUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagColor takes texttag t, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetTextTagColor(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const t = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('SetTextTagColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagVelocity takes texttag t, real xvel, real yvel returns nothing
  */
 function SetTextTagVelocity(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let xvel = luaL_checknumber(L, 2);
-  let yvel = luaL_checknumber(L, 3);
+  const t = lua_touserdata(L, 1);
+  const xvel = luaL_checknumber(L, 2);
+  const yvel = luaL_checknumber(L, 3);
   console.warn('SetTextTagVelocity was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagVisibility takes texttag t, boolean flag returns nothing
  */
 function SetTextTagVisibility(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const t = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetTextTagVisibility was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagSuspended takes texttag t, boolean flag returns nothing
  */
 function SetTextTagSuspended(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const t = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetTextTagSuspended was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagPermanent takes texttag t, boolean flag returns nothing
  */
 function SetTextTagPermanent(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const t = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetTextTagPermanent was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagAge takes texttag t, real age returns nothing
  */
 function SetTextTagAge(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let age = luaL_checknumber(L, 2);
+  const t = lua_touserdata(L, 1);
+  const age = luaL_checknumber(L, 2);
   console.warn('SetTextTagAge was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagLifespan takes texttag t, real lifespan returns nothing
  */
 function SetTextTagLifespan(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let lifespan = luaL_checknumber(L, 2);
+  const t = lua_touserdata(L, 1);
+  const lifespan = luaL_checknumber(L, 2);
   console.warn('SetTextTagLifespan was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetTextTagFadepoint takes texttag t, real fadepoint returns nothing
  */
 function SetTextTagFadepoint(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
-  let fadepoint = luaL_checknumber(L, 2);
+  const t = lua_touserdata(L, 1);
+  const fadepoint = luaL_checknumber(L, 2);
   console.warn('SetTextTagFadepoint was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetReservedLocalHeroButtons takes integer reserved returns nothing
  */
 function SetReservedLocalHeroButtons(C: Context, L: lua_State) {
-  let reserved = luaL_checkinteger(L, 1);
+  const reserved = luaL_checkinteger(L, 1);
   console.warn('SetReservedLocalHeroButtons was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9708,9 +9708,9 @@ function GetAllyColorFilterState(C: Context, L: lua_State) {
  * native SetAllyColorFilterState takes integer state returns nothing
  */
 function SetAllyColorFilterState(C: Context, L: lua_State) {
-  let state = luaL_checkinteger(L, 1);
+  const state = luaL_checkinteger(L, 1);
   console.warn('SetAllyColorFilterState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -9727,59 +9727,59 @@ function GetCreepCampFilterState(C: Context, L: lua_State) {
  * native SetCreepCampFilterState takes boolean state returns nothing
  */
 function SetCreepCampFilterState(C: Context, L: lua_State) {
-  let state = lua_toboolean(L, 1);
+  const state = lua_toboolean(L, 1);
   console.warn('SetCreepCampFilterState was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableMinimapFilterButtons takes boolean enableAlly, boolean enableCreep returns nothing
  */
 function EnableMinimapFilterButtons(C: Context, L: lua_State) {
-  let enableAlly = lua_toboolean(L, 1);
-  let enableCreep = lua_toboolean(L, 2);
+  const enableAlly = lua_toboolean(L, 1);
+  const enableCreep = lua_toboolean(L, 2);
   console.warn('EnableMinimapFilterButtons was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableDragSelect takes boolean state, boolean ui returns nothing
  */
 function EnableDragSelect(C: Context, L: lua_State) {
-  let state = lua_toboolean(L, 1);
-  let ui = lua_toboolean(L, 2);
+  const state = lua_toboolean(L, 1);
+  const ui = lua_toboolean(L, 2);
   console.warn('EnableDragSelect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnablePreSelect takes boolean state, boolean ui returns nothing
  */
 function EnablePreSelect(C: Context, L: lua_State) {
-  let state = lua_toboolean(L, 1);
-  let ui = lua_toboolean(L, 2);
+  const state = lua_toboolean(L, 1);
+  const ui = lua_toboolean(L, 2);
   console.warn('EnablePreSelect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableSelect takes boolean state, boolean ui returns nothing
  */
 function EnableSelect(C: Context, L: lua_State) {
-  let state = lua_toboolean(L, 1);
-  let ui = lua_toboolean(L, 2);
+  const state = lua_toboolean(L, 1);
+  const ui = lua_toboolean(L, 2);
   console.warn('EnableSelect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateTrackable takes string trackableModelPath, real x, real y, real facing returns trackable
  */
 function CreateTrackable(C: Context, L: lua_State) {
-  let trackableModelPath = luaL_checkstring(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let facing = luaL_checknumber(L, 4);
+  const trackableModelPath = luaL_checkstring(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const facing = luaL_checknumber(L, 4);
   console.warn('CreateTrackable was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -9799,96 +9799,96 @@ function CreateQuest(C: Context, L: lua_State) {
  * native DestroyQuest takes quest whichQuest returns nothing
  */
 function DestroyQuest(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('DestroyQuest was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetTitle takes quest whichQuest, string title returns nothing
  */
 function QuestSetTitle(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let title = luaL_checkstring(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const title = luaL_checkstring(L, 2);
   console.warn('QuestSetTitle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetDescription takes quest whichQuest, string description returns nothing
  */
 function QuestSetDescription(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let description = luaL_checkstring(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const description = luaL_checkstring(L, 2);
   console.warn('QuestSetDescription was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetIconPath takes quest whichQuest, string iconPath returns nothing
  */
 function QuestSetIconPath(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let iconPath = luaL_checkstring(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const iconPath = luaL_checkstring(L, 2);
   console.warn('QuestSetIconPath was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetRequired takes quest whichQuest, boolean required returns nothing
  */
 function QuestSetRequired(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let required = lua_toboolean(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const required = lua_toboolean(L, 2);
   console.warn('QuestSetRequired was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetCompleted takes quest whichQuest, boolean completed returns nothing
  */
 function QuestSetCompleted(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let completed = lua_toboolean(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const completed = lua_toboolean(L, 2);
   console.warn('QuestSetCompleted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetDiscovered takes quest whichQuest, boolean discovered returns nothing
  */
 function QuestSetDiscovered(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let discovered = lua_toboolean(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const discovered = lua_toboolean(L, 2);
   console.warn('QuestSetDiscovered was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetFailed takes quest whichQuest, boolean failed returns nothing
  */
 function QuestSetFailed(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let failed = lua_toboolean(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const failed = lua_toboolean(L, 2);
   console.warn('QuestSetFailed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestSetEnabled takes quest whichQuest, boolean enabled returns nothing
  */
 function QuestSetEnabled(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
-  let enabled = lua_toboolean(L, 2);
+  const whichQuest = lua_touserdata(L, 1);
+  const enabled = lua_toboolean(L, 2);
   console.warn('QuestSetEnabled was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsQuestRequired takes quest whichQuest returns boolean
  */
 function IsQuestRequired(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('IsQuestRequired was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9898,7 +9898,7 @@ function IsQuestRequired(C: Context, L: lua_State) {
  * native IsQuestCompleted takes quest whichQuest returns boolean
  */
 function IsQuestCompleted(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('IsQuestCompleted was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9908,7 +9908,7 @@ function IsQuestCompleted(C: Context, L: lua_State) {
  * native IsQuestDiscovered takes quest whichQuest returns boolean
  */
 function IsQuestDiscovered(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('IsQuestDiscovered was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9918,7 +9918,7 @@ function IsQuestDiscovered(C: Context, L: lua_State) {
  * native IsQuestFailed takes quest whichQuest returns boolean
  */
 function IsQuestFailed(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('IsQuestFailed was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9928,7 +9928,7 @@ function IsQuestFailed(C: Context, L: lua_State) {
  * native IsQuestEnabled takes quest whichQuest returns boolean
  */
 function IsQuestEnabled(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('IsQuestEnabled was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9938,7 +9938,7 @@ function IsQuestEnabled(C: Context, L: lua_State) {
  * native QuestCreateItem takes quest whichQuest returns questitem
  */
 function QuestCreateItem(C: Context, L: lua_State) {
-  let whichQuest = lua_touserdata(L, 1);
+  const whichQuest = lua_touserdata(L, 1);
   console.warn('QuestCreateItem was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -9948,27 +9948,27 @@ function QuestCreateItem(C: Context, L: lua_State) {
  * native QuestItemSetDescription takes questitem whichQuestItem, string description returns nothing
  */
 function QuestItemSetDescription(C: Context, L: lua_State) {
-  let whichQuestItem = lua_touserdata(L, 1);
-  let description = luaL_checkstring(L, 2);
+  const whichQuestItem = lua_touserdata(L, 1);
+  const description = luaL_checkstring(L, 2);
   console.warn('QuestItemSetDescription was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native QuestItemSetCompleted takes questitem whichQuestItem, boolean completed returns nothing
  */
 function QuestItemSetCompleted(C: Context, L: lua_State) {
-  let whichQuestItem = lua_touserdata(L, 1);
-  let completed = lua_toboolean(L, 2);
+  const whichQuestItem = lua_touserdata(L, 1);
+  const completed = lua_toboolean(L, 2);
   console.warn('QuestItemSetCompleted was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsQuestItemCompleted takes questitem whichQuestItem returns boolean
  */
 function IsQuestItemCompleted(C: Context, L: lua_State) {
-  let whichQuestItem = lua_touserdata(L, 1);
+  const whichQuestItem = lua_touserdata(L, 1);
   console.warn('IsQuestItemCompleted was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -9988,19 +9988,19 @@ function CreateDefeatCondition(C: Context, L: lua_State) {
  * native DestroyDefeatCondition takes defeatcondition whichCondition returns nothing
  */
 function DestroyDefeatCondition(C: Context, L: lua_State) {
-  let whichCondition = lua_touserdata(L, 1);
+  const whichCondition = lua_touserdata(L, 1);
   console.warn('DestroyDefeatCondition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DefeatConditionSetDescription takes defeatcondition whichCondition, string description returns nothing
  */
 function DefeatConditionSetDescription(C: Context, L: lua_State) {
-  let whichCondition = lua_touserdata(L, 1);
-  let description = luaL_checkstring(L, 2);
+  const whichCondition = lua_touserdata(L, 1);
+  const description = luaL_checkstring(L, 2);
   console.warn('DefeatConditionSetDescription was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10009,7 +10009,7 @@ function DefeatConditionSetDescription(C: Context, L: lua_State) {
 function FlashQuestDialogButton(C: Context, L: lua_State) {
 
   console.warn('FlashQuestDialogButton was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10018,14 +10018,14 @@ function FlashQuestDialogButton(C: Context, L: lua_State) {
 function ForceQuestDialogUpdate(C: Context, L: lua_State) {
 
   console.warn('ForceQuestDialogUpdate was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateTimerDialog takes timer t returns timerdialog
  */
 function CreateTimerDialog(C: Context, L: lua_State) {
-  let t = lua_touserdata(L, 1);
+  const t = lua_touserdata(L, 1);
   console.warn('CreateTimerDialog was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -10035,72 +10035,72 @@ function CreateTimerDialog(C: Context, L: lua_State) {
  * native DestroyTimerDialog takes timerdialog whichDialog returns nothing
  */
 function DestroyTimerDialog(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 1);
   console.warn('DestroyTimerDialog was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TimerDialogSetTitle takes timerdialog whichDialog, string title returns nothing
  */
 function TimerDialogSetTitle(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let title = luaL_checkstring(L, 2);
+  const whichDialog = lua_touserdata(L, 1);
+  const title = luaL_checkstring(L, 2);
   console.warn('TimerDialogSetTitle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TimerDialogSetTitleColor takes timerdialog whichDialog, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function TimerDialogSetTitleColor(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichDialog = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('TimerDialogSetTitleColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TimerDialogSetTimeColor takes timerdialog whichDialog, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function TimerDialogSetTimeColor(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichDialog = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('TimerDialogSetTimeColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TimerDialogSetSpeed takes timerdialog whichDialog, real speedMultFactor returns nothing
  */
 function TimerDialogSetSpeed(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let speedMultFactor = luaL_checknumber(L, 2);
+  const whichDialog = lua_touserdata(L, 1);
+  const speedMultFactor = luaL_checknumber(L, 2);
   console.warn('TimerDialogSetSpeed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TimerDialogDisplay takes timerdialog whichDialog, boolean display returns nothing
  */
 function TimerDialogDisplay(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let display = lua_toboolean(L, 2);
+  const whichDialog = lua_touserdata(L, 1);
+  const display = lua_toboolean(L, 2);
   console.warn('TimerDialogDisplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsTimerDialogDisplayed takes timerdialog whichDialog returns boolean
  */
 function IsTimerDialogDisplayed(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
+  const whichDialog = lua_touserdata(L, 1);
   console.warn('IsTimerDialogDisplayed was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -10110,10 +10110,10 @@ function IsTimerDialogDisplayed(C: Context, L: lua_State) {
  * native TimerDialogSetRealTimeRemaining takes timerdialog whichDialog, real timeRemaining returns nothing
  */
 function TimerDialogSetRealTimeRemaining(C: Context, L: lua_State) {
-  let whichDialog = lua_touserdata(L, 1);
-  let timeRemaining = luaL_checknumber(L, 2);
+  const whichDialog = lua_touserdata(L, 1);
+  const timeRemaining = luaL_checknumber(L, 2);
   console.warn('TimerDialogSetRealTimeRemaining was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10130,26 +10130,26 @@ function CreateLeaderboard(C: Context, L: lua_State) {
  * native DestroyLeaderboard takes leaderboard lb returns nothing
  */
 function DestroyLeaderboard(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('DestroyLeaderboard was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardDisplay takes leaderboard lb, boolean show returns nothing
  */
 function LeaderboardDisplay(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let show = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const show = lua_toboolean(L, 2);
   console.warn('LeaderboardDisplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsLeaderboardDisplayed takes leaderboard lb returns boolean
  */
 function IsLeaderboardDisplayed(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('IsLeaderboardDisplayed was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -10159,7 +10159,7 @@ function IsLeaderboardDisplayed(C: Context, L: lua_State) {
  * native LeaderboardGetItemCount takes leaderboard lb returns integer
  */
 function LeaderboardGetItemCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('LeaderboardGetItemCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -10169,89 +10169,89 @@ function LeaderboardGetItemCount(C: Context, L: lua_State) {
  * native LeaderboardSetSizeByItemCount takes leaderboard lb, integer count returns nothing
  */
 function LeaderboardSetSizeByItemCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let count = luaL_checkinteger(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const count = luaL_checkinteger(L, 2);
   console.warn('LeaderboardSetSizeByItemCount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardAddItem takes leaderboard lb, string label, integer value, player p returns nothing
  */
 function LeaderboardAddItem(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let label = luaL_checkstring(L, 2);
-  let value = luaL_checkinteger(L, 3);
-  let p = lua_touserdata(L, 4);
+  const lb = lua_touserdata(L, 1);
+  const label = luaL_checkstring(L, 2);
+  const value = luaL_checkinteger(L, 3);
+  const p = lua_touserdata(L, 4);
   console.warn('LeaderboardAddItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardRemoveItem takes leaderboard lb, integer index returns nothing
  */
 function LeaderboardRemoveItem(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let index = luaL_checkinteger(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const index = luaL_checkinteger(L, 2);
   console.warn('LeaderboardRemoveItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardRemovePlayerItem takes leaderboard lb, player p returns nothing
  */
 function LeaderboardRemovePlayerItem(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let p = lua_touserdata(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const p = lua_touserdata(L, 2);
   console.warn('LeaderboardRemovePlayerItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardClear takes leaderboard lb returns nothing
  */
 function LeaderboardClear(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('LeaderboardClear was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSortItemsByValue takes leaderboard lb, boolean ascending returns nothing
  */
 function LeaderboardSortItemsByValue(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let ascending = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const ascending = lua_toboolean(L, 2);
   console.warn('LeaderboardSortItemsByValue was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSortItemsByPlayer takes leaderboard lb, boolean ascending returns nothing
  */
 function LeaderboardSortItemsByPlayer(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let ascending = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const ascending = lua_toboolean(L, 2);
   console.warn('LeaderboardSortItemsByPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSortItemsByLabel takes leaderboard lb, boolean ascending returns nothing
  */
 function LeaderboardSortItemsByLabel(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let ascending = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const ascending = lua_toboolean(L, 2);
   console.warn('LeaderboardSortItemsByLabel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardHasPlayerItem takes leaderboard lb, player p returns boolean
  */
 function LeaderboardHasPlayerItem(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let p = lua_touserdata(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const p = lua_touserdata(L, 2);
   console.warn('LeaderboardHasPlayerItem was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -10261,8 +10261,8 @@ function LeaderboardHasPlayerItem(C: Context, L: lua_State) {
  * native LeaderboardGetPlayerIndex takes leaderboard lb, player p returns integer
  */
 function LeaderboardGetPlayerIndex(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let p = lua_touserdata(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const p = lua_touserdata(L, 2);
   console.warn('LeaderboardGetPlayerIndex was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -10272,17 +10272,17 @@ function LeaderboardGetPlayerIndex(C: Context, L: lua_State) {
  * native LeaderboardSetLabel takes leaderboard lb, string label returns nothing
  */
 function LeaderboardSetLabel(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let label = luaL_checkstring(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const label = luaL_checkstring(L, 2);
   console.warn('LeaderboardSetLabel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardGetLabelText takes leaderboard lb returns string
  */
 function LeaderboardGetLabelText(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('LeaderboardGetLabelText was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -10292,17 +10292,17 @@ function LeaderboardGetLabelText(C: Context, L: lua_State) {
  * native PlayerSetLeaderboard takes player toPlayer, leaderboard lb returns nothing
  */
 function PlayerSetLeaderboard(C: Context, L: lua_State) {
-  let toPlayer = lua_touserdata(L, 1);
-  let lb = lua_touserdata(L, 2);
+  const toPlayer = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 2);
   console.warn('PlayerSetLeaderboard was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayerGetLeaderboard takes player toPlayer returns leaderboard
  */
 function PlayerGetLeaderboard(C: Context, L: lua_State) {
-  let toPlayer = lua_touserdata(L, 1);
+  const toPlayer = lua_touserdata(L, 1);
   console.warn('PlayerGetLeaderboard was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -10312,102 +10312,102 @@ function PlayerGetLeaderboard(C: Context, L: lua_State) {
  * native LeaderboardSetLabelColor takes leaderboard lb, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function LeaderboardSetLabelColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('LeaderboardSetLabelColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetValueColor takes leaderboard lb, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function LeaderboardSetValueColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('LeaderboardSetValueColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetStyle takes leaderboard lb, boolean showLabel, boolean showNames, boolean showValues, boolean showIcons returns nothing
  */
 function LeaderboardSetStyle(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let showLabel = lua_toboolean(L, 2);
-  let showNames = lua_toboolean(L, 3);
-  let showValues = lua_toboolean(L, 4);
-  let showIcons = lua_toboolean(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const showLabel = lua_toboolean(L, 2);
+  const showNames = lua_toboolean(L, 3);
+  const showValues = lua_toboolean(L, 4);
+  const showIcons = lua_toboolean(L, 5);
   console.warn('LeaderboardSetStyle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetItemValue takes leaderboard lb, integer whichItem, integer val returns nothing
  */
 function LeaderboardSetItemValue(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let whichItem = luaL_checkinteger(L, 2);
-  let val = luaL_checkinteger(L, 3);
+  const lb = lua_touserdata(L, 1);
+  const whichItem = luaL_checkinteger(L, 2);
+  const val = luaL_checkinteger(L, 3);
   console.warn('LeaderboardSetItemValue was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetItemLabel takes leaderboard lb, integer whichItem, string val returns nothing
  */
 function LeaderboardSetItemLabel(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let whichItem = luaL_checkinteger(L, 2);
-  let val = luaL_checkstring(L, 3);
+  const lb = lua_touserdata(L, 1);
+  const whichItem = luaL_checkinteger(L, 2);
+  const val = luaL_checkstring(L, 3);
   console.warn('LeaderboardSetItemLabel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetItemStyle takes leaderboard lb, integer whichItem, boolean showLabel, boolean showValue, boolean showIcon returns nothing
  */
 function LeaderboardSetItemStyle(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let whichItem = luaL_checkinteger(L, 2);
-  let showLabel = lua_toboolean(L, 3);
-  let showValue = lua_toboolean(L, 4);
-  let showIcon = lua_toboolean(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const whichItem = luaL_checkinteger(L, 2);
+  const showLabel = lua_toboolean(L, 3);
+  const showValue = lua_toboolean(L, 4);
+  const showIcon = lua_toboolean(L, 5);
   console.warn('LeaderboardSetItemStyle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetItemLabelColor takes leaderboard lb, integer whichItem, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function LeaderboardSetItemLabelColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let whichItem = luaL_checkinteger(L, 2);
-  let red = luaL_checkinteger(L, 3);
-  let green = luaL_checkinteger(L, 4);
-  let blue = luaL_checkinteger(L, 5);
-  let alpha = luaL_checkinteger(L, 6);
+  const lb = lua_touserdata(L, 1);
+  const whichItem = luaL_checkinteger(L, 2);
+  const red = luaL_checkinteger(L, 3);
+  const green = luaL_checkinteger(L, 4);
+  const blue = luaL_checkinteger(L, 5);
+  const alpha = luaL_checkinteger(L, 6);
   console.warn('LeaderboardSetItemLabelColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native LeaderboardSetItemValueColor takes leaderboard lb, integer whichItem, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function LeaderboardSetItemValueColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let whichItem = luaL_checkinteger(L, 2);
-  let red = luaL_checkinteger(L, 3);
-  let green = luaL_checkinteger(L, 4);
-  let blue = luaL_checkinteger(L, 5);
-  let alpha = luaL_checkinteger(L, 6);
+  const lb = lua_touserdata(L, 1);
+  const whichItem = luaL_checkinteger(L, 2);
+  const red = luaL_checkinteger(L, 3);
+  const green = luaL_checkinteger(L, 4);
+  const blue = luaL_checkinteger(L, 5);
+  const alpha = luaL_checkinteger(L, 6);
   console.warn('LeaderboardSetItemValueColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10424,26 +10424,26 @@ function CreateMultiboard(C: Context, L: lua_State) {
  * native DestroyMultiboard takes multiboard lb returns nothing
  */
 function DestroyMultiboard(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('DestroyMultiboard was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardDisplay takes multiboard lb, boolean show returns nothing
  */
 function MultiboardDisplay(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let show = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const show = lua_toboolean(L, 2);
   console.warn('MultiboardDisplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsMultiboardDisplayed takes multiboard lb returns boolean
  */
 function IsMultiboardDisplayed(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('IsMultiboardDisplayed was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -10453,17 +10453,17 @@ function IsMultiboardDisplayed(C: Context, L: lua_State) {
  * native MultiboardMinimize takes multiboard lb, boolean minimize returns nothing
  */
 function MultiboardMinimize(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let minimize = lua_toboolean(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const minimize = lua_toboolean(L, 2);
   console.warn('MultiboardMinimize was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsMultiboardMinimized takes multiboard lb returns boolean
  */
 function IsMultiboardMinimized(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('IsMultiboardMinimized was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -10473,26 +10473,26 @@ function IsMultiboardMinimized(C: Context, L: lua_State) {
  * native MultiboardClear takes multiboard lb returns nothing
  */
 function MultiboardClear(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('MultiboardClear was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetTitleText takes multiboard lb, string label returns nothing
  */
 function MultiboardSetTitleText(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let label = luaL_checkstring(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const label = luaL_checkstring(L, 2);
   console.warn('MultiboardSetTitleText was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardGetTitleText takes multiboard lb returns string
  */
 function MultiboardGetTitleText(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('MultiboardGetTitleText was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -10502,20 +10502,20 @@ function MultiboardGetTitleText(C: Context, L: lua_State) {
  * native MultiboardSetTitleTextColor takes multiboard lb, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function MultiboardSetTitleTextColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('MultiboardSetTitleTextColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardGetRowCount takes multiboard lb returns integer
  */
 function MultiboardGetRowCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('MultiboardGetRowCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -10525,7 +10525,7 @@ function MultiboardGetRowCount(C: Context, L: lua_State) {
  * native MultiboardGetColumnCount takes multiboard lb returns integer
  */
 function MultiboardGetColumnCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
+  const lb = lua_touserdata(L, 1);
   console.warn('MultiboardGetColumnCount was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -10535,83 +10535,83 @@ function MultiboardGetColumnCount(C: Context, L: lua_State) {
  * native MultiboardSetColumnCount takes multiboard lb, integer count returns nothing
  */
 function MultiboardSetColumnCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let count = luaL_checkinteger(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const count = luaL_checkinteger(L, 2);
   console.warn('MultiboardSetColumnCount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetRowCount takes multiboard lb, integer count returns nothing
  */
 function MultiboardSetRowCount(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let count = luaL_checkinteger(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const count = luaL_checkinteger(L, 2);
   console.warn('MultiboardSetRowCount was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemsStyle takes multiboard lb, boolean showValues, boolean showIcons returns nothing
  */
 function MultiboardSetItemsStyle(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let showValues = lua_toboolean(L, 2);
-  let showIcons = lua_toboolean(L, 3);
+  const lb = lua_touserdata(L, 1);
+  const showValues = lua_toboolean(L, 2);
+  const showIcons = lua_toboolean(L, 3);
   console.warn('MultiboardSetItemsStyle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemsValue takes multiboard lb, string value returns nothing
  */
 function MultiboardSetItemsValue(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let value = luaL_checkstring(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const value = luaL_checkstring(L, 2);
   console.warn('MultiboardSetItemsValue was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemsValueColor takes multiboard lb, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function MultiboardSetItemsValueColor(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const lb = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('MultiboardSetItemsValueColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemsWidth takes multiboard lb, real width returns nothing
  */
 function MultiboardSetItemsWidth(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let width = luaL_checknumber(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const width = luaL_checknumber(L, 2);
   console.warn('MultiboardSetItemsWidth was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemsIcon takes multiboard lb, string iconPath returns nothing
  */
 function MultiboardSetItemsIcon(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let iconPath = luaL_checkstring(L, 2);
+  const lb = lua_touserdata(L, 1);
+  const iconPath = luaL_checkstring(L, 2);
   console.warn('MultiboardSetItemsIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardGetItem takes multiboard lb, integer row, integer column returns multiboarditem
  */
 function MultiboardGetItem(C: Context, L: lua_State) {
-  let lb = lua_touserdata(L, 1);
-  let row = luaL_checkinteger(L, 2);
-  let column = luaL_checkinteger(L, 3);
+  const lb = lua_touserdata(L, 1);
+  const row = luaL_checkinteger(L, 2);
+  const column = luaL_checkinteger(L, 3);
   console.warn('MultiboardGetItem was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -10621,108 +10621,108 @@ function MultiboardGetItem(C: Context, L: lua_State) {
  * native MultiboardReleaseItem takes multiboarditem mbi returns nothing
  */
 function MultiboardReleaseItem(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
+  const mbi = lua_touserdata(L, 1);
   console.warn('MultiboardReleaseItem was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemStyle takes multiboarditem mbi, boolean showValue, boolean showIcon returns nothing
  */
 function MultiboardSetItemStyle(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
-  let showValue = lua_toboolean(L, 2);
-  let showIcon = lua_toboolean(L, 3);
+  const mbi = lua_touserdata(L, 1);
+  const showValue = lua_toboolean(L, 2);
+  const showIcon = lua_toboolean(L, 3);
   console.warn('MultiboardSetItemStyle was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemValue takes multiboarditem mbi, string val returns nothing
  */
 function MultiboardSetItemValue(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
-  let val = luaL_checkstring(L, 2);
+  const mbi = lua_touserdata(L, 1);
+  const val = luaL_checkstring(L, 2);
   console.warn('MultiboardSetItemValue was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemValueColor takes multiboarditem mbi, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function MultiboardSetItemValueColor(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const mbi = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('MultiboardSetItemValueColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemWidth takes multiboarditem mbi, real width returns nothing
  */
 function MultiboardSetItemWidth(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
-  let width = luaL_checknumber(L, 2);
+  const mbi = lua_touserdata(L, 1);
+  const width = luaL_checknumber(L, 2);
   console.warn('MultiboardSetItemWidth was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSetItemIcon takes multiboarditem mbi, string iconFileName returns nothing
  */
 function MultiboardSetItemIcon(C: Context, L: lua_State) {
-  let mbi = lua_touserdata(L, 1);
-  let iconFileName = luaL_checkstring(L, 2);
+  const mbi = lua_touserdata(L, 1);
+  const iconFileName = luaL_checkstring(L, 2);
   console.warn('MultiboardSetItemIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native MultiboardSuppressDisplay takes boolean flag returns nothing
  */
 function MultiboardSuppressDisplay(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('MultiboardSuppressDisplay was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraPosition takes real x, real y returns nothing
  */
 function SetCameraPosition(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('SetCameraPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraQuickPosition takes real x, real y returns nothing
  */
 function SetCameraQuickPosition(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('SetCameraQuickPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraBounds takes real x1, real y1, real x2, real y2, real x3, real y3, real x4, real y4 returns nothing
  */
 function SetCameraBounds(C: Context, L: lua_State) {
-  let x1 = luaL_checknumber(L, 1);
-  let y1 = luaL_checknumber(L, 2);
-  let x2 = luaL_checknumber(L, 3);
-  let y2 = luaL_checknumber(L, 4);
-  let x3 = luaL_checknumber(L, 5);
-  let y3 = luaL_checknumber(L, 6);
-  let x4 = luaL_checknumber(L, 7);
-  let y4 = luaL_checknumber(L, 8);
+  const x1 = luaL_checknumber(L, 1);
+  const y1 = luaL_checknumber(L, 2);
+  const x2 = luaL_checknumber(L, 3);
+  const y2 = luaL_checknumber(L, 4);
+  const x3 = luaL_checknumber(L, 5);
+  const y3 = luaL_checknumber(L, 6);
+  const x4 = luaL_checknumber(L, 7);
+  const y4 = luaL_checknumber(L, 8);
   console.warn('SetCameraBounds was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10731,126 +10731,126 @@ function SetCameraBounds(C: Context, L: lua_State) {
 function StopCamera(C: Context, L: lua_State) {
 
   console.warn('StopCamera was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ResetToGameCamera takes real duration returns nothing
  */
 function ResetToGameCamera(C: Context, L: lua_State) {
-  let duration = luaL_checknumber(L, 1);
+  const duration = luaL_checknumber(L, 1);
   console.warn('ResetToGameCamera was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PanCameraTo takes real x, real y returns nothing
  */
 function PanCameraTo(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('PanCameraTo was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PanCameraToTimed takes real x, real y, real duration returns nothing
  */
 function PanCameraToTimed(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('PanCameraToTimed was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PanCameraToWithZ takes real x, real y, real zOffsetDest returns nothing
  */
 function PanCameraToWithZ(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let zOffsetDest = luaL_checknumber(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const zOffsetDest = luaL_checknumber(L, 3);
   console.warn('PanCameraToWithZ was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PanCameraToTimedWithZ takes real x, real y, real zOffsetDest, real duration returns nothing
  */
 function PanCameraToTimedWithZ(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let zOffsetDest = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const zOffsetDest = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
   console.warn('PanCameraToTimedWithZ was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCinematicCamera takes string cameraModelFile returns nothing
  */
 function SetCinematicCamera(C: Context, L: lua_State) {
-  let cameraModelFile = luaL_checkstring(L, 1);
+  const cameraModelFile = luaL_checkstring(L, 1);
   console.warn('SetCinematicCamera was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraRotateMode takes real x, real y, real radiansToSweep, real duration returns nothing
  */
 function SetCameraRotateMode(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let radiansToSweep = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const radiansToSweep = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
   console.warn('SetCameraRotateMode was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraField takes camerafield whichField, real value, real duration returns nothing
  */
 function SetCameraField(C: Context, L: lua_State) {
-  let whichField = lua_touserdata(L, 1);
-  let value = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const whichField = lua_touserdata(L, 1);
+  const value = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('SetCameraField was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AdjustCameraField takes camerafield whichField, real offset, real duration returns nothing
  */
 function AdjustCameraField(C: Context, L: lua_State) {
-  let whichField = lua_touserdata(L, 1);
-  let offset = luaL_checknumber(L, 2);
-  let duration = luaL_checknumber(L, 3);
+  const whichField = lua_touserdata(L, 1);
+  const offset = luaL_checknumber(L, 2);
+  const duration = luaL_checknumber(L, 3);
   console.warn('AdjustCameraField was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraTargetController takes unit whichUnit, real xoffset, real yoffset, boolean inheritOrientation returns nothing
  */
 function SetCameraTargetController(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let xoffset = luaL_checknumber(L, 2);
-  let yoffset = luaL_checknumber(L, 3);
-  let inheritOrientation = lua_toboolean(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const xoffset = luaL_checknumber(L, 2);
+  const yoffset = luaL_checknumber(L, 3);
+  const inheritOrientation = lua_toboolean(L, 4);
   console.warn('SetCameraTargetController was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCameraOrientController takes unit whichUnit, real xoffset, real yoffset returns nothing
  */
 function SetCameraOrientController(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let xoffset = luaL_checknumber(L, 2);
-  let yoffset = luaL_checknumber(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const xoffset = luaL_checknumber(L, 2);
+  const yoffset = luaL_checknumber(L, 3);
   console.warn('SetCameraOrientController was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -10867,20 +10867,20 @@ function CreateCameraSetup(C: Context, L: lua_State) {
  * native CameraSetupSetField takes camerasetup whichSetup, camerafield whichField, real value, real duration returns nothing
  */
 function CameraSetupSetField(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let whichField = lua_touserdata(L, 2);
-  let value = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
+  const whichSetup = lua_touserdata(L, 1);
+  const whichField = lua_touserdata(L, 2);
+  const value = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
   console.warn('CameraSetupSetField was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetupGetField takes camerasetup whichSetup, camerafield whichField returns real
  */
 function CameraSetupGetField(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let whichField = lua_touserdata(L, 2);
+  const whichSetup = lua_touserdata(L, 1);
+  const whichField = lua_touserdata(L, 2);
   console.warn('CameraSetupGetField was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -10890,19 +10890,19 @@ function CameraSetupGetField(C: Context, L: lua_State) {
  * native CameraSetupSetDestPosition takes camerasetup whichSetup, real x, real y, real duration returns nothing
  */
 function CameraSetupSetDestPosition(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let duration = luaL_checknumber(L, 4);
+  const whichSetup = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const duration = luaL_checknumber(L, 4);
   console.warn('CameraSetupSetDestPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetupGetDestPositionLoc takes camerasetup whichSetup returns location
  */
 function CameraSetupGetDestPositionLoc(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
+  const whichSetup = lua_touserdata(L, 1);
   console.warn('CameraSetupGetDestPositionLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -10912,7 +10912,7 @@ function CameraSetupGetDestPositionLoc(C: Context, L: lua_State) {
  * native CameraSetupGetDestPositionX takes camerasetup whichSetup returns real
  */
 function CameraSetupGetDestPositionX(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
+  const whichSetup = lua_touserdata(L, 1);
   console.warn('CameraSetupGetDestPositionX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -10922,7 +10922,7 @@ function CameraSetupGetDestPositionX(C: Context, L: lua_State) {
  * native CameraSetupGetDestPositionY takes camerasetup whichSetup returns real
  */
 function CameraSetupGetDestPositionY(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
+  const whichSetup = lua_touserdata(L, 1);
   console.warn('CameraSetupGetDestPositionY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -10932,187 +10932,187 @@ function CameraSetupGetDestPositionY(C: Context, L: lua_State) {
  * native CameraSetupApply takes camerasetup whichSetup, boolean doPan, boolean panTimed returns nothing
  */
 function CameraSetupApply(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let doPan = lua_toboolean(L, 2);
-  let panTimed = lua_toboolean(L, 3);
+  const whichSetup = lua_touserdata(L, 1);
+  const doPan = lua_toboolean(L, 2);
+  const panTimed = lua_toboolean(L, 3);
   console.warn('CameraSetupApply was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetupApplyWithZ takes camerasetup whichSetup, real zDestOffset returns nothing
  */
 function CameraSetupApplyWithZ(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let zDestOffset = luaL_checknumber(L, 2);
+  const whichSetup = lua_touserdata(L, 1);
+  const zDestOffset = luaL_checknumber(L, 2);
   console.warn('CameraSetupApplyWithZ was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetupApplyForceDuration takes camerasetup whichSetup, boolean doPan, real forceDuration returns nothing
  */
 function CameraSetupApplyForceDuration(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let doPan = lua_toboolean(L, 2);
-  let forceDuration = luaL_checknumber(L, 3);
+  const whichSetup = lua_touserdata(L, 1);
+  const doPan = lua_toboolean(L, 2);
+  const forceDuration = luaL_checknumber(L, 3);
   console.warn('CameraSetupApplyForceDuration was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetupApplyForceDurationWithZ takes camerasetup whichSetup, real zDestOffset, real forceDuration returns nothing
  */
 function CameraSetupApplyForceDurationWithZ(C: Context, L: lua_State) {
-  let whichSetup = lua_touserdata(L, 1);
-  let zDestOffset = luaL_checknumber(L, 2);
-  let forceDuration = luaL_checknumber(L, 3);
+  const whichSetup = lua_touserdata(L, 1);
+  const zDestOffset = luaL_checknumber(L, 2);
+  const forceDuration = luaL_checknumber(L, 3);
   console.warn('CameraSetupApplyForceDurationWithZ was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetTargetNoise takes real mag, real velocity returns nothing
  */
 function CameraSetTargetNoise(C: Context, L: lua_State) {
-  let mag = luaL_checknumber(L, 1);
-  let velocity = luaL_checknumber(L, 2);
+  const mag = luaL_checknumber(L, 1);
+  const velocity = luaL_checknumber(L, 2);
   console.warn('CameraSetTargetNoise was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetSourceNoise takes real mag, real velocity returns nothing
  */
 function CameraSetSourceNoise(C: Context, L: lua_State) {
-  let mag = luaL_checknumber(L, 1);
-  let velocity = luaL_checknumber(L, 2);
+  const mag = luaL_checknumber(L, 1);
+  const velocity = luaL_checknumber(L, 2);
   console.warn('CameraSetSourceNoise was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetTargetNoiseEx takes real mag, real velocity, boolean vertOnly returns nothing
  */
 function CameraSetTargetNoiseEx(C: Context, L: lua_State) {
-  let mag = luaL_checknumber(L, 1);
-  let velocity = luaL_checknumber(L, 2);
-  let vertOnly = lua_toboolean(L, 3);
+  const mag = luaL_checknumber(L, 1);
+  const velocity = luaL_checknumber(L, 2);
+  const vertOnly = lua_toboolean(L, 3);
   console.warn('CameraSetTargetNoiseEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetSourceNoiseEx takes real mag, real velocity, boolean vertOnly returns nothing
  */
 function CameraSetSourceNoiseEx(C: Context, L: lua_State) {
-  let mag = luaL_checknumber(L, 1);
-  let velocity = luaL_checknumber(L, 2);
-  let vertOnly = lua_toboolean(L, 3);
+  const mag = luaL_checknumber(L, 1);
+  const velocity = luaL_checknumber(L, 2);
+  const vertOnly = lua_toboolean(L, 3);
   console.warn('CameraSetSourceNoiseEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CameraSetSmoothingFactor takes real factor returns nothing
  */
 function CameraSetSmoothingFactor(C: Context, L: lua_State) {
-  let factor = luaL_checknumber(L, 1);
+  const factor = luaL_checknumber(L, 1);
   console.warn('CameraSetSmoothingFactor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterTexture takes string filename returns nothing
  */
 function SetCineFilterTexture(C: Context, L: lua_State) {
-  let filename = luaL_checkstring(L, 1);
+  const filename = luaL_checkstring(L, 1);
   console.warn('SetCineFilterTexture was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterBlendMode takes blendmode whichMode returns nothing
  */
 function SetCineFilterBlendMode(C: Context, L: lua_State) {
-  let whichMode = lua_touserdata(L, 1);
+  const whichMode = lua_touserdata(L, 1);
   console.warn('SetCineFilterBlendMode was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterTexMapFlags takes texmapflags whichFlags returns nothing
  */
 function SetCineFilterTexMapFlags(C: Context, L: lua_State) {
-  let whichFlags = lua_touserdata(L, 1);
+  const whichFlags = lua_touserdata(L, 1);
   console.warn('SetCineFilterTexMapFlags was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterStartUV takes real minu, real minv, real maxu, real maxv returns nothing
  */
 function SetCineFilterStartUV(C: Context, L: lua_State) {
-  let minu = luaL_checknumber(L, 1);
-  let minv = luaL_checknumber(L, 2);
-  let maxu = luaL_checknumber(L, 3);
-  let maxv = luaL_checknumber(L, 4);
+  const minu = luaL_checknumber(L, 1);
+  const minv = luaL_checknumber(L, 2);
+  const maxu = luaL_checknumber(L, 3);
+  const maxv = luaL_checknumber(L, 4);
   console.warn('SetCineFilterStartUV was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterEndUV takes real minu, real minv, real maxu, real maxv returns nothing
  */
 function SetCineFilterEndUV(C: Context, L: lua_State) {
-  let minu = luaL_checknumber(L, 1);
-  let minv = luaL_checknumber(L, 2);
-  let maxu = luaL_checknumber(L, 3);
-  let maxv = luaL_checknumber(L, 4);
+  const minu = luaL_checknumber(L, 1);
+  const minv = luaL_checknumber(L, 2);
+  const maxu = luaL_checknumber(L, 3);
+  const maxv = luaL_checknumber(L, 4);
   console.warn('SetCineFilterEndUV was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterStartColor takes integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetCineFilterStartColor(C: Context, L: lua_State) {
-  let red = luaL_checkinteger(L, 1);
-  let green = luaL_checkinteger(L, 2);
-  let blue = luaL_checkinteger(L, 3);
-  let alpha = luaL_checkinteger(L, 4);
+  const red = luaL_checkinteger(L, 1);
+  const green = luaL_checkinteger(L, 2);
+  const blue = luaL_checkinteger(L, 3);
+  const alpha = luaL_checkinteger(L, 4);
   console.warn('SetCineFilterStartColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterEndColor takes integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetCineFilterEndColor(C: Context, L: lua_State) {
-  let red = luaL_checkinteger(L, 1);
-  let green = luaL_checkinteger(L, 2);
-  let blue = luaL_checkinteger(L, 3);
-  let alpha = luaL_checkinteger(L, 4);
+  const red = luaL_checkinteger(L, 1);
+  const green = luaL_checkinteger(L, 2);
+  const blue = luaL_checkinteger(L, 3);
+  const alpha = luaL_checkinteger(L, 4);
   console.warn('SetCineFilterEndColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetCineFilterDuration takes real duration returns nothing
  */
 function SetCineFilterDuration(C: Context, L: lua_State) {
-  let duration = luaL_checknumber(L, 1);
+  const duration = luaL_checknumber(L, 1);
   console.warn('SetCineFilterDuration was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native DisplayCineFilter takes boolean flag returns nothing
  */
 function DisplayCineFilter(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('DisplayCineFilter was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11129,14 +11129,14 @@ function IsCineFilterDisplayed(C: Context, L: lua_State) {
  * native SetCinematicScene takes integer portraitUnitId, playercolor color, string speakerTitle, string text, real sceneDuration, real voiceoverDuration returns nothing
  */
 function SetCinematicScene(C: Context, L: lua_State) {
-  let portraitUnitId = luaL_checkinteger(L, 1);
-  let color = lua_touserdata(L, 2);
-  let speakerTitle = luaL_checkstring(L, 3);
-  let text = luaL_checkstring(L, 4);
-  let sceneDuration = luaL_checknumber(L, 5);
-  let voiceoverDuration = luaL_checknumber(L, 6);
+  const portraitUnitId = luaL_checkinteger(L, 1);
+  const color = lua_touserdata(L, 2);
+  const speakerTitle = luaL_checkstring(L, 3);
+  const text = luaL_checkstring(L, 4);
+  const sceneDuration = luaL_checknumber(L, 5);
+  const voiceoverDuration = luaL_checknumber(L, 6);
   console.warn('SetCinematicScene was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11145,23 +11145,23 @@ function SetCinematicScene(C: Context, L: lua_State) {
 function EndCinematicScene(C: Context, L: lua_State) {
 
   console.warn('EndCinematicScene was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ForceCinematicSubtitles takes boolean flag returns nothing
  */
 function ForceCinematicSubtitles(C: Context, L: lua_State) {
-  let flag = lua_toboolean(L, 1);
+  const flag = lua_toboolean(L, 1);
   console.warn('ForceCinematicSubtitles was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetCameraMargin takes integer whichMargin returns real
  */
 function GetCameraMargin(C: Context, L: lua_State) {
-  let whichMargin = luaL_checkinteger(L, 1);
+  const whichMargin = luaL_checkinteger(L, 1);
   console.warn('GetCameraMargin was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -11211,7 +11211,7 @@ function GetCameraBoundMaxY(C: Context, L: lua_State) {
  * constant native GetCameraField takes camerafield whichField returns real
  */
 function GetCameraField(C: Context, L: lua_State) {
-  let whichField = lua_touserdata(L, 1);
+  const whichField = lua_touserdata(L, 1);
   console.warn('GetCameraField was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -11301,22 +11301,22 @@ function GetCameraEyePositionLoc(C: Context, L: lua_State) {
  * native NewSoundEnvironment takes string environmentName returns nothing
  */
 function NewSoundEnvironment(C: Context, L: lua_State) {
-  let environmentName = luaL_checkstring(L, 1);
+  const environmentName = luaL_checkstring(L, 1);
   console.warn('NewSoundEnvironment was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateSound takes string fileName, boolean looping, boolean is3D, boolean stopwhenoutofrange, integer fadeInRate, integer fadeOutRate, string eaxSetting returns sound
  */
 function CreateSound(C: Context, L: lua_State) {
-  let fileName = luaL_checkstring(L, 1);
-  let looping = lua_toboolean(L, 2);
-  let is3D = lua_toboolean(L, 3);
-  let stopwhenoutofrange = lua_toboolean(L, 4);
-  let fadeInRate = luaL_checkinteger(L, 5);
-  let fadeOutRate = luaL_checkinteger(L, 6);
-  let eaxSetting = luaL_checkstring(L, 7);
+  const fileName = luaL_checkstring(L, 1);
+  const looping = lua_toboolean(L, 2);
+  const is3D = lua_toboolean(L, 3);
+  const stopwhenoutofrange = lua_toboolean(L, 4);
+  const fadeInRate = luaL_checkinteger(L, 5);
+  const fadeOutRate = luaL_checkinteger(L, 6);
+  const eaxSetting = luaL_checkstring(L, 7);
   console.warn('CreateSound was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11326,13 +11326,13 @@ function CreateSound(C: Context, L: lua_State) {
  * native CreateSoundFilenameWithLabel takes string fileName, boolean looping, boolean is3D, boolean stopwhenoutofrange, integer fadeInRate, integer fadeOutRate, string SLKEntryName returns sound
  */
 function CreateSoundFilenameWithLabel(C: Context, L: lua_State) {
-  let fileName = luaL_checkstring(L, 1);
-  let looping = lua_toboolean(L, 2);
-  let is3D = lua_toboolean(L, 3);
-  let stopwhenoutofrange = lua_toboolean(L, 4);
-  let fadeInRate = luaL_checkinteger(L, 5);
-  let fadeOutRate = luaL_checkinteger(L, 6);
-  let SLKEntryName = luaL_checkstring(L, 7);
+  const fileName = luaL_checkstring(L, 1);
+  const looping = lua_toboolean(L, 2);
+  const is3D = lua_toboolean(L, 3);
+  const stopwhenoutofrange = lua_toboolean(L, 4);
+  const fadeInRate = luaL_checkinteger(L, 5);
+  const fadeOutRate = luaL_checkinteger(L, 6);
+  const SLKEntryName = luaL_checkstring(L, 7);
   console.warn('CreateSoundFilenameWithLabel was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11342,12 +11342,12 @@ function CreateSoundFilenameWithLabel(C: Context, L: lua_State) {
  * native CreateSoundFromLabel takes string soundLabel, boolean looping, boolean is3D, boolean stopwhenoutofrange, integer fadeInRate, integer fadeOutRate returns sound
  */
 function CreateSoundFromLabel(C: Context, L: lua_State) {
-  let soundLabel = luaL_checkstring(L, 1);
-  let looping = lua_toboolean(L, 2);
-  let is3D = lua_toboolean(L, 3);
-  let stopwhenoutofrange = lua_toboolean(L, 4);
-  let fadeInRate = luaL_checkinteger(L, 5);
-  let fadeOutRate = luaL_checkinteger(L, 6);
+  const soundLabel = luaL_checkstring(L, 1);
+  const looping = lua_toboolean(L, 2);
+  const is3D = lua_toboolean(L, 3);
+  const stopwhenoutofrange = lua_toboolean(L, 4);
+  const fadeInRate = luaL_checkinteger(L, 5);
+  const fadeOutRate = luaL_checkinteger(L, 6);
   console.warn('CreateSoundFromLabel was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11357,9 +11357,9 @@ function CreateSoundFromLabel(C: Context, L: lua_State) {
  * native CreateMIDISound takes string soundLabel, integer fadeInRate, integer fadeOutRate returns sound
  */
 function CreateMIDISound(C: Context, L: lua_State) {
-  let soundLabel = luaL_checkstring(L, 1);
-  let fadeInRate = luaL_checkinteger(L, 2);
-  let fadeOutRate = luaL_checkinteger(L, 3);
+  const soundLabel = luaL_checkstring(L, 1);
+  const fadeInRate = luaL_checkinteger(L, 2);
+  const fadeOutRate = luaL_checkinteger(L, 3);
   console.warn('CreateMIDISound was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11369,169 +11369,169 @@ function CreateMIDISound(C: Context, L: lua_State) {
  * native SetSoundParamsFromLabel takes sound soundHandle, string soundLabel returns nothing
  */
 function SetSoundParamsFromLabel(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let soundLabel = luaL_checkstring(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const soundLabel = luaL_checkstring(L, 2);
   console.warn('SetSoundParamsFromLabel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundDistanceCutoff takes sound soundHandle, real cutoff returns nothing
  */
 function SetSoundDistanceCutoff(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let cutoff = luaL_checknumber(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const cutoff = luaL_checknumber(L, 2);
   console.warn('SetSoundDistanceCutoff was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundChannel takes sound soundHandle, integer channel returns nothing
  */
 function SetSoundChannel(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let channel = luaL_checkinteger(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const channel = luaL_checkinteger(L, 2);
   console.warn('SetSoundChannel was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundVolume takes sound soundHandle, integer volume returns nothing
  */
 function SetSoundVolume(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let volume = luaL_checkinteger(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const volume = luaL_checkinteger(L, 2);
   console.warn('SetSoundVolume was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundPitch takes sound soundHandle, real pitch returns nothing
  */
 function SetSoundPitch(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let pitch = luaL_checknumber(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const pitch = luaL_checknumber(L, 2);
   console.warn('SetSoundPitch was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundPlayPosition takes sound soundHandle, integer millisecs returns nothing
  */
 function SetSoundPlayPosition(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let millisecs = luaL_checkinteger(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const millisecs = luaL_checkinteger(L, 2);
   console.warn('SetSoundPlayPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundDistances takes sound soundHandle, real minDist, real maxDist returns nothing
  */
 function SetSoundDistances(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let minDist = luaL_checknumber(L, 2);
-  let maxDist = luaL_checknumber(L, 3);
+  const soundHandle = lua_touserdata(L, 1);
+  const minDist = luaL_checknumber(L, 2);
+  const maxDist = luaL_checknumber(L, 3);
   console.warn('SetSoundDistances was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundConeAngles takes sound soundHandle, real inside, real outside, integer outsideVolume returns nothing
  */
 function SetSoundConeAngles(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let inside = luaL_checknumber(L, 2);
-  let outside = luaL_checknumber(L, 3);
-  let outsideVolume = luaL_checkinteger(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const inside = luaL_checknumber(L, 2);
+  const outside = luaL_checknumber(L, 3);
+  const outsideVolume = luaL_checkinteger(L, 4);
   console.warn('SetSoundConeAngles was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundConeOrientation takes sound soundHandle, real x, real y, real z returns nothing
  */
 function SetSoundConeOrientation(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
   console.warn('SetSoundConeOrientation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundPosition takes sound soundHandle, real x, real y, real z returns nothing
  */
 function SetSoundPosition(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
   console.warn('SetSoundPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundVelocity takes sound soundHandle, real x, real y, real z returns nothing
  */
 function SetSoundVelocity(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
   console.warn('SetSoundVelocity was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AttachSoundToUnit takes sound soundHandle, unit whichUnit returns nothing
  */
 function AttachSoundToUnit(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let whichUnit = lua_touserdata(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 2);
   console.warn('AttachSoundToUnit was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StartSound takes sound soundHandle returns nothing
  */
 function StartSound(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
+  const soundHandle = lua_touserdata(L, 1);
   console.warn('StartSound was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StopSound takes sound soundHandle, boolean killWhenDone, boolean fadeOut returns nothing
  */
 function StopSound(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let killWhenDone = lua_toboolean(L, 2);
-  let fadeOut = lua_toboolean(L, 3);
+  const soundHandle = lua_touserdata(L, 1);
+  const killWhenDone = lua_toboolean(L, 2);
+  const fadeOut = lua_toboolean(L, 3);
   console.warn('StopSound was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native KillSoundWhenDone takes sound soundHandle returns nothing
  */
 function KillSoundWhenDone(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
+  const soundHandle = lua_touserdata(L, 1);
   console.warn('KillSoundWhenDone was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMapMusic takes string musicName, boolean random, integer index returns nothing
  */
 function SetMapMusic(C: Context, L: lua_State) {
-  let musicName = luaL_checkstring(L, 1);
-  let random = lua_toboolean(L, 2);
-  let index = luaL_checkinteger(L, 3);
+  const musicName = luaL_checkstring(L, 1);
+  const random = lua_toboolean(L, 2);
+  const index = luaL_checkinteger(L, 3);
   console.warn('SetMapMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11540,36 +11540,36 @@ function SetMapMusic(C: Context, L: lua_State) {
 function ClearMapMusic(C: Context, L: lua_State) {
 
   console.warn('ClearMapMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayMusic takes string musicName returns nothing
  */
 function PlayMusic(C: Context, L: lua_State) {
-  let musicName = luaL_checkstring(L, 1);
+  const musicName = luaL_checkstring(L, 1);
   console.warn('PlayMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayMusicEx takes string musicName, integer frommsecs, integer fadeinmsecs returns nothing
  */
 function PlayMusicEx(C: Context, L: lua_State) {
-  let musicName = luaL_checkstring(L, 1);
-  let frommsecs = luaL_checkinteger(L, 2);
-  let fadeinmsecs = luaL_checkinteger(L, 3);
+  const musicName = luaL_checkstring(L, 1);
+  const frommsecs = luaL_checkinteger(L, 2);
+  const fadeinmsecs = luaL_checkinteger(L, 3);
   console.warn('PlayMusicEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StopMusic takes boolean fadeOut returns nothing
  */
 function StopMusic(C: Context, L: lua_State) {
-  let fadeOut = lua_toboolean(L, 1);
+  const fadeOut = lua_toboolean(L, 1);
   console.warn('StopMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11578,26 +11578,26 @@ function StopMusic(C: Context, L: lua_State) {
 function ResumeMusic(C: Context, L: lua_State) {
 
   console.warn('ResumeMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayThematicMusic takes string musicFileName returns nothing
  */
 function PlayThematicMusic(C: Context, L: lua_State) {
-  let musicFileName = luaL_checkstring(L, 1);
+  const musicFileName = luaL_checkstring(L, 1);
   console.warn('PlayThematicMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PlayThematicMusicEx takes string musicFileName, integer frommsecs returns nothing
  */
 function PlayThematicMusicEx(C: Context, L: lua_State) {
-  let musicFileName = luaL_checkstring(L, 1);
-  let frommsecs = luaL_checkinteger(L, 2);
+  const musicFileName = luaL_checkstring(L, 1);
+  const frommsecs = luaL_checkinteger(L, 2);
   console.warn('PlayThematicMusicEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11606,51 +11606,51 @@ function PlayThematicMusicEx(C: Context, L: lua_State) {
 function EndThematicMusic(C: Context, L: lua_State) {
 
   console.warn('EndThematicMusic was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMusicVolume takes integer volume returns nothing
  */
 function SetMusicVolume(C: Context, L: lua_State) {
-  let volume = luaL_checkinteger(L, 1);
+  const volume = luaL_checkinteger(L, 1);
   console.warn('SetMusicVolume was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetMusicPlayPosition takes integer millisecs returns nothing
  */
 function SetMusicPlayPosition(C: Context, L: lua_State) {
-  let millisecs = luaL_checkinteger(L, 1);
+  const millisecs = luaL_checkinteger(L, 1);
   console.warn('SetMusicPlayPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetThematicMusicPlayPosition takes integer millisecs returns nothing
  */
 function SetThematicMusicPlayPosition(C: Context, L: lua_State) {
-  let millisecs = luaL_checkinteger(L, 1);
+  const millisecs = luaL_checkinteger(L, 1);
   console.warn('SetThematicMusicPlayPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetSoundDuration takes sound soundHandle, integer duration returns nothing
  */
 function SetSoundDuration(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let duration = luaL_checkinteger(L, 2);
+  const soundHandle = lua_touserdata(L, 1);
+  const duration = luaL_checkinteger(L, 2);
   console.warn('SetSoundDuration was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetSoundDuration takes sound soundHandle returns integer
  */
 function GetSoundDuration(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
+  const soundHandle = lua_touserdata(L, 1);
   console.warn('GetSoundDuration was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -11660,7 +11660,7 @@ function GetSoundDuration(C: Context, L: lua_State) {
  * native GetSoundFileDuration takes string musicFileName returns integer
  */
 function GetSoundFileDuration(C: Context, L: lua_State) {
-  let musicFileName = luaL_checkstring(L, 1);
+  const musicFileName = luaL_checkstring(L, 1);
   console.warn('GetSoundFileDuration was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -11670,10 +11670,10 @@ function GetSoundFileDuration(C: Context, L: lua_State) {
  * native VolumeGroupSetVolume takes volumegroup vgroup, real scale returns nothing
  */
 function VolumeGroupSetVolume(C: Context, L: lua_State) {
-  let vgroup = lua_touserdata(L, 1);
-  let scale = luaL_checknumber(L, 2);
+  const vgroup = lua_touserdata(L, 1);
+  const scale = luaL_checknumber(L, 2);
   console.warn('VolumeGroupSetVolume was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11682,14 +11682,14 @@ function VolumeGroupSetVolume(C: Context, L: lua_State) {
 function VolumeGroupReset(C: Context, L: lua_State) {
 
   console.warn('VolumeGroupReset was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetSoundIsPlaying takes sound soundHandle returns boolean
  */
 function GetSoundIsPlaying(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
+  const soundHandle = lua_touserdata(L, 1);
   console.warn('GetSoundIsPlaying was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -11699,7 +11699,7 @@ function GetSoundIsPlaying(C: Context, L: lua_State) {
  * native GetSoundIsLoading takes sound soundHandle returns boolean
  */
 function GetSoundIsLoading(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
+  const soundHandle = lua_touserdata(L, 1);
   console.warn('GetSoundIsLoading was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -11709,32 +11709,32 @@ function GetSoundIsLoading(C: Context, L: lua_State) {
  * native RegisterStackedSound takes sound soundHandle, boolean byPosition, real rectwidth, real rectheight returns nothing
  */
 function RegisterStackedSound(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let byPosition = lua_toboolean(L, 2);
-  let rectwidth = luaL_checknumber(L, 3);
-  let rectheight = luaL_checknumber(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const byPosition = lua_toboolean(L, 2);
+  const rectwidth = luaL_checknumber(L, 3);
+  const rectheight = luaL_checknumber(L, 4);
   console.warn('RegisterStackedSound was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native UnregisterStackedSound takes sound soundHandle, boolean byPosition, real rectwidth, real rectheight returns nothing
  */
 function UnregisterStackedSound(C: Context, L: lua_State) {
-  let soundHandle = lua_touserdata(L, 1);
-  let byPosition = lua_toboolean(L, 2);
-  let rectwidth = luaL_checknumber(L, 3);
-  let rectheight = luaL_checknumber(L, 4);
+  const soundHandle = lua_touserdata(L, 1);
+  const byPosition = lua_toboolean(L, 2);
+  const rectwidth = luaL_checknumber(L, 3);
+  const rectheight = luaL_checknumber(L, 4);
   console.warn('UnregisterStackedSound was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddWeatherEffect takes rect where, integer effectID returns weathereffect
  */
 function AddWeatherEffect(C: Context, L: lua_State) {
-  let where = lua_touserdata(L, 1);
-  let effectID = luaL_checkinteger(L, 2);
+  const where = lua_touserdata(L, 1);
+  const effectID = luaL_checkinteger(L, 2);
   console.warn('AddWeatherEffect was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11744,31 +11744,31 @@ function AddWeatherEffect(C: Context, L: lua_State) {
  * native RemoveWeatherEffect takes weathereffect whichEffect returns nothing
  */
 function RemoveWeatherEffect(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
+  const whichEffect = lua_touserdata(L, 1);
   console.warn('RemoveWeatherEffect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native EnableWeatherEffect takes weathereffect whichEffect, boolean enable returns nothing
  */
 function EnableWeatherEffect(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let enable = lua_toboolean(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const enable = lua_toboolean(L, 2);
   console.warn('EnableWeatherEffect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native TerrainDeformCrater takes real x, real y, real radius, real depth, integer duration, boolean permanent returns terraindeformation
  */
 function TerrainDeformCrater(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let depth = luaL_checknumber(L, 4);
-  let duration = luaL_checkinteger(L, 5);
-  let permanent = lua_toboolean(L, 6);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const depth = luaL_checknumber(L, 4);
+  const duration = luaL_checkinteger(L, 5);
+  const permanent = lua_toboolean(L, 6);
   console.warn('TerrainDeformCrater was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11778,16 +11778,16 @@ function TerrainDeformCrater(C: Context, L: lua_State) {
  * native TerrainDeformRipple takes real x, real y, real radius, real depth, integer duration, integer count, real spaceWaves, real timeWaves, real radiusStartPct, boolean limitNeg returns terraindeformation
  */
 function TerrainDeformRipple(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let depth = luaL_checknumber(L, 4);
-  let duration = luaL_checkinteger(L, 5);
-  let count = luaL_checkinteger(L, 6);
-  let spaceWaves = luaL_checknumber(L, 7);
-  let timeWaves = luaL_checknumber(L, 8);
-  let radiusStartPct = luaL_checknumber(L, 9);
-  let limitNeg = lua_toboolean(L, 10);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const depth = luaL_checknumber(L, 4);
+  const duration = luaL_checkinteger(L, 5);
+  const count = luaL_checkinteger(L, 6);
+  const spaceWaves = luaL_checknumber(L, 7);
+  const timeWaves = luaL_checknumber(L, 8);
+  const radiusStartPct = luaL_checknumber(L, 9);
+  const limitNeg = lua_toboolean(L, 10);
   console.warn('TerrainDeformRipple was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11797,16 +11797,16 @@ function TerrainDeformRipple(C: Context, L: lua_State) {
  * native TerrainDeformWave takes real x, real y, real dirX, real dirY, real distance, real speed, real radius, real depth, integer trailTime, integer count returns terraindeformation
  */
 function TerrainDeformWave(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let dirX = luaL_checknumber(L, 3);
-  let dirY = luaL_checknumber(L, 4);
-  let distance = luaL_checknumber(L, 5);
-  let speed = luaL_checknumber(L, 6);
-  let radius = luaL_checknumber(L, 7);
-  let depth = luaL_checknumber(L, 8);
-  let trailTime = luaL_checkinteger(L, 9);
-  let count = luaL_checkinteger(L, 10);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const dirX = luaL_checknumber(L, 3);
+  const dirY = luaL_checknumber(L, 4);
+  const distance = luaL_checknumber(L, 5);
+  const speed = luaL_checknumber(L, 6);
+  const radius = luaL_checknumber(L, 7);
+  const depth = luaL_checknumber(L, 8);
+  const trailTime = luaL_checkinteger(L, 9);
+  const count = luaL_checkinteger(L, 10);
   console.warn('TerrainDeformWave was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11816,13 +11816,13 @@ function TerrainDeformWave(C: Context, L: lua_State) {
  * native TerrainDeformRandom takes real x, real y, real radius, real minDelta, real maxDelta, integer duration, integer updateInterval returns terraindeformation
  */
 function TerrainDeformRandom(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let minDelta = luaL_checknumber(L, 4);
-  let maxDelta = luaL_checknumber(L, 5);
-  let duration = luaL_checkinteger(L, 6);
-  let updateInterval = luaL_checkinteger(L, 7);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const minDelta = luaL_checknumber(L, 4);
+  const maxDelta = luaL_checknumber(L, 5);
+  const duration = luaL_checkinteger(L, 6);
+  const updateInterval = luaL_checkinteger(L, 7);
   console.warn('TerrainDeformRandom was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11832,10 +11832,10 @@ function TerrainDeformRandom(C: Context, L: lua_State) {
  * native TerrainDeformStop takes terraindeformation deformation, integer duration returns nothing
  */
 function TerrainDeformStop(C: Context, L: lua_State) {
-  let deformation = lua_touserdata(L, 1);
-  let duration = luaL_checkinteger(L, 2);
+  const deformation = lua_touserdata(L, 1);
+  const duration = luaL_checkinteger(L, 2);
   console.warn('TerrainDeformStop was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -11844,16 +11844,16 @@ function TerrainDeformStop(C: Context, L: lua_State) {
 function TerrainDeformStopAll(C: Context, L: lua_State) {
 
   console.warn('TerrainDeformStopAll was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddSpecialEffect takes string modelName, real x, real y returns effect
  */
 function AddSpecialEffect(C: Context, L: lua_State) {
-  let modelName = luaL_checkstring(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
+  const modelName = luaL_checkstring(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
   console.warn('AddSpecialEffect was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11863,8 +11863,8 @@ function AddSpecialEffect(C: Context, L: lua_State) {
  * native AddSpecialEffectLoc takes string modelName, location where returns effect
  */
 function AddSpecialEffectLoc(C: Context, L: lua_State) {
-  let modelName = luaL_checkstring(L, 1);
-  let where = lua_touserdata(L, 2);
+  const modelName = luaL_checkstring(L, 1);
+  const where = lua_touserdata(L, 2);
   console.warn('AddSpecialEffectLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11874,9 +11874,9 @@ function AddSpecialEffectLoc(C: Context, L: lua_State) {
  * native AddSpecialEffectTarget takes string modelName, widget targetWidget, string attachPointName returns effect
  */
 function AddSpecialEffectTarget(C: Context, L: lua_State) {
-  let modelName = luaL_checkstring(L, 1);
-  let targetWidget = lua_touserdata(L, 2);
-  let attachPointName = luaL_checkstring(L, 3);
+  const modelName = luaL_checkstring(L, 1);
+  const targetWidget = lua_touserdata(L, 2);
+  const attachPointName = luaL_checkstring(L, 3);
   console.warn('AddSpecialEffectTarget was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11886,19 +11886,19 @@ function AddSpecialEffectTarget(C: Context, L: lua_State) {
  * native DestroyEffect takes effect whichEffect returns nothing
  */
 function DestroyEffect(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
+  const whichEffect = lua_touserdata(L, 1);
   console.warn('DestroyEffect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AddSpellEffect takes string abilityString, effecttype t, real x, real y returns effect
  */
 function AddSpellEffect(C: Context, L: lua_State) {
-  let abilityString = luaL_checkstring(L, 1);
-  let t = lua_touserdata(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const abilityString = luaL_checkstring(L, 1);
+  const t = lua_touserdata(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('AddSpellEffect was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11908,9 +11908,9 @@ function AddSpellEffect(C: Context, L: lua_State) {
  * native AddSpellEffectLoc takes string abilityString, effecttype t, location where returns effect
  */
 function AddSpellEffectLoc(C: Context, L: lua_State) {
-  let abilityString = luaL_checkstring(L, 1);
-  let t = lua_touserdata(L, 2);
-  let where = lua_touserdata(L, 3);
+  const abilityString = luaL_checkstring(L, 1);
+  const t = lua_touserdata(L, 2);
+  const where = lua_touserdata(L, 3);
   console.warn('AddSpellEffectLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11920,10 +11920,10 @@ function AddSpellEffectLoc(C: Context, L: lua_State) {
  * native AddSpellEffectById takes integer abilityId, effecttype t, real x, real y returns effect
  */
 function AddSpellEffectById(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
-  let t = lua_touserdata(L, 2);
-  let x = luaL_checknumber(L, 3);
-  let y = luaL_checknumber(L, 4);
+  const abilityId = luaL_checkinteger(L, 1);
+  const t = lua_touserdata(L, 2);
+  const x = luaL_checknumber(L, 3);
+  const y = luaL_checknumber(L, 4);
   console.warn('AddSpellEffectById was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11933,9 +11933,9 @@ function AddSpellEffectById(C: Context, L: lua_State) {
  * native AddSpellEffectByIdLoc takes integer abilityId, effecttype t, location where returns effect
  */
 function AddSpellEffectByIdLoc(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
-  let t = lua_touserdata(L, 2);
-  let where = lua_touserdata(L, 3);
+  const abilityId = luaL_checkinteger(L, 1);
+  const t = lua_touserdata(L, 2);
+  const where = lua_touserdata(L, 3);
   console.warn('AddSpellEffectByIdLoc was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11945,10 +11945,10 @@ function AddSpellEffectByIdLoc(C: Context, L: lua_State) {
  * native AddSpellEffectTarget takes string modelName, effecttype t, widget targetWidget, string attachPoint returns effect
  */
 function AddSpellEffectTarget(C: Context, L: lua_State) {
-  let modelName = luaL_checkstring(L, 1);
-  let t = lua_touserdata(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
-  let attachPoint = luaL_checkstring(L, 4);
+  const modelName = luaL_checkstring(L, 1);
+  const t = lua_touserdata(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
+  const attachPoint = luaL_checkstring(L, 4);
   console.warn('AddSpellEffectTarget was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11958,10 +11958,10 @@ function AddSpellEffectTarget(C: Context, L: lua_State) {
  * native AddSpellEffectTargetById takes integer abilityId, effecttype t, widget targetWidget, string attachPoint returns effect
  */
 function AddSpellEffectTargetById(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
-  let t = lua_touserdata(L, 2);
-  let targetWidget = lua_touserdata(L, 3);
-  let attachPoint = luaL_checkstring(L, 4);
+  const abilityId = luaL_checkinteger(L, 1);
+  const t = lua_touserdata(L, 2);
+  const targetWidget = lua_touserdata(L, 3);
+  const attachPoint = luaL_checkstring(L, 4);
   console.warn('AddSpellEffectTargetById was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11971,12 +11971,12 @@ function AddSpellEffectTargetById(C: Context, L: lua_State) {
  * native AddLightning takes string codeName, boolean checkVisibility, real x1, real y1, real x2, real y2 returns lightning
  */
 function AddLightning(C: Context, L: lua_State) {
-  let codeName = luaL_checkstring(L, 1);
-  let checkVisibility = lua_toboolean(L, 2);
-  let x1 = luaL_checknumber(L, 3);
-  let y1 = luaL_checknumber(L, 4);
-  let x2 = luaL_checknumber(L, 5);
-  let y2 = luaL_checknumber(L, 6);
+  const codeName = luaL_checkstring(L, 1);
+  const checkVisibility = lua_toboolean(L, 2);
+  const x1 = luaL_checknumber(L, 3);
+  const y1 = luaL_checknumber(L, 4);
+  const x2 = luaL_checknumber(L, 5);
+  const y2 = luaL_checknumber(L, 6);
   console.warn('AddLightning was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -11986,14 +11986,14 @@ function AddLightning(C: Context, L: lua_State) {
  * native AddLightningEx takes string codeName, boolean checkVisibility, real x1, real y1, real z1, real x2, real y2, real z2 returns lightning
  */
 function AddLightningEx(C: Context, L: lua_State) {
-  let codeName = luaL_checkstring(L, 1);
-  let checkVisibility = lua_toboolean(L, 2);
-  let x1 = luaL_checknumber(L, 3);
-  let y1 = luaL_checknumber(L, 4);
-  let z1 = luaL_checknumber(L, 5);
-  let x2 = luaL_checknumber(L, 6);
-  let y2 = luaL_checknumber(L, 7);
-  let z2 = luaL_checknumber(L, 8);
+  const codeName = luaL_checkstring(L, 1);
+  const checkVisibility = lua_toboolean(L, 2);
+  const x1 = luaL_checknumber(L, 3);
+  const y1 = luaL_checknumber(L, 4);
+  const z1 = luaL_checknumber(L, 5);
+  const x2 = luaL_checknumber(L, 6);
+  const y2 = luaL_checknumber(L, 7);
+  const z2 = luaL_checknumber(L, 8);
   console.warn('AddLightningEx was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -12003,7 +12003,7 @@ function AddLightningEx(C: Context, L: lua_State) {
  * native DestroyLightning takes lightning whichBolt returns boolean
  */
 function DestroyLightning(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
+  const whichBolt = lua_touserdata(L, 1);
   console.warn('DestroyLightning was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12013,12 +12013,12 @@ function DestroyLightning(C: Context, L: lua_State) {
  * native MoveLightning takes lightning whichBolt, boolean checkVisibility, real x1, real y1, real x2, real y2 returns boolean
  */
 function MoveLightning(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
-  let checkVisibility = lua_toboolean(L, 2);
-  let x1 = luaL_checknumber(L, 3);
-  let y1 = luaL_checknumber(L, 4);
-  let x2 = luaL_checknumber(L, 5);
-  let y2 = luaL_checknumber(L, 6);
+  const whichBolt = lua_touserdata(L, 1);
+  const checkVisibility = lua_toboolean(L, 2);
+  const x1 = luaL_checknumber(L, 3);
+  const y1 = luaL_checknumber(L, 4);
+  const x2 = luaL_checknumber(L, 5);
+  const y2 = luaL_checknumber(L, 6);
   console.warn('MoveLightning was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12028,14 +12028,14 @@ function MoveLightning(C: Context, L: lua_State) {
  * native MoveLightningEx takes lightning whichBolt, boolean checkVisibility, real x1, real y1, real z1, real x2, real y2, real z2 returns boolean
  */
 function MoveLightningEx(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
-  let checkVisibility = lua_toboolean(L, 2);
-  let x1 = luaL_checknumber(L, 3);
-  let y1 = luaL_checknumber(L, 4);
-  let z1 = luaL_checknumber(L, 5);
-  let x2 = luaL_checknumber(L, 6);
-  let y2 = luaL_checknumber(L, 7);
-  let z2 = luaL_checknumber(L, 8);
+  const whichBolt = lua_touserdata(L, 1);
+  const checkVisibility = lua_toboolean(L, 2);
+  const x1 = luaL_checknumber(L, 3);
+  const y1 = luaL_checknumber(L, 4);
+  const z1 = luaL_checknumber(L, 5);
+  const x2 = luaL_checknumber(L, 6);
+  const y2 = luaL_checknumber(L, 7);
+  const z2 = luaL_checknumber(L, 8);
   console.warn('MoveLightningEx was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12045,7 +12045,7 @@ function MoveLightningEx(C: Context, L: lua_State) {
  * native GetLightningColorA takes lightning whichBolt returns real
  */
 function GetLightningColorA(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
+  const whichBolt = lua_touserdata(L, 1);
   console.warn('GetLightningColorA was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -12055,7 +12055,7 @@ function GetLightningColorA(C: Context, L: lua_State) {
  * native GetLightningColorR takes lightning whichBolt returns real
  */
 function GetLightningColorR(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
+  const whichBolt = lua_touserdata(L, 1);
   console.warn('GetLightningColorR was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -12065,7 +12065,7 @@ function GetLightningColorR(C: Context, L: lua_State) {
  * native GetLightningColorG takes lightning whichBolt returns real
  */
 function GetLightningColorG(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
+  const whichBolt = lua_touserdata(L, 1);
   console.warn('GetLightningColorG was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -12075,7 +12075,7 @@ function GetLightningColorG(C: Context, L: lua_State) {
  * native GetLightningColorB takes lightning whichBolt returns real
  */
 function GetLightningColorB(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
+  const whichBolt = lua_touserdata(L, 1);
   console.warn('GetLightningColorB was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -12085,11 +12085,11 @@ function GetLightningColorB(C: Context, L: lua_State) {
  * native SetLightningColor takes lightning whichBolt, real r, real g, real b, real a returns boolean
  */
 function SetLightningColor(C: Context, L: lua_State) {
-  let whichBolt = lua_touserdata(L, 1);
-  let r = luaL_checknumber(L, 2);
-  let g = luaL_checknumber(L, 3);
-  let b = luaL_checknumber(L, 4);
-  let a = luaL_checknumber(L, 5);
+  const whichBolt = lua_touserdata(L, 1);
+  const r = luaL_checknumber(L, 2);
+  const g = luaL_checknumber(L, 3);
+  const b = luaL_checknumber(L, 4);
+  const a = luaL_checknumber(L, 5);
   console.warn('SetLightningColor was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12099,9 +12099,9 @@ function SetLightningColor(C: Context, L: lua_State) {
  * native GetAbilityEffect takes string abilityString, effecttype t, integer index returns string
  */
 function GetAbilityEffect(C: Context, L: lua_State) {
-  let abilityString = luaL_checkstring(L, 1);
-  let t = lua_touserdata(L, 2);
-  let index = luaL_checkinteger(L, 3);
+  const abilityString = luaL_checkstring(L, 1);
+  const t = lua_touserdata(L, 2);
+  const index = luaL_checkinteger(L, 3);
   console.warn('GetAbilityEffect was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12111,9 +12111,9 @@ function GetAbilityEffect(C: Context, L: lua_State) {
  * native GetAbilityEffectById takes integer abilityId, effecttype t, integer index returns string
  */
 function GetAbilityEffectById(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
-  let t = lua_touserdata(L, 2);
-  let index = luaL_checkinteger(L, 3);
+  const abilityId = luaL_checkinteger(L, 1);
+  const t = lua_touserdata(L, 2);
+  const index = luaL_checkinteger(L, 3);
   console.warn('GetAbilityEffectById was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12123,8 +12123,8 @@ function GetAbilityEffectById(C: Context, L: lua_State) {
  * native GetAbilitySound takes string abilityString, soundtype t returns string
  */
 function GetAbilitySound(C: Context, L: lua_State) {
-  let abilityString = luaL_checkstring(L, 1);
-  let t = lua_touserdata(L, 2);
+  const abilityString = luaL_checkstring(L, 1);
+  const t = lua_touserdata(L, 2);
   console.warn('GetAbilitySound was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12134,8 +12134,8 @@ function GetAbilitySound(C: Context, L: lua_State) {
  * native GetAbilitySoundById takes integer abilityId, soundtype t returns string
  */
 function GetAbilitySoundById(C: Context, L: lua_State) {
-  let abilityId = luaL_checkinteger(L, 1);
-  let t = lua_touserdata(L, 2);
+  const abilityId = luaL_checkinteger(L, 1);
+  const t = lua_touserdata(L, 2);
   console.warn('GetAbilitySoundById was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12145,8 +12145,8 @@ function GetAbilitySoundById(C: Context, L: lua_State) {
  * native GetTerrainCliffLevel takes real x, real y returns integer
  */
 function GetTerrainCliffLevel(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('GetTerrainCliffLevel was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12156,29 +12156,29 @@ function GetTerrainCliffLevel(C: Context, L: lua_State) {
  * native SetWaterBaseColor takes integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetWaterBaseColor(C: Context, L: lua_State) {
-  let red = luaL_checkinteger(L, 1);
-  let green = luaL_checkinteger(L, 2);
-  let blue = luaL_checkinteger(L, 3);
-  let alpha = luaL_checkinteger(L, 4);
+  const red = luaL_checkinteger(L, 1);
+  const green = luaL_checkinteger(L, 2);
+  const blue = luaL_checkinteger(L, 3);
+  const alpha = luaL_checkinteger(L, 4);
   console.warn('SetWaterBaseColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetWaterDeforms takes boolean val returns nothing
  */
 function SetWaterDeforms(C: Context, L: lua_State) {
-  let val = lua_toboolean(L, 1);
+  const val = lua_toboolean(L, 1);
   console.warn('SetWaterDeforms was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetTerrainType takes real x, real y returns integer
  */
 function GetTerrainType(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('GetTerrainType was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12188,8 +12188,8 @@ function GetTerrainType(C: Context, L: lua_State) {
  * native GetTerrainVariance takes real x, real y returns integer
  */
 function GetTerrainVariance(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('GetTerrainVariance was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12199,23 +12199,23 @@ function GetTerrainVariance(C: Context, L: lua_State) {
  * native SetTerrainType takes real x, real y, integer terrainType, integer variation, integer area, integer shape returns nothing
  */
 function SetTerrainType(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let terrainType = luaL_checkinteger(L, 3);
-  let variation = luaL_checkinteger(L, 4);
-  let area = luaL_checkinteger(L, 5);
-  let shape = luaL_checkinteger(L, 6);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const terrainType = luaL_checkinteger(L, 3);
+  const variation = luaL_checkinteger(L, 4);
+  const area = luaL_checkinteger(L, 5);
+  const shape = luaL_checkinteger(L, 6);
   console.warn('SetTerrainType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native IsTerrainPathable takes real x, real y, pathingtype t returns boolean
  */
 function IsTerrainPathable(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let t = lua_touserdata(L, 3);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const t = lua_touserdata(L, 3);
   console.warn('IsTerrainPathable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12225,29 +12225,29 @@ function IsTerrainPathable(C: Context, L: lua_State) {
  * native SetTerrainPathable takes real x, real y, pathingtype t, boolean flag returns nothing
  */
 function SetTerrainPathable(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let t = lua_touserdata(L, 3);
-  let flag = lua_toboolean(L, 4);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const t = lua_touserdata(L, 3);
+  const flag = lua_toboolean(L, 4);
   console.warn('SetTerrainPathable was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateImage takes string file, real sizeX, real sizeY, real sizeZ, real posX, real posY, real posZ, real originX, real originY, real originZ, integer imageType returns image
  */
 function CreateImage(C: Context, L: lua_State) {
-  let file = luaL_checkstring(L, 1);
-  let sizeX = luaL_checknumber(L, 2);
-  let sizeY = luaL_checknumber(L, 3);
-  let sizeZ = luaL_checknumber(L, 4);
-  let posX = luaL_checknumber(L, 5);
-  let posY = luaL_checknumber(L, 6);
-  let posZ = luaL_checknumber(L, 7);
-  let originX = luaL_checknumber(L, 8);
-  let originY = luaL_checknumber(L, 9);
-  let originZ = luaL_checknumber(L, 10);
-  let imageType = luaL_checkinteger(L, 11);
+  const file = luaL_checkstring(L, 1);
+  const sizeX = luaL_checknumber(L, 2);
+  const sizeY = luaL_checknumber(L, 3);
+  const sizeZ = luaL_checknumber(L, 4);
+  const posX = luaL_checknumber(L, 5);
+  const posY = luaL_checknumber(L, 6);
+  const posZ = luaL_checknumber(L, 7);
+  const originX = luaL_checknumber(L, 8);
+  const originY = luaL_checknumber(L, 9);
+  const originZ = luaL_checknumber(L, 10);
+  const imageType = luaL_checkinteger(L, 11);
   console.warn('CreateImage was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -12257,111 +12257,111 @@ function CreateImage(C: Context, L: lua_State) {
  * native DestroyImage takes image whichImage returns nothing
  */
 function DestroyImage(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
+  const whichImage = lua_touserdata(L, 1);
   console.warn('DestroyImage was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ShowImage takes image whichImage, boolean flag returns nothing
  */
 function ShowImage(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichImage = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('ShowImage was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageConstantHeight takes image whichImage, boolean flag, real height returns nothing
  */
 function SetImageConstantHeight(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
-  let height = luaL_checknumber(L, 3);
+  const whichImage = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
+  const height = luaL_checknumber(L, 3);
   console.warn('SetImageConstantHeight was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImagePosition takes image whichImage, real x, real y, real z returns nothing
  */
 function SetImagePosition(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
+  const whichImage = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
   console.warn('SetImagePosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageColor takes image whichImage, integer red, integer green, integer blue, integer alpha returns nothing
  */
 function SetImageColor(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let red = luaL_checkinteger(L, 2);
-  let green = luaL_checkinteger(L, 3);
-  let blue = luaL_checkinteger(L, 4);
-  let alpha = luaL_checkinteger(L, 5);
+  const whichImage = lua_touserdata(L, 1);
+  const red = luaL_checkinteger(L, 2);
+  const green = luaL_checkinteger(L, 3);
+  const blue = luaL_checkinteger(L, 4);
+  const alpha = luaL_checkinteger(L, 5);
   console.warn('SetImageColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageRender takes image whichImage, boolean flag returns nothing
  */
 function SetImageRender(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichImage = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetImageRender was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageRenderAlways takes image whichImage, boolean flag returns nothing
  */
 function SetImageRenderAlways(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichImage = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetImageRenderAlways was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageAboveWater takes image whichImage, boolean flag, boolean useWaterAlpha returns nothing
  */
 function SetImageAboveWater(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
-  let useWaterAlpha = lua_toboolean(L, 3);
+  const whichImage = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
+  const useWaterAlpha = lua_toboolean(L, 3);
   console.warn('SetImageAboveWater was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetImageType takes image whichImage, integer imageType returns nothing
  */
 function SetImageType(C: Context, L: lua_State) {
-  let whichImage = lua_touserdata(L, 1);
-  let imageType = luaL_checkinteger(L, 2);
+  const whichImage = lua_touserdata(L, 1);
+  const imageType = luaL_checkinteger(L, 2);
   console.warn('SetImageType was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateUbersplat takes real x, real y, string name, integer red, integer green, integer blue, integer alpha, boolean forcePaused, boolean noBirthTime returns ubersplat
  */
 function CreateUbersplat(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let name = luaL_checkstring(L, 3);
-  let red = luaL_checkinteger(L, 4);
-  let green = luaL_checkinteger(L, 5);
-  let blue = luaL_checkinteger(L, 6);
-  let alpha = luaL_checkinteger(L, 7);
-  let forcePaused = lua_toboolean(L, 8);
-  let noBirthTime = lua_toboolean(L, 9);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const name = luaL_checkstring(L, 3);
+  const red = luaL_checkinteger(L, 4);
+  const green = luaL_checkinteger(L, 5);
+  const blue = luaL_checkinteger(L, 6);
+  const alpha = luaL_checkinteger(L, 7);
+  const forcePaused = lua_toboolean(L, 8);
+  const noBirthTime = lua_toboolean(L, 9);
   console.warn('CreateUbersplat was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -12371,115 +12371,115 @@ function CreateUbersplat(C: Context, L: lua_State) {
  * native DestroyUbersplat takes ubersplat whichSplat returns nothing
  */
 function DestroyUbersplat(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
+  const whichSplat = lua_touserdata(L, 1);
   console.warn('DestroyUbersplat was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ResetUbersplat takes ubersplat whichSplat returns nothing
  */
 function ResetUbersplat(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
+  const whichSplat = lua_touserdata(L, 1);
   console.warn('ResetUbersplat was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native FinishUbersplat takes ubersplat whichSplat returns nothing
  */
 function FinishUbersplat(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
+  const whichSplat = lua_touserdata(L, 1);
   console.warn('FinishUbersplat was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native ShowUbersplat takes ubersplat whichSplat, boolean flag returns nothing
  */
 function ShowUbersplat(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichSplat = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('ShowUbersplat was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUbersplatRender takes ubersplat whichSplat, boolean flag returns nothing
  */
 function SetUbersplatRender(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichSplat = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetUbersplatRender was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetUbersplatRenderAlways takes ubersplat whichSplat, boolean flag returns nothing
  */
 function SetUbersplatRenderAlways(C: Context, L: lua_State) {
-  let whichSplat = lua_touserdata(L, 1);
-  let flag = lua_toboolean(L, 2);
+  const whichSplat = lua_touserdata(L, 1);
+  const flag = lua_toboolean(L, 2);
   console.warn('SetUbersplatRenderAlways was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetBlight takes player whichPlayer, real x, real y, real radius, boolean addBlight returns nothing
  */
 function SetBlight(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let radius = luaL_checknumber(L, 4);
-  let addBlight = lua_toboolean(L, 5);
+  const whichPlayer = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const radius = luaL_checknumber(L, 4);
+  const addBlight = lua_toboolean(L, 5);
   console.warn('SetBlight was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetBlightRect takes player whichPlayer, rect r, boolean addBlight returns nothing
  */
 function SetBlightRect(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let r = lua_touserdata(L, 2);
-  let addBlight = lua_toboolean(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const r = lua_touserdata(L, 2);
+  const addBlight = lua_toboolean(L, 3);
   console.warn('SetBlightRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetBlightPoint takes player whichPlayer, real x, real y, boolean addBlight returns nothing
  */
 function SetBlightPoint(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let addBlight = lua_toboolean(L, 4);
+  const whichPlayer = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const addBlight = lua_toboolean(L, 4);
   console.warn('SetBlightPoint was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetBlightLoc takes player whichPlayer, location whichLocation, real radius, boolean addBlight returns nothing
  */
 function SetBlightLoc(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let whichLocation = lua_touserdata(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let addBlight = lua_toboolean(L, 4);
+  const whichPlayer = lua_touserdata(L, 1);
+  const whichLocation = lua_touserdata(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const addBlight = lua_toboolean(L, 4);
   console.warn('SetBlightLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CreateBlightedGoldmine takes player id, real x, real y, real face returns unit
  */
 function CreateBlightedGoldmine(C: Context, L: lua_State) {
-  let id = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let face = luaL_checknumber(L, 4);
+  const id = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const face = luaL_checknumber(L, 4);
   console.warn('CreateBlightedGoldmine was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -12489,8 +12489,8 @@ function CreateBlightedGoldmine(C: Context, L: lua_State) {
  * native IsPointBlighted takes real x, real y returns boolean
  */
 function IsPointBlighted(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('IsPointBlighted was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -12500,75 +12500,75 @@ function IsPointBlighted(C: Context, L: lua_State) {
  * native SetDoodadAnimation takes real x, real y, real radius, integer doodadID, boolean nearestOnly, string animName, boolean animRandom returns nothing
  */
 function SetDoodadAnimation(C: Context, L: lua_State) {
-  let x = luaL_checknumber(L, 1);
-  let y = luaL_checknumber(L, 2);
-  let radius = luaL_checknumber(L, 3);
-  let doodadID = luaL_checkinteger(L, 4);
-  let nearestOnly = lua_toboolean(L, 5);
-  let animName = luaL_checkstring(L, 6);
-  let animRandom = lua_toboolean(L, 7);
+  const x = luaL_checknumber(L, 1);
+  const y = luaL_checknumber(L, 2);
+  const radius = luaL_checknumber(L, 3);
+  const doodadID = luaL_checkinteger(L, 4);
+  const nearestOnly = lua_toboolean(L, 5);
+  const animName = luaL_checkstring(L, 6);
+  const animRandom = lua_toboolean(L, 7);
   console.warn('SetDoodadAnimation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native SetDoodadAnimationRect takes rect r, integer doodadID, string animName, boolean animRandom returns nothing
  */
 function SetDoodadAnimationRect(C: Context, L: lua_State) {
-  let r = lua_touserdata(L, 1);
-  let doodadID = luaL_checkinteger(L, 2);
-  let animName = luaL_checkstring(L, 3);
-  let animRandom = lua_toboolean(L, 4);
+  const r = lua_touserdata(L, 1);
+  const doodadID = luaL_checkinteger(L, 2);
+  const animName = luaL_checkstring(L, 3);
+  const animRandom = lua_toboolean(L, 4);
   console.warn('SetDoodadAnimationRect was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StartMeleeAI takes player num, string script returns nothing
  */
 function StartMeleeAI(C: Context, L: lua_State) {
-  let num = lua_touserdata(L, 1);
-  let script = luaL_checkstring(L, 2);
+  const num = lua_touserdata(L, 1);
+  const script = luaL_checkstring(L, 2);
   console.warn('StartMeleeAI was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native StartCampaignAI takes player num, string script returns nothing
  */
 function StartCampaignAI(C: Context, L: lua_State) {
-  let num = lua_touserdata(L, 1);
-  let script = luaL_checkstring(L, 2);
+  const num = lua_touserdata(L, 1);
+  const script = luaL_checkstring(L, 2);
   console.warn('StartCampaignAI was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native CommandAI takes player num, integer command, integer data returns nothing
  */
 function CommandAI(C: Context, L: lua_State) {
-  let num = lua_touserdata(L, 1);
-  let command = luaL_checkinteger(L, 2);
-  let data = luaL_checkinteger(L, 3);
+  const num = lua_touserdata(L, 1);
+  const command = luaL_checkinteger(L, 2);
+  const data = luaL_checkinteger(L, 3);
   console.warn('CommandAI was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PauseCompAI takes player p, boolean pause returns nothing
  */
 function PauseCompAI(C: Context, L: lua_State) {
-  let p = lua_touserdata(L, 1);
-  let pause = lua_toboolean(L, 2);
+  const p = lua_touserdata(L, 1);
+  const pause = lua_toboolean(L, 2);
   console.warn('PauseCompAI was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native GetAIDifficulty takes player num returns aidifficulty
  */
 function GetAIDifficulty(C: Context, L: lua_State) {
-  let num = lua_touserdata(L, 1);
+  const num = lua_touserdata(L, 1);
   console.warn('GetAIDifficulty was called but is not implemented :(');
   lua_pushlightuserdata(L, { name: 'FAKE' });
   return 1;
@@ -12578,36 +12578,36 @@ function GetAIDifficulty(C: Context, L: lua_State) {
  * native RemoveGuardPosition takes unit hUnit returns nothing
  */
 function RemoveGuardPosition(C: Context, L: lua_State) {
-  let hUnit = lua_touserdata(L, 1);
+  const hUnit = lua_touserdata(L, 1);
   console.warn('RemoveGuardPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RecycleGuardPosition takes unit hUnit returns nothing
  */
 function RecycleGuardPosition(C: Context, L: lua_State) {
-  let hUnit = lua_touserdata(L, 1);
+  const hUnit = lua_touserdata(L, 1);
   console.warn('RecycleGuardPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native RemoveAllGuardPositions takes player num returns nothing
  */
 function RemoveAllGuardPositions(C: Context, L: lua_State) {
-  let num = lua_touserdata(L, 1);
+  const num = lua_touserdata(L, 1);
   console.warn('RemoveAllGuardPositions was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native Cheat takes string cheatStr returns nothing
  */
 function Cheat(C: Context, L: lua_State) {
-  let cheatStr = luaL_checkstring(L, 1);
+  const cheatStr = luaL_checkstring(L, 1);
   console.warn('Cheat was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12634,18 +12634,18 @@ function IsNoDefeatCheat(C: Context, L: lua_State) {
  * native Preload takes string filename returns nothing
  */
 function Preload(C: Context, L: lua_State) {
-  let filename = luaL_checkstring(L, 1);
+  const filename = luaL_checkstring(L, 1);
   console.warn('Preload was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PreloadEnd takes real timeout returns nothing
  */
 function PreloadEnd(C: Context, L: lua_State) {
-  let timeout = luaL_checknumber(L, 1);
+  const timeout = luaL_checknumber(L, 1);
   console.warn('PreloadEnd was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12654,7 +12654,7 @@ function PreloadEnd(C: Context, L: lua_State) {
 function PreloadStart(C: Context, L: lua_State) {
 
   console.warn('PreloadStart was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12663,7 +12663,7 @@ function PreloadStart(C: Context, L: lua_State) {
 function PreloadRefresh(C: Context, L: lua_State) {
 
   console.warn('PreloadRefresh was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12672,7 +12672,7 @@ function PreloadRefresh(C: Context, L: lua_State) {
 function PreloadEndEx(C: Context, L: lua_State) {
 
   console.warn('PreloadEndEx was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12681,7 +12681,7 @@ function PreloadEndEx(C: Context, L: lua_State) {
 function PreloadGenClear(C: Context, L: lua_State) {
 
   console.warn('PreloadGenClear was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12690,43 +12690,43 @@ function PreloadGenClear(C: Context, L: lua_State) {
 function PreloadGenStart(C: Context, L: lua_State) {
 
   console.warn('PreloadGenStart was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native PreloadGenEnd takes string filename returns nothing
  */
 function PreloadGenEnd(C: Context, L: lua_State) {
-  let filename = luaL_checkstring(L, 1);
+  const filename = luaL_checkstring(L, 1);
   console.warn('PreloadGenEnd was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native Preloader takes string filename returns nothing
  */
 function Preloader(C: Context, L: lua_State) {
-  let filename = luaL_checkstring(L, 1);
+  const filename = luaL_checkstring(L, 1);
   console.warn('Preloader was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AutomationTestStart takes string testName returns nothing
  */
 function AutomationTestStart(C: Context, L: lua_State) {
-  let testName = luaL_checkstring(L, 1);
+  const testName = luaL_checkstring(L, 1);
   console.warn('AutomationTestStart was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native AutomationTestEnd takes string testName returns nothing
  */
 function AutomationTestEnd(C: Context, L: lua_State) {
-  let testName = luaL_checkstring(L, 1);
+  const testName = luaL_checkstring(L, 1);
   console.warn('AutomationTestEnd was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
@@ -12773,74 +12773,74 @@ function BlzGetTriggerPlayerMouseButton(C: Context, L: lua_State) {
  * native BlzSetAbilityTooltip takes integer abilCode, string tooltip, integer level returns nothing
  */
 function BlzSetAbilityTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let tooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const tooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityActivatedTooltip takes integer abilCode, string tooltip, integer level returns nothing
  */
 function BlzSetAbilityActivatedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let tooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const tooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityActivatedTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityExtendedTooltip takes integer abilCode, string ExtendedTooltip, integer level returns nothing
  */
 function BlzSetAbilityExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let ExtendedTooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const ExtendedTooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityExtendedTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityActivatedExtendedTooltip takes integer abilCode, string ExtendedTooltip, integer level returns nothing
  */
 function BlzSetAbilityActivatedExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let ExtendedTooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const ExtendedTooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityActivatedExtendedTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityResearchTooltip takes integer abilCode, string researchTooltip, integer level returns nothing
  */
 function BlzSetAbilityResearchTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let researchTooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const researchTooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityResearchTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityResearchExtendedTooltip takes integer abilCode, string researchExtendedTooltip, integer level returns nothing
  */
 function BlzSetAbilityResearchExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let researchExtendedTooltip = luaL_checkstring(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const abilCode = luaL_checkinteger(L, 1);
+  const researchExtendedTooltip = luaL_checkstring(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzSetAbilityResearchExtendedTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetAbilityTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12850,8 +12850,8 @@ function BlzGetAbilityTooltip(C: Context, L: lua_State) {
  * native BlzGetAbilityActivatedTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityActivatedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityActivatedTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12861,8 +12861,8 @@ function BlzGetAbilityActivatedTooltip(C: Context, L: lua_State) {
  * native BlzGetAbilityExtendedTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityExtendedTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12872,8 +12872,8 @@ function BlzGetAbilityExtendedTooltip(C: Context, L: lua_State) {
  * native BlzGetAbilityActivatedExtendedTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityActivatedExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityActivatedExtendedTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12883,8 +12883,8 @@ function BlzGetAbilityActivatedExtendedTooltip(C: Context, L: lua_State) {
  * native BlzGetAbilityResearchTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityResearchTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityResearchTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12894,8 +12894,8 @@ function BlzGetAbilityResearchTooltip(C: Context, L: lua_State) {
  * native BlzGetAbilityResearchExtendedTooltip takes integer abilCode, integer level returns string
  */
 function BlzGetAbilityResearchExtendedTooltip(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityResearchExtendedTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12905,17 +12905,17 @@ function BlzGetAbilityResearchExtendedTooltip(C: Context, L: lua_State) {
  * native BlzSetAbilityIcon takes integer abilCode, string iconPath returns nothing
  */
 function BlzSetAbilityIcon(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let iconPath = luaL_checkstring(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const iconPath = luaL_checkstring(L, 2);
   console.warn('BlzSetAbilityIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetAbilityIcon takes integer abilCode returns string
  */
 function BlzGetAbilityIcon(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityIcon was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12925,17 +12925,17 @@ function BlzGetAbilityIcon(C: Context, L: lua_State) {
  * native BlzSetAbilityActivatedIcon takes integer abilCode, string iconPath returns nothing
  */
 function BlzSetAbilityActivatedIcon(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let iconPath = luaL_checkstring(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const iconPath = luaL_checkstring(L, 2);
   console.warn('BlzSetAbilityActivatedIcon was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetAbilityActivatedIcon takes integer abilCode returns string
  */
 function BlzGetAbilityActivatedIcon(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityActivatedIcon was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -12945,7 +12945,7 @@ function BlzGetAbilityActivatedIcon(C: Context, L: lua_State) {
  * native BlzGetAbilityPosX takes integer abilCode returns integer
  */
 function BlzGetAbilityPosX(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityPosX was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12955,7 +12955,7 @@ function BlzGetAbilityPosX(C: Context, L: lua_State) {
  * native BlzGetAbilityPosY takes integer abilCode returns integer
  */
 function BlzGetAbilityPosY(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityPosY was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12965,27 +12965,27 @@ function BlzGetAbilityPosY(C: Context, L: lua_State) {
  * native BlzSetAbilityPosX takes integer abilCode, integer x returns nothing
  */
 function BlzSetAbilityPosX(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let x = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const x = luaL_checkinteger(L, 2);
   console.warn('BlzSetAbilityPosX was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityPosY takes integer abilCode, integer y returns nothing
  */
 function BlzSetAbilityPosY(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let y = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const y = luaL_checkinteger(L, 2);
   console.warn('BlzSetAbilityPosY was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetAbilityActivatedPosX takes integer abilCode returns integer
  */
 function BlzGetAbilityActivatedPosX(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityActivatedPosX was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -12995,7 +12995,7 @@ function BlzGetAbilityActivatedPosX(C: Context, L: lua_State) {
  * native BlzGetAbilityActivatedPosY takes integer abilCode returns integer
  */
 function BlzGetAbilityActivatedPosY(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
+  const abilCode = luaL_checkinteger(L, 1);
   console.warn('BlzGetAbilityActivatedPosY was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13005,27 +13005,27 @@ function BlzGetAbilityActivatedPosY(C: Context, L: lua_State) {
  * native BlzSetAbilityActivatedPosX takes integer abilCode, integer x returns nothing
  */
 function BlzSetAbilityActivatedPosX(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let x = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const x = luaL_checkinteger(L, 2);
   console.warn('BlzSetAbilityActivatedPosX was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetAbilityActivatedPosY takes integer abilCode, integer y returns nothing
  */
 function BlzSetAbilityActivatedPosY(C: Context, L: lua_State) {
-  let abilCode = luaL_checkinteger(L, 1);
-  let y = luaL_checkinteger(L, 2);
+  const abilCode = luaL_checkinteger(L, 1);
+  const y = luaL_checkinteger(L, 2);
   console.warn('BlzSetAbilityActivatedPosY was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitMaxHP takes unit whichUnit returns integer
  */
 function BlzGetUnitMaxHP(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzGetUnitMaxHP was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13035,17 +13035,17 @@ function BlzGetUnitMaxHP(C: Context, L: lua_State) {
  * native BlzSetUnitMaxHP takes unit whichUnit, integer hp returns nothing
  */
 function BlzSetUnitMaxHP(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let hp = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const hp = luaL_checkinteger(L, 2);
   console.warn('BlzSetUnitMaxHP was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitMaxMana takes unit whichUnit returns integer
  */
 function BlzGetUnitMaxMana(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzGetUnitMaxMana was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13055,47 +13055,47 @@ function BlzGetUnitMaxMana(C: Context, L: lua_State) {
  * native BlzSetUnitMaxMana takes unit whichUnit, integer mana returns nothing
  */
 function BlzSetUnitMaxMana(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let mana = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const mana = luaL_checkinteger(L, 2);
   console.warn('BlzSetUnitMaxMana was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzDeleteHeroAbility takes unit whichUnit, integer abilCode returns nothing
  */
 function BlzDeleteHeroAbility(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilCode = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilCode = luaL_checkinteger(L, 2);
   console.warn('BlzDeleteHeroAbility was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetItemName takes item whichItem, string name returns nothing
  */
 function BlzSetItemName(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetItemName was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetItemDescription takes item whichItem, string name returns nothing
  */
 function BlzSetItemDescription(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetItemDescription was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetItemDescription takes item whichItem returns string
  */
 function BlzGetItemDescription(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('BlzGetItemDescription was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -13105,17 +13105,17 @@ function BlzGetItemDescription(C: Context, L: lua_State) {
  * native BlzSetItemTooltip takes item whichItem, string name returns nothing
  */
 function BlzSetItemTooltip(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetItemTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetItemTooltip takes item whichItem returns string
  */
 function BlzGetItemTooltip(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('BlzGetItemTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -13125,17 +13125,17 @@ function BlzGetItemTooltip(C: Context, L: lua_State) {
  * native BlzSetItemExtendedTooltip takes item whichItem, string name returns nothing
  */
 function BlzSetItemExtendedTooltip(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetItemExtendedTooltip was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetItemExtendedTooltip takes item whichItem returns string
  */
 function BlzGetItemExtendedTooltip(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('BlzGetItemExtendedTooltip was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -13145,17 +13145,17 @@ function BlzGetItemExtendedTooltip(C: Context, L: lua_State) {
  * native BlzSetItemIconPath takes item whichItem, string name returns nothing
  */
 function BlzSetItemIconPath(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichItem = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetItemIconPath was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetItemIconPath takes item whichItem returns string
  */
 function BlzGetItemIconPath(C: Context, L: lua_State) {
-  let whichItem = lua_touserdata(L, 1);
+  const whichItem = lua_touserdata(L, 1);
   console.warn('BlzGetItemIconPath was called but is not implemented :(');
   lua_pushstring(L, '');
   return 1;
@@ -13165,28 +13165,28 @@ function BlzGetItemIconPath(C: Context, L: lua_State) {
  * native BlzSetUnitName takes unit whichUnit, string name returns nothing
  */
 function BlzSetUnitName(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetUnitName was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetHeroProperName takes unit whichUnit, string name returns nothing
  */
 function BlzSetHeroProperName(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let name = luaL_checkstring(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const name = luaL_checkstring(L, 2);
   console.warn('BlzSetHeroProperName was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitBaseDamage takes unit whichUnit, integer weaponIndex returns integer
  */
 function BlzGetUnitBaseDamage(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let weaponIndex = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const weaponIndex = luaL_checkinteger(L, 2);
   console.warn('BlzGetUnitBaseDamage was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13196,19 +13196,19 @@ function BlzGetUnitBaseDamage(C: Context, L: lua_State) {
  * native BlzSetUnitBaseDamage takes unit whichUnit, integer baseDamage, integer weaponIndex returns nothing
  */
 function BlzSetUnitBaseDamage(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let baseDamage = luaL_checkinteger(L, 2);
-  let weaponIndex = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const baseDamage = luaL_checkinteger(L, 2);
+  const weaponIndex = luaL_checkinteger(L, 3);
   console.warn('BlzSetUnitBaseDamage was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitDiceNumber takes unit whichUnit, integer weaponIndex returns integer
  */
 function BlzGetUnitDiceNumber(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let weaponIndex = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const weaponIndex = luaL_checkinteger(L, 2);
   console.warn('BlzGetUnitDiceNumber was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13218,19 +13218,19 @@ function BlzGetUnitDiceNumber(C: Context, L: lua_State) {
  * native BlzSetUnitDiceNumber takes unit whichUnit, integer diceNumber, integer weaponIndex returns nothing
  */
 function BlzSetUnitDiceNumber(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let diceNumber = luaL_checkinteger(L, 2);
-  let weaponIndex = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const diceNumber = luaL_checkinteger(L, 2);
+  const weaponIndex = luaL_checkinteger(L, 3);
   console.warn('BlzSetUnitDiceNumber was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitDiceSides takes unit whichUnit, integer weaponIndex returns integer
  */
 function BlzGetUnitDiceSides(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let weaponIndex = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const weaponIndex = luaL_checkinteger(L, 2);
   console.warn('BlzGetUnitDiceSides was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13240,19 +13240,19 @@ function BlzGetUnitDiceSides(C: Context, L: lua_State) {
  * native BlzSetUnitDiceSides takes unit whichUnit, integer diceSides, integer weaponIndex returns nothing
  */
 function BlzSetUnitDiceSides(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let diceSides = luaL_checkinteger(L, 2);
-  let weaponIndex = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const diceSides = luaL_checkinteger(L, 2);
+  const weaponIndex = luaL_checkinteger(L, 3);
   console.warn('BlzSetUnitDiceSides was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitAttackCooldown takes unit whichUnit, integer weaponIndex returns real
  */
 function BlzGetUnitAttackCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let weaponIndex = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const weaponIndex = luaL_checkinteger(L, 2);
   console.warn('BlzGetUnitAttackCooldown was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13262,184 +13262,184 @@ function BlzGetUnitAttackCooldown(C: Context, L: lua_State) {
  * native BlzSetUnitAttackCooldown takes unit whichUnit, real cooldown, integer weaponIndex returns nothing
  */
 function BlzSetUnitAttackCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let cooldown = luaL_checknumber(L, 2);
-  let weaponIndex = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const cooldown = luaL_checknumber(L, 2);
+  const weaponIndex = luaL_checkinteger(L, 3);
   console.warn('BlzSetUnitAttackCooldown was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectColorByPlayer takes effect whichEffect, player whichPlayer returns nothing
  */
 function BlzSetSpecialEffectColorByPlayer(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let whichPlayer = lua_touserdata(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const whichPlayer = lua_touserdata(L, 2);
   console.warn('BlzSetSpecialEffectColorByPlayer was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectColor takes effect whichEffect, integer r, integer g, integer b returns nothing
  */
 function BlzSetSpecialEffectColor(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let r = luaL_checkinteger(L, 2);
-  let g = luaL_checkinteger(L, 3);
-  let b = luaL_checkinteger(L, 4);
+  const whichEffect = lua_touserdata(L, 1);
+  const r = luaL_checkinteger(L, 2);
+  const g = luaL_checkinteger(L, 3);
+  const b = luaL_checkinteger(L, 4);
   console.warn('BlzSetSpecialEffectColor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectAlpha takes effect whichEffect, integer alpha returns nothing
  */
 function BlzSetSpecialEffectAlpha(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let alpha = luaL_checkinteger(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const alpha = luaL_checkinteger(L, 2);
   console.warn('BlzSetSpecialEffectAlpha was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectScale takes effect whichEffect, real scale returns nothing
  */
 function BlzSetSpecialEffectScale(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let scale = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const scale = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectScale was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectPosition takes effect whichEffect, real x, real y, real z returns nothing
  */
 function BlzSetSpecialEffectPosition(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
-  let y = luaL_checknumber(L, 3);
-  let z = luaL_checknumber(L, 4);
+  const whichEffect = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
+  const y = luaL_checknumber(L, 3);
+  const z = luaL_checknumber(L, 4);
   console.warn('BlzSetSpecialEffectPosition was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectHeight takes effect whichEffect, real height returns nothing
  */
 function BlzSetSpecialEffectHeight(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let height = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const height = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectHeight was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectTimeScale takes effect whichEffect, real timeScale returns nothing
  */
 function BlzSetSpecialEffectTimeScale(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let timeScale = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const timeScale = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectTimeScale was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectTime takes effect whichEffect, real time returns nothing
  */
 function BlzSetSpecialEffectTime(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let time = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const time = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectTime was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectOrientation takes effect whichEffect, real yaw, real pitch, real roll returns nothing
  */
 function BlzSetSpecialEffectOrientation(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let yaw = luaL_checknumber(L, 2);
-  let pitch = luaL_checknumber(L, 3);
-  let roll = luaL_checknumber(L, 4);
+  const whichEffect = lua_touserdata(L, 1);
+  const yaw = luaL_checknumber(L, 2);
+  const pitch = luaL_checknumber(L, 3);
+  const roll = luaL_checknumber(L, 4);
   console.warn('BlzSetSpecialEffectOrientation was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectYaw takes effect whichEffect, real yaw returns nothing
  */
 function BlzSetSpecialEffectYaw(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let yaw = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const yaw = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectYaw was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectPitch takes effect whichEffect, real pitch returns nothing
  */
 function BlzSetSpecialEffectPitch(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let pitch = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const pitch = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectPitch was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectRoll takes effect whichEffect, real roll returns nothing
  */
 function BlzSetSpecialEffectRoll(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let roll = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const roll = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectRoll was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectX takes effect whichEffect, real x returns nothing
  */
 function BlzSetSpecialEffectX(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let x = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const x = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectX was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectY takes effect whichEffect, real y returns nothing
  */
 function BlzSetSpecialEffectY(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let y = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const y = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectY was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectZ takes effect whichEffect, real z returns nothing
  */
 function BlzSetSpecialEffectZ(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let z = luaL_checknumber(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const z = luaL_checknumber(L, 2);
   console.warn('BlzSetSpecialEffectZ was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetSpecialEffectPositionLoc takes effect whichEffect, location loc returns nothing
  */
 function BlzSetSpecialEffectPositionLoc(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
-  let loc = lua_touserdata(L, 2);
+  const whichEffect = lua_touserdata(L, 1);
+  const loc = lua_touserdata(L, 2);
   console.warn('BlzSetSpecialEffectPositionLoc was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetLocalSpecialEffectX takes effect whichEffect returns real
  */
 function BlzGetLocalSpecialEffectX(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
+  const whichEffect = lua_touserdata(L, 1);
   console.warn('BlzGetLocalSpecialEffectX was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13449,7 +13449,7 @@ function BlzGetLocalSpecialEffectX(C: Context, L: lua_State) {
  * native BlzGetLocalSpecialEffectY takes effect whichEffect returns real
  */
 function BlzGetLocalSpecialEffectY(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
+  const whichEffect = lua_touserdata(L, 1);
   console.warn('BlzGetLocalSpecialEffectY was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13459,7 +13459,7 @@ function BlzGetLocalSpecialEffectY(C: Context, L: lua_State) {
  * native BlzGetLocalSpecialEffectZ takes effect whichEffect returns real
  */
 function BlzGetLocalSpecialEffectZ(C: Context, L: lua_State) {
-  let whichEffect = lua_touserdata(L, 1);
+  const whichEffect = lua_touserdata(L, 1);
   console.warn('BlzGetLocalSpecialEffectZ was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13469,7 +13469,7 @@ function BlzGetLocalSpecialEffectZ(C: Context, L: lua_State) {
  * native BlzGetUnitArmor takes unit whichUnit returns real
  */
 function BlzGetUnitArmor(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzGetUnitArmor was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13479,49 +13479,49 @@ function BlzGetUnitArmor(C: Context, L: lua_State) {
  * native BlzSetUnitArmor takes unit whichUnit, real armorAmount returns nothing
  */
 function BlzSetUnitArmor(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let armorAmount = luaL_checknumber(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const armorAmount = luaL_checknumber(L, 2);
   console.warn('BlzSetUnitArmor was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzUnitHideAbility takes unit whichUnit, integer abilId, boolean flag returns nothing
  */
 function BlzUnitHideAbility(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let flag = lua_toboolean(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const flag = lua_toboolean(L, 3);
   console.warn('BlzUnitHideAbility was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzUnitDisableAbility takes unit whichUnit, integer abilId, boolean flag, boolean hideUI returns nothing
  */
 function BlzUnitDisableAbility(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let flag = lua_toboolean(L, 3);
-  let hideUI = lua_toboolean(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const flag = lua_toboolean(L, 3);
+  const hideUI = lua_toboolean(L, 4);
   console.warn('BlzUnitDisableAbility was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzUnitCancelTimedLife takes unit whichUnit returns nothing
  */
 function BlzUnitCancelTimedLife(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzUnitCancelTimedLife was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzIsUnitSelectable takes unit whichUnit returns boolean
  */
 function BlzIsUnitSelectable(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzIsUnitSelectable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -13531,7 +13531,7 @@ function BlzIsUnitSelectable(C: Context, L: lua_State) {
  * native BlzIsUnitInvulnerable takes unit whichUnit returns boolean
  */
 function BlzIsUnitInvulnerable(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzIsUnitInvulnerable was called but is not implemented :(');
   lua_pushboolean(L, false);
   return 1;
@@ -13541,16 +13541,16 @@ function BlzIsUnitInvulnerable(C: Context, L: lua_State) {
  * native BlzUnitInterruptAttack takes unit whichUnit returns nothing
  */
 function BlzUnitInterruptAttack(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzUnitInterruptAttack was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitCollisionSize takes unit whichUnit returns real
  */
 function BlzGetUnitCollisionSize(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzGetUnitCollisionSize was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13560,8 +13560,8 @@ function BlzGetUnitCollisionSize(C: Context, L: lua_State) {
  * native BlzGetAbilityManaCost takes integer abilId, integer level returns integer
  */
 function BlzGetAbilityManaCost(C: Context, L: lua_State) {
-  let abilId = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilId = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityManaCost was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13571,8 +13571,8 @@ function BlzGetAbilityManaCost(C: Context, L: lua_State) {
  * native BlzGetAbilityCooldown takes integer abilId, integer level returns real
  */
 function BlzGetAbilityCooldown(C: Context, L: lua_State) {
-  let abilId = luaL_checkinteger(L, 1);
-  let level = luaL_checkinteger(L, 2);
+  const abilId = luaL_checkinteger(L, 1);
+  const level = luaL_checkinteger(L, 2);
   console.warn('BlzGetAbilityCooldown was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13582,21 +13582,21 @@ function BlzGetAbilityCooldown(C: Context, L: lua_State) {
  * native BlzSetUnitAbilityCooldown takes unit whichUnit, integer abilId, integer level, real cooldown returns nothing
  */
 function BlzSetUnitAbilityCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let level = luaL_checkinteger(L, 3);
-  let cooldown = luaL_checknumber(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const level = luaL_checkinteger(L, 3);
+  const cooldown = luaL_checknumber(L, 4);
   console.warn('BlzSetUnitAbilityCooldown was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitAbilityCooldown takes unit whichUnit, integer abilId, integer level returns real
  */
 function BlzGetUnitAbilityCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzGetUnitAbilityCooldown was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13606,8 +13606,8 @@ function BlzGetUnitAbilityCooldown(C: Context, L: lua_State) {
  * native BlzGetUnitAbilityCooldownRemaining takes unit whichUnit, integer abilId returns real
  */
 function BlzGetUnitAbilityCooldownRemaining(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
   console.warn('BlzGetUnitAbilityCooldownRemaining was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13617,19 +13617,19 @@ function BlzGetUnitAbilityCooldownRemaining(C: Context, L: lua_State) {
  * native BlzEndUnitAbilityCooldown takes unit whichUnit, integer abilCode returns nothing
  */
 function BlzEndUnitAbilityCooldown(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilCode = luaL_checkinteger(L, 2);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilCode = luaL_checkinteger(L, 2);
   console.warn('BlzEndUnitAbilityCooldown was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetUnitAbilityManaCost takes unit whichUnit, integer abilId, integer level returns integer
  */
 function BlzGetUnitAbilityManaCost(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let level = luaL_checkinteger(L, 3);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const level = luaL_checkinteger(L, 3);
   console.warn('BlzGetUnitAbilityManaCost was called but is not implemented :(');
   lua_pushinteger(L, 0);
   return 1;
@@ -13639,19 +13639,19 @@ function BlzGetUnitAbilityManaCost(C: Context, L: lua_State) {
  * native BlzSetUnitAbilityManaCost takes unit whichUnit, integer abilId, integer level, integer manaCost returns nothing
  */
 function BlzSetUnitAbilityManaCost(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
-  let abilId = luaL_checkinteger(L, 2);
-  let level = luaL_checkinteger(L, 3);
-  let manaCost = luaL_checkinteger(L, 4);
+  const whichUnit = lua_touserdata(L, 1);
+  const abilId = luaL_checkinteger(L, 2);
+  const level = luaL_checkinteger(L, 3);
+  const manaCost = luaL_checkinteger(L, 4);
   console.warn('BlzSetUnitAbilityManaCost was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzGetLocalUnitZ takes unit whichUnit returns real
  */
 function BlzGetLocalUnitZ(C: Context, L: lua_State) {
-  let whichUnit = lua_touserdata(L, 1);
+  const whichUnit = lua_touserdata(L, 1);
   console.warn('BlzGetLocalUnitZ was called but is not implemented :(');
   lua_pushnumber(L, 0);
   return 1;
@@ -13661,24 +13661,24 @@ function BlzGetLocalUnitZ(C: Context, L: lua_State) {
  * native BlzDecPlayerTechResearched takes player whichPlayer, integer techid, integer levels returns nothing
  */
 function BlzDecPlayerTechResearched(C: Context, L: lua_State) {
-  let whichPlayer = lua_touserdata(L, 1);
-  let techid = luaL_checkinteger(L, 2);
-  let levels = luaL_checkinteger(L, 3);
+  const whichPlayer = lua_touserdata(L, 1);
+  const techid = luaL_checkinteger(L, 2);
+  const levels = luaL_checkinteger(L, 3);
   console.warn('BlzDecPlayerTechResearched was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 /**
  * native BlzSetEventDamage takes real damage returns nothing
  */
 function BlzSetEventDamage(C: Context, L: lua_State) {
-  let damage = luaL_checknumber(L, 1);
+  const damage = luaL_checknumber(L, 1);
   console.warn('BlzSetEventDamage was called but is not implemented :(');
-  return 0
+  return 0;
 }
 
 export default function bindNatives(C: Context) {
-  let L = C.L;
+  const L = C.L;
 
   lua_register(L, 'ConvertRace', ConvertRace.bind(null, C));
   lua_register(L, 'ConvertAllianceType', ConvertAllianceType.bind(null, C));

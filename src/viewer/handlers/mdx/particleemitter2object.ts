@@ -62,7 +62,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.tailLength = emitter.tailLength;
     this.timeMiddle = emitter.timeMiddle;
 
-    let replaceableId = emitter.replaceableId;
+    const replaceableId = emitter.replaceableId;
 
     this.columns = emitter.columns;
     this.rows = emitter.rows;
@@ -70,7 +70,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     if (replaceableId === 1 || replaceableId === 2) {
       this.teamColored = 1;
     } else if (replaceableId > 2) {
-      let texturesExt = model.reforged ? '.dds' : '.blp';
+      const texturesExt = model.reforged ? '.dds' : '.blp';
 
       this.internalTexture = new MdxTexture(replaceableId, false, false);
 
@@ -85,7 +85,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.replaceableId = emitter.replaceableId;
     this.textureId = emitter.textureId;
 
-    let headOrTail = emitter.headOrTail;
+    const headOrTail = emitter.headOrTail;
 
     this.head = (headOrTail === 0 || headOrTail === 2);
     this.tail = (headOrTail === 1 || headOrTail === 2);
@@ -93,19 +93,19 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.cellWidth = 1 / emitter.columns;
     this.cellHeight = 1 / emitter.rows;
 
-    let colors = emitter.segmentColors;
-    let alpha = emitter.segmentAlphas;
+    const colors = emitter.segmentColors;
+    const alpha = emitter.segmentAlphas;
 
     for (let i = 0; i < 3; i++) {
-      let color = colors[i];
+      const color = colors[i];
 
       this.colors[i] = new Float32Array([color[0], color[1], color[2], alpha[i] / 255]);
     }
 
     this.scaling = emitter.segmentScaling;
 
-    let headIntervals = emitter.headIntervals;
-    let tailIntervals = emitter.tailIntervals;
+    const headIntervals = emitter.headIntervals;
+    const tailIntervals = emitter.tailIntervals;
 
     // Change to Float32Array instead of Uint32Array to be able to pass the intervals directly using uniform3fv().
     this.intervals = [
@@ -115,7 +115,7 @@ export default class ParticleEmitter2Object extends GenericObject {
       new Float32Array(tailIntervals[1]),
     ];
 
-    let blendModes = emitterFilterMode(emitter.filterMode, this.model.viewer.gl);
+    const blendModes = emitterFilterMode(emitter.filterMode, this.model.viewer.gl);
 
     this.filterMode = emitter.filterMode;
     this.blendSrc = blendModes[0];
@@ -148,11 +148,11 @@ export default class ParticleEmitter2Object extends GenericObject {
     return this.getScalarValue(out, 'KP2E', sequence, frame, counter, this.emissionRate);
   }
 
-  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
-    return this.getScalarValue(out, 'KP2V', sequence, frame, counter, 1);
-  }
-
   getVariation(out: Float32Array, sequence: number, frame: number, counter: number) {
     return this.getScalarValue(out, 'KP2R', sequence, frame, counter, this.variation);
+  }
+
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2V', sequence, frame, counter, 1);
   }
 }

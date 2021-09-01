@@ -26,7 +26,7 @@ export default class War3MapW3d {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     this.originalTable.save(stream, true);

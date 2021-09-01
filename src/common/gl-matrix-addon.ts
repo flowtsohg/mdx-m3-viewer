@@ -11,9 +11,9 @@ export const QUAT_DEFAULT = quat.create();
 const vec4Heap = vec4.create();
 
 export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec4) {
-  let x = 2 * (v[0] - viewport[0]) / viewport[2] - 1;
-  let y = 1 - 2 * (v[1] - viewport[1]) / viewport[3];
-  let z = 2 * v[2] - 1;
+  const x = 2 * (v[0] - viewport[0]) / viewport[2] - 1;
+  const y = 1 - 2 * (v[1] - viewport[1]) / viewport[3];
+  const z = 2 * v[2] - 1;
 
   vec4.set(vec4Heap, x, y, z, 1);
   vec4.transformMat4(vec4Heap, vec4Heap, inverseMatrix);
@@ -62,7 +62,7 @@ export function testSphere(planes: vec4[], x: number, y: number, z: number, r: n
   }
 
   for (let i = 0; i < 6; i++) {
-    let index = (first + i) % 6;
+    const index = (first + i) % 6;
 
     if (distanceToPlane3(planes[index], x, y, z) <= -r) {
       return index;
@@ -85,8 +85,8 @@ export function testCell(planes: vec4[], left: number, right: number, bottom: nu
   }
 
   for (let i = 0; i < 6; i++) {
-    let index = (first + i) % 6;
-    let plane = planes[index];
+    const index = (first + i) % 6;
+    const plane = planes[index];
 
     if (distanceToPlane2(plane, left, bottom) < 0 &&
       distanceToPlane2(plane, left, top) < 0 &&
@@ -109,7 +109,7 @@ export function planeLength(plane: vec4) {
  * Note that this is not the same as normalizing a vec4.
  */
 export function normalizePlane(out: vec4, plane: vec4) {
-  let len = planeLength(plane);
+  const len = planeLength(plane);
 
   out[0] = plane[0] / len;
   out[1] = plane[1] / len;
@@ -122,7 +122,7 @@ export function normalizePlane(out: vec4, plane: vec4) {
  */
 export function unpackPlanes(planes: vec4[], m: mat4) {
   // eslint-disable-next-line one-var
-  let a00 = m[0], a01 = m[4], a02 = m[8], a03 = m[12],
+  const a00 = m[0], a01 = m[4], a02 = m[8], a03 = m[12],
     a10 = m[1], a11 = m[5], a12 = m[9], a13 = m[13],
     a20 = m[2], a21 = m[6], a22 = m[10], a23 = m[14],
     a30 = m[3], a31 = m[7], a32 = m[11], a33 = m[15];
@@ -192,10 +192,10 @@ export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3) {
   vec3.normalize(R, vec3.cross(R, worldUp, F));
   vec3.cross(U, R, F);
 
-  let trace = R[0] + U[2] + F[1];
+  const trace = R[0] + U[2] + F[1];
 
   if (trace > 0.0) {
-    let s = 0.5 / Math.sqrt(trace + 1.0);
+    const s = 0.5 / Math.sqrt(trace + 1.0);
 
     out[3] = 0.25 / s;
     out[0] = (U[1] - F[2]) * s;
@@ -203,21 +203,21 @@ export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3) {
     out[1] = (R[2] - U[0]) * s;
   } else {
     if (R[0] > U[2] && R[0] > F[1]) {
-      let s = 2.0 * Math.sqrt(1.0 + R[0] - U[2] - F[1]);
+      const s = 2.0 * Math.sqrt(1.0 + R[0] - U[2] - F[1]);
 
       out[3] = (U[1] - F[2]) / s;
       out[0] = 0.25 * s;
       out[2] = (U[0] + R[2]) / s;
       out[1] = (F[0] + R[1]) / s;
     } else if (U[2] > F[1]) {
-      let s = 2.0 * Math.sqrt(1.0 + U[2] - R[0] - F[1]);
+      const s = 2.0 * Math.sqrt(1.0 + U[2] - R[0] - F[1]);
 
       out[3] = (F[0] - R[1]) / s;
       out[0] = (U[0] + R[2]) / s;
       out[2] = 0.25 * s;
       out[1] = (F[2] + U[1]) / s;
     } else {
-      let s = 2.0 * Math.sqrt(1.0 + F[1] - R[0] - U[2]);
+      const s = 2.0 * Math.sqrt(1.0 + F[1] - R[0] - U[2]);
 
       out[3] = (R[2] - U[0]) / s;
       out[0] = (F[0] + R[1]) / s;

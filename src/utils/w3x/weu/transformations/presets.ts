@@ -11,7 +11,7 @@ function initialize() {
 
     function preset(name: string) {
       return function (data: WeuData, object: Parameter) {
-        let subParameters = new SubParameters();
+        const subParameters = new SubParameters();
 
         subParameters.name = name;
         subParameters.type = data.triggerData.getFunctionType(name);
@@ -69,7 +69,7 @@ export default function transformPreset(data: WeuData, parameter: Parameter) {
     initialize();
   }
 
-  let transform = transformers[parameter.value];
+  const transform = transformers[parameter.value];
 
   if (transform) {
     return transform(data, parameter);

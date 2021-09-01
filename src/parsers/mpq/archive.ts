@@ -35,26 +35,26 @@ export default class MpqArchive {
    * Note that this clears the archive from whatever it had in it before.
    */
   load(buffer: ArrayBuffer | Uint8Array, readonly: boolean = false) {
-    let bytes = bytesOf(buffer)
+    const bytes = bytesOf(buffer);
 
     this.readonly = readonly;
 
     // let fileSize = buffer.byteLength;
-    let headerOffset = searchHeader(bytes);
+    const headerOffset = searchHeader(bytes);
 
     if (headerOffset === -1) {
       throw new Error('No MPQ header');
     }
 
     // Read the header.
-    let uint32array = new Uint32Array(bytes.buffer, headerOffset, 8);
+    const uint32array = new Uint32Array(bytes.buffer, headerOffset, 8);
     // let headerSize = uint32array[1];
     // let archiveSize = uint32array[2];
-    let formatVersionSectorSize = uint32array[3];
+    const formatVersionSectorSize = uint32array[3];
     // let formatVersion = formatVersionSectorSize & 0x0000FFFF;
-    let hashPos = numberToUint32(uint32array[4] + headerOffset); // Whoever thought of MoonLight, clever!
-    let blockPos = numberToUint32(uint32array[5] + headerOffset);
-    let hashSize = uint32array[6];
+    const hashPos = numberToUint32(uint32array[4] + headerOffset); // Whoever thought of MoonLight, clever!
+    const blockPos = numberToUint32(uint32array[5] + headerOffset);
+    const hashSize = uint32array[6];
     let blockSize = uint32array[7];
 
     // There can only be as many or less blocks as there are hashes.
@@ -80,8 +80,8 @@ export default class MpqArchive {
     this.files.length = 0;
 
     // Read the files.
-    for (let hash of this.hashTable.entries) {
-      let blockIndex = hash.blockIndex;
+    for (const hash of this.hashTable.entries) {
+      const blockIndex = hash.blockIndex;
 
       // If the block index is valid, load a file.
       // This isn't the case when the block is marked as deleted with HASH_ENTRY_DELETED.
@@ -92,12 +92,12 @@ export default class MpqArchive {
     }
 
     // If there is a listfile, use all of the file names in it.
-    let listfile = this.get('(listfile)');
+    const listfile = this.get('(listfile)');
     if (listfile) {
-      let list = listfile.text();
+      const list = listfile.text();
 
       if (list) {
-        for (let name of list.split('\r\n')) {
+        for (const name of list.split('\r\n')) {
           // get() internally also sets the file's name to the given one.
           this.get(name);
         }
@@ -118,7 +118,7 @@ export default class MpqArchive {
       return null;
     }
 
-    let headerSize = 32;
+    const headerSize = 32;
 
     // Delete the internal attributes file.
     // The attributes might (and do in the case of World Editor generated maps) contain CRC checksums for the internal files.
@@ -142,7 +142,7 @@ export default class MpqArchive {
     // Reset the file offsets.
     let offset = headerSize;
 
-    for (let file of this.files) {
+    for (const file of this.files) {
       // There can be holes in the files array.
       if (file) {
         // If the file's offset changed, and it is encrypted with a key that depends on its offset,
@@ -158,16 +158,16 @@ export default class MpqArchive {
       }
     }
 
-    let hashTable = this.hashTable;
-    let blockTable = this.blockTable;
-    let hashes = hashTable.entries.length;
-    let blocks = blockTable.entries.length;
-    let filesSize = offset - headerSize;
-    let archiveSize = headerSize + filesSize + hashes * 16 + blocks * 16;
-    let hashPos = headerSize + filesSize;
-    let blockPos = hashPos + hashes * 16;
-    let bytes = new Uint8Array(archiveSize);
-    let uint32array = new Uint32Array(bytes.buffer, 0, 8);
+    const hashTable = this.hashTable;
+    const blockTable = this.blockTable;
+    const hashes = hashTable.entries.length;
+    const blocks = blockTable.entries.length;
+    const filesSize = offset - headerSize;
+    const archiveSize = headerSize + filesSize + hashes * 16 + blocks * 16;
+    const hashPos = headerSize + filesSize;
+    const blockPos = hashPos + hashes * 16;
+    const bytes = new Uint8Array(archiveSize);
+    const uint32array = new Uint32Array(bytes.buffer, 0, 8);
 
     // Write the header.
     uint32array[0] = MAGIC;
@@ -182,11 +182,11 @@ export default class MpqArchive {
     offset = headerSize;
 
     // Write the files.
-    for (let file of this.files) {
+    for (const file of this.files) {
       // There can be holes in the files array.
       if (file) {
         if (file.rawBuffer) {
-          bytes.set(file.rawBuffer, offset)
+          bytes.set(file.rawBuffer, offset);
         }
 
         offset += file.block.compressedSize;
@@ -217,13 +217,13 @@ export default class MpqArchive {
       return 0;
     }
 
-    let blocks = this.blockTable.entries;
-    let hashes = this.hashTable.entries;
+    const blocks = this.blockTable.entries;
+    const hashes = this.hashTable.entries;
     let i = blocks.length;
     let saved = 0;
 
     while (i--) {
-      let block = blocks[i];
+      const block = blocks[i];
 
       // Remove blocks with no data.
       if (block.normalSize === 0) {
@@ -233,7 +233,7 @@ export default class MpqArchive {
       } else {
         let used = false;
 
-        for (let hash of hashes) {
+        for (const hash of hashes) {
           if (hash.blockIndex === i) {
             used = true;
             break;
@@ -253,7 +253,7 @@ export default class MpqArchive {
   }
 
   removeBlock(blockIndex: number) {
-    for (let hash of this.hashTable.entries) {
+    for (const hash of this.hashTable.entries) {
       if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > blockIndex) {
         hash.blockIndex -= 1;
       }
@@ -268,9 +268,9 @@ export default class MpqArchive {
    * Note that files loaded from an existing archive, without resolved names, will be named FileXXXXXXXX.
    */
   getFileNames() {
-    let names = [];
+    const names = [];
 
-    for (let file of this.files) {
+    for (const file of this.files) {
       if (file && file.name !== '') {
         names.push(file.name);
       }
@@ -285,7 +285,7 @@ export default class MpqArchive {
   countUnresolved() {
     let unresolved = 0;
 
-    for (let file of this.files) {
+    for (const file of this.files) {
       if (!file.nameResolved) {
         unresolved++;
       }
@@ -298,7 +298,7 @@ export default class MpqArchive {
    * Given an iterable of file names, attempt to resolve the archive files with them.
    */
   applyListfile(listfile: Iterable<string>) {
-    for (let file of listfile) {
+    for (const file of listfile) {
       this.get(file);
     }
   }
@@ -314,21 +314,21 @@ export default class MpqArchive {
       return false;
     }
 
-    let bytes = bytesOf(buffer);
+    const bytes = bytesOf(buffer);
     let file = this.get(name);
 
     // If the file already exists, change the data.
     if (file) {
       file.set(bytes);
     } else {
-      let blockIndex = this.blockTable.entries.length;
-      let hash = this.hashTable.add(name, blockIndex);
+      const blockIndex = this.blockTable.entries.length;
+      const hash = this.hashTable.add(name, blockIndex);
 
       if (!hash) {
         return false;
       }
 
-      let block = this.blockTable.add(bytes);
+      const block = this.blockTable.add(bytes);
 
       file = new MpqFile(this, hash, block, null, bytes);
       file.name = name;
@@ -345,14 +345,14 @@ export default class MpqArchive {
    * If the file doesn't exist, null is returned.
    */
   get(name: string) {
-    let hash = this.hashTable.get(name);
+    const hash = this.hashTable.get(name);
 
     if (hash) {
-      let blockIndex = hash.blockIndex;
+      const blockIndex = hash.blockIndex;
 
       // Check if the block exists.
       if (blockIndex < HASH_ENTRY_DELETED) {
-        let file = this.files[blockIndex];
+        const file = this.files[blockIndex];
 
         if (file) {
           // Save the name in case it wasn't already resolved.
@@ -389,7 +389,7 @@ export default class MpqArchive {
       return false;
     }
 
-    let file = this.get(name);
+    const file = this.get(name);
 
     if (!file) {
       return false;
@@ -416,7 +416,7 @@ export default class MpqArchive {
       return false;
     }
 
-    let file = this.get(name);
+    const file = this.get(name);
 
     if (!file) {
       return false;
@@ -445,7 +445,7 @@ export default class MpqArchive {
 
     size = Math.max(4, powerOfTwo(size));
 
-    let files = this.files;
+    const files = this.files;
 
     // Can't resize to a size smaller than the existing files.
     if (files.length > size) {
@@ -454,15 +454,15 @@ export default class MpqArchive {
 
     // If not all file names are known, don't resize.
     // The insertion algorithm depends on the names.
-    for (let file of files) {
+    for (const file of files) {
       if (!file.nameResolved) {
         return false;
       }
     }
 
-    let hashTable = this.hashTable;
-    let entries = hashTable.entries;
-    let oldEntries = entries.slice();
+    const hashTable = this.hashTable;
+    const entries = hashTable.entries;
+    const oldEntries = entries.slice();
 
     // Clear the entries.
     hashTable.clear();
@@ -471,10 +471,10 @@ export default class MpqArchive {
     hashTable.addEmpties(size);
 
     // Go over all of the old entries, and copy them into the new entries.
-    for (let hash of oldEntries) {
+    for (const hash of oldEntries) {
       if (hash.blockIndex !== HASH_ENTRY_EMPTY) {
-        let file = files[hash.blockIndex];
-        let insertionIndex = hashTable.getInsertionIndex(file.name);
+        const file = files[hash.blockIndex];
+        const insertionIndex = hashTable.getInsertionIndex(file.name);
 
         entries[insertionIndex].copy(hash);
       }

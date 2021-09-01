@@ -53,7 +53,7 @@ export default class War3MapW3i {
   unknown1: number = 0;
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
     this.saves = stream.readInt32();
@@ -112,7 +112,7 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let player = new Player();
+      const player = new Player();
 
       player.load(stream, this.version);
 
@@ -120,7 +120,7 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let force = new Force();
+      const force = new Force();
 
       force.load(stream);
 
@@ -128,7 +128,7 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let upgradeAvailabilityChange = new UpgradeAvailabilityChange();
+      const upgradeAvailabilityChange = new UpgradeAvailabilityChange();
 
       upgradeAvailabilityChange.load(stream);
 
@@ -136,7 +136,7 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let techAvailabilityChange = new TechAvailabilityChange();
+      const techAvailabilityChange = new TechAvailabilityChange();
 
       techAvailabilityChange.load(stream);
 
@@ -144,7 +144,7 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let randomUnitTable = new RandomUnitTable();
+      const randomUnitTable = new RandomUnitTable();
 
       randomUnitTable.load(stream);
 
@@ -153,7 +153,7 @@ export default class War3MapW3i {
 
     if (this.version > 24) {
       for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let randomItemTable = new RandomItemTable();
+        const randomItemTable = new RandomItemTable();
 
         randomItemTable.load(stream);
 
@@ -163,7 +163,7 @@ export default class War3MapW3i {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     stream.writeInt32(this.saves);
@@ -223,38 +223,38 @@ export default class War3MapW3i {
 
     stream.writeUint32(this.players.length);
 
-    for (let player of this.players) {
+    for (const player of this.players) {
       player.save(stream, this.version);
     }
 
     stream.writeUint32(this.forces.length);
 
-    for (let force of this.forces) {
+    for (const force of this.forces) {
       force.save(stream);
     }
 
     stream.writeUint32(this.upgradeAvailabilityChanges.length);
 
-    for (let change of this.upgradeAvailabilityChanges) {
+    for (const change of this.upgradeAvailabilityChanges) {
       change.save(stream);
     }
 
     stream.writeUint32(this.techAvailabilityChanges.length);
 
-    for (let change of this.techAvailabilityChanges) {
+    for (const change of this.techAvailabilityChanges) {
       change.save(stream);
     }
 
     stream.writeUint32(this.randomUnitTables.length);
 
-    for (let table of this.randomUnitTables) {
+    for (const table of this.randomUnitTables) {
       table.save(stream);
     }
 
     if (this.version > 24) {
       stream.writeUint32(this.randomItemTables.length);
 
-      for (let table of this.randomItemTables) {
+      for (const table of this.randomItemTables) {
         table.save(stream);
       }
     }
@@ -265,11 +265,11 @@ export default class War3MapW3i {
   getByteLength() {
     let size = 111 + byteLengthUtf8(this.name) + byteLengthUtf8(this.author) + byteLengthUtf8(this.description) + byteLengthUtf8(this.recommendedPlayers) + byteLengthUtf8(this.loadingScreenText) + byteLengthUtf8(this.loadingScreenTitle) + byteLengthUtf8(this.loadingScreenSubtitle) + byteLengthUtf8(this.prologueScreenText) + byteLengthUtf8(this.prologueScreenTitle) + byteLengthUtf8(this.prologueScreenSubtitle);
 
-    for (let player of this.players) {
+    for (const player of this.players) {
       size += player.getByteLength(this.version);
     }
 
-    for (let force of this.forces) {
+    for (const force of this.forces) {
       size += force.getByteLength();
     }
 
@@ -277,14 +277,14 @@ export default class War3MapW3i {
 
     size += this.techAvailabilityChanges.length * 8;
 
-    for (let table of this.randomUnitTables) {
+    for (const table of this.randomUnitTables) {
       size += table.getByteLength();
     }
 
     if (this.version > 24) {
       size += 36 + byteLengthUtf8(this.loadingScreenModel) + byteLengthUtf8(this.prologueScreenModel) + byteLengthUtf8(this.soundEnvironment);
 
-      for (let table of this.randomItemTables) {
+      for (const table of this.randomItemTables) {
         size += table.getByteLength();
       }
     }

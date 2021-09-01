@@ -32,7 +32,7 @@ function isBlzNeeded(name: string) {
 }
 
 export default function transformBlz(data: WeuData, object: ECA | SubParameters) {
-  let name = object.name;
+  const name = object.name;
 
   if (!isBlzNeeded(name)) {
     return false;
@@ -45,7 +45,7 @@ export default function transformBlz(data: WeuData, object: ECA | SubParameters)
     (<Parameter>data.stack[1]).value = `Blz${name}`;
   }
 
-  let parameters = object.parameters;
+  const parameters = object.parameters;
 
   // In the PTR these functions had 3 parameters, but later it became 2.
   if ((name === 'GetAbilityIcon' || name === 'SetAbilityIcon') && parameters.length === 3) {

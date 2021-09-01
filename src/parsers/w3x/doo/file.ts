@@ -13,17 +13,17 @@ export default class War3MapDoo {
   terrainDoodads: TerrainDoodad[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3do') {
-      return false;
+      throw new Error('Not a valid war3map.doo buffer');
     }
 
     this.version = stream.readInt32();
     stream.readUint8Array(this.u1);
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let doodad = new Doodad();
+      const doodad = new Doodad();
 
       doodad.load(stream, this.version, buildVersion);
 
@@ -33,7 +33,7 @@ export default class War3MapDoo {
     stream.readUint8Array(this.u2);
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let terrainDoodad = new TerrainDoodad();
+      const terrainDoodad = new TerrainDoodad();
 
       terrainDoodad.load(stream, this.version);
 
@@ -42,21 +42,21 @@ export default class War3MapDoo {
   }
 
   save(buildVersion: number) {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
 
     stream.writeBinary('W3do');
     stream.writeInt32(this.version);
     stream.writeUint8Array(this.u1);
     stream.writeUint32(this.doodads.length);
 
-    for (let doodad of this.doodads) {
+    for (const doodad of this.doodads) {
       doodad.save(stream, this.version, buildVersion);
     }
 
     stream.writeUint8Array(this.u2);
     stream.writeUint32(this.terrainDoodads.length);
 
-    for (let terrainDoodad of this.terrainDoodads) {
+    for (const terrainDoodad of this.terrainDoodads) {
       terrainDoodad.save(stream, this.version);
     }
 
@@ -66,7 +66,7 @@ export default class War3MapDoo {
   getByteLength(buildVersion: number) {
     let size = 24 + this.terrainDoodads.length * 16;
 
-    for (let doodad of this.doodads) {
+    for (const doodad of this.doodads) {
       size += doodad.getByteLength(this.version, buildVersion);
     }
 

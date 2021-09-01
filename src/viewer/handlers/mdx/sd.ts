@@ -21,12 +21,12 @@ class SdSequence {
     this.start = start;
     this.end = end;
 
-    let interpolationType = sd.interpolationType;
-    let frames = animation.frames;
-    let values = animation.values;
-    let inTans = animation.inTans;
-    let outTans = animation.outTans;
-    let defval = sd.defval;
+    const interpolationType = sd.interpolationType;
+    const frames = animation.frames;
+    const values = animation.values;
+    const inTans = animation.inTans;
+    const outTans = animation.outTans;
+    const defval = sd.defval;
 
     // When using a global sequence, where the first key is outside of the sequence's length, it becomes its constant value.
     // When having one key in the sequence's range, and one key outside of it, results seem to be non-deterministic.
@@ -42,7 +42,7 @@ class SdSequence {
 
     // Go over the keyframes, and add all of the ones that are in this sequence (start <= frame <= end).
     for (let i = 0, l = frames.length; i < l; i++) {
-      let frame = frames[i];
+      const frame = frames[i];
 
       if (frame >= start && frame <= end) {
         this.frames.push(frame);
@@ -55,7 +55,7 @@ class SdSequence {
       }
     }
 
-    let tracksCount = this.frames.length;
+    const tracksCount = this.frames.length;
 
     if (tracksCount === 0) {
       // If there are no keys, use the default value directly.
@@ -67,7 +67,7 @@ class SdSequence {
       // If there's only one key, use it directly.
       this.constant = true;
     } else {
-      let firstValue = this.values[0];
+      const firstValue = this.values[0];
 
       // If all of the values in this sequence are the same, might as well make it constant.
       this.constant = this.values.every((value) => firstValue.every((element: number, index: number) => element === value[index]));
@@ -75,8 +75,8 @@ class SdSequence {
   }
 
   getValue(out: Uint32Array | Float32Array, frame: number) {
-    let frames = this.frames;
-    let length = frames.length;
+    const frames = this.frames;
+    const length = frames.length;
 
     // Fixed implementation copied directly from Retera's code. Thank you!
     if (this.constant || frame < this.start) {
@@ -86,7 +86,7 @@ class SdSequence {
     } else {
       let startFrameIndex = -1;
       let endFrameIndex = -1;
-      let lengthLessOne = length - 1;
+      const lengthLessOne = length - 1;
 
       if ((frame < this.frames[0]) || (frame >= this.frames[lengthLessOne])) {
         startFrameIndex = lengthLessOne;
@@ -102,7 +102,7 @@ class SdSequence {
       }
 
       let startFrame = this.frames[startFrameIndex];
-      let endFrame = this.frames[endFrameIndex];
+      const endFrame = this.frames[endFrameIndex];
       let timeBetweenFrames = endFrame - startFrame;
 
       if (timeBetweenFrames < 0) {
@@ -113,7 +113,7 @@ class SdSequence {
         }
       }
 
-      let t = ((timeBetweenFrames) == 0 ? 0 : ((frame - startFrame) / timeBetweenFrames));
+      const t = ((timeBetweenFrames) == 0 ? 0 : ((frame - startFrame) / timeBetweenFrames));
       this.sd.interpolate(out, this.values, this.inTans, this.outTans, startFrameIndex, endFrameIndex, t);
 
       return startFrameIndex;
@@ -208,9 +208,9 @@ export abstract class Sd {
   abstract interpolate(out: Uint32Array | Float32Array | vec3 | quat, values: (Uint32Array | Float32Array | vec3 | quat)[], inTans: (Uint32Array | Float32Array | vec3 | quat)[], outTans: (Uint32Array | Float32Array | vec3 | quat)[], start: number, end: number, t: number): void;
 
   constructor(model: MdxModel, animation: Animation) {
-    let globalSequences = model.globalSequences;
-    let globalSequenceId = animation.globalSequenceId;
-    let forcedInterp = forcedInterpMap[animation.name];
+    const globalSequences = model.globalSequences;
+    const globalSequenceId = animation.globalSequenceId;
+    const forcedInterp = forcedInterpMap[animation.name];
 
     this.model = model;
     this.name = animation.name;
@@ -224,8 +224,8 @@ export abstract class Sd {
     if (globalSequenceId !== -1 && globalSequences) {
       this.globalSequence = new SdSequence(this, 0, globalSequences[globalSequenceId], animation, true);
     } else {
-      for (let sequence of model.sequences) {
-        let interval = sequence.interval;
+      for (const sequence of model.sequences) {
+        const interval = sequence.interval;
 
         this.sequences.push(new SdSequence(this, interval[0], interval[1], animation, false));
       }
@@ -258,8 +258,8 @@ export class ScalarSd extends Sd {
   }
 
   interpolate(out: Uint32Array | Float32Array, values: (Uint32Array | Float32Array)[], inTans: (Uint32Array | Float32Array)[], outTans: (Uint32Array | Float32Array)[], start: number, end: number, t: number) {
-    let interpolationType = this.interpolationType;
-    let startValue = values[start][0];
+    const interpolationType = this.interpolationType;
+    const startValue = values[start][0];
 
     if (interpolationType === 0) {
       out[0] = startValue;
@@ -282,7 +282,7 @@ export class VectorSd extends Sd {
   }
 
   interpolate(out: vec3, values: vec3[], inTans: vec3[], outTans: vec3[], start: number, end: number, t: number) {
-    let interpolationType = this.interpolationType;
+    const interpolationType = this.interpolationType;
 
     if (interpolationType === 0) {
       vec3.copy(out, values[start]);
@@ -305,7 +305,7 @@ export class QuatSd extends Sd {
   }
 
   interpolate(out: quat, values: quat[], inTans: quat[], outTans: quat[], start: number, end: number, t: number) {
-    let interpolationType = this.interpolationType;
+    const interpolationType = this.interpolationType;
 
     if (interpolationType === 0) {
       quat.copy(out, values[start]);

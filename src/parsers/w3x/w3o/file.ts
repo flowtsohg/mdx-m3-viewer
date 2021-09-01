@@ -19,7 +19,7 @@ export default class War3MapW3o {
   upgrades: War3MapW3d | null = null;
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
 
@@ -60,7 +60,7 @@ export default class War3MapW3o {
   }
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
 

@@ -40,7 +40,7 @@ export default class War3Map {
    * Note that this clears the map from whatever it had in it before.
    */
   load(buffer: ArrayBuffer | Uint8Array, readonly: boolean = false) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?
     if (stream.readBinary(4) === 'HM3W') {
@@ -71,18 +71,18 @@ export default class War3Map {
     // Update the imports if needed.
     this.setImportsFile();
 
-    let archiveBuffer = this.archive.save();
+    const archiveBuffer = this.archive.save();
 
     if (!archiveBuffer) {
       return null;
     }
 
-    let information = this.getMapInformation();
+    const information = this.getMapInformation();
 
     // If this is a pre-1.31 map, or we don't know what the version is, save also the map header.
     if (!information || information.getBuildVersion() < 131) {
-      let bytes = new Uint8Array(512 + archiveBuffer.byteLength);
-      let stream = new BinaryStream(bytes);
+      const bytes = new Uint8Array(512 + archiveBuffer.byteLength);
+      const stream = new BinaryStream(bytes);
 
       // Write the header.
       stream.writeBinary('HM3W');
@@ -110,10 +110,10 @@ export default class War3Map {
    * Gets a list of the file names imported in this map.
    */
   getImportNames() {
-    let names = [];
+    const names = [];
 
-    for (let entry of this.imports.entries.values()) {
-      let isCustom = entry.isCustom;
+    for (const entry of this.imports.entries.values()) {
+      const isCustom = entry.isCustom;
 
       if (isCustom === 10 || isCustom === 13) {
         names.push(entry.path);
@@ -240,13 +240,13 @@ export default class War3Map {
    * @throws if an error occurs, or the file does not exist.
    */
   getMapInformation() {
-    let file = this.archive.get('war3map.w3i');
+    const file = this.archive.get('war3map.w3i');
 
     if (!file) {
       throw new Error('File does not exist');
     }
 
-    let parser = new War3MapW3i();
+    const parser = new War3MapW3i();
 
     parser.load(file.bytes());
 
@@ -257,10 +257,10 @@ export default class War3Map {
    * Read the imports file.
    */
   readImports() {
-    let file = this.archive.get('war3map.imp');
+    const file = this.archive.get('war3map.imp');
 
     if (file) {
-      let buffer = file.arrayBuffer();
+      const buffer = file.arrayBuffer();
 
       if (buffer) {
         this.imports.load(buffer);
@@ -272,64 +272,70 @@ export default class War3Map {
    * Read and parse the trigger file.
    */
   readTriggers(triggerData: TriggerData) {
-    let file = this.archive.get('war3map.wtg');
+    const file = this.archive.get('war3map.wtg');
 
     if (file) {
-      let buffer = file.arrayBuffer();
+      const buffer = file.arrayBuffer();
 
       if (buffer) {
-        let object = new War3MapWtg();
+        const object = new War3MapWtg();
 
         object.load(buffer, triggerData);
 
         return object;
       }
     }
+
+    return;
   }
 
   /**
    * Read and parse the custom text trigger file.
    */
   readCustomTextTriggers() {
-    let file = this.archive.get('war3map.wct');
+    const file = this.archive.get('war3map.wct');
 
     if (file) {
-      let buffer = file.arrayBuffer();
+      const buffer = file.arrayBuffer();
 
       if (buffer) {
-        let object = new War3MapWct();
+        const object = new War3MapWct();
 
         object.load(buffer);
 
         return object;
       }
     }
+
+    return;
   }
 
   /**
    * Read and parse the string table file.
    */
   readStringTable() {
-    let file = this.archive.get('war3map.wts');
+    const file = this.archive.get('war3map.wts');
 
     if (file) {
-      let buffer = file.text();
+      const buffer = file.text();
 
       if (buffer) {
-        let object = new War3MapWts();
+        const object = new War3MapWts();
 
         object.load(buffer);
 
         return object;
       }
     }
+
+    return;
   }
 
   /**
    * Read and parse all of the modification tables.
    */
   readModifications() {
-    let modifications: War3MapModifications = {};
+    const modifications: War3MapModifications = {};
 
     // useOptionalInts:
     //      w3u: no (units)
@@ -339,14 +345,14 @@ export default class War3Map {
     //      w3a: yes (abilities)
     //      w3h: no (buffs)
     //      w3q: yes (upgrades)
-    let fileNames: War3MapModificationNames[] = ['w3u', 'w3t', 'w3b', 'w3d', 'w3a', 'w3h', 'w3q'];
-    let useOptionalInts = [false, false, false, true, true, false, true];
+    const fileNames: War3MapModificationNames[] = ['w3u', 'w3t', 'w3b', 'w3d', 'w3a', 'w3h', 'w3q'];
+    const useOptionalInts = [false, false, false, true, true, false, true];
 
     for (let i = 0, l = fileNames.length; i < l; i++) {
-      let file = this.archive.get(`war3map.${fileNames[i]}`);
+      const file = this.archive.get(`war3map.${fileNames[i]}`);
 
       if (file) {
-        let buffer = file.arrayBuffer();
+        const buffer = file.arrayBuffer();
 
         if (buffer) {
           let modification;

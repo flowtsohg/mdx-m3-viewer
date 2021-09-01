@@ -37,11 +37,11 @@ export function lerp(a: number, b: number, t: number) {
  * Hermite interpolation.
  */
 export function hermite(a: number, b: number, c: number, d: number, t: number) {
-  let factorTimes2 = t * t;
-  let factor1 = factorTimes2 * (2 * t - 3) + 1;
-  let factor2 = factorTimes2 * (t - 2) + t;
-  let factor3 = factorTimes2 * (t - 1);
-  let factor4 = factorTimes2 * (3 - 2 * t);
+  const factorTimes2 = t * t;
+  const factor1 = factorTimes2 * (2 * t - 3) + 1;
+  const factor2 = factorTimes2 * (t - 2) + t;
+  const factor3 = factorTimes2 * (t - 1);
+  const factor4 = factorTimes2 * (3 - 2 * t);
 
   return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
 }
@@ -50,13 +50,13 @@ export function hermite(a: number, b: number, c: number, d: number, t: number) {
  * Bezier interpolation.
  */
 export function bezier(a: number, b: number, c: number, d: number, t: number) {
-  let invt = 1 - t;
-  let factorTimes2 = t * t;
-  let inverseFactorTimesTwo = invt * invt;
-  let factor1 = inverseFactorTimesTwo * invt;
-  let factor2 = 3 * t * inverseFactorTimesTwo;
-  let factor3 = 3 * factorTimes2 * invt;
-  let factor4 = factorTimes2 * t;
+  const invt = 1 - t;
+  const factorTimes2 = t * t;
+  const inverseFactorTimesTwo = invt * invt;
+  const factor1 = inverseFactorTimesTwo * invt;
+  const factor2 = 3 * t * inverseFactorTimesTwo;
+  const factor3 = 3 * factorTimes2 * invt;
+  const factor4 = factorTimes2 * t;
 
   return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
 }
@@ -65,13 +65,13 @@ export function bezier(a: number, b: number, c: number, d: number, t: number) {
  * Copies the sign of one number onto another.
  */
 export function copysign(x: number, y: number) {
-  let signy = Math.sign(y);
+  const signy = Math.sign(y);
 
   if (signy === 0) {
     return 0;
   }
 
-  let signx = Math.sign(x);
+  const signx = Math.sign(x);
 
   if (signx !== signy) {
     return -x;

@@ -104,7 +104,7 @@ export default class Model {
    * Load the model from MDX.
    */
   loadMdx(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
     let tag;
     let size;
 
@@ -179,7 +179,7 @@ export default class Model {
 
   loadStaticObjects(out: any[], constructor: typeof Sequence | typeof Texture | typeof FaceEffect, stream: BinaryStream, count: number) {
     for (let i = 0; i < count; i++) {
-      let object = new constructor();
+      const object = new constructor();
 
       object.readMdx(stream);
 
@@ -194,10 +194,10 @@ export default class Model {
   }
 
   loadDynamicObjects(out: any[], constructor: typeof Material | typeof TextureAnimation | typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape | typeof ParticleEmitterPopcorn, stream: BinaryStream, size: number) {
-    let end = stream.index + size;
+    const end = stream.index + size;
 
     while (stream.index < end) {
-      let object = new constructor();
+      const object = new constructor();
 
       object.readMdx(stream, this.version);
 
@@ -221,7 +221,7 @@ export default class Model {
    * Save the model as MDX.
    */
   saveMdx() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('MDLX');
     this.saveVersionChunk(stream);
@@ -255,7 +255,7 @@ export default class Model {
       this.saveBindPoseChunk(stream);
     }
 
-    for (let chunk of this.unknownChunks) {
+    for (const chunk of this.unknownChunks) {
       chunk.writeMdx(stream);
     }
 
@@ -282,7 +282,7 @@ export default class Model {
       stream.writeBinary(name);
       stream.writeUint32(objects.length * size);
 
-      for (let object of objects) {
+      for (const object of objects) {
         object.writeMdx(stream);
       }
     }
@@ -293,7 +293,7 @@ export default class Model {
       stream.writeBinary('GLBS');
       stream.writeUint32(this.globalSequences.length * 4);
 
-      for (let globalSequence of this.globalSequences) {
+      for (const globalSequence of this.globalSequences) {
         stream.writeUint32(globalSequence);
       }
     }
@@ -304,7 +304,7 @@ export default class Model {
       stream.writeBinary(name);
       stream.writeUint32(this.getObjectsByteLength(objects));
 
-      for (let object of objects) {
+      for (const object of objects) {
         object.writeMdx(stream, this.version);
       }
     }
@@ -315,7 +315,7 @@ export default class Model {
       stream.writeBinary('PIVT');
       stream.writeUint32(this.pivotPoints.length * 12);
 
-      for (let pivotPoint of this.pivotPoints) {
+      for (const pivotPoint of this.pivotPoints) {
         stream.writeFloat32Array(pivotPoint);
       }
     }
@@ -327,7 +327,7 @@ export default class Model {
       stream.writeUint32(4 + this.bindPose.length * 48);
       stream.writeUint32(this.bindPose.length);
 
-      for (let matrix of this.bindPose) {
+      for (const matrix of this.bindPose) {
         stream.writeFloat32Array(matrix);
       }
     }
@@ -338,7 +338,7 @@ export default class Model {
    */
   loadMdl(buffer: string) {
     let token: string;
-    let stream = new TokenStream(buffer);
+    const stream = new TokenStream(buffer);
 
     while (token = <string>stream.readToken()) {
       if (token === 'Version') {
@@ -394,7 +394,7 @@ export default class Model {
   }
 
   loadVersionBlock(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'FormatVersion') {
         this.version = stream.readInt();
       } else {
@@ -406,7 +406,7 @@ export default class Model {
   loadModelBlock(stream: TokenStream) {
     this.name = stream.read();
 
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token.startsWith('Num')) {
         // Don't care about the number of things, the arrays will grow as they wish.
         // This includes:
@@ -443,9 +443,9 @@ export default class Model {
   loadNumberedObjectBlock(out: any[], constructor: typeof Sequence | typeof Texture | typeof Material | typeof TextureAnimation, name: string, stream: TokenStream) {
     stream.read(); // Don't care about the number, the array will grow.
 
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === name) {
-        let object = new constructor();
+        const object = new constructor();
 
         object.readMdl(stream);
 
@@ -459,7 +459,7 @@ export default class Model {
   loadGlobalSequenceBlock(stream: TokenStream) {
     stream.read(); // Don't care about the number, the array will grow.
 
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Duration') {
         this.globalSequences.push(stream.readInt());
       } else {
@@ -469,7 +469,7 @@ export default class Model {
   }
 
   loadObject(out: any[], constructor: typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape | typeof FaceEffect, stream: TokenStream) {
-    let object = new constructor();
+    const object = new constructor();
 
     object.readMdl(stream);
 
@@ -477,7 +477,7 @@ export default class Model {
   }
 
   loadPivotPointBlock(stream: TokenStream) {
-    let count = stream.readInt();
+    const count = stream.readInt();
 
     stream.read(); // {
 
@@ -489,9 +489,9 @@ export default class Model {
   }
 
   loadBindPoseBlock(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'Matrices') {
-        let matrices = stream.readInt();
+        const matrices = stream.readInt();
 
         stream.read(); // {
 
@@ -510,7 +510,7 @@ export default class Model {
    * Save the model as MDL.
    */
   saveMdl() {
-    let stream = new TokenStream();
+    const stream = new TokenStream();
 
     this.saveVersionBlock(stream);
     this.saveModelBlock(stream);
@@ -530,7 +530,7 @@ export default class Model {
     this.saveObjects(stream, this.particleEmitters2);
 
     if (this.version > 800) {
-      this.saveObjects(stream, this.particleEmittersPopcorn)
+      this.saveObjects(stream, this.particleEmittersPopcorn);
     }
 
     this.saveObjects(stream, this.ribbonEmitters);
@@ -569,7 +569,7 @@ export default class Model {
     if (objects.length) {
       stream.startBlock(name, objects.length);
 
-      for (let object of objects) {
+      for (const object of objects) {
         object.writeMdl(stream, this.version);
       }
 
@@ -581,7 +581,7 @@ export default class Model {
     if (this.globalSequences.length) {
       stream.startBlock('GlobalSequences', this.globalSequences.length);
 
-      for (let globalSequence of this.globalSequences) {
+      for (const globalSequence of this.globalSequences) {
         stream.writeNumberAttrib('Duration', globalSequence);
       }
 
@@ -590,7 +590,7 @@ export default class Model {
   }
 
   saveObjects(stream: TokenStream, objects: (Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | FaceEffect)[]) {
-    for (let object of objects) {
+    for (const object of objects) {
       object.writeMdl(stream, this.version);
     }
   }
@@ -599,7 +599,7 @@ export default class Model {
     if (this.pivotPoints.length) {
       stream.startBlock('PivotPoints', this.pivotPoints.length);
 
-      for (let pivotPoint of this.pivotPoints) {
+      for (const pivotPoint of this.pivotPoints) {
         stream.writeVector(pivotPoint);
       }
 
@@ -613,7 +613,7 @@ export default class Model {
 
       stream.startBlock('Matrices', this.bindPose.length);
 
-      for (let matrix of this.bindPose) {
+      for (const matrix of this.bindPose) {
         stream.writeVector(matrix);
       }
 
@@ -666,7 +666,7 @@ export default class Model {
   getObjectsByteLength(objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera | UnknownChunk)[]) {
     let size = 0;
 
-    for (let object of objects) {
+    for (const object of objects) {
       size += object.getByteLength(this.version);
     }
 

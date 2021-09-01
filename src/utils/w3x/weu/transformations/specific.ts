@@ -10,9 +10,9 @@ import { convertParameterInline } from '../conversions';
  * GetOwningPlayer(whichUnit) == whichPlayer
  */
 export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubParameters) {
-  let parameter = <Parameter>data.stack[1];
-  let comparator = <ECA>data.stack[2];
-  let comparatorParameters = comparator.parameters;
+  const parameter = <Parameter>data.stack[1];
+  const comparator = <ECA>data.stack[2];
+  const comparatorParameters = comparator.parameters;
 
   if (comparator.name !== 'OperatorCompareBoolean') {
     return false;
@@ -26,7 +26,7 @@ export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubP
     otherParameter = comparatorParameters[0];
   }
 
-  let trueOrFalse = convertParameterInline(data, otherParameter, 'boolean');
+  const trueOrFalse = convertParameterInline(data, otherParameter, 'boolean');
 
   if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
     return false;
@@ -35,8 +35,8 @@ export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubP
   // Change to a player comparison.
   comparator.name = 'OperatorComparePlayer';
 
-  let parameters = object.parameters;
-  let whichPlayer = parameters[1];
+  const parameters = object.parameters;
+  const whichPlayer = parameters[1];
 
   // Change IsUnitOwnedByPlayer(whichUnit, whichPlayer) to GetOwningPlayer(whichUnit)
   parameter.value = 'GetOwningPlayer';
@@ -65,9 +65,9 @@ export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubP
  * GetUnitRace(whichUnit) == whichRace
  */
 export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters) {
-  let parameter = <Parameter>data.stack[1];
-  let comparator = <ECA>data.stack[2];
-  let comparatorParameters = comparator.parameters;
+  const parameter = <Parameter>data.stack[1];
+  const comparator = <ECA>data.stack[2];
+  const comparatorParameters = comparator.parameters;
 
   if (comparator.name !== 'OperatorCompareBoolean') {
     return false;
@@ -81,7 +81,7 @@ export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters
     otherParameter = comparatorParameters[0];
   }
 
-  let trueOrFalse = convertParameterInline(data, otherParameter, 'boolean');
+  const trueOrFalse = convertParameterInline(data, otherParameter, 'boolean');
 
   if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
     return false;
@@ -90,8 +90,8 @@ export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters
   // Change to a race comparison.
   comparator.name = 'OperatorCompareRace';
 
-  let parameters = object.parameters;
-  let whichRace = parameters[1];
+  const parameters = object.parameters;
+  const whichRace = parameters[1];
 
   // Change IsUnitRace(whichUnit, whichRace) to GetUnitRace(whichUnit)
   parameter.value = 'GetUnitRace';
@@ -101,8 +101,8 @@ export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters
 
   comparatorParameters[0] = parameter;
 
-  let isEqual = comparatorParameters[1].value === 'OperatorEqualENE';
-  let isTrue = trueOrFalse === 'true';
+  const isEqual = comparatorParameters[1].value === 'OperatorEqualENE';
+  const isTrue = trueOrFalse === 'true';
 
   // Essentially a XOR between the booleans.
   if (isEqual === isTrue) {
@@ -122,19 +122,19 @@ export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters
  * IsUnitDeadBJ(whichUnit) == boolean
  */
 export function transformerIsUnitType(data: WeuData, object: ECA | SubParameters) {
-  let comparator = <ECA>data.stack[2];
+  const comparator = <ECA>data.stack[2];
 
   if (comparator.name !== 'OperatorCompareBoolean') {
     return false;
   }
 
-  let whichUnitType = convertParameterInline(data, object.parameters[1], 'unittype');
+  const whichUnitType = convertParameterInline(data, object.parameters[1], 'unittype');
 
   if (whichUnitType !== 'UNIT_TYPE_DEAD') {
     return false;
   }
 
-  let parameter = <Parameter>data.stack[1];
+  const parameter = <Parameter>data.stack[1];
 
   // Change IsUnitType(whichUnit, UNIT_TYPE_DEAD) to IsUnitDeadBJ(whichUnit)
   parameter.value = 'IsUnitDeadBJ';

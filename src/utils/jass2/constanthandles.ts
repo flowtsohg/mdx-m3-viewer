@@ -45,45 +45,45 @@ import JassEffectType from './types/effecttype';
 import JassSoundType from './types/soundtype';
 
 export default function constantHandles() {
-  let playerColors = [];
-  let races = [];
-  let playerGameResults = [];
-  let allianceTypes = [];
-  let versions = [];
-  let attackTypes = [];
-  let damageTypes = [];
-  let weaponTypes = [];
-  let pathingTypes = [];
-  let mouseButtonTypes = [];
-  let animTypes = [];
-  let subAnimTypes = [];
-  let racePrefs = [];
-  let mapControls = [];
-  let gameTypes = [];
-  let mapFlags = [];
-  let placements = [];
-  let startLocPrios = [];
-  let mapDensities = [];
-  let gameDifficulties = [];
-  let gameSpeeds = [];
-  let playerSlotStates = [];
-  let volumeGroups = [];
-  let gameStates = [];
-  let playerStates = [];
-  let unitStates = [];
-  let aiDifficulties = [];
-  let playerScores = [];
-  let events = [];
-  let limitOps = [];
-  let unitTypes = [];
-  let itemTypes = [];
-  let cameraFields = [];
-  let blendModes = [];
-  let rarityControls = [];
-  let texMapFlags = [];
-  let fogStates = [];
-  let effectTypes = [];
-  let soundTypes = [];
+  const playerColors = [];
+  const races = [];
+  const playerGameResults = [];
+  const allianceTypes = [];
+  const versions = [];
+  const attackTypes = [];
+  const damageTypes = [];
+  const weaponTypes = [];
+  const pathingTypes = [];
+  const mouseButtonTypes = [];
+  const animTypes = [];
+  const subAnimTypes = [];
+  const racePrefs = [];
+  const mapControls = [];
+  const gameTypes = [];
+  const mapFlags = [];
+  const placements = [];
+  const startLocPrios = [];
+  const mapDensities = [];
+  const gameDifficulties = [];
+  const gameSpeeds = [];
+  const playerSlotStates = [];
+  const volumeGroups = [];
+  const gameStates = [];
+  const playerStates = [];
+  const unitStates = [];
+  const aiDifficulties = [];
+  const playerScores = [];
+  const events = [];
+  const limitOps = [];
+  const unitTypes = [];
+  const itemTypes = [];
+  const cameraFields = [];
+  const blendModes = [];
+  const rarityControls = [];
+  const texMapFlags = [];
+  const fogStates = [];
+  const effectTypes = [];
+  const soundTypes = [];
 
   for (let i = 0; i < 24; i++) {
     playerColors[i] = new JassPlayerColor(i);
@@ -135,7 +135,7 @@ export default function constantHandles() {
   }
 
   for (let i = 0; i < 8; i++) {
-    let p = Math.pow(2, i);
+    const p = Math.pow(2, i);
 
     racePrefs[p] = new JassRacePreference(p);
   }
@@ -145,13 +145,13 @@ export default function constantHandles() {
   }
 
   for (let i = 0; i < 8; i++) {
-    let p = Math.pow(2, i);
+    const p = Math.pow(2, i);
 
     gameTypes[p] = new JassGameType(p);
   }
 
   for (let i = 0; i < 20; i++) {
-    let p = Math.pow(2, i);
+    const p = Math.pow(2, i);
 
     mapFlags[p] = new JassMapFlag(p);
   }
@@ -278,7 +278,7 @@ export default function constantHandles() {
   }
 
   for (let i = 0; i < 3; i++) {
-    let p = Math.pow(2, i);
+    const p = Math.pow(2, i);
 
     fogStates[p] = new JassFogState(p);
   }

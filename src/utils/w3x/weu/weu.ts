@@ -24,7 +24,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
 
   // Try to add function signatures from the map script.
   // This handles the case of injected libraries, mostly seen in YDWE maps.
-  let scriptFile = map.getScriptFile();
+  const scriptFile = map.getScriptFile();
   if (scriptFile && scriptFile.name.endsWith('.j')) {
     try {
       customTriggerData.addJassFunctions(scriptFile.text());
@@ -33,7 +33,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
     }
   }
 
-  let data = new WeuData(customTriggerData, wts);
+  const data = new WeuData(customTriggerData, wts);
 
   // Try to read the triggers file using the custom trigger data.
   // This will also try to analyze unknown signatures if such exist.
@@ -58,9 +58,9 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
     return { ok: false, error: `The custom text triggers file doesn't exist` };
   }
 
-  let triggers = wtg.triggers;
-  let customTextTriggers = wct.triggers;
-  let mapHeader = wct.trigger;
+  const triggers = wtg.triggers;
+  const customTextTriggers = wct.triggers;
+  const mapHeader = wct.trigger;
 
   // If there are less custom text triggers than triggers, WE does not crash, however it doesn't load the map.
   if (customTextTriggers.length < triggers.length) {
@@ -71,15 +71,15 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
 
   // Process and convert the triggers as needed.
   for (let i = 0, l = triggers.length; i < l; i++) {
-    let trigger = triggers[i];
+    const trigger = triggers[i];
 
     // Any callbacks that are generated due to conversions for this trigger will end up here.
-    let callbacks: string[] = [];
+    const callbacks: string[] = [];
 
     try {
       // Process the trigger.
       // If things inside it need to be converted, this will convert them.
-      let result = processTrigger(data, trigger, callbacks);
+      const result = processTrigger(data, trigger, callbacks);
 
       // If the trigger itself needs to be converted, convert it.
       if (result.convert) {
@@ -101,7 +101,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
         data.change('convertedtrigger', result.reason, customTextTriggers[i].text);
         data.pop();
       } else if (callbacks.length) {
-        let callbacksText = callbacks.join('\r\n');
+        const callbacksText = callbacks.join('\r\n');
 
         // If the trigger didn't need to be converted, but callbacks were generated due to things inside it being converted, add them to the map header.
         mapHeader.text += `// Callbacks generated for trigger "${trigger.name}" due to conversions\r\n${callbacksText}\r\n`;
@@ -134,7 +134,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
   try {
     wtg = map.readTriggers(weTriggerData);
   } catch (e) {
-    return { ok: false, error: `Failed to validate the triggers file: ${e}` }
+    return { ok: false, error: `Failed to validate the triggers file: ${e}` };
   }
 
   if (!wtg) {

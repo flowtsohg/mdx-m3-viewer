@@ -15,7 +15,7 @@ export default class RandomItemTable {
     this.name = stream.readNull();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let set = new RandomItemSet();
+      const set = new RandomItemSet();
 
       set.load(stream);
 
@@ -28,7 +28,7 @@ export default class RandomItemTable {
     stream.writeNull(this.name);
     stream.writeUint32(this.sets.length);
 
-    for (let set of this.sets) {
+    for (const set of this.sets) {
       set.save(stream);
     }
   }
@@ -36,7 +36,7 @@ export default class RandomItemTable {
   getByteLength() {
     let size = 9 + byteLengthUtf8(this.name);
 
-    for (let set of this.sets) {
+    for (const set of this.sets) {
       size += set.getByteLength();
     }
 

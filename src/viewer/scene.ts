@@ -51,9 +51,9 @@ export default class Scene {
   constructor(viewer: ModelViewer) {
     this.viewer = viewer;
 
-    let canvas = viewer.canvas;
-    let width = canvas.width;
-    let height = canvas.height;
+    const canvas = viewer.canvas;
+    const width = canvas.width;
+    const height = canvas.height;
 
     // Use the whole canvas by default.
     this.viewport[2] = width;
@@ -142,8 +142,8 @@ export default class Scene {
    */
   clear() {
     // First remove references to this scene stored in the instances.
-    for (let cell of this.grid.cells) {
-      for (let instance of cell.instances) {
+    for (const cell of this.grid.cells) {
+      for (const instance of cell.instances) {
         instance.scene = null;
       }
     }
@@ -169,14 +169,14 @@ export default class Scene {
    * Update this scene.
    */
   update(dt: number) {
-    let camera = this.camera;
+    const camera = this.camera;
 
     // Update the audio context's position if it exists.
     if (this.audioContext) {
-      let listener = this.audioContext.listener;
-      let position = camera.location;
-      let forward = camera.directionY;
-      let up = camera.directionZ;
+      const listener = this.audioContext.listener;
+      const position = camera.location;
+      const forward = camera.directionY;
+      const up = camera.directionZ;
 
       listener.positionX.value = -position[0];
       listener.positionY.value = -position[1];
@@ -191,18 +191,18 @@ export default class Scene {
       listener.upZ.value = up[2];
     }
 
-    let frame = this.viewer.frame;
-    let instances = this.instances;
+    const frame = this.viewer.frame;
+    const instances = this.instances;
 
     this.visibleCells = 0;
     this.visibleInstances = 0;
 
     // Update and collect all of the visible instances.
-    for (let cell of this.grid.cells) {
+    for (const cell of this.grid.cells) {
       if (cell.isVisible(camera)) {
         this.visibleCells += 1;
 
-        for (let instance of cell.instances) {
+        for (const instance of cell.instances) {
           // If an instance is rendered, wasn't updated on this frame, and has no parent, update it.
           // If the instance is visible, it will be updated, all of its children will be updated, and it will be added to the render list.
           // Note that the update frame is needed because instances can exist in any number of cells at the same time.
@@ -234,8 +234,8 @@ export default class Scene {
    * Called automatically by `render()`.
    */
   startFrame() {
-    let gl = this.viewer.gl;
-    let viewport = this.viewport;
+    const gl = this.viewer.gl;
+    const viewport = this.viewport;
 
     // Set the viewport.
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -245,7 +245,7 @@ export default class Scene {
 
     // If this scene doesn't want alpha, clear it.
     if (!this.alpha) {
-      let color = this.color;
+      const color = this.color;
 
       gl.depthMask(true);
       gl.clearColor(color[0], color[1], color[2], 1);
@@ -259,7 +259,7 @@ export default class Scene {
    * They are rendered front to back.
    */
   renderOpaque() {
-    let instances = this.instances;
+    const instances = this.instances;
 
     for (let i = 0, l = instances.length; i < l; i++) {
       instances[i].renderOpaque();
@@ -272,7 +272,7 @@ export default class Scene {
    * They are rendered back to front.
    */
   renderTranslucent() {
-    let instances = this.instances;
+    const instances = this.instances;
 
     for (let i = instances.length - 1; i >= 0; i--) {
       instances[i].renderTranslucent();
@@ -292,7 +292,7 @@ export default class Scene {
    * Clear all of the emitted objects in this scene.
    */
   clearEmittedObjects() {
-    for (let object of this.emittedObjectUpdater.objects) {
+    for (const object of this.emittedObjectUpdater.objects) {
       object.health = 0;
     }
   }

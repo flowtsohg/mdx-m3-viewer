@@ -31,8 +31,8 @@ export default class Layer extends AnimatedObject {
     super(model, layer);
 
     let filterMode = layer.filterMode;
-    let textureAnimationId = layer.textureAnimationId;
-    let gl = model.viewer.gl;
+    const textureAnimationId = layer.textureAnimationId;
+    const gl = model.viewer.gl;
 
     this.index = layerId;
     this.priorityPlane = priorityPlane;
@@ -50,7 +50,7 @@ export default class Layer extends AnimatedObject {
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
 
-    let flags = layer.flags;
+    const flags = layer.flags;
 
     this.unshaded = flags & 0x1;
     this.sphereEnvironmentMap = flags & 0x2;
@@ -67,7 +67,7 @@ export default class Layer extends AnimatedObject {
     }
 
     if (textureAnimationId !== -1) {
-      let textureAnimation = model.textureAnimations[textureAnimationId];
+      const textureAnimation = model.textureAnimations[textureAnimationId];
 
       if (textureAnimation) {
         this.textureAnimation = textureAnimation;
@@ -79,10 +79,10 @@ export default class Layer extends AnimatedObject {
   }
 
   bind(shader: Shader) {
-    let gl = this.model.viewer.gl;
+    const gl = this.model.viewer.gl;
 
     // gl.uniform1f(shader.uniforms.u_unshaded, this.unshaded);
-    gl.uniform1f(shader.uniforms.u_filterMode, this.filterMode);
+    gl.uniform1f(shader.uniforms['u_filterMode'], this.filterMode);
 
     if (this.blended) {
       gl.enable(gl.BLEND);

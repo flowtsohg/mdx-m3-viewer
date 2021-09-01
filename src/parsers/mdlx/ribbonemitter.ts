@@ -22,7 +22,7 @@ export default class RibbonEmitter extends GenericObject {
     super(0x4000);
   }
 
-  readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream) {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -43,7 +43,7 @@ export default class RibbonEmitter extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -64,7 +64,7 @@ export default class RibbonEmitter extends GenericObject {
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of super.readGenericBlock(stream)) {
+    for (const token of super.readGenericBlock(stream)) {
       if (token === 'static HeightAbove') {
         this.heightAbove = stream.readFloat();
       } else if (token === 'HeightAbove') {
@@ -146,7 +146,7 @@ export default class RibbonEmitter extends GenericObject {
     stream.endBlock();
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 56 + super.getByteLength();
   }
 }

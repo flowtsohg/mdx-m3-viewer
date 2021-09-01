@@ -15,7 +15,7 @@ export default class War3MapW3e {
   corners: Corner[][] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {
-    let stream = new BinaryStream(buffer);
+    const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3E!') {
       return;
@@ -40,7 +40,7 @@ export default class War3MapW3e {
       this.corners[row] = [];
 
       for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
-        let corner = new Corner();
+        const corner = new Corner();
 
         corner.load(stream);
 
@@ -51,7 +51,7 @@ export default class War3MapW3e {
 
 
   save() {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
+    const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('W3E!');
     stream.writeInt32(this.version);
@@ -59,21 +59,21 @@ export default class War3MapW3e {
     stream.writeInt32(this.haveCustomTileset);
     stream.writeUint32(this.groundTilesets.length);
 
-    for (let groundTileset of this.groundTilesets) {
+    for (const groundTileset of this.groundTilesets) {
       stream.writeBinary(groundTileset);
     }
 
     stream.writeUint32(this.cliffTilesets.length);
 
-    for (let cliffTileset of this.cliffTilesets) {
+    for (const cliffTileset of this.cliffTilesets) {
       stream.writeBinary(cliffTileset);
     }
 
     stream.writeInt32Array(this.mapSize);
     stream.writeFloat32Array(this.centerOffset);
 
-    for (let row of this.corners) {
-      for (let corner of row) {
+    for (const row of this.corners) {
+      for (const corner of row) {
         corner.save(stream);
       }
     }

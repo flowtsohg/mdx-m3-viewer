@@ -28,12 +28,12 @@ export default class MpqHashTable {
   }
 
   getInsertionIndex(name: string) {
-    let entries = this.entries;
-    let offset = this.c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);
+    const entries = this.entries;
+    const offset = this.c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);
 
     for (let i = 0, l = entries.length; i < l; i++) {
-      let index = (i + offset) % l;
-      let hash = entries[index];
+      const index = (i + offset) % l;
+      const hash = entries[index];
 
       if (hash.platform === 0xFFFF) {
         return index;
@@ -44,10 +44,10 @@ export default class MpqHashTable {
   }
 
   add(name: string, blockIndex: number) {
-    let insertionIndex = this.getInsertionIndex(name);
+    const insertionIndex = this.getInsertionIndex(name);
 
     if (insertionIndex !== -1) {
-      let hash = this.entries[insertionIndex];
+      const hash = this.entries[insertionIndex];
 
       hash.nameA = this.c.hash(name, HASH_NAME_A);
       hash.nameB = this.c.hash(name, HASH_NAME_B);
@@ -57,18 +57,20 @@ export default class MpqHashTable {
 
       return hash;
     }
+
+    return;
   }
 
   load(bytes: Uint8Array) {
-    let entriesCount = bytes.byteLength / 16;
-    let uint32array = new Uint32Array(this.c.decryptBlock(bytes, HASH_TABLE_KEY).buffer);
+    const entriesCount = bytes.byteLength / 16;
+    const uint32array = new Uint32Array(this.c.decryptBlock(bytes, HASH_TABLE_KEY).buffer);
     let offset = 0;
 
     // Clear the table and add the needed empties.
     this.clear();
     this.addEmpties(entriesCount);
 
-    for (let hash of this.entries) {
+    for (const hash of this.entries) {
       hash.load(uint32array.subarray(offset, offset + 4));
 
       offset += 4;
@@ -76,16 +78,16 @@ export default class MpqHashTable {
   }
 
   save(bytes: Uint8Array) {
-    let uint32array = new Uint32Array(this.entries.length * 4);
+    const uint32array = new Uint32Array(this.entries.length * 4);
     let offset = 0;
 
-    for (let hash of this.entries) {
+    for (const hash of this.entries) {
       hash.save(uint32array.subarray(offset, offset + 4));
 
       offset += 4;
     }
 
-    let uint8array = new Uint8Array(uint32array.buffer);
+    const uint8array = new Uint8Array(uint32array.buffer);
 
     this.c.encryptBlock(uint8array, HASH_TABLE_KEY);
 
@@ -93,14 +95,14 @@ export default class MpqHashTable {
   }
 
   get(name: string) {
-    let c = this.c;
-    let entries = this.entries;
-    let offset = c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);
-    let nameA = c.hash(name, HASH_NAME_A);
-    let nameB = c.hash(name, HASH_NAME_B);
+    const c = this.c;
+    const entries = this.entries;
+    const offset = c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);
+    const nameA = c.hash(name, HASH_NAME_A);
+    const nameB = c.hash(name, HASH_NAME_B);
 
     for (let i = 0, l = entries.length; i < l; i++) {
-      let hash = entries[(i + offset) % l];
+      const hash = entries[(i + offset) % l];
 
       if (nameA === hash.nameA && nameB === hash.nameB) {
         return hash;

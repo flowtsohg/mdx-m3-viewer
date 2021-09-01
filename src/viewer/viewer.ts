@@ -100,8 +100,8 @@ export default class ModelViewer extends EventEmitter {
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
 
-    let webgl = new WebGL(canvas, options);
-    let gl = webgl.gl;
+    const webgl = new WebGL(canvas, options);
+    const gl = webgl.gl;
 
     this.canvas = canvas;
     this.gl = gl;
@@ -132,7 +132,7 @@ export default class ModelViewer extends EventEmitter {
    */
   addHandler(handler: Handler, ...args: any[]) {
     if (handler) {
-      let handlers = this.handlers;
+      const handlers = this.handlers;
 
       // Check to see if this handler was added already.
       if (!handlers.has(handler)) {
@@ -165,7 +165,7 @@ export default class ModelViewer extends EventEmitter {
    * Add a scene.
    */
   addScene() {
-    let scene = new Scene(this);
+    const scene = new Scene(this);
 
     this.scenes.push(scene);
 
@@ -176,8 +176,8 @@ export default class ModelViewer extends EventEmitter {
    * Remove a scene.
    */
   removeScene(scene: Scene) {
-    let scenes = this.scenes;
-    let index = scenes.indexOf(scene);
+    const scenes = this.scenes;
+    const index = scenes.indexOf(scene);
 
     if (index !== -1) {
       scenes.splice(index, 1);
@@ -241,7 +241,7 @@ export default class ModelViewer extends EventEmitter {
       }
 
       // Check the fetch cache and return a resource if one exists.
-      let resource = this.resourceMap.get(fetchUrl);
+      const resource = this.resourceMap.get(fetchUrl);
       if (resource) {
         return resource;
       }
@@ -253,6 +253,7 @@ export default class ModelViewer extends EventEmitter {
             return value.data;
           } else {
             this.emit('error', { viewer: this, error: `Failed to fetch a resource: ${value.error}`, fetchUrl, reason: value.data });
+            return;
           }
         });
     } else {
@@ -275,7 +276,7 @@ export default class ModelViewer extends EventEmitter {
 
           // If the source is a buffer of an image, convert it to an image, and load it directly.
           if (actualSrc instanceof Uint8Array) {
-            let type = detectMime(actualSrc);
+            const type = detectMime(actualSrc);
 
             if (type.length) {
               return new ImageTexture(await blobToImage(new Blob([actualSrc.buffer], { type })), { viewer: this, fetchUrl, pathSolver });
@@ -283,11 +284,11 @@ export default class ModelViewer extends EventEmitter {
           }
 
           // Attempt to match the source to a handler.
-          let handler = this.detectFormat(actualSrc);
+          const handler = this.detectFormat(actualSrc);
 
           if (handler) {
             try {
-              let resource = new handler.resource(actualSrc, { viewer: this, fetchUrl, pathSolver });
+              const resource = new handler.resource(actualSrc, { viewer: this, fetchUrl, pathSolver });
 
               // If the resource is blocked by internal resources being loaded, wait for them and then clear them.
               await Promise.all(resource.blockers);
@@ -301,6 +302,8 @@ export default class ModelViewer extends EventEmitter {
             this.emit('error', { viewer: this, error: 'Source has no matching handler', fetchUrl, src });
           }
         }
+
+        return;
       })
       .then((resource) => {
         this.promiseMap.delete(fetchUrl);
@@ -325,11 +328,13 @@ export default class ModelViewer extends EventEmitter {
   }
 
   detectFormat(src: any) {
-    for (let handler of this.handlers) {
+    for (const handler of this.handlers) {
       if (handler.isValidSource(src)) {
         return handler;
       }
     }
+
+    return;
   }
 
   /**
@@ -361,18 +366,18 @@ export default class ModelViewer extends EventEmitter {
    */
   async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
     // Check the promise cache and return a promise if one exists.
-    let promise = this.promiseMap.get(fetchUrl);
+    const promise = this.promiseMap.get(fetchUrl);
     if (promise) {
       return <Promise<GenericResource>>promise;
     }
 
     // Check the fetch cache and return a resource if one exists.
-    let resource = this.resourceMap.get(fetchUrl);
+    const resource = this.resourceMap.get(fetchUrl);
     if (resource) {
       return <GenericResource>resource;
     }
 
-    let fetchPromise = fetchDataType(fetchUrl, dataType)
+    const fetchPromise = fetchDataType(fetchUrl, dataType)
       .then(async (value: FetchResult) => {
         // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
         this.promiseMap.delete(fetchUrl);
@@ -414,14 +419,14 @@ export default class ModelViewer extends EventEmitter {
    * If it's being referenced and used e.g. by a scene, it will not be garbage collected.
    */
   unload(resource: Resource) {
-    let fetchUrl = resource.fetchUrl;
+    const fetchUrl = resource.fetchUrl;
 
     if (fetchUrl !== '') {
       this.resourceMap.delete(fetchUrl);
     }
 
-    let resources = this.resources;
-    let index = resources.indexOf(resource);
+    const resources = this.resources;
+    const index = resources.indexOf(resource);
 
     if (index !== -1) {
       resources.splice(index, 1);
@@ -438,8 +443,8 @@ export default class ModelViewer extends EventEmitter {
    * This is used when a resource might get loaded in the future, but it is not known what it is yet.
    */
   promise() {
-    let promise = Promise.resolve(undefined);
-    let key = `${performance.now()}`;
+    const promise = Promise.resolve(undefined);
+    const key = `${performance.now()}`;
 
     this.promiseMap.set(key, promise);
 
@@ -462,7 +467,7 @@ export default class ModelViewer extends EventEmitter {
    * If a callback is given, it will be called, otherwise, a promise is returned.
    */
   whenAllLoaded(callback?: (viewer: ModelViewer) => void) {
-    let promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
+    const promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
       if (this.promiseMap.size === 0) {
         resolve(this);
       } else {
@@ -475,6 +480,8 @@ export default class ModelViewer extends EventEmitter {
     } else {
       return promise;
     }
+
+    return;
   }
 
   /**
@@ -483,10 +490,11 @@ export default class ModelViewer extends EventEmitter {
    * If a callback is given, it will be called, otherwise, a promise is returned.
    */
   toBlob(callback?: BlobCallback) {
-    let promise = new Promise((resolve: BlobCallback) => this.canvas.toBlob((blob) => resolve(blob)));
+    const promise = new Promise((resolve: BlobCallback) => this.canvas.toBlob((blob) => resolve(blob)));
 
     if (callback) {
       promise.then((blob) => callback(blob));
+      return;
     } else {
       return promise;
     }
@@ -515,7 +523,7 @@ export default class ModelViewer extends EventEmitter {
     this.visibleInstances = 0;
     this.updatedParticles = 0;
 
-    for (let scene of this.scenes) {
+    for (const scene of this.scenes) {
       scene.update(dt);
 
       this.visibleCells += scene.visibleCells;
@@ -532,7 +540,7 @@ export default class ModelViewer extends EventEmitter {
    * Call this at some point before render() if you need more control.
    */
   startFrame() {
-    let gl = this.gl;
+    const gl = this.gl;
 
     // See https://www.opengl.org/wiki/FAQ#Masking
     gl.depthMask(true);
@@ -544,7 +552,7 @@ export default class ModelViewer extends EventEmitter {
    * Render.
    */
   render() {
-    for (let scene of this.scenes) {
+    for (const scene of this.scenes) {
       scene.render();
     }
   }
@@ -553,7 +561,7 @@ export default class ModelViewer extends EventEmitter {
    * Clear all of the emitted objects in this viewer.
    */
   clearEmittedObjects() {
-    for (let scene of this.scenes) {
+    for (const scene of this.scenes) {
       scene.clearEmittedObjects();
     }
   }

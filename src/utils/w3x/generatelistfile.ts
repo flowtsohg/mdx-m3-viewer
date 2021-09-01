@@ -39,7 +39,7 @@ function filterFile(files: string[], file: string) {
  * Based on code generously shared by Ralle.
  */
 export default function generateListfile(map: War3Map) {
-  let files = [
+  const files = [
     '(listfile)',
     '(signature)',
     '(attributes)',
@@ -82,10 +82,10 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let text = file.text();
-      let lines = text.split(/\r\n/g);
+      const text = file.text();
+      const lines = text.split(/\r\n/g);
 
-      for (let line of lines) {
+      for (const line of lines) {
         files.push(line.trim());
       }
     } catch (e) {
@@ -94,12 +94,12 @@ export default function generateListfile(map: War3Map) {
   }
 
   // Object files.
-  for (let objectFile of ['.w3u', '.w3t', '.w3b', '.w3d', '.w3a', '.w3h', '.w3q']) {
+  for (const objectFile of ['.w3u', '.w3t', '.w3b', '.w3d', '.w3a', '.w3h', '.w3q']) {
     file = map.get('war3map' + objectFile);
 
     if (file) {
       try {
-        let bytes = file.bytes();
+        const bytes = file.bytes();
         let parser;
 
         if (objectFile === '.w3d' || objectFile === '.w3q' || objectFile === '.w3a') {
@@ -110,17 +110,17 @@ export default function generateListfile(map: War3Map) {
 
         parser.load(bytes);
 
-        let tables = [
+        const tables = [
           parser.originalTable,
           parser.customTable,
         ];
 
-        for (let table of tables) {
-          for (let object of table.objects) {
-            for (let modification of object.modifications) {
+        for (const table of tables) {
+          for (const object of table.objects) {
+            for (const modification of object.modifications) {
               // String
               if (modification.variableType === 3) {
-                filterFile(files, <string>modification.value)
+                filterFile(files, <string>modification.value);
               }
             }
           }
@@ -136,12 +136,12 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let bytes = file.bytes();
-      let parser = new War3MapW3s();
+      const bytes = file.bytes();
+      const parser = new War3MapW3s();
 
       parser.load(bytes);
 
-      for (let sound of parser.sounds) {
+      for (const sound of parser.sounds) {
         files.push(sound.file);
       }
     } catch (e) {
@@ -155,8 +155,8 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let text = file.text();
-      let stream = new TokenStream(text);
+      const text = file.text();
+      const stream = new TokenStream(text);
       let token;
 
       while ((token = stream.read()) !== undefined) {
@@ -174,15 +174,15 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let text = file.text();
-      let config = new IniFile();
+      const text = file.text();
+      const config = new IniFile();
 
       config.load(text);
 
-      for (let section of config.sections.values()) {
-        for (let value of section.values()) {
+      for (const section of config.sections.values()) {
+        for (const value of section.values()) {
           // We know the values are going to be strings.
-          for (let token of (<string>value).split(',')) {
+          for (const token of (<string>value).split(',')) {
             filterFile(files, token);
           }
         }
@@ -197,12 +197,12 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let bytes = file.bytes();
-      let parser = new War3MapImp();
+      const bytes = file.bytes();
+      const parser = new War3MapImp();
 
       parser.load(bytes);
 
-      for (let file of parser.entries.keys()) {
+      for (const file of parser.entries.keys()) {
         files.push(file);
       }
     } catch (e) {
@@ -215,8 +215,8 @@ export default function generateListfile(map: War3Map) {
 
   if (file) {
     try {
-      let bytes = file.bytes();
-      let parser = new War3MapW3i();
+      const bytes = file.bytes();
+      const parser = new War3MapW3i();
 
       parser.load(bytes);
 
@@ -229,7 +229,7 @@ export default function generateListfile(map: War3Map) {
 
   // Model portraits
   for (let i = 0, l = files.length; i < l; i++) {
-    let file = files[i];
+    const file = files[i];
 
     if (isModel(file)) {
       files.push(`${file.slice(0, -4)}_portrait.mdx`); // MDL portraits?
@@ -238,29 +238,29 @@ export default function generateListfile(map: War3Map) {
 
   // Model textures.
   for (let i = 0, l = files.length; i < l; i++) {
-    let file = files[i];
+    const file = files[i];
 
     if (isModel(file)) {
-      let actualFile = map.get(file);
+      const actualFile = map.get(file);
 
       if (actualFile) {
         try {
-          let bytes = actualFile.bytes();
-          let parser = new MdlxModel();
+          const bytes = actualFile.bytes();
+          const parser = new MdlxModel();
 
           parser.load(bytes);
 
-          for (let texture of parser.textures) {
+          for (const texture of parser.textures) {
             if (texture.path.length) {
               files.push(texture.path);
             }
           }
 
-          for (let attachment of parser.attachments) {
+          for (const attachment of parser.attachments) {
             filterFile(files, attachment.path);
           }
 
-          for (let emitter of parser.particleEmitters) {
+          for (const emitter of parser.particleEmitters) {
             filterFile(files, emitter.path);
           }
         } catch (e) {
@@ -272,10 +272,10 @@ export default function generateListfile(map: War3Map) {
 
   // Disabled icon versions.
   for (let i = 0, l = files.length; i < l; i++) {
-    let file = files[i];
+    const file = files[i];
 
     if (isTexture(file)) {
-      files.push(`ReplaceableTextures\\CommandButtonsDisabled\\DIS${basename(file)}`)
+      files.push(`ReplaceableTextures\\CommandButtonsDisabled\\DIS${basename(file)}`);
     }
   }
 

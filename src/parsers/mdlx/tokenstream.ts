@@ -46,14 +46,14 @@ export default class TokenStream {
    * There are wrappers around read, below, that help to read structured code, check them out!
    */
   readToken() {
-    let buffer = this.buffer;
-    let length = buffer.length;
+    const buffer = this.buffer;
+    const length = buffer.length;
     let inComment = false;
     let inString = false;
     let token = '';
 
     while (this.index < length) {
-      let c = buffer[this.index++];
+      const c = buffer[this.index++];
 
       if (inComment) {
         if (c === '\n') {
@@ -100,13 +100,15 @@ export default class TokenStream {
         token += c;
       }
     }
+
+    return;
   }
 
   /**
    * Same as readToken, but if the end of the stream was encountered, an exception will be thrown.
    */
   read() {
-    let value = this.readToken();
+    const value = this.readToken();
 
     if (value === undefined) {
       throw new Error('End of stream reached prematurely');
@@ -119,8 +121,8 @@ export default class TokenStream {
    * Reads the next token without advancing the stream.
    */
   peek() {
-    let index = this.index;
-    let value = this.read();
+    const index = this.index;
+    const value = this.read();
 
     this.index = index;
 
@@ -272,9 +274,9 @@ export default class TokenStream {
    * The name can be either "Color" or "static Color", depending on the context.
    */
   writeColor(name: string, value: Float32Array) {
-    let b = this.floatDecimals(value[0]);
-    let g = this.floatDecimals(value[1]);
-    let r = this.floatDecimals(value[2]);
+    const b = this.floatDecimals(value[0]);
+    const g = this.floatDecimals(value[1]);
+    const r = this.floatDecimals(value[2]);
 
     this.writeLine(`${name} { ${r}, ${g}, ${b} },`);
   }
@@ -297,7 +299,7 @@ export default class TokenStream {
     this.startBlock(name, view.length / size);
 
     for (let i = 0, l = view.length; i < l; i += size) {
-      this.writeVector(view.subarray(i, i + size))
+      this.writeVector(view.subarray(i, i + size));
     }
 
     this.endBlock();
@@ -378,7 +380,7 @@ export default class TokenStream {
    */
   floatArrayDecimals(value: Uint8Array | Uint16Array | Uint32Array | Float32Array) {
     if (value instanceof Float32Array) {
-      let array = [];
+      const array = [];
 
       for (let i = 0, l = value.length; i < l; i++) {
         array[i] = this.floatDecimals(value[i]);

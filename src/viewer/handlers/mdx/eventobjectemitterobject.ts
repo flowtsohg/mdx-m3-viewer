@@ -42,10 +42,10 @@ export default class EventObjectEmitterObject extends GenericObject {
   constructor(model: MdxModel, eventObject: EventObject, index: number) {
     super(model, eventObject, index);
 
-    let viewer = model.viewer;
-    let name = eventObject.name;
+    const viewer = model.viewer;
+    const name = eventObject.name;
     let type = name.substring(0, 3);
-    let id = name.substring(4);
+    const id = name.substring(4);
 
     // Same thing
     if (type === 'FPT') {
@@ -62,7 +62,7 @@ export default class EventObjectEmitterObject extends GenericObject {
     this.id = id;
     this.tracks = eventObject.tracks;
 
-    let globalSequenceId = eventObject.globalSequenceId;
+    const globalSequenceId = eventObject.globalSequenceId;
     if (globalSequenceId !== -1) {
       this.globalSequence = model.globalSequences[globalSequenceId];
     }
@@ -76,7 +76,7 @@ export default class EventObjectEmitterObject extends GenericObject {
     // It's not possible to know ahead of time what file(s) event objects would need.
     // This is because the SLKs are lazily loaded, and might not exist at this point.
     // Therefore make a promise, and resolve it after all of the files loaded.
-    let resolve = viewer.promise();
+    const resolve = viewer.promise();
 
     mdxHandler.getEventObjectData(viewer, type, id, model.hd)
       .then((data) => {
@@ -84,7 +84,7 @@ export default class EventObjectEmitterObject extends GenericObject {
         resolve();
 
         if (data) {
-          let row = data.row;
+          const row = data.row;
 
           this.ok = true;
 
@@ -94,44 +94,44 @@ export default class EventObjectEmitterObject extends GenericObject {
             this.internalTexture = new MdxTexture(0, true, true);
             this.internalTexture.texture = <Texture>data.resources[0];
 
-            this.scale = <number>row.Scale;
-            this.colors[0] = new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]);
-            this.colors[1] = new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]);
-            this.colors[2] = new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]);
+            this.scale = <number>row['Scale'];
+            this.colors[0] = new Float32Array([<number>row['StartR'], <number>row['StartG'], <number>row['StartB'], <number>row['StartA']]);
+            this.colors[1] = new Float32Array([<number>row['MiddleR'], <number>row['MiddleG'], <number>row['MiddleB'], <number>row['MiddleA']]);
+            this.colors[2] = new Float32Array([<number>row['EndR'], <number>row['EndG'], <number>row['EndB'], <number>row['EndA']]);
 
             if (type === 'SPL') {
-              this.columns = <number>row.Columns;
-              this.rows = <number>row.Rows;
-              this.lifeSpan = <number>row.Lifespan + <number>row.Decay;
+              this.columns = <number>row['Columns'];
+              this.rows = <number>row['Rows'];
+              this.lifeSpan = <number>row['Lifespan'] + <number>row['Decay'];
 
-              this.intervalTimes[0] = <number>row.Lifespan;
-              this.intervalTimes[1] = <number>row.Decay;
+              this.intervalTimes[0] = <number>row['Lifespan'];
+              this.intervalTimes[1] = <number>row['Decay'];
 
-              this.intervals[0] = new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]);
-              this.intervals[1] = new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]);
+              this.intervals[0] = new Float32Array([<number>row['UVLifespanStart'], <number>row['UVLifespanEnd'], <number>row['LifespanRepeat']]);
+              this.intervals[1] = new Float32Array([<number>row['UVDecayStart'], <number>row['UVDecayEnd'], <number>row['DecayRepeat']]);
             } else {
               this.columns = 1;
               this.rows = 1;
-              this.lifeSpan = <number>row.BirthTime + <number>row.PauseTime + <number>row.Decay;
+              this.lifeSpan = <number>row['BirthTime'] + <number>row['PauseTime'] + <number>row['Decay'];
 
-              this.intervalTimes[0] = <number>row.BirthTime;
-              this.intervalTimes[1] = <number>row.PauseTime;
-              this.intervalTimes[2] = <number>row.Decay;
+              this.intervalTimes[0] = <number>row['BirthTime'];
+              this.intervalTimes[1] = <number>row['PauseTime'];
+              this.intervalTimes[2] = <number>row['Decay'];
             }
 
-            let blendModes = emitterFilterMode(<number>row.BlendMode, viewer.gl);
+            const blendModes = emitterFilterMode(<number>row['BlendMode'], viewer.gl);
 
             this.blendSrc = blendModes[0];
             this.blendDst = blendModes[1];
           } else {
-            this.distanceCutoff = <number>row.DistanceCutoff;
-            this.maxDistance = <number>row.MaxDistance;
-            this.minDistance = <number>row.MinDistance;
-            this.pitch = <number>row.Pitch;
-            this.pitchVariance = <number>row.PitchVariance;
-            this.volume = <number>row.Volume;
+            this.distanceCutoff = <number>row['DistanceCutoff'];
+            this.maxDistance = <number>row['MaxDistance'];
+            this.minDistance = <number>row['MinDistance'];
+            this.pitch = <number>row['Pitch'];
+            this.pitchVariance = <number>row['PitchVariance'];
+            this.volume = <number>row['Volume'];
 
-            for (let resource of data.resources) {
+            for (const resource of data.resources) {
               this.decodedBuffers.push((<GenericResource>resource).data);
             }
           }
@@ -141,11 +141,11 @@ export default class EventObjectEmitterObject extends GenericObject {
 
   getValue(out: Uint32Array, instance: MdxModelInstance) {
     if (this.globalSequence !== -1) {
-      let globalSequence = this.globalSequence;
+      const globalSequence = this.globalSequence;
 
       return this.getValueAtTime(out, instance.counter % globalSequence, 0, globalSequence);
     } else if (instance.sequence !== -1) {
-      let interval = this.model.sequences[instance.sequence].interval;
+      const interval = this.model.sequences[instance.sequence].interval;
 
       return this.getValueAtTime(out, instance.frame, interval[0], interval[1]);
     } else {
@@ -156,7 +156,7 @@ export default class EventObjectEmitterObject extends GenericObject {
   }
 
   getValueAtTime(out: Uint32Array, frame: number, start: number, end: number) {
-    let tracks = this.tracks;
+    const tracks = this.tracks;
 
     if (frame >= start && frame <= end) {
       for (let i = tracks.length - 1; i > -1; i--) {

@@ -52,7 +52,7 @@ export default class Context extends EventEmitter {
     bindNatives(this);
 
     lua_atnativeerror(this.L, (L: lua_State) => {
-      let e = lua_touserdata(L, -1);
+      const e = lua_touserdata(L, -1);
 
       lua_pushstring(L, e.stack);
 
@@ -84,17 +84,17 @@ export default class Context extends EventEmitter {
   }
 
   step() {
-    let t = performance.now();
-    let dt = (t - this.t) * 0.001;
-    let timers = this.timers;
-    let threads = this.threads;
+    const t = performance.now();
+    const dt = (t - this.t) * 0.001;
+    const timers = this.timers;
+    const threads = this.threads;
 
-    for (let timer of timers) {
+    for (const timer of timers) {
       timer.elapsed += dt;
 
       if (timer.elapsed >= timer.timeout) {
-        let thread = new Thread(this.L, { expiredTimer: timer });
-        let L = thread.L;
+        const thread = new Thread(this.L, { expiredTimer: timer });
+        const L = thread.L;
 
         // Push the entry point onto the thread's stack, so when the thread is resumed it will immediately be called.
         lua_rawgeti(L, LUA_REGISTRYINDEX, timer.handlerFunc);
@@ -113,14 +113,14 @@ export default class Context extends EventEmitter {
       }
     }
 
-    for (let thread of threads) {
+    for (const thread of threads) {
       thread.sleep -= dt;
 
       if (thread.sleep <= 0) {
         this.currentThread = thread;
 
-        let L = thread.L;
-        let status = lua_resume(L, this.L, 0);
+        const L = thread.L;
+        const status = lua_resume(L, this.L, 0);
 
         if (status === LUA_OK) {
           threads.delete(thread);
@@ -166,7 +166,7 @@ export default class Context extends EventEmitter {
   }
 
   call(name?: string | number) {
-    let L = this.L;
+    const L = this.L;
 
     if (typeof name === 'string') {
       lua_getglobal(L, name);
@@ -182,7 +182,7 @@ export default class Context extends EventEmitter {
   }
 
   run(code: string, isJass: boolean) {
-    let L = this.L;
+    const L = this.L;
 
     if (isJass) {
       code = jass2lua(code);
@@ -204,13 +204,13 @@ export default class Context extends EventEmitter {
   open(map: War3Map) {
     this.map = map;
 
-    let file = map.getScriptFile();
+    const file = map.getScriptFile();
 
     if (file) {
-      let buffer = file.text();
+      const buffer = file.text();
 
       if (buffer) {
-        let isJass = file.name.endsWith('.j');
+        const isJass = file.name.endsWith('.j');
 
         this.run(buffer, isJass);
       }

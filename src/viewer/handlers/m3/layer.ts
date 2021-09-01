@@ -47,15 +47,15 @@ export default class M3Layer {
   teamColorMode: number = 0;
 
   constructor(material: M3StandardMaterial, index: number, layerReference: Reference, type: string, op: number) {
-    let model = material.model;
+    const model = material.model;
 
     this.model = model;
     this.material = material;
     this.gl = material.gl;
     this.index = index;
 
-    let uniform = 'u_' + type;
-    let settings = uniform + 'LayerSettings.';
+    const uniform = 'u_' + type;
+    const settings = uniform + 'LayerSettings.';
 
     this.uniformMap = {
       map: uniform + 'Map',
@@ -70,23 +70,23 @@ export default class M3Layer {
 
     // Since Gloss doesn't exist in all versions
     if (layerReference.entries) {
-      let layer = <Layer>layerReference.first();
+      const layer = <Layer>layerReference.first();
 
       this.layer = layer;
 
-      let pathSolver = model.pathSolver;
+      const pathSolver = model.pathSolver;
 
-      let path = layer.imagePath.get();
+      const path = layer.imagePath.get();
 
       if (path) {
-        let source = (<string>path).toLowerCase();
+        const source = (<string>path).toLowerCase();
 
         if (source.length) {
           this.source = source;
           this.active = 1;
 
-          let uvSource = layer.uvSource;
-          let flags = layer.flags;
+          const uvSource = layer.uvSource;
+          const flags = layer.flags;
 
           this.flags = flags;
           this.colorChannels = layer.colorChannelSetting;
@@ -117,7 +117,7 @@ export default class M3Layer {
             this.teamColorMode = 1;
           }
 
-          let m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
+          const m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
 
           model.viewer.load(source, pathSolver)
             .then((texture) => {
@@ -133,17 +133,17 @@ export default class M3Layer {
   }
 
   bind(shader: Shader, textureOverrides: Map<number, Texture>) {
-    let gl = this.gl;
-    let uniformMap = this.uniformMap;
-    let uniforms = shader.uniforms;
-    let active = this.active;
+    const gl = this.gl;
+    const uniformMap = this.uniformMap;
+    const uniforms = shader.uniforms;
+    const active = this.active;
 
     gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      let m3Texture = <M3Texture>this.texture;
-      let texture = textureOverrides.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
-      let textureUnit = this.textureUnit;
+      const m3Texture = <M3Texture>this.texture;
+      const texture = textureOverrides.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
+      const textureUnit = this.textureUnit;
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);
 

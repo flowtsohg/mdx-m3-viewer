@@ -21,7 +21,7 @@ export default abstract class GenericObject extends AnimatedObject {
   }
 
   readMdx(stream: BinaryStream) {
-    let size = stream.readUint32();
+    const size = stream.readUint32();
 
     this.name = stream.read(80);
     this.objectId = stream.readInt32();
@@ -38,13 +38,13 @@ export default abstract class GenericObject extends AnimatedObject {
     stream.writeInt32(this.parentId);
     stream.writeUint32(this.flags);
 
-    for (let animation of this.eachAnimation(true)) {
+    for (const animation of this.eachAnimation(true)) {
       animation.writeMdx(stream);
     }
   }
 
   writeNonGenericAnimationChunks(stream: BinaryStream) {
-    for (let animation of this.eachAnimation(false)) {
+    for (const animation of this.eachAnimation(false)) {
       animation.writeMdx(stream);
     }
   }
@@ -139,9 +139,9 @@ export default abstract class GenericObject extends AnimatedObject {
    * Allows to easily iterate either the GenericObject animations or the parent object animations.
    */
   * eachAnimation(wantGeneric: boolean) {
-    for (let animation of this.animations) {
-      let name = animation.name;
-      let isGeneric = (name === 'KGTR' || name === 'KGRT' || name === 'KGSC');
+    for (const animation of this.animations) {
+      const name = animation.name;
+      const isGeneric = (name === 'KGTR' || name === 'KGRT' || name === 'KGSC');
 
       if ((wantGeneric && isGeneric) || (!wantGeneric && !isGeneric)) {
         yield animation;
@@ -157,14 +157,14 @@ export default abstract class GenericObject extends AnimatedObject {
   getGenericByteLength() {
     let size = 96;
 
-    for (let animation of this.eachAnimation(true)) {
+    for (const animation of this.eachAnimation(true)) {
       size += animation.getByteLength();
     }
 
     return size;
   }
 
-  getByteLength() {
+  override getByteLength() {
     return 96 + super.getByteLength();
   }
 }

@@ -1,5 +1,5 @@
 import BinaryStream from '../../common/binarystream';
-import IndexEntry from './indexentry'
+import IndexEntry from './indexentry';
 import Reference from './reference';
 import { Uint32AnimationReference, Vector3AnimationReference, Vector4AnimationReference } from './animationreference';
 

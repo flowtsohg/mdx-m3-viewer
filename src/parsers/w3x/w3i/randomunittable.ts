@@ -19,7 +19,7 @@ export default class RandomUnitTable {
     this.columnTypes = stream.readInt32Array(this.positions);
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let unit = new RandomUnit();
+      const unit = new RandomUnit();
 
       unit.load(stream, this.positions);
 
@@ -34,7 +34,7 @@ export default class RandomUnitTable {
     stream.writeInt32Array(this.columnTypes);
     stream.writeUint32(this.units.length);
 
-    for (let unit of this.units) {
+    for (const unit of this.units) {
       unit.save(stream);
     }
   }

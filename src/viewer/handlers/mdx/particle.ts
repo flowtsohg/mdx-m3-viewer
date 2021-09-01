@@ -27,24 +27,24 @@ export default class Particle extends EmittedObject {
   constructor(emitter: ParticleEmitter) {
     super(emitter);
 
-    let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
-    let model = <MdxModel>emitterObject.internalModel;
+    const emitterObject = <ParticleEmitterObject>emitter.emitterObject;
+    const model = <MdxModel>emitterObject.internalModel;
 
     this.internalInstance = model.addInstance();
   }
 
   bind() {
-    let emitter = <ParticleEmitter>this.emitter;
-    let instance = <MdxModelInstance>emitter.instance;
-    let sequence = instance.sequence;
-    let frame = instance.frame;
-    let counter = instance.counter;
-    let scene = <Scene>instance.scene;
-    let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
-    let node = instance.nodes[emitterObject.index];
-    let internalInstance = this.internalInstance;
-    let scale = node.worldScale;
-    let velocity = this.velocity;
+    const emitter = <ParticleEmitter>this.emitter;
+    const instance = <MdxModelInstance>emitter.instance;
+    const sequence = instance.sequence;
+    const frame = instance.frame;
+    const counter = instance.counter;
+    const scene = <Scene>instance.scene;
+    const emitterObject = <ParticleEmitterObject>emitter.emitterObject;
+    const node = instance.nodes[emitterObject.index];
+    const internalInstance = this.internalInstance;
+    const scale = node.worldScale;
+    const velocity = this.velocity;
 
     emitterObject.getLatitude(latitudeHeap, sequence, frame, counter);
     // emitterObject.getLongitude(longitudeHeap, sequence, frame, counter);
@@ -77,12 +77,12 @@ export default class Particle extends EmittedObject {
   }
 
   update(dt: number) {
-    let internalInstance = this.internalInstance;
+    const internalInstance = this.internalInstance;
 
     this.health -= dt;
 
     if (this.health > 0) {
-      let velocity = this.velocity;
+      const velocity = this.velocity;
 
       velocity[2] -= this.gravity * dt;
 

@@ -14,7 +14,7 @@ export default class GeosetAnimation extends AnimatedObject {
   constructor(model: MdxModel, geosetAnimation: MdlxGeosetAnimation) {
     super(model, geosetAnimation);
 
-    let color = geosetAnimation.color;
+    const color = geosetAnimation.color;
 
     this.alpha = geosetAnimation.alpha;
     this.color = vec3.fromValues(color[2], color[1], color[0]); // Stored as RGB, but animated colors are stored as BGR, so sizzle.

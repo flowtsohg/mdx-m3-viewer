@@ -28,20 +28,20 @@ export default class M3SdContainer {
   sd: M3Sd[] = [];
 
   addSds(sds: M3ParserSd[]) {
-    for (let sd of sds) {
+    for (const sd of sds) {
       this.sd.push(new M3Sd(sd));
     }
   }
 
   getValueUnsafe(index: number, animationReference: AnimationReference, frame: number, runsConcurrent: number) {
-    let sd = this.sd[index];
+    const sd = this.sd[index];
 
     if (runsConcurrent) {
       frame = frame % sd.biggestKey;
     }
 
-    let keys = sd.keys;
-    let values = sd.values;
+    const keys = sd.keys;
+    const values = sd.values;
 
     // getInterval
     let a = keys.length;
@@ -52,7 +52,7 @@ export default class M3SdContainer {
       b++;
     }
 
-    let length = keys.length;
+    const length = keys.length;
 
     if (a === length) {
       if (b === length) {
@@ -66,11 +66,11 @@ export default class M3SdContainer {
       return values[a];
     }
 
-    let t = clamp((frame - keys[a]) / (keys[b] - keys[a]), 0, 1);
-    let va = values[a];
-    let vb = values[b];
-    let interpolationType = animationReference.interpolationType;
-    let fakeVa = <vec3>va; /// UGLY!!!
+    const t = clamp((frame - keys[a]) / (keys[b] - keys[a]), 0, 1);
+    const va = values[a];
+    const vb = values[b];
+    const interpolationType = animationReference.interpolationType;
+    const fakeVa = <vec3>va; /// UGLY!!!
 
     if (fakeVa.length === 4) {
       if (interpolationType === 0) {

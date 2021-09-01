@@ -15,7 +15,7 @@ export default class Doodad extends Widget {
   constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow, doodad: DooDoodad) {
     super(map, model);
 
-    let instance = this.instance;
+    const instance = this.instance;
 
     instance.move(<vec3>doodad.location);
     instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));

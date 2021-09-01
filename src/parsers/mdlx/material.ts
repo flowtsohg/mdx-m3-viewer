@@ -27,7 +27,7 @@ export default class Material {
     stream.skip(4); // LAYS
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let layer = new Layer();
+      const layer = new Layer();
 
       layer.readMdx(stream, version);
 
@@ -47,13 +47,13 @@ export default class Material {
     stream.writeBinary('LAYS');
     stream.writeUint32(this.layers.length);
 
-    for (let layer of this.layers) {
+    for (const layer of this.layers) {
       layer.writeMdx(stream, version);
     }
   }
 
   readMdl(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (const token of stream.readBlock()) {
       if (token === 'ConstantColor') {
         this.flags |= 0x1;
       } else if (token === 'TwoSided') {
@@ -69,7 +69,7 @@ export default class Material {
       } else if (token === 'Shader') {
         this.shader = stream.read();
       } else if (token === 'Layer') {
-        let layer = new Layer();
+        const layer = new Layer();
 
         layer.readMdl(stream);
 
@@ -110,10 +110,10 @@ export default class Material {
     }
 
     if (version > 800) {
-      stream.writeStringAttrib('Shader', this.shader)
+      stream.writeStringAttrib('Shader', this.shader);
     }
 
-    for (let layer of this.layers) {
+    for (const layer of this.layers) {
       layer.writeMdl(stream, version);
     }
 
@@ -127,7 +127,7 @@ export default class Material {
       size += 80;
     }
 
-    for (let layer of this.layers) {
+    for (const layer of this.layers) {
       size += layer.getByteLength(version);
     }
 

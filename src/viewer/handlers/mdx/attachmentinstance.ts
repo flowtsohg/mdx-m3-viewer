@@ -14,8 +14,8 @@ export default class AttachmentInstance {
   internalInstance: MdxModelInstance;
 
   constructor(instance: MdxModelInstance, attachment: Attachment) {
-    let internalModel = <MdxModel>attachment.internalModel;
-    let internalInstance = <MdxModelInstance>internalModel.addInstance();
+    const internalModel = <MdxModel>attachment.internalModel;
+    const internalInstance = <MdxModelInstance>internalModel.addInstance();
 
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScaling = false;
@@ -28,8 +28,8 @@ export default class AttachmentInstance {
   }
 
   update() {
-    let instance = this.instance;
-    let internalInstance = this.internalInstance;
+    const instance = this.instance;
+    const internalInstance = this.internalInstance;
 
     if (instance.scene && instance.sequence !== -1) {
       this.attachment.getVisibility(visibilityHeap, instance.sequence, instance.frame, instance.counter);

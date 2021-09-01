@@ -10,14 +10,14 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
   // Note that this is done every time the signature is encountered.
   // If a parameter's type isn't known in one call, maybe it will be known in another call.
   if (signatures.has(object.name)) {
-    let signature = <FunctionSignature>signatures.get(object.name);
-    let args = signature.args;
+    const signature = <FunctionSignature>signatures.get(object.name);
+    const args = signature.args;
 
-    for (let [index, parameter] of object.parameters.entries()) {
-      let { type, value } = parameter;
+    for (const [index, parameter] of object.parameters.entries()) {
+      const { type, value } = parameter;
 
       if (type === 1) {
-        for (let variable of wtg.variables) {
+        for (const variable of wtg.variables) {
           if (variable.name === value) {
             args[index] = variable.type;
             break;
@@ -25,11 +25,11 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
         }
       } else if (type === 2) {
         if (parameter.subParameters) {
-          let subParameters = parameter.subParameters;
-          let childSignature = customTriggerData.getFunction(subParameters.type, subParameters.name);
+          const subParameters = parameter.subParameters;
+          const childSignature = customTriggerData.getFunction(subParameters.type, subParameters.name);
 
           if (childSignature) {
-            let returnType = childSignature.returnType;
+            const returnType = childSignature.returnType;
 
             if (returnType && returnType !== 'AnyType') {
               args[index] = returnType;
@@ -42,7 +42,7 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
         } else if (value === 'true' || value === 'false') {
           args[index] = 'boolean';
         }  else if (!isNaN(parseFloat(value))) {
-          let valueAsFloat = parseFloat(value);
+          const valueAsFloat = parseFloat(value);
 
           if (!isNaN(valueAsFloat)) {
             if (Number.isInteger(valueAsFloat) && !value.includes('.')) {
@@ -57,7 +57,7 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
   }
 
   // Continue the hierarchy down any function call parameter.
-  for (let parameter of object.parameters) {
+  for (const parameter of object.parameters) {
     if (parameter.type === 2 && parameter.subParameters) {
       typeFunctionCall(wtg, parameter.subParameters, object, signatures, customTriggerData);
     }
@@ -65,7 +65,7 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
 
   // Continue the hierarchy down any ECA.
   if (object instanceof ECA) {
-    for (let child of object.ecas) {
+    for (const child of object.ecas) {
       typeFunctionCall(wtg, child, object, signatures, customTriggerData);
     }
   }
@@ -84,7 +84,7 @@ const BIGGEST_SIGNATURE = 20;
  */
 export default function parseWtg(map: War3Map, customTriggerData: TriggerData, data: WeuData) {
   let wtg;
-  let signatures: Map<string, FunctionSignature> = new Map();
+  const signatures: Map<string, FunctionSignature> = new Map();
   let currentName: string | undefined;
   let currentSignature: FunctionSignature | undefined;
   let searching = true;
@@ -106,15 +106,15 @@ export default function parseWtg(map: War3Map, customTriggerData: TriggerData, d
       searching = false;
     } catch (e) {
       if (e instanceof Error) {
-        let message = e.message;
+        const message = e.message;
 
         if (message.endsWith('Unknown signature')) {
-          let end = message.lastIndexOf('"');
-          let start = message.lastIndexOf('"', end - 1) + 1;
-          let nameAndType = message.slice(start, end);
-          let [name, type] = nameAndType.split(':');
-          let typeAsNumber = parseInt(type);
-          let signature: FunctionSignature = { args: [], scriptName: null, returnType: typeAsNumber === 3 ? 'AnyType' : null };
+          const end = message.lastIndexOf('"');
+          const start = message.lastIndexOf('"', end - 1) + 1;
+          const nameAndType = message.slice(start, end);
+          const [name, type] = nameAndType.split(':');
+          const typeAsNumber = parseInt(type);
+          const signature: FunctionSignature = { args: [], scriptName: null, returnType: typeAsNumber === 3 ? 'AnyType' : null };
 
           currentName = name.toLowerCase();
           currentSignature = signature;
@@ -135,14 +135,14 @@ export default function parseWtg(map: War3Map, customTriggerData: TriggerData, d
 
   if (signatures.size) {
     if (wtg) {
-      for (let trigger of wtg.triggers) {
-        for (let eca of trigger.ecas) {
+      for (const trigger of wtg.triggers) {
+        for (const eca of trigger.ecas) {
           typeFunctionCall(wtg, eca, null, signatures, customTriggerData);
         }
       }
     }
 
-    for (let [name, signature] of signatures) {
+    for (const [name, signature] of signatures) {
       data.change('unknownsignature', `Unknown signature`, `${name}(${signature.args.join(', ')}) => ${signature.returnType ? signature.returnType : 'void'}`);
     }
   }
