@@ -222,6 +222,8 @@ export default class Viewer extends Component {
       if (test.instance.model.sequences.length) {
         this.controls.updateInstance(test.instance);
 
+        this.viewer.clearEmittedObjects();
+
         if (test.instance.sequence === -1) {
           this.setSequence(0);
         } else {
@@ -262,8 +264,6 @@ export default class Viewer extends Component {
   }
 
   setSequence(index) {
-    this.viewer.clearEmittedObjects();
-
     this.visibleTest.instance.setSequence(index);
 
     if (this.visibleTest.boundingBox) {

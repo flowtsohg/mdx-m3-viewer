@@ -27,6 +27,11 @@ void main() {
     discard;
   }
 
+  // Alpha key.
+  if (u_emitter == EMITTER_PARTICLE2 && (u_filterMode == 4.0) && color.a < 0.75) {
+    discard;
+  }
+
   gl_FragColor = color;
 }
 `;

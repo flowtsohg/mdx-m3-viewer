@@ -70,6 +70,8 @@ export default class ViewerControls extends Component {
           this.cycleToggle.toggle();
         }
 
+        this.viewer.viewer.clearEmittedObjects();
+
         this.viewer.setSequence(this.sequencesElement.selectedIndex - 1);
       }, container
     });

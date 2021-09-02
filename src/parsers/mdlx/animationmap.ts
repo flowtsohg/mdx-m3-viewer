@@ -8,7 +8,7 @@ export default {
   KMTE: ['EmissiveGain', FloatAnimation],
   KFC3: ['FresnelColor', Vector3Animation],
   KFCA: ['FresnelOpacity', FloatAnimation],
-  KFTC: ['FresnelTeamColor', FloatAnimation],
+  KFTC: ['FresnelTeamColor', UintAnimation],
   // TextureAnimation
   KTAT: ['Translation', Vector3Animation],
   KTAR: ['Rotation', Vector4Animation],

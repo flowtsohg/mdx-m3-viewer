@@ -24,7 +24,7 @@ export function emitterFilterMode(filterMode: number, gl: WebGLRenderingContext)
   } else if (filterMode === 3) {
     return [gl.DST_COLOR, gl.SRC_COLOR]; // Modulate 2x
   } else if (filterMode === 4) {
-    return [gl.SRC_ALPHA, gl.ONE]; // Add alpha
+    return [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA]; // Alpha key.
   } else {
     return [0, 0];
   }
