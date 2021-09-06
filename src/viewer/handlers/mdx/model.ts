@@ -34,10 +34,10 @@ import MdxTexture from './texture';
  * An MDX model.
  */
 export default class MdxModel extends Model {
-  reforged: boolean = false;
-  hd: boolean = false;
+  reforged = false;
+  hd = false;
   solverParams: { reforged?: boolean, hd?: boolean } = {};
-  name: string = '';
+  name = '';
   sequences: Sequence[] = [];
   globalSequences: number[] = [];
   materials: Material[] = [];
@@ -57,8 +57,8 @@ export default class MdxModel extends Model {
   cameras: Camera[] = [];
   eventObjects: EventObjectEmitterObject[] = [];
   collisionShapes: CollisionShape[] = [];
-  hasLayerAnims: boolean = false;
-  hasGeosetAnims: boolean = false;
+  hasLayerAnims = false;
+  hasGeosetAnims = false;
   batches: Batch[] = [];
   genericObjects: GenericObject[] = [];
   sortedGenericObjects: GenericObject[] = [];
@@ -67,8 +67,8 @@ export default class MdxModel extends Model {
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
-  skinDataType: number = 0;
-  bytesPerSkinElement: number = 1;
+  skinDataType = 0;
+  bytesPerSkinElement = 1;
 
   constructor(bufferOrParser: ArrayBuffer | string | Parser, resourceData: HandlerResourceData) {
     super(resourceData);

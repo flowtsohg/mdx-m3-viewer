@@ -4,9 +4,9 @@ import BinaryStream from '../../common/binarystream';
  * The base class to all animation references.
  */
 export abstract class AnimationReference {
-  interpolationType: number = 0;
-  animFlags: number = 0;
-  animId: number = -1;
+  interpolationType = 0;
+  animFlags = 0;
+  animId = -1;
   initValue: number | Uint8Array | Float32Array | null = null;
   nullValue: number | Uint8Array | Float32Array | null = null;
 

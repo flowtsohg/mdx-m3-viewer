@@ -5,7 +5,7 @@ import Region from './region';
  * war3map.w3r - the region file.
  */
 export default class War3MapW3r {
-  version: number = 0;
+  version = 0;
   regions: Region[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {

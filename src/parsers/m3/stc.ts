@@ -6,14 +6,14 @@ import Reference from './reference';
  * An animation timeline.
  */
 export default class Stc {
-  version: number = -1;
-  name: Reference = new Reference();
-  runsConcurrent: number = 0;
-  priority: number = 0;
-  stsIndex: number = -1;
-  stsIndexCopy: number = -1;
-  animIds: Reference = new Reference();
-  animRefs: Reference = new Reference();
+  version = -1;
+  name = new Reference();
+  runsConcurrent = 0;
+  priority = 0;
+  stsIndex = -1;
+  stsIndexCopy = -1;
+  animIds = new Reference();
+  animRefs = new Reference();
   sd: Reference[] = [];
 
   constructor() {

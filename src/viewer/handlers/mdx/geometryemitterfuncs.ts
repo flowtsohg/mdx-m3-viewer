@@ -331,9 +331,9 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: Shader) {
   const textureOverrides = emitter.instance.textureOverrides;
   const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-  const intervalTimes = <Float32Array>emitterObject.intervalTimes;
-  const intervals = <Float32Array[]>emitterObject.intervals;
-  const colors = <Float32Array[]>emitterObject.colors;
+  const intervalTimes = emitterObject.intervalTimes;
+  const intervals = emitterObject.intervals;
+  const colors = emitterObject.colors;
   const model = emitterObject.model;
   const gl = model.viewer.gl;
   const uniforms = shader.uniforms;
@@ -362,8 +362,8 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: Shader) {
   const textureOverrides = emitter.instance.textureOverrides;
   const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
-  const intervalTimes = <Float32Array>emitterObject.intervalTimes;
-  const colors = <Float32Array[]>emitterObject.colors;
+  const intervalTimes = emitterObject.intervalTimes;
+  const colors = emitterObject.colors;
   const model = emitterObject.model;
   const viewer = model.viewer;
   const gl = viewer.gl;

@@ -5,22 +5,22 @@ import IndexEntry from './indexentry';
  * A region.
  */
 export default class Region {
-  version: number = -1;
-  unknown0: number = 0;
-  unknown1: number = 0;
-  firstVertexIndex: number = -1;
-  verticesCount: number = 0;
-  firstTriangleIndex: number = -1;
-  triangleIndicesCount: number = 0;
-  bonesCount: number = 0;
-  firstBoneLookupIndex: number = -1;
-  boneLookupIndicesCount: number = 0;
-  unknown2: number = 0;
-  boneWeightPairsCount: number = 0;
-  unknown3: number = 0;
-  rootBoneIndex: number = -1;
-  unknown4: number = 0;
-  unknown5: Uint8Array = new Uint8Array(8);
+  version = -1;
+  unknown0 = 0;
+  unknown1 = 0;
+  firstVertexIndex = -1;
+  verticesCount = 0;
+  firstTriangleIndex = -1;
+  triangleIndicesCount = 0;
+  bonesCount = 0;
+  firstBoneLookupIndex = -1;
+  boneLookupIndicesCount = 0;
+  unknown2 = 0;
+  boneWeightPairsCount = 0;
+  unknown3 = 0;
+  rootBoneIndex = -1;
+  unknown4 = 0;
+  unknown5 = new Uint8Array(8);
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

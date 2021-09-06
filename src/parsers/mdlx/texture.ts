@@ -5,9 +5,9 @@ import TokenStream from './tokenstream';
  * A texture.
  */
 export default class Texture {
-  replaceableId: number = 0;
-  path: string = '';
-  flags: number = 0;
+  replaceableId = 0;
+  path = '';
+  flags = 0;
 
   readMdx(stream: BinaryStream) {
     this.replaceableId = stream.readUint32();

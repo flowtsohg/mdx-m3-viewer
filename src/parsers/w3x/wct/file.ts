@@ -6,9 +6,9 @@ import CustomTextTrigger from './customtexttrigger';
  * war3map.wct - the custom text (jass) trigger file.
  */
 export default class War3MapWct {
-  version: number = 0;
-  comment: string = '';
-  trigger: CustomTextTrigger = new CustomTextTrigger();
+  version = 0;
+  comment = '';
+  trigger = new CustomTextTrigger();
   triggers: CustomTextTrigger[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {

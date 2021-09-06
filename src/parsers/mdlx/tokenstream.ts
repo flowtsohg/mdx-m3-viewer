@@ -3,10 +3,10 @@
  */
 export default class TokenStream {
   buffer: string;
-  index: number = 0;
-  ident: number = 0;
-  indentSpaces: number = 4;
-  precision: number = 1000000; // 6 digits after the decimal point.
+  index = 0;
+  ident = 0;
+  indentSpaces = 4;
+  precision = 1000000; // 6 digits after the decimal point.
 
   constructor(buffer?: string) {
     this.buffer = buffer || '';
@@ -146,7 +146,7 @@ export default class TokenStream {
   /**
    * { Number0, Number1, ..., NumberN }
    */
-  readVector(view: Uint8Array | Uint16Array | Uint32Array | Float32Array) {
+  readVector<T extends Uint8Array | Uint16Array | Uint32Array | Float32Array>(view: T) {
     this.read(); // {
 
     for (let i = 0, l = view.length; i < l; i++) {
@@ -165,7 +165,7 @@ export default class TokenStream {
    *     ...
    * }
    */
-  readVectorsBlock(view: Uint16Array | Float32Array, size: number) {
+  readVectorsBlock<T extends Uint16Array | Float32Array>(view: T, size: number) {
     this.read(); // {
 
     for (let i = 0, l = view.length; i < l; i += size) {

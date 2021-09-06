@@ -8,9 +8,9 @@ import { TriggerData } from './triggerdata';
  * war3map.wtg - the trigger file.
  */
 export default class War3MapWtg {
-  version: number = 0;
+  version = 0;
   categories: TriggerCategory[] = [];
-  u1: number = 0;
+  u1 = 0;
   variables: Variable[] = [];
   triggers: Trigger[] = [];
 

@@ -1,4 +1,4 @@
-export function isStringInBytes(buffer: Uint8Array, target: string, offset: number = 0, length: number = Infinity) {
+export function isStringInBytes(buffer: Uint8Array, target: string, offset = 0, length = Infinity) {
   const start = Math.max(offset, 0);
   const end = Math.min(start + length, buffer.length);
   let whichByte = 0;
@@ -24,7 +24,7 @@ export function isStringInBytes(buffer: Uint8Array, target: string, offset: numb
   return false;
 }
 
-export function isStringInString(buffer: string, target: string, offset: number = 0, length: number = Infinity) {
+export function isStringInString(buffer: string, target: string, offset = 0, length = Infinity) {
   const start = Math.max(offset, 0);
   const end = Math.min(start + length, buffer.length);
   let whichByte = 0;
@@ -50,7 +50,7 @@ export function isStringInString(buffer: string, target: string, offset: number 
   return false;
 }
 
-export function boundIndexOf(buffer: Uint8Array, target: number, offset: number = 0, length: number = Infinity) {
+export function boundIndexOf(buffer: Uint8Array, target: number, offset = 0, length = Infinity) {
   const start = Math.max(offset, 0);
   const end = Math.min(start + length, buffer.length);
 

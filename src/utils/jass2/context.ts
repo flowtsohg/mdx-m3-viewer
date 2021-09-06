@@ -24,13 +24,13 @@ import { JassTrigger } from './types/index';
 export default class Context extends EventEmitter {
   L: lua_State;
   map: War3Map | null = null;
-  handle: number = 0;
+  handle = 0;
   freeHandles: number[] = [];
   handles: (JassHandle | null)[] = [];
-  name: string = '';
-  description: string = '';
+  name = '';
+  description = '';
   players: JassPlayer[] = [];
-  actualPlayers: number = 0;
+  actualPlayers = 0;
   startLocations: JassLocation[] = [];
   constantHandles = constantHandles();
   timers: Set<JassTimer> = new Set();
@@ -40,7 +40,7 @@ export default class Context extends EventEmitter {
   enumUnit: JassHandle | null = null;
   filterUnit: JassHandle | null = null;
   enumPlayer: JassHandle | null = null;
-  t: number = 0;
+  t = 0;
 
   constructor() {
     super();

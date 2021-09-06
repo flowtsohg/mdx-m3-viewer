@@ -11,7 +11,7 @@ export default class JassUnit extends JassWidget {
   x: number;
   y: number;
   face: number;
-  acquireRange: number = 500;
+  acquireRange = 500;
 
   constructor(player: JassPlayer, unitId: number, x: number, y: number, face: number) {
     super();

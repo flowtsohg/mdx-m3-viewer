@@ -9,7 +9,7 @@ import War3MapW3d from '../w3d/file';
  * Can be exported and imported via the World Editor.
  */
 export default class War3MapW3o {
-  version: number = 0;
+  version = 0;
   units: War3MapW3u | null = null;
   items: War3MapW3u | null = null;
   destructables: War3MapW3u | null = null;

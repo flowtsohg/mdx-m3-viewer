@@ -5,13 +5,13 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A global variable.
  */
 export default class Variable {
-  name: string = '';
-  type: string = '';
-  u1: number = 0;
-  isArray: number = 0;
-  arraySize: number = 0;
-  isInitialized: number = 0;
-  initialValue: string = '';
+  name = '';
+  type = '';
+  u1 = 0;
+  isArray = 0;
+  arraySize = 0;
+  isInitialized = 0;
+  initialValue = '';
 
   load(stream: BinaryStream, version: number) {
     this.name = stream.readNull();

@@ -15,7 +15,7 @@ export default class AttachmentInstance {
 
   constructor(instance: MdxModelInstance, attachment: Attachment) {
     const internalModel = <MdxModel>attachment.internalModel;
-    const internalInstance = <MdxModelInstance>internalModel.addInstance();
+    const internalInstance = internalModel.addInstance();
 
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScaling = false;

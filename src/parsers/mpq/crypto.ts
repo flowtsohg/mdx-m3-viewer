@@ -9,7 +9,7 @@ const longHeap = new Uint32Array(bytesHeap.buffer);
  * MPQ crypto.
  */
 export default class MpqCrypto {
-  cryptTable: Uint32Array = new Uint32Array(0x500)
+  cryptTable = new Uint32Array(0x500)
 
   constructor() {
     let seed = 0x00100001;

@@ -6,12 +6,12 @@ import GenericObject from './genericobject';
  * A light.
  */
 export default class Light extends GenericObject {
-  type: number = -1;
-  attenuation: Float32Array = new Float32Array(2);
-  color: Float32Array = new Float32Array(3);
-  intensity: number = 0;
-  ambientColor: Float32Array = new Float32Array(3);
-  ambientIntensity: number = 0;
+  type = -1;
+  attenuation = new Float32Array(2);
+  color = new Float32Array(3);
+  intensity = 0;
+  ambientColor = new Float32Array(3);
+  ambientIntensity = 0;
 
   constructor() {
     super(0x200);

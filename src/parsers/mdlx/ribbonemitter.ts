@@ -6,17 +6,17 @@ import GenericObject from './genericobject';
  * A ribbon emitter.
  */
 export default class RibbonEmitter extends GenericObject {
-  heightAbove: number = 0;
-  heightBelow: number = 0;
-  alpha: number = 0;
-  color: Float32Array = new Float32Array(3);
-  lifeSpan: number = 0;
-  textureSlot: number = 0;
-  emissionRate: number = 0;
-  rows: number = 0;
-  columns: number = 0;
-  materialId: number = 0;
-  gravity: number = 0;
+  heightAbove = 0;
+  heightBelow = 0;
+  alpha = 0;
+  color = new Float32Array(3);
+  lifeSpan = 0;
+  textureSlot = 0;
+  emissionRate = 0;
+  rows = 0;
+  columns = 0;
+  materialId = 0;
+  gravity = 0;
 
   constructor() {
     super(0x4000);

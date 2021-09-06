@@ -6,31 +6,31 @@ import Extent from './extent';
  * A geoset.
  */
 export default class Geoset {
-  vertices: Float32Array = new Float32Array(0);
-  normals: Float32Array = new Float32Array(0);
-  faceTypeGroups: Uint32Array = new Uint32Array(0);
-  faceGroups: Uint32Array = new Uint32Array(0);
-  faces: Uint16Array = new Uint16Array(0);
-  vertexGroups: Uint8Array = new Uint8Array(0);
-  matrixGroups: Uint32Array = new Uint32Array(0);
-  matrixIndices: Uint32Array = new Uint32Array(0);
-  materialId: number = 0;
-  selectionGroup: number = 0;
-  selectionFlags: number = 0;
+  vertices = new Float32Array(0);
+  normals = new Float32Array(0);
+  faceTypeGroups = new Uint32Array(0);
+  faceGroups = new Uint32Array(0);
+  faces = new Uint16Array(0);
+  vertexGroups = new Uint8Array(0);
+  matrixGroups = new Uint32Array(0);
+  matrixIndices = new Uint32Array(0);
+  materialId = 0;
+  selectionGroup = 0;
+  selectionFlags = 0;
   /** 
    * @since 900
    */
-  lod: number = -1;
+  lod = -1;
   /** 
    * @since 900
    */
-  lodName: string = '';
-  extent: Extent = new Extent();
+  lodName = '';
+  extent = new Extent();
   sequenceExtents: Extent[] = [];
   /** 
    * @since 900
    */
-  tangents: Float32Array = new Float32Array(0);
+  tangents = new Float32Array(0);
   /**
    * An array of bone indices and weights.
    * Every 8 consecutive elements describe the following:
@@ -41,7 +41,7 @@ export default class Geoset {
    *
    * @since 900
    */
-  skin: Uint8Array = new Uint8Array(0);
+  skin = new Uint8Array(0);
   uvSets: Float32Array[] = [];
 
   readMdx(stream: BinaryStream, version: number) {
@@ -175,11 +175,11 @@ export default class Geoset {
   readMdl(stream: TokenStream) {
     for (let token of stream.readBlock()) {
       if (token === 'Vertices') {
-        this.vertices = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
+        this.vertices = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'Normals') {
-        this.normals = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
+        this.normals = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'TVertices') {
-        this.uvSets.push(<Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
+        this.uvSets.push(stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
       } else if (token === 'VertexGroup') {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
         const vertexGroups = [];
@@ -190,9 +190,9 @@ export default class Geoset {
 
         this.vertexGroups = new Uint8Array(vertexGroups);
       } else if (token === 'Tangents') {
-        this.tangents = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 4), 4);
+        this.tangents = stream.readVectorsBlock(new Float32Array(stream.readInt() * 4), 4);
       } else if (token === 'SkinWeights') {
-        this.skin = <Uint8Array>stream.readVector(new Uint8Array(stream.readInt() * 8));
+        this.skin = stream.readVector(new Uint8Array(stream.readInt() * 8));
       } else if (token === 'Faces') {
         // For now hardcoded for triangles, until I see a model with something different.
         this.faceTypeGroups = new Uint32Array([4]);
@@ -206,7 +206,7 @@ export default class Geoset {
         stream.read(); // {
         stream.read(); // Triangles
 
-        this.faces = <Uint16Array>stream.readVectorsBlock(new Uint16Array(count), count / vectors);
+        this.faces = stream.readVectorsBlock(new Uint16Array(count), count / vectors);
 
         // Declare that all of the faces are in one group to conform with MDX.
         this.faceGroups = new Uint32Array([count]);

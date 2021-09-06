@@ -11,7 +11,7 @@ import MdxTexture from './texture';
  * An MDX particle emitter type 2.
  */
 export default class ParticleEmitter2Object extends GenericObject {
-  geometryEmitterType: number = EMITTER_PARTICLE2;
+  geometryEmitterType = EMITTER_PARTICLE2;
   width: number;
   length: number;
   speed: number;
@@ -25,7 +25,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   timeMiddle: number;
   columns: number;
   rows: number;
-  teamColored: number = 0;
+  teamColored = 0;
   internalTexture: MdxTexture | null = null;
   replaceableId: number;
   textureId: number;
@@ -45,7 +45,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * 
    * The particles will simply be black.
    */
-  ok: boolean = true;
+  ok = true;
 
   constructor(model: MdxModel, emitter: MdlxParticleEmitter2, index: number) {
     super(model, emitter, index);

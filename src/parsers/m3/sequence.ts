@@ -7,13 +7,13 @@ import BoundingSphere from './boundingsphere';
  * A sequence.
  */
 export default class Sequence {
-  version: number = -1;
-  name: Reference = new Reference();
-  interval: Uint32Array = new Uint32Array(2);
-  movementSpeed: number = 0;
-  flags: number = 0;
-  frequency: number = 0;
-  boundingSphere: BoundingSphere = new BoundingSphere();
+  version = -1;
+  name = new Reference();
+  interval = new Uint32Array(2);
+  movementSpeed = 0;
+  flags = 0;
+  frequency = 0;
+  boundingSphere = new BoundingSphere();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

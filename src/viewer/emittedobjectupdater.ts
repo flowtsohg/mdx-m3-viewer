@@ -5,7 +5,7 @@ import EmittedObject from './emittedobject';
  */
 export default class EmittedObjectUpdater {
   objects: EmittedObject[] = [];
-  alive: number = 0;
+  alive = 0;
 
   add(object: EmittedObject) {
     this.objects[this.alive++] = object;

@@ -18,7 +18,7 @@ export default class MpqArchive {
   hashTable: MpqHashTable;
   blockTable: MpqBlockTable;
   files: MpqFile[];
-  readonly: boolean = false;
+  readonly = false;
 
   constructor() {
     this.headerOffset = 0;
@@ -34,7 +34,7 @@ export default class MpqArchive {
    * 
    * Note that this clears the archive from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer | Uint8Array, readonly: boolean = false) {
+  load(buffer: ArrayBuffer | Uint8Array, readonly = false) {
     const bytes = bytesOf(buffer);
 
     this.readonly = readonly;

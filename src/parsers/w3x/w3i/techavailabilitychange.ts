@@ -4,8 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * A tech availablity change.
  */
 export default class TechAvailabilityChange {
-  playerFlags: number = 0;
-  id: string = '\0\0\0\0';
+  playerFlags = 0;
+  id = '\0\0\0\0';
 
   load(stream: BinaryStream) {
     this.playerFlags = stream.readUint32();

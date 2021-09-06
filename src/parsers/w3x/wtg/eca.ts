@@ -7,10 +7,10 @@ import { FunctionSignature, TriggerData } from './triggerdata';
  * An Event/Condition/Action.
  */
 export default class ECA {
-  type: number = -1;
-  group: number = -1;
-  name: string = '';
-  isEnabled: number = 0;
+  type = -1;
+  group = -1;
+  name = '';
+  isEnabled = 0;
   parameters: Parameter[] = [];
   ecas: ECA[] = [];
 

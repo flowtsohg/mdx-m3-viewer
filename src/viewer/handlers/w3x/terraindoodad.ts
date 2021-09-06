@@ -18,7 +18,7 @@ export default class TerrainDoodad {
 
   constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow, doodad: DooTerrainDoodad) {
     const centeroffset = map.centerOffset;
-    const instance = <MdxModelInstance>model.addInstance();
+    const instance = model.addInstance();
 
     locationHeap[0] = doodad.location[0] * 128 + centeroffset[0] + 128;
     locationHeap[1] = doodad.location[1] * 128 + centeroffset[1] + 128;

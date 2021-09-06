@@ -10,9 +10,9 @@ export default class Cell {
   right: number;
   bottom: number;
   top: number;
-  plane: number = -1;
+  plane = -1;
   instances: ModelInstance[] = [];
-  visible: boolean = false;
+  visible = false;
 
   constructor(left: number, right: number, bottom: number, top: number) {
     this.left = left;

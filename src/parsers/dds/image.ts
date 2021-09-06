@@ -15,9 +15,9 @@ export const FOURCC_ATI2 = 0x32495441;
  * A DDS image.
  */
 export class DdsImage {
-  width: number = 0;
-  height: number = 0;
-  format: number = 0;
+  width = 0;
+  height = 0;
+  format = 0;
   mipmapWidths: number[] = [];
   mipmapHeights: number[] = [];
   mipmapDatas: Uint8Array[] = [];
@@ -79,7 +79,7 @@ export class DdsImage {
     return this.mipmapDatas.length;
   }
 
-  getMipmap(level: number, raw: boolean = false) {
+  getMipmap(level: number, raw = false) {
     const width = this.mipmapWidths[level];
     const height = this.mipmapHeights[level];
     const data = this.mipmapDatas[level];

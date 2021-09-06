@@ -12,7 +12,7 @@ export default class Layer extends AnimatedObject {
   index: number;
   priorityPlane: number;
   filterMode: number;
-  textureId: number = 0;
+  textureId = 0;
   coordId: number;
   alpha: number;
   unshaded: number;
@@ -22,9 +22,9 @@ export default class Layer extends AnimatedObject {
   noDepthTest: number;
   noDepthSet: number;
   depthMaskValue: boolean;
-  blendSrc: number = 0;
-  blendDst: number = 0;
-  blended: boolean = false;
+  blendSrc = 0;
+  blendDst = 0;
+  blended = false;
   textureAnimation: TextureAnimation | null = null;
 
   constructor(model: MdxModel, layer: MdlxLayer, layerId: number, priorityPlane: number) {

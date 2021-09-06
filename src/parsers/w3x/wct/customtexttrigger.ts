@@ -5,7 +5,7 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A custom text trigger.
  */
 export default class CustomTextTrigger {
-  text: string = '';
+  text = '';
 
   load(stream: BinaryStream) {
     const textLength = stream.readInt32();

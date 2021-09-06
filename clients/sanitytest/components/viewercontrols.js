@@ -87,6 +87,18 @@ export default class ViewerControls extends Component {
 
     createElement({ textContent: 'Camera:', container });
     this.camerasElement = createElement({ tagName: 'select', className: 'controls', onchange: () => this.viewer.setCamera(this.camerasElement.selectedIndex - 1), container });
+
+    // Shading.
+    container = createElement({ container: this.container });
+
+    createElement({ textContent: 'Shading:', container });
+    this.shadingToggle = new Toggle('Yes', 'No', (e) => {
+      if (e.clicked) {
+        this.viewer.viewer.debug.noShading = 1;
+      } else {
+        this.viewer.viewer.debug.noShading = 0;
+      }
+    }, { className: 'controls', container });
   }
 
   frame(frame) {

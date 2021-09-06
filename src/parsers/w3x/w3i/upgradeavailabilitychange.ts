@@ -4,10 +4,10 @@ import BinaryStream from '../../../common/binarystream';
  * An upgrade availability change.
  */
 export default class UpgradeAvailabilityChange {
-  playerFlags: number = 0;
-  id: string = '\0\0\0\0';
-  levelAffected: number = 0;
-  availability: number = 0;
+  playerFlags = 0;
+  id = '\0\0\0\0';
+  levelAffected = 0;
+  availability = 0;
 
   load(stream: BinaryStream) {
     this.playerFlags = stream.readUint32();

@@ -74,7 +74,7 @@ export class TriggerData {
   addTriggerTypes(types: StringObject, section: IniSection) {
     for (const [key, value] of section) {
       // We know the values are going to be strings.
-      const tokens = (<string>value).split(',');
+      const tokens = value.split(',');
 
       types[key.toLowerCase()] = tokens[4] || '';
     }

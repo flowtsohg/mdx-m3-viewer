@@ -6,8 +6,8 @@ import RandomItemSet from './randomitemset';
  * A random item table.
  */
 export default class RandomItemTable {
-  id: number = 0;
-  name: string = '';
+  id = 0;
+  name = '';
   sets: RandomItemSet[] = [];
 
   load(stream: BinaryStream) {

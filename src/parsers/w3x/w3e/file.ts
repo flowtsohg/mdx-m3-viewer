@@ -5,13 +5,13 @@ import Corner from './corner';
  * war3map.w3e - the environment file.
  */
 export default class War3MapW3e {
-  version: number = 0;
-  tileset: string = 'A';
-  haveCustomTileset: number = 0;
+  version = 0;
+  tileset = 'A';
+  haveCustomTileset = 0;
   groundTilesets: string[] = [];
   cliffTilesets: string[] = [];
-  mapSize: Int32Array = new Int32Array(2);
-  centerOffset: Float32Array = new Float32Array(2);
+  mapSize = new Int32Array(2);
+  centerOffset = new Float32Array(2);
   corners: Corner[][] = [];
 
   load(buffer: ArrayBuffer | Uint8Array) {

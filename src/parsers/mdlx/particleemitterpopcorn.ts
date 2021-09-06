@@ -9,14 +9,14 @@ import GenericObject from './genericobject';
  * @since 900
  */
 export default class ParticleEmitterPopcorn extends GenericObject {
-  lifeSpan: number = 0;
-  emissionRate: number = 0;
-  speed: number = 0;
-  color: Float32Array = new Float32Array(3);
-  alpha: number = 1;
-  replaceableId: number = 0;
-  path: string = '';
-  animationVisiblityGuide: string = '';
+  lifeSpan = 0;
+  emissionRate = 0;
+  speed = 0;
+  color = new Float32Array(3);
+  alpha = 1;
+  replaceableId = 0;
+  path = '';
+  animationVisiblityGuide = '';
 
   override readMdx(stream: BinaryStream) {
     const start = stream.index;

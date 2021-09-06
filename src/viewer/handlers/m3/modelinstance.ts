@@ -6,6 +6,7 @@ import Texture from '../../texture';
 import M3Model from './model';
 import M3Skeleton from './skeleton';
 import { STANDARD_MATERIAL_OFFSET } from './standardmaterial';
+import { M3HandlerObject } from './handler';
 
 const boneHeap = mat4.create();
 
@@ -14,13 +15,13 @@ const boneHeap = mat4.create();
  */
 export default class M3ModelInstance extends ModelInstance {
   skeleton: M3Skeleton | null = null;
-  teamColor: number = 0;
-  vertexColor: Float32Array = new Float32Array([1, 1, 1, 1]);
-  sequence: number = -1;
-  frame: number = 0;
-  sequenceLoopMode: number = 0;
-  sequenceEnded: boolean = false;
-  forced: boolean = true;
+  teamColor = 0;
+  vertexColor = new Float32Array([1, 1, 1, 1]);
+  sequence = -1;
+  frame = 0;
+  sequenceLoopMode = 0;
+  sequenceEnded = false;
+  forced = true;
   boneTexture: DataTexture | null = null;
 
   constructor(model: M3Model) {
@@ -35,9 +36,7 @@ export default class M3ModelInstance extends ModelInstance {
       this.setSequence(this.sequence);
     }
 
-    const boneLookup = <Uint16Array>model.boneLookup;
-
-    this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
+    this.boneTexture = new DataTexture(model.viewer.gl, 3, model.boneLookup.length * 4, 1);
   }
 
   /**
@@ -53,7 +52,7 @@ export default class M3ModelInstance extends ModelInstance {
     const model = <M3Model>this.model;
     const viewer = model.viewer;
     const buffer = viewer.buffer;
-    const boneLookup = <Uint16Array>model.boneLookup;
+    const boneLookup = model.boneLookup;
     const skeleton = <M3Skeleton>this.skeleton;
     const nodes = skeleton.nodes;
     const bindPose = model.initialReference;
@@ -108,7 +107,7 @@ export default class M3ModelInstance extends ModelInstance {
 
     if (batches.length) {
       const viewer = model.viewer;
-      const m3Cache = viewer.sharedCache.get('m3');
+      const m3Cache = <M3HandlerObject>viewer.sharedCache.get('m3');
       const gl = viewer.gl;
       const vertexSize = model.vertexSize;
       const uvSetCount = model.uvSetCount;
@@ -122,31 +121,31 @@ export default class M3ModelInstance extends ModelInstance {
 
       shader.use();
 
-      gl.uniform1f(uniforms.u_teamColor, this.teamColor);
-      gl.uniform4fv(uniforms.u_vertexColor, this.vertexColor);
+      gl.uniform1f(uniforms['u_teamColor'], this.teamColor);
+      gl.uniform4fv(uniforms['u_vertexColor'], this.vertexColor);
 
-      gl.uniformMatrix4fv(uniforms.u_VP, false, camera.viewProjectionMatrix);
-      gl.uniformMatrix4fv(uniforms.u_MV, false, camera.viewMatrix);
+      gl.uniformMatrix4fv(uniforms['u_VP'], false, camera.viewProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms['u_MV'], false, camera.viewMatrix);
 
-      gl.uniform3fv(uniforms.u_eyePos, camera.location);
-      gl.uniform3fv(uniforms.u_lightPos, m3Cache.lightPosition);
+      gl.uniform3fv(uniforms['u_eyePos'], camera.location);
+      gl.uniform3fv(uniforms['u_lightPos'], scene.lightPosition);
 
       boneTexture.bind(15);
-      gl.uniform1i(uniforms.u_boneMap, 15);
-      gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
-      gl.uniform1f(uniforms.u_rowSize, 1);
+      gl.uniform1i(uniforms['u_boneMap'], 15);
+      gl.uniform1f(uniforms['u_vectorSize'], 1 / boneTexture.width);
+      gl.uniform1f(uniforms['u_rowSize'], 1);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
-      gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, vertexSize, 0);
-      gl.vertexAttribPointer(attribs.a_weights, 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
-      gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
-      gl.vertexAttribPointer(attribs.a_normal, 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
+      gl.vertexAttribPointer(attribs['a_position'], 3, gl.FLOAT, false, vertexSize, 0);
+      gl.vertexAttribPointer(attribs['a_weights'], 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
+      gl.vertexAttribPointer(attribs['a_bones'], 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
+      gl.vertexAttribPointer(attribs['a_normal'], 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
 
       for (let i = 0; i < uvSetCount; i++) {
         gl.vertexAttribPointer(attribs[`a_uv${i}`], 2, gl.SHORT, false, vertexSize, 24 + i * 4);
       }
 
-      gl.vertexAttribPointer(attribs.a_tangent, 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
+      gl.vertexAttribPointer(attribs['a_tangent'], 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 

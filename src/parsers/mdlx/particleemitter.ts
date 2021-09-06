@@ -6,13 +6,13 @@ import GenericObject from './genericobject';
  * A particle emitter.
  */
 export default class ParticleEmitter extends GenericObject {
-  emissionRate: number = 0;
-  gravity: number = 0;
-  longitude: number = 0;
-  latitude: number = 0;
-  path: string = '';
-  lifeSpan: number = 0;
-  speed: number = 0;
+  emissionRate = 0;
+  gravity = 0;
+  longitude = 0;
+  latitude = 0;
+  path = '';
+  lifeSpan = 0;
+  speed = 0;
 
   constructor() {
     super(0x1000);

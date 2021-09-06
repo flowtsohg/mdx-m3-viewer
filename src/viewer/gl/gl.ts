@@ -186,21 +186,21 @@ export default class WebGL {
   /**
    * A shortcut for `new ClientBuffer(gl, size)`.
    */
-  createClientBuffer(size: number = 4) {
+  createClientBuffer(size = 4) {
     return new ClientBuffer(this.gl, size);
   }
 
   /**
    * A shortcut for `new DataTexture(gl, channels, width, height)`.
    */
-  createDataTexture(channels: number = 4, width: number = 1, height: number = 1) {
+  createDataTexture(channels = 4, width = 1, height = 1) {
     return new DataTexture(this.gl, channels, width, height);
   }
 
   /**
    * A shortcut for `new ClientDataTexture(gl, width, height)`.
    */
-  createClientDataTexture(width: number = 1, height: number = 1) {
+  createClientDataTexture(width = 1, height = 1) {
     return new ClientDataTexture(this.gl, width, height);
   }
 }

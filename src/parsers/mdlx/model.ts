@@ -24,6 +24,12 @@ import FaceEffect from './faceeffect';
 import UnknownChunk from './unknownchunk';
 import { isMdl, isMdx } from './isformat';
 
+// Used below to get proper typings for the generic methods.
+type MdxStaticObject = Sequence | Texture | FaceEffect;
+type MdxDynamicObject = Material | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | ParticleEmitterPopcorn;
+type MdlNumberedObject = Sequence | Texture | Material | TextureAnimation;
+type MdlObject = Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | FaceEffect;
+
 /**
  * A Warcraft 3 model.
  * Supports loading from and saving to both the binary MDX and text MDL file formats.
@@ -33,17 +39,17 @@ export default class Model {
    * 800 for Warcraft 3: RoC and TFT.
    * >800 for Warcraft 3: Reforged.
    */
-  version: number = 800;
-  name: string = '';
+  version = 800;
+  name = '';
   /**
    * To the best of my knowledge, this should always be left empty.
    */
-  animationFile: string = '';
-  extent: Extent = new Extent();
+  animationFile = '';
+  extent = new Extent();
   /**
    * This is only used by the now-defunct previewer that came with Art Tools.
    */
-  blendTime: number = 0;
+  blendTime = 0;
   sequences: Sequence[] = [];
   globalSequences: number[] = [];
   materials: Material[] = [];
@@ -177,7 +183,7 @@ export default class Model {
     this.blendTime = stream.readUint32();
   }
 
-  loadStaticObjects(out: any[], constructor: typeof Sequence | typeof Texture | typeof FaceEffect, stream: BinaryStream, count: number) {
+  loadStaticObjects<T extends MdxStaticObject>(out: T[], constructor: new () => T, stream: BinaryStream, count: number) {
     for (let i = 0; i < count; i++) {
       const object = new constructor();
 
@@ -193,7 +199,7 @@ export default class Model {
     }
   }
 
-  loadDynamicObjects(out: any[], constructor: typeof Material | typeof TextureAnimation | typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape | typeof ParticleEmitterPopcorn, stream: BinaryStream, size: number) {
+  loadDynamicObjects<T extends MdxDynamicObject>(out: T[], constructor: new () => T, stream: BinaryStream, size: number) {
     const end = stream.index + size;
 
     while (stream.index < end) {
@@ -340,7 +346,7 @@ export default class Model {
     let token: string;
     const stream = new TokenStream(buffer);
 
-    while (token = <string>stream.readToken()) {
+    while ((token = <string>stream.readToken())) {
       if (token === 'Version') {
         this.loadVersionBlock(stream);
       } else if (token === 'Model') {
@@ -440,7 +446,7 @@ export default class Model {
     }
   }
 
-  loadNumberedObjectBlock(out: any[], constructor: typeof Sequence | typeof Texture | typeof Material | typeof TextureAnimation, name: string, stream: TokenStream) {
+  loadNumberedObjectBlock<T extends MdlNumberedObject>(out: T[], constructor: new () => T, name: string, stream: TokenStream) {
     stream.read(); // Don't care about the number, the array will grow.
 
     for (const token of stream.readBlock()) {
@@ -468,7 +474,7 @@ export default class Model {
     }
   }
 
-  loadObject(out: any[], constructor: typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape | typeof FaceEffect, stream: TokenStream) {
+  loadObject<T extends MdlObject>(out: T[], constructor: new () => T, stream: TokenStream) {
     const object = new constructor();
 
     object.readMdl(stream);
@@ -482,7 +488,7 @@ export default class Model {
     stream.read(); // {
 
     for (let i = 0; i < count; i++) {
-      this.pivotPoints.push(<Float32Array>stream.readVector(new Float32Array(3)));
+      this.pivotPoints.push(stream.readVector(new Float32Array(3)));
     }
 
     stream.read(); // }
@@ -496,7 +502,7 @@ export default class Model {
         stream.read(); // {
 
         for (let i = 0; i < matrices; i++) {
-          this.bindPose[i] = <Float32Array>stream.readVector(new Float32Array(12));
+          this.bindPose[i] = stream.readVector(new Float32Array(12));
         }
 
         stream.read(); // }

@@ -5,12 +5,12 @@ import IndexEntry from './indexentry';
  * A batch.
  */
 export default class Batch {
-  version: number = -1;
-  unknown0: number = 0;
-  regionIndex: number = -1;
-  unknown1: number = 0;
-  materialReferenceIndex: number = -1;
-  unknown2: number = 0;
+  version = -1;
+  unknown0 = 0;
+  regionIndex = -1;
+  unknown1 = 0;
+  materialReferenceIndex = -1;
+  unknown2 = 0;
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

@@ -9,12 +9,12 @@ import AnimatedObject from './animatedobject';
  * This includes bones, particle emitters, and many other things.
  */
 export default abstract class GenericObject extends AnimatedObject {
-  name: string = '';
-  objectId: number = -1;
-  parentId: number = -1;
+  name = '';
+  objectId = -1;
+  parentId = -1;
   flags: number;
 
-  constructor(flags: number = 0) {
+  constructor(flags = 0) {
     super();
 
     this.flags = flags;

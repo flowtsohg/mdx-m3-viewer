@@ -6,29 +6,29 @@ import GenericObject from './genericobject';
  * A particle emitter type 2.
  */
 export default class ParticleEmitter2 extends GenericObject {
-  speed: number = 0;
-  variation: number = 0;
-  latitude: number = 0;
-  gravity: number = 0;
-  lifeSpan: number = 0;
-  emissionRate: number = 0;
-  width: number = 0;
-  length: number = 0;
-  filterMode: number = 0;
-  rows: number = 0;
-  columns: number = 0;
-  headOrTail: number = 0;
-  tailLength: number = 0;
-  timeMiddle: number = 0;
+  speed = 0;
+  variation = 0;
+  latitude = 0;
+  gravity = 0;
+  lifeSpan = 0;
+  emissionRate = 0;
+  width = 0;
+  length = 0;
+  filterMode = 0;
+  rows = 0;
+  columns = 0;
+  headOrTail = 0;
+  tailLength = 0;
+  timeMiddle = 0;
   segmentColors: Float32Array[] = [new Float32Array(3), new Float32Array(3), new Float32Array(3)];
-  segmentAlphas: Uint8Array = new Uint8Array(3);
-  segmentScaling: Float32Array = new Float32Array(3);
+  segmentAlphas = new Uint8Array(3);
+  segmentScaling = new Float32Array(3);
   headIntervals: Uint32Array[] = [new Uint32Array(3), new Uint32Array(3)];
   tailIntervals: Uint32Array[] = [new Uint32Array(3), new Uint32Array(3)];
-  textureId: number = -1;
-  squirt: number = 0;
-  priorityPlane: number = 0;
-  replaceableId: number = 0;
+  textureId = -1;
+  squirt = 0;
+  priorityPlane = 0;
+  replaceableId = 0;
 
   override readMdx(stream: BinaryStream) {
     const start = stream.index;

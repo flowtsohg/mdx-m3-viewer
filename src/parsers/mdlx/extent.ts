@@ -5,9 +5,9 @@ import TokenStream from './tokenstream';
  * An extent.
  */
 export default class Extent {
-  boundsRadius: number = 0;
-  min: Float32Array = new Float32Array(3);
-  max: Float32Array = new Float32Array(3);
+  boundsRadius = 0;
+  min = new Float32Array(3);
+  max = new Float32Array(3);
 
   readMdx(stream: BinaryStream) {
     this.boundsRadius = stream.readFloat32();

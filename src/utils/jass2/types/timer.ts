@@ -4,8 +4,8 @@ import JassAgent from './agent';
  * type timer
  */
 export default class JassTimer extends JassAgent {
-  elapsed: number = 0;
-  timeout: number = 0;
-  periodic: boolean = false;
-  handlerFunc: number = -1;
+  elapsed = 0;
+  timeout = 0;
+  periodic = false;
+  handlerFunc = -1;
 }

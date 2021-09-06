@@ -2,10 +2,10 @@
  * A block.
  */
 export default class Block {
-  offset: number = 0;
-  compressedSize: number = 0;
-  normalSize: number = 0;
-  flags: number = 0;
+  offset = 0;
+  compressedSize = 0;
+  normalSize = 0;
+  flags = 0;
 
   load(bytes: Uint32Array) {
     this.offset = bytes[0];

@@ -7,14 +7,14 @@ import { TriggerData } from './triggerdata';
  * A GUI Trigger.
  */
 export default class Trigger {
-  name: string = '';
-  description: string = '';
-  isComment: number = 0;
-  isEnabled: number = 0;
-  isCustom: number = 0;
-  isInitiallyOff: number = 0;
-  runOnInitialization: number = 0;
-  category: number = 0;
+  name = '';
+  description = '';
+  isComment = 0;
+  isEnabled = 0;
+  isCustom = 0;
+  isInitiallyOff = 0;
+  runOnInitialization = 0;
+  category = 0;
   ecas: ECA[] = [];
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {

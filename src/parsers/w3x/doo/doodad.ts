@@ -5,21 +5,21 @@ import RandomItemSet from './randomitemset';
  * A doodad.
  */
 export default class Doodad {
-  id: string = '\0\0\0\0';
-  variation: number = 0;
-  location: Float32Array = new Float32Array(3);
-  angle: number = 0;
-  scale: Float32Array = new Float32Array([1, 1, 1]);
+  id = '\0\0\0\0';
+  variation = 0;
+  location = new Float32Array(3);
+  angle = 0;
+  scale = new Float32Array([1, 1, 1]);
   /**
    * @since Game version 1.32
    */
-  skin: string = '\0\0\0\0';
-  flags: number = 0;
-  life: number = 0;
-  itemTable: number = -1;
+  skin = '\0\0\0\0';
+  flags = 0;
+  life = 0;
+  itemTable = -1;
   itemSets: RandomItemSet[] = [];
-  editorId: number = 0;
-  u1: Uint8Array = new Uint8Array(8);
+  editorId = 0;
+  u1 = new Uint8Array(8);
 
   load(stream: BinaryStream, version: number, buildVersion: number) {
     this.id = stream.readBinary(4);

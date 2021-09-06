@@ -5,15 +5,15 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A player.
  */
 export default class Player {
-  id: number = 0;
-  type: number = 0;
-  race: number = 0;
-  isFixedStartPosition: number = 0;
-  name: string = '';
-  startLocation: Float32Array = new Float32Array(2);
-  allyLowPriorities: number = 0;
-  allyHighPriorities: number = 0;
-  unknown1: Uint8Array = new Uint8Array(8);
+  id = 0;
+  type = 0;
+  race = 0;
+  isFixedStartPosition = 0;
+  name = '';
+  startLocation = new Float32Array(2);
+  allyLowPriorities = 0;
+  allyHighPriorities = 0;
+  unknown1 = new Uint8Array(8);
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.readInt32();

@@ -5,26 +5,26 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A sound.
  */
 export default class Sound {
-  name: string = '';
-  file: string = '';
-  eaxEffect: string = '';
-  flags: number = 0;
-  fadeInRate: number = 0;
-  fadeOutRate: number = 0;
-  volume: number = 0;
-  pitch: number = 0;
-  pitchVariance: number = 0;
-  priority: number = 0;
-  channel: number = 0;
-  minDistance: number = 0;
-  maxDistance: number = 0;
-  distanceCutoff: number = 0;
-  coneInside: number = 0;
-  coneOutside: number = 0;
-  coneOutsideVolume: number = 0;
-  coneOrientationX: number = 0;
-  coneOrientationY: number = 0;
-  coneOrientationZ: number = 0;
+  name = '';
+  file = '';
+  eaxEffect = '';
+  flags = 0;
+  fadeInRate = 0;
+  fadeOutRate = 0;
+  volume = 0;
+  pitch = 0;
+  pitchVariance = 0;
+  priority = 0;
+  channel = 0;
+  minDistance = 0;
+  maxDistance = 0;
+  distanceCutoff = 0;
+  coneInside = 0;
+  coneOutside = 0;
+  coneOutsideVolume = 0;
+  coneOrientationX = 0;
+  coneOrientationY = 0;
+  coneOrientationZ = 0;
 
   load(stream: BinaryStream, version: number) {
     this.name = stream.readNull();

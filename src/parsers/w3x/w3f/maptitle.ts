@@ -5,10 +5,10 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A map title.
  */
 export default class MapTitle {
-  visible: number = 0;
-  chapterTitle: string = '';
-  mapTitle: string = '';
-  path: string = '';
+  visible = 0;
+  chapterTitle = '';
+  mapTitle = '';
+  path = '';
 
   load(stream: BinaryStream) {
     this.visible = stream.readInt32();

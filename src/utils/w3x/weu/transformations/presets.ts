@@ -5,25 +5,24 @@ import WeuData from '../data';
 let initialized = false;
 let transformers: { [keyof: string]: (data: WeuData, object: Parameter) => boolean };
 
+function preset(name: string) {
+  return function (data: WeuData, object: Parameter) {
+    const subParameters = new SubParameters();
+
+    subParameters.name = name;
+    subParameters.type = data.triggerData.getFunctionType(name);
+
+    object.value = name;
+    object.type = 2;
+    object.subParameters = subParameters;
+
+    return true;
+  };
+}
+
 function initialize() {
   if (!initialized) {
     initialized = true;
-
-    function preset(name: string) {
-      return function (data: WeuData, object: Parameter) {
-        const subParameters = new SubParameters();
-
-        subParameters.name = name;
-        subParameters.type = data.triggerData.getFunctionType(name);
-
-        object.value = name;
-        object.type = 2;
-        object.subParameters = subParameters;
-
-        return true;
-      };
-    }
-
     transformers = {
       bj_forLoopAIndex: preset('GetForLoopIndexA'),
       bj_forLoopBIndex: preset('GetForLoopIndexB'),

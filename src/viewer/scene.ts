@@ -16,15 +16,15 @@ import EmittedObjectUpdater from './emittedobjectupdater';
  */
 export default class Scene {
   viewer: ModelViewer;
-  camera: Camera = new Camera();
-  grid: Grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
-  visibleCells: number = 0;
-  visibleInstances: number = 0;
-  updatedParticles: number = 0;
-  audioEnabled: boolean = false;
+  camera = new Camera();
+  grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
+  visibleCells = 0;
+  visibleInstances = 0;
+  updatedParticles = 0;
+  audioEnabled = false;
   audioContext: AudioContext | null = null;
   instances: ModelInstance[] = [];
-  emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
+  emittedObjectUpdater = new EmittedObjectUpdater();
   /**
    * Similar to WebGL's own `alpha` parameter.
    * 
@@ -32,13 +32,13 @@ export default class Scene {
    * 
    * If true, alpha works as usual.
    */
-  alpha: boolean = false;
+  alpha = false;
   /**
    * The scene's background color.
    * 
    * Only used if `alpha` is false.
    */
-  color: vec3 = vec3.create();
+  color = vec3.create();
   /**
    * The area on the canvas in which this scene is rendered.
    * 
@@ -46,7 +46,13 @@ export default class Scene {
    * 
    * The vector defines [x, y, width, height], sizes are in pixels, and everything is related to the bottom left corner of the canvas.
    */
-  viewport: vec4 = vec4.create();
+  viewport = vec4.create();
+  /**
+   * The position of the light that is used when rendering.
+   * 
+   * Affects HD MDX and M3 models.
+   */
+  lightPosition = vec3.fromValues(0, 0, 10000);
 
   constructor(viewer: ModelViewer) {
     this.viewer = viewer;

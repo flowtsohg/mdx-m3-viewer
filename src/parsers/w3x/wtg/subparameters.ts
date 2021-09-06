@@ -7,9 +7,9 @@ import { FunctionSignature, TriggerData } from './triggerdata';
  * A function call in an expression.
  */
 export default class SubParameters {
-  type: number = 0;
-  name: string = '';
-  beginParameters: number = 0;
+  type = 0;
+  name = '';
+  beginParameters = 0;
   parameters: Parameter[] = [];
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {

@@ -5,8 +5,8 @@ import TokenStream from './tokenstream';
  * A face effect.
  */
 export default class FaceEffect {
-  type: string = '';
-  path: string = '';
+  type = '';
+  path = '';
 
   readMdx(stream: BinaryStream) {
     this.type = stream.read(80);

@@ -6,12 +6,12 @@ import Reference from './reference';
  * A division.
  */
 export default class Division {
-  version: number = -1;
-  triangles: Reference = new Reference();
-  regions: Reference = new Reference();
-  batches: Reference = new Reference();
-  MSEC: Reference = new Reference();
-  unknown0: number = 0;
+  version = -1;
+  triangles = new Reference();
+  regions = new Reference();
+  batches = new Reference();
+  MSEC = new Reference();
+  unknown0 = 0;
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

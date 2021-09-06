@@ -7,9 +7,9 @@ import ModificationTable from '../w3u/modificationtable';
  * Also used for war3map.w3a (abilities), and war3map.w3q (upgrades).
  */
 export default class War3MapW3d {
-  version: number = 0;
-  originalTable: ModificationTable = new ModificationTable();
-  customTable: ModificationTable = new ModificationTable();
+  version = 0;
+  originalTable = new ModificationTable();
+  customTable = new ModificationTable();
 
   load(bufferOrStream: ArrayBuffer | Uint8Array | BinaryStream) {
     let stream;

@@ -7,11 +7,11 @@ import Reference from './reference';
  * The M3 header.
  */
 export default class Md34 {
-  version: number = -1;
-  tag: string = '';
-  offset: number = 0;
-  entries: number = 0;
-  model: Reference = new Reference();
+  version = -1;
+  tag = '';
+  offset = 0;
+  entries = 0;
+  model = new Reference();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

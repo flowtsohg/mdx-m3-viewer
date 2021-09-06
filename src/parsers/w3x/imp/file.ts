@@ -5,7 +5,7 @@ import Import from './import';
  * war3map.imp - the import file.
  */
 export default class War3MapImp {
-  version: number = 1;
+  version = 1;
   entries: Map<string, Import> = new Map();
 
   load(buffer: ArrayBuffer | Uint8Array) {

@@ -6,22 +6,22 @@ import { Float32AnimationReference, Vector3AnimationReference } from './animatio
  * A light.
  */
 export default class Light {
-  version: number = -1;
-  type: number = 0;
-  unknown0: number = 0;
-  bone: number = -1;
-  flags: number = 0;
-  unknown1: number = 0;
-  unknown2: number = 0;
-  lightColor: Vector3AnimationReference = new Vector3AnimationReference();
-  lightIntensity: Float32AnimationReference = new Float32AnimationReference();
-  specularColor: Vector3AnimationReference = new Vector3AnimationReference();
-  specularIntensity: Float32AnimationReference = new Float32AnimationReference();
-  attenuationFar: Float32AnimationReference = new Float32AnimationReference();
-  unknown3: number = 0;
-  attenuationNear: Float32AnimationReference = new Float32AnimationReference();
-  hotSpot: Float32AnimationReference = new Float32AnimationReference();
-  falloff: Float32AnimationReference = new Float32AnimationReference();
+  version = -1;
+  type = 0;
+  unknown0 = 0;
+  bone = -1;
+  flags = 0;
+  unknown1 = 0;
+  unknown2 = 0;
+  lightColor = new Vector3AnimationReference();
+  lightIntensity = new Float32AnimationReference();
+  specularColor = new Vector3AnimationReference();
+  specularIntensity = new Float32AnimationReference();
+  attenuationFar = new Float32AnimationReference();
+  unknown3 = 0;
+  attenuationNear = new Float32AnimationReference();
+  hotSpot = new Float32AnimationReference();
+  falloff = new Float32AnimationReference();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

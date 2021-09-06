@@ -4,10 +4,10 @@
  * By default, the size of the bounds is 0, and thus point-culling is done.
  */
 export default class Bounds {
-  x: number = 0;
-  y: number = 0;
-  z: number = 0;
-  r: number = 0;
+  x = 0;
+  y = 0;
+  z = 0;
+  r = 0;
 
   fromExtents(min: Float32Array, max: Float32Array) {
     const x = min[0];

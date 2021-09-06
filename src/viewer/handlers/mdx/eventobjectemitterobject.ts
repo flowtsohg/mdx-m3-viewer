@@ -13,31 +13,31 @@ import MdxTexture from './texture';
  * An event object.
  */
 export default class EventObjectEmitterObject extends GenericObject {
-  geometryEmitterType: number = -1;
+  geometryEmitterType = -1;
   type: string;
   id: string;
   tracks: Uint32Array;
-  globalSequence: number = -1;
-  defval: Uint32Array = new Uint32Array(1);
+  globalSequence = -1;
+  defval = new Uint32Array(1);
   internalModel: MdxModel | null = null;
   internalTexture: MdxTexture | null = null;
   colors: Float32Array[] = [];
-  intervalTimes: Float32Array = new Float32Array(3);
-  scale: number = 0;
-  columns: number = 0;
-  rows: number = 0;
-  lifeSpan: number = 0;
-  blendSrc: number = 0;
-  blendDst: number = 0;
+  intervalTimes = new Float32Array(3);
+  scale = 0;
+  columns = 0;
+  rows = 0;
+  lifeSpan = 0;
+  blendSrc = 0;
+  blendDst = 0;
   intervals: Float32Array[] = [];
-  distanceCutoff: number = 0;
-  maxDistance: number = 0;
-  minDistance: number = 0;
-  pitch: number = 0;
-  pitchVariance: number = 0;
-  volume: number = 0;
+  distanceCutoff = 0;
+  maxDistance = 0;
+  minDistance = 0;
+  pitch = 0;
+  pitchVariance = 0;
+  volume = 0;
   decodedBuffers: AudioBuffer[] = [];
-  ok: boolean = false;
+  ok = false;
 
   constructor(model: MdxModel, eventObject: EventObject, index: number) {
     super(model, eventObject, index);

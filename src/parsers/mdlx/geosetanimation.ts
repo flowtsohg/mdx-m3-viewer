@@ -6,10 +6,10 @@ import AnimatedObject from './animatedobject';
  * A geoset animation.
  */
 export default class GeosetAnimation extends AnimatedObject {
-  alpha: number = 1;
-  flags: number = 0;
-  color: Float32Array = new Float32Array([1, 1, 1]);
-  geosetId: number = -1;
+  alpha = 1;
+  flags = 0;
+  color = new Float32Array([1, 1, 1]);
+  geosetId = -1;
 
   readMdx(stream: BinaryStream) {
     const size = stream.readUint32();

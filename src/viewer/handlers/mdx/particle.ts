@@ -21,8 +21,8 @@ const speedHeap = new Float32Array(1);
  */
 export default class Particle extends EmittedObject {
   internalInstance: MdxModelInstance;
-  velocity: vec3 = vec3.create();
-  gravity: number = 0;
+  velocity = vec3.create();
+  gravity = 0;
 
   constructor(emitter: ParticleEmitter) {
     super(emitter);

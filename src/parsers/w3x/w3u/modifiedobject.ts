@@ -5,8 +5,8 @@ import Modification from './modification';
  * A modified object.
  */
 export default class ModifiedObject {
-  oldId: string = '\0\0\0\0';
-  newId: string = '\0\0\0\0';
+  oldId = '\0\0\0\0';
+  newId = '\0\0\0\0';
   modifications: Modification[] = [];
 
   load(stream: BinaryStream, useOptionalInts: boolean) {

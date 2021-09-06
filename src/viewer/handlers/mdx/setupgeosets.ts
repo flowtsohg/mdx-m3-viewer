@@ -13,6 +13,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     let positionBytes = 0;
     let normalBytes = 0;
     let uvBytes = 0;
+    let tangentBytes = 0;
     let skinBytes = 0;
     let faceBytes = 0;
     const skinTypes = [];
@@ -26,6 +27,10 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         positionBytes += vertices * 12;
         normalBytes += vertices * 12;
         uvBytes += geoset.uvSets.length * vertices * 8;
+
+        if (geoset.tangents.length) {
+          tangentBytes += vertices * 16;
+        }
 
         if (geoset.skin.length) {
           skinBytes += vertices * 8;
@@ -58,7 +63,8 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     let positionOffset = 0;
     let normalOffset = positionOffset + positionBytes;
     let uvOffset = normalOffset + normalBytes;
-    let skinOffset = uvOffset + uvBytes;
+    let tangentOffset = uvOffset + uvBytes;
+    let skinOffset = tangentOffset + tangentBytes;
     let faceOffset = 0;
     let SkinTypedArray: typeof Uint8Array | typeof Uint16Array = Uint8Array;
     let skinGlType = gl.UNSIGNED_BYTE;
@@ -87,6 +93,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         const positions = geoset.vertices;
         const normals = geoset.normals;
         const uvSets = geoset.uvSets;
+        const tangents = geoset.tangents;
         const faces = geoset.faces;
         let skin;
         const vertices = geoset.vertices.length / 3;
@@ -138,7 +145,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           }
         }
 
-        const vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
+        const vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, tangentOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
         model.geosets.push(vGeoset);
 
         const material = model.materials[geoset.materialId];
@@ -166,6 +173,12 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         for (const uvSet of uvSets) {
           gl.bufferSubData(gl.ARRAY_BUFFER, uvOffset, uvSet);
           uvOffset += uvSet.byteLength;
+        }
+
+        // Tangents.
+        if (tangents.length) {
+          gl.bufferSubData(gl.ARRAY_BUFFER, tangentOffset, tangents);
+          tangentOffset += tangents.byteLength;
         }
 
         // Skin.

@@ -61,19 +61,19 @@ export default class ModelViewer extends EventEmitter {
   /**
    * The current frame.
    */
-  frame: number = 0;
+  frame = 0;
   /**
    * The number of visible cells on the current frame.
    */
-  visibleCells: number = 0;
+  visibleCells = 0;
   /**
    * The number of visible instances on the current frame.
    */
-  visibleInstances: number = 0;
+  visibleInstances = 0;
   /**
    * The number of particles being updated on the current frame.
    */
-  updatedParticles: number = 0;
+  updatedParticles = 0;
   /**
    * A viewer-wide flag.
    * 
@@ -83,7 +83,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
-  audioEnabled: boolean = false;
+  audioEnabled = false;
   /**
    * A resizeable buffer that can be used by any part of the library.
    * 
@@ -95,7 +95,11 @@ export default class ModelViewer extends EventEmitter {
    */
   sharedCache: Map<any, any> = new Map();
 
-  directLoadId: number = 0;
+  debug = {
+    noShading: 0
+  }
+
+  directLoadId = 0;
 
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
@@ -503,7 +507,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update and render a frame.
    */
-  updateAndRender(dt: number = 1000 / 60) {
+  updateAndRender(dt = 1000 / 60) {
     this.update(dt);
     this.startFrame();
     this.render();
@@ -512,7 +516,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update all of the scenes, which includes updating their cameras, audio context if one exists, and all of the instances they hold.
    */
-  update(dt: number = 1000 / 60) {
+  update(dt = 1000 / 60) {
     // Animations are in milliseconds, while particle movement and such is in seconds.
     // It's easier to pass the time in seconds here, and turn it back to milliseconds for each instance, than it is to do the opposite for each particle.
     dt *= 0.001;

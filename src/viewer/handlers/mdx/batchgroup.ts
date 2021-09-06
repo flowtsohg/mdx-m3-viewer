@@ -6,6 +6,7 @@ import MdxModelInstance from './modelinstance';
 import Batch from './batch';
 import Material from './material';
 import MdxTexture from './texture';
+import { MdxHandlerObject } from './handler';
 
 /**
  * A group of batches that are going to be rendered together.
@@ -24,32 +25,33 @@ export default class BatchGroup {
 
   render(instance: MdxModelInstance) {
     const scene = <Scene>instance.scene;
+    const camera = scene.camera;
     const textureOverrides = instance.textureOverrides;
     const layerAlphas = instance.layerAlphas;
     const model = this.model;
     const textures = model.textures;
     const batches = model.batches;
     const viewer = model.viewer;
-    const mdxCache = viewer.sharedCache.get('mdx');
+    const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
     const gl = viewer.gl;
     const webgl = viewer.webgl;
     const isExtended = this.isExtendedOrUsingSkin;
     const isHd = this.isHd;
-    const teamColors = <MdxTexture[]>mdxCache.teamColors;
-    const teamGlows = <MdxTexture[]>mdxCache.teamGlows;
+    const teamColors = mdxCache.teamColors;
+    const teamGlows = mdxCache.teamGlows;
     let shader;
 
     if (isHd) {
       if (isExtended) {
-        shader = <Shader>mdxCache.hdSkinShader;
+        shader = mdxCache.hdSkinShader;
       } else {
-        shader = <Shader>mdxCache.hdVertexGroupShader;
+        shader = mdxCache.hdVertexGroupShader;
       }
     } else {
       if (isExtended) {
-        shader = <Shader>mdxCache.extendedShader;
+        shader = mdxCache.extendedShader;
       } else {
-        shader = <Shader>mdxCache.standardShader;
+        shader = mdxCache.standardShader;
       }
     }
 
@@ -57,7 +59,7 @@ export default class BatchGroup {
 
     const uniforms = shader.uniforms;
 
-    gl.uniformMatrix4fv(uniforms['u_VP'], false, scene.camera.viewProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms['u_VP'], false, camera.viewProjectionMatrix);
 
     const boneTexture = instance.boneTexture;
 
@@ -79,21 +81,29 @@ export default class BatchGroup {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
     if (isHd) {
+      gl.uniform1f(uniforms['u_debugNoShading'], viewer.debug.noShading);
+
       gl.uniform1i(uniforms['u_diffuseMap'], 0);
-      gl.uniform1i(uniforms['u_ormMap'], 1);
-      gl.uniform1i(uniforms['u_teamColorMap'], 2);
+      gl.uniform1i(uniforms['u_normalsMap'], 1);
+      gl.uniform1i(uniforms['u_ormMap'], 2);
+      gl.uniform1i(uniforms['u_emissiveMap'], 3);
+      gl.uniform1i(uniforms['u_teamColorMap'], 4);
+      gl.uniform1i(uniforms['u_environmentMap'], 5);
 
       gl.disable(gl.BLEND);
       gl.enable(gl.DEPTH_TEST);
       gl.depthMask(true);
 
+      gl.uniformMatrix4fv(uniforms['u_MV'], false, camera.viewMatrix);
+
+      gl.uniform3fv(uniforms['u_eyePos'], camera.location);
+      gl.uniform3fv(uniforms['u_lightPos'], scene.lightPosition);
+
       for (const index of this.objects) {
         const batch = batches[index];
         const geoset = batch.geoset;
         const material = <Material>batch.material;
-        const layers = material.layers;
-        const diffuseLayer = layers[0];
-        const ormLayer = layers[2];
+        const [diffuseLayer, normalsLayer, ormLayer, emissiveLayer, teamColorLayer, environmentMapLayer] = material.layers;
         const layerAlpha = layerAlphas[diffuseLayer.index];
 
         if (layerAlpha > 0) {
@@ -101,18 +111,30 @@ export default class BatchGroup {
           gl.uniform1f(uniforms['u_filterMode'], diffuseLayer.filterMode);
 
           const diffuseId = diffuseLayer.textureId;
+          const normalsId = normalsLayer.textureId;
           const ormId = ormLayer.textureId;
+          const emissiveId = emissiveLayer.textureId;
+          const environmentMapId = environmentMapLayer.textureId;
 
           const diffuseTexture = textures[diffuseId];
+          const normalsTexture = textures[normalsId];
           const ormTexture = textures[ormId];
+          const emissiveTexture = textures[emissiveId];
           const tcTexture = teamColors[instance.teamColor];
+          const environmentMapTexture = textures[environmentMapId];
 
           const actualDiffuseTexture = textureOverrides.get(diffuseId) || diffuseTexture.texture;
+          const actualNormalsTexture = textureOverrides.get(normalsId) || normalsTexture.texture;
           const actualOrmTexture = textureOverrides.get(ormId) || ormTexture.texture;
+          const actualEmissiveTexture = textureOverrides.get(emissiveId) || emissiveTexture.texture;
+          const actualEnvironmentMapTexture = textureOverrides.get(environmentMapId) || environmentMapTexture.texture;
 
           webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
-          webgl.bindTextureAndWrap(actualOrmTexture, 1, ormTexture.wrapS, ormTexture.wrapT);
-          webgl.bindTextureAndWrap(tcTexture.texture, 2, tcTexture.wrapS, tcTexture.wrapT);
+          webgl.bindTextureAndWrap(actualNormalsTexture, 1, normalsTexture.wrapS, normalsTexture.wrapT);
+          webgl.bindTextureAndWrap(actualOrmTexture, 2, ormTexture.wrapS, ormTexture.wrapT);
+          webgl.bindTextureAndWrap(actualEmissiveTexture, 3, emissiveTexture.wrapS, emissiveTexture.wrapT);
+          webgl.bindTextureAndWrap(tcTexture.texture, 4, tcTexture.wrapS, tcTexture.wrapT);
+          webgl.bindTextureAndWrap(actualEnvironmentMapTexture, 5, environmentMapTexture.wrapS, environmentMapTexture.wrapT);
 
           geoset.bindHd(shader, batch.isExtendedOrUsingSkin, diffuseLayer.coordId);
           geoset.render();
@@ -126,7 +148,7 @@ export default class BatchGroup {
       gl.uniform4fv(uniforms['u_vertexColor'], instance.vertexColor);
 
       for (const object of this.objects) {
-        const batch = <Batch>batches[object];
+        const batch = batches[object];
         const geoset = batch.geoset;
         const layer = batch.layer;
         const geosetIndex = geoset.index;

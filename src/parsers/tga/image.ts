@@ -6,8 +6,8 @@ import { bytesOf } from '../../common/bytesof';
  * A TGA image.
  */
 export default class TgaImage {
-  width: number = 0;
-  height: number = 0;
+  width = 0;
+  height = 0;
   data: ImageData | null = null;
 
   load(buffer: ArrayBuffer | Uint8Array) {

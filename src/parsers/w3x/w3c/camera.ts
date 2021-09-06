@@ -5,27 +5,27 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A camera.
  */
 export default class Camera {
-  targetLocation: Float32Array = new Float32Array(3);
-  rotation: number = 0;
-  angleOfAttack: number = 0;
-  distance: number = 0;
-  roll: number = 0;
-  fieldOfView: number = 0;
-  farClippingPlane: number = 0;
-  nearClippingPlane: number = 0;
-  cinematicName: string = '';
+  targetLocation = new Float32Array(3);
+  rotation = 0;
+  angleOfAttack = 0;
+  distance = 0;
+  roll = 0;
+  fieldOfView = 0;
+  farClippingPlane = 0;
+  nearClippingPlane = 0;
+  cinematicName = '';
   /**
    * @since Game version 1.32
    */
-  localPitch: number = 0;
+  localPitch = 0;
   /**
    * @since Game version 1.32
    */
-  localYaw: number = 0;
+  localYaw = 0;
   /**
    * @since Game version 1.32
    */
-  localRoll: number = 0;
+  localRoll = 0;
 
   load(stream: BinaryStream, buildVersion: number) {
     stream.readFloat32Array(this.targetLocation);

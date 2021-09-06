@@ -25,21 +25,21 @@ interface War3MapModifications {
  * Warcraft 3 map (W3X and W3M).
  */
 export default class War3Map {
-  u1: number = 0;
-  name: string = '';
-  flags: number = 0;
-  maxPlayers: number = 0;
+  u1 = 0;
+  name = '';
+  flags = 0;
+  maxPlayers = 0;
 
-  archive: MpqArchive = new MpqArchive();
-  imports: War3MapImp = new War3MapImp();
-  readonly: boolean = false;
+  archive = new MpqArchive();
+  imports = new War3MapImp();
+  readonly = false;
 
   /**
    * Load an existing map.
    * 
    * Note that this clears the map from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer | Uint8Array, readonly: boolean = false) {
+  load(buffer: ArrayBuffer | Uint8Array, readonly = false) {
     const stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?

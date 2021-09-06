@@ -8,25 +8,25 @@ import transformBlz from './blz';
 let initialized = false;
 let transformers: { [keyof: string]: (data: WeuData, object: ECA | SubParameters) => boolean };
 
+function rename(name: string) {
+  return transformer({
+    [name]: {}
+  });
+}
+
+function swap(parameters: number[]) {
+  return function (name: string) {
+    return transformer({
+      [name]: {
+        parameters
+      }
+    });
+  };
+}
+
 function initialize() {
   if (!initialized) {
     initialized = true;
-
-    function rename(name: string) {
-      return transformer({
-        [name]: {}
-      });
-    }
-
-    function swap(parameters: number[]) {
-      return function (name: string) {
-        return transformer({
-          [name]: {
-            parameters
-          }
-        });
-      };
-    }
 
     const swap10 = swap([1, 0]);
     const swap102 = swap([1, 0, 2]);

@@ -8,8 +8,8 @@ import EmittedObject from './emittedobject';
 export default abstract class Emitter {
   instance: ModelInstance;
   objects: EmittedObject[] = [];
-  alive: number = 0;
-  currentEmission: number = 0;
+  alive = 0;
+  currentEmission = 0;
 
   abstract createObject(): EmittedObject;
   abstract updateEmission(dt: number): void;

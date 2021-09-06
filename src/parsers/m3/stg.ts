@@ -6,9 +6,9 @@ import Reference from './reference';
  * An animation getter.
  */
 export default class Stg {
-  version: number = -1;
-  name: Reference = new Reference();
-  stcIndices: Reference = new Reference();
+  version = -1;
+  name = new Reference();
+  stcIndices = new Reference();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

@@ -4,11 +4,11 @@ import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
  * A MPQ hash.
  */
 export default class MpqHash {
-  nameA: number = 0xFFFFFFFF;
-  nameB: number = 0xFFFFFFFF;
-  locale: number = 0xFFFF;
-  platform: number = 0xFFFF;
-  blockIndex: number = HASH_ENTRY_EMPTY;
+  nameA = 0xFFFFFFFF;
+  nameB = 0xFFFFFFFF;
+  locale = 0xFFFF;
+  platform = 0xFFFF;
+  blockIndex = HASH_ENTRY_EMPTY;
 
   load(bytes: Uint32Array) {
     const localePlatform = bytes[2];

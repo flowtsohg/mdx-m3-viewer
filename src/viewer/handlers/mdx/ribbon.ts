@@ -14,9 +14,9 @@ const slotHeap = new Uint32Array(1);
  * A ribbon.
  */
 export default class Ribbon extends EmittedObject {
-  vertices: Float32Array = new Float32Array(6);
-  color: Uint8Array = new Uint8Array(4);
-  slot: number = 0;
+  vertices = new Float32Array(6);
+  color = new Uint8Array(4);
+  slot = 0;
   prev: Ribbon | null = null;
   next: Ribbon | null = null;
 

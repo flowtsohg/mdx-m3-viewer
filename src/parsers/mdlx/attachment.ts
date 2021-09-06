@@ -6,8 +6,8 @@ import GenericObject from './genericobject';
  * An attachment.
  */
 export default class Attachment extends GenericObject {
-  path: string = '';
-  attachmentId: number = 0;
+  path = '';
+  attachmentId = 0;
 
   constructor() {
     super(0x800);

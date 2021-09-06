@@ -40,20 +40,20 @@ export default class MdxModelInstance extends ModelInstance {
   eventObjectEmitters: (EventObjectSpnEmitter | EventObjectSplEmitter | EventObjectUbrEmitter | EventObjectSndEmitter)[] = [];
   nodes: SkeletalNode[] = [];
   sortedNodes: SkeletalNode[] = [];
-  frame: number = 0;
+  frame = 0;
   // Global sequences
-  counter: number = 0;
-  sequence: number = -1;
-  sequenceLoopMode: number = 0;
-  sequenceEnded: boolean = false;
-  teamColor: number = 0;
-  vertexColor: Float32Array = new Float32Array([1, 1, 1, 1]);
+  counter = 0;
+  sequence = -1;
+  sequenceLoopMode = 0;
+  sequenceEnded = false;
+  teamColor = 0;
+  vertexColor = new Float32Array([1, 1, 1, 1]);
   // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
-  allowParticleSpawn: boolean = false;
+  allowParticleSpawn = false;
   // If forced is true, everything will update regardless of variancy.
   // Any later non-forced update can then use variancy to skip updating things.
   // It is set to true every time the sequence is set with setSequence().
-  forced: boolean = true;
+  forced = true;
   geosetColors: Float32Array[] = [];
   layerAlphas: number[] = [];
   layerTextures: number[] = [];

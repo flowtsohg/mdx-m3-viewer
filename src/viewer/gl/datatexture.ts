@@ -5,10 +5,10 @@ export default class DataTexture {
   gl: WebGLRenderingContext;
   texture: WebGLTexture;
   format: number;
-  width: number = 0;
-  height: number = 0;
+  width = 0;
+  height = 0;
 
-  constructor(gl: WebGLRenderingContext, channels: number = 4, width: number = 1, height: number = 1) {
+  constructor(gl: WebGLRenderingContext, channels = 4, width = 1, height = 1) {
     this.gl = gl;
     this.texture = <WebGLTexture>gl.createTexture();
     this.format = (channels === 3 ? gl.RGB : gl.RGBA);
@@ -34,7 +34,7 @@ export default class DataTexture {
     }
   }
 
-  bindAndUpdate(buffer: Float32Array, width: number = this.width, height: number = this.height) {
+  bindAndUpdate(buffer: Float32Array, width = this.width, height = this.height) {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

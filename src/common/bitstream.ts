@@ -6,10 +6,10 @@ import { bytesOf } from './bytesof';
 export default class BitStream {
   buffer: ArrayBuffer;
   uint8array: Uint8Array;
-  index: number = 0;
+  index = 0;
   byteLength: number;
-  bitBuffer: number = 0;
-  bits: number = 0;
+  bitBuffer = 0;
+  bits = 0;
 
   constructor(buffer: ArrayBuffer | Uint8Array, byteOffset?: number, byteLength?: number) {
     const bytes = bytesOf(buffer);

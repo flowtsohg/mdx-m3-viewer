@@ -31,7 +31,7 @@ import MaterialReference from '../../../parsers/m3/materialreference';
  * An M3 model.
  */
 export default class M3Model extends Model {
-  name: string = '';
+  name = '';
   batches: M3Batch[] = [];
   materials: [any[], M3StandardMaterial[]] = [[], []]; // 2D array for the possibility of adding more material types in the future
   materialMaps: MaterialReference[] = [];
@@ -47,8 +47,8 @@ export default class M3Model extends Model {
   initialReference: Float32Array[] = [];
   elementBuffer: WebGLBuffer | null = null;
   arrayBuffer: WebGLBuffer | null = null;
-  vertexSize: number = 0;
-  uvSetCount: number = 0;
+  vertexSize = 0;
+  uvSetCount = 0;
 
   constructor(bufferOrParser: ArrayBuffer | Parser, resourceData: HandlerResourceData) {
     super(resourceData);

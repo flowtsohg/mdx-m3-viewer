@@ -5,12 +5,12 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A modification.
  */
 export default class Modification {
-  id: string = '\0\0\0\0';
-  variableType: number = 0;
-  levelOrVariation: number = 0;
-  dataPointer: number = 0;
+  id = '\0\0\0\0';
+  variableType = 0;
+  levelOrVariation = 0;
+  dataPointer = 0;
   value: number | string = 0;
-  u1: number = 0;
+  u1 = 0;
 
   load(stream: BinaryStream, useOptionalInts: boolean) {
     this.id = stream.readBinary(4);

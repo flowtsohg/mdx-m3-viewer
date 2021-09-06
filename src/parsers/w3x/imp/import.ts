@@ -5,8 +5,8 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * An import.
  */
 export default class Import {
-  isCustom: number = 0;
-  path: string = '';
+  isCustom = 0;
+  path = '';
 
   load(stream: BinaryStream) {
     this.isCustom = stream.readUint8();

@@ -7,5 +7,5 @@ export default class JassTrigger extends JassAgent {
   events: number[] = [];
   conditions: number[] = [];
   actions: number[] = [];
-  enabled: boolean = true;
+  enabled = true;
 }

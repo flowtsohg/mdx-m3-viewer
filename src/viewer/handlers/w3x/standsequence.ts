@@ -28,10 +28,11 @@ function filterSequences(type: string, sequences: Sequence[]) {
 
 function selectSequence(type: string, sequences: Sequence[]) {
   const filtered = filterSequences(type, sequences);
+  let i, l;
 
   filtered.sort(sequenceSorter);
 
-  for (var i = 0, l = filtered.length; i < l; i++) {
+  for (i = 0, l = filtered.length; i < l; i++) {
     const sequence = filtered[i].sequence;
     const rarity = sequence.rarity;
 

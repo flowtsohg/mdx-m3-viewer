@@ -6,8 +6,8 @@ import GenericObject from './genericobject';
  * A bone.
  */
 export default class Bone extends GenericObject {
-  geosetId: number = -1;
-  geosetAnimationId: number = -1;
+  geosetId = -1;
+  geosetAnimationId = -1;
 
   constructor() {
     super(0x100);

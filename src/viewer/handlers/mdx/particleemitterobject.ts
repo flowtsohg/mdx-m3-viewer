@@ -13,7 +13,7 @@ export default class ParticleEmitterObject extends GenericObject {
   lifeSpan: number;
   gravity: number;
   emissionRate: number;
-  ok: boolean = false;
+  ok = false;
 
   constructor(model: MdxModel, emitter: ParticleEmitter, index: number) {
     super(model, emitter, index);

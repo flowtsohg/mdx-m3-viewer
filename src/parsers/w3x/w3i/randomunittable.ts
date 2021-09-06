@@ -6,10 +6,10 @@ import RandomUnit from './randomunit';
  * A random unit table.
  */
 export default class RandomUnitTable {
-  id: number = 0;
-  name: string = '';
-  positions: number = 0;
-  columnTypes: Int32Array = new Int32Array(0);
+  id = 0;
+  name = '';
+  positions = 0;
+  columnTypes = new Int32Array(0);
   units: RandomUnit[] = [];
 
   load(stream: BinaryStream) {

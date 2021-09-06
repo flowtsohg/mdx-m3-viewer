@@ -6,7 +6,7 @@ import ModelInstance from './modelinstance';
  * A model.
  */
 export default abstract class Model extends HandlerResource {
-  bounds: Bounds = new Bounds();
+  bounds = new Bounds();
 
   /**
    * Create a new instance and return it.

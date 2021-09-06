@@ -6,9 +6,9 @@ import GenericObject from './genericobject';
  * A collision shape.
  */
 export default class CollisionShape extends GenericObject {
-  type: number = -1;
+  type = -1;
   vertices: Float32Array[] = [new Float32Array(3), new Float32Array(3)]
-  boundsRadius: number = 0;
+  boundsRadius = 0;
 
   constructor() {
     super(0x2000);

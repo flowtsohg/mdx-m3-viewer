@@ -4,13 +4,13 @@
 export default class ClientDataTexture {
   gl: WebGLRenderingContext;
   texture: WebGLTexture;
-  width: number = 0;
-  height: number = 0;
-  arrayBuffer: ArrayBuffer = new ArrayBuffer(0);;
+  width = 0;
+  height = 0;
+  arrayBuffer = new ArrayBuffer(0);
   byteView: Uint8Array | null = null;
   floatView: Float32Array | null = null;
 
-  constructor(gl: WebGLRenderingContext, width: number = 1, height: number = 1) {
+  constructor(gl: WebGLRenderingContext, width = 1, height = 1) {
     this.gl = gl;
     this.texture = <WebGLTexture>gl.createTexture();
 
@@ -39,7 +39,7 @@ export default class ClientDataTexture {
     }
   }
 
-  bindAndUpdate(width: number = this.width, height: number = this.height) {
+  bindAndUpdate(width = this.width, height = this.height) {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

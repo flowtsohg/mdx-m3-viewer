@@ -5,15 +5,15 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A region.
  */
 export default class Region {
-  left: number = 0;
-  right: number = 0;
-  bottom: number = 0;
-  top: number = 0;
-  name: string = '';
-  creationNumber: number = 0;
-  weatherEffectId: string = '\0\0\0\0';
-  ambientSound: string = '';
-  color: Uint8Array = new Uint8Array(4);
+  left = 0;
+  right = 0;
+  bottom = 0;
+  top = 0;
+  name = '';
+  creationNumber = 0;
+  weatherEffectId = '\0\0\0\0';
+  ambientSound = '';
+  color = new Uint8Array(4);
 
   load(stream: BinaryStream) {
     this.left = stream.readFloat32();

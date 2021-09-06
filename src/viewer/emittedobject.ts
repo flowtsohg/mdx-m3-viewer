@@ -5,8 +5,8 @@ import Emitter from './emitter';
  */
 export default abstract class EmittedObject {
   emitter: Emitter;
-  index: number = -1;
-  health: number = 0;
+  index = -1;
+  health = 0;
 
   abstract bind(emitData?: any): void;
   abstract update(dt: number): void;

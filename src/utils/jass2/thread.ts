@@ -9,7 +9,7 @@ import JassUnit from './types/unit';
  */
 export default class Thread {
   L: lua_State;
-  sleep: number = 0;
+  sleep = 0;
   expiredTimer: JassTimer | null;
   triggerUnit: JassUnit | null;
   triggeringTrigger: JassTrigger | null;

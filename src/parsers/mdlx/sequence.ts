@@ -6,13 +6,13 @@ import Extent from './extent';
  * A sequence.
  */
 export default class Sequence {
-  name: string = '';
-  interval: Uint32Array = new Uint32Array(2);
-  moveSpeed: number = 0;
-  flags: number = 0;
-  rarity: number = 0;
-  syncPoint: number = 0;
-  extent: Extent = new Extent();
+  name = '';
+  interval = new Uint32Array(2);
+  moveSpeed = 0;
+  flags = 0;
+  rarity = 0;
+  syncPoint = 0;
+  extent = new Extent();
 
   readMdx(stream: BinaryStream) {
     this.name = stream.read(80);

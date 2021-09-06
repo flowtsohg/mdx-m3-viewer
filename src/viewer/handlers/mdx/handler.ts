@@ -19,7 +19,7 @@ import hdFrag from './shaders/hd.frag';
 import particlesVert from './shaders/particles.vert';
 import particlesFrag from './shaders/particles.frag';
 
-interface MdxHandlerObject {
+export interface MdxHandlerObject {
   pathSolver?: PathSolver;
   reforged: boolean;
   standardShader: Shader;
@@ -37,7 +37,7 @@ const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data)
 const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
 
 export default {
-  load(viewer: ModelViewer, pathSolver?: PathSolver, reforged: boolean = false) {
+  load(viewer: ModelViewer, pathSolver?: PathSolver, reforged = false) {
     const gl = viewer.gl;
     const webgl = viewer.webgl;
 

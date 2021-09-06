@@ -6,8 +6,8 @@ import GenericObject from './genericobject';
  * An event object.
  */
 export default class EventObject extends GenericObject {
-  globalSequenceId: number = -1;
-  tracks: Uint32Array = new Uint32Array(0);
+  globalSequenceId = -1;
+  tracks = new Uint32Array(0);
 
   constructor() {
     super(0x400);

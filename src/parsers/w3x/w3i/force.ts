@@ -5,9 +5,9 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A force.
  */
 export default class Force {
-  flags: number = 0;
-  playerMasks: number = 0;
-  name: string = '';
+  flags = 0;
+  playerMasks = 0;
+  name = '';
 
   load(stream: BinaryStream) {
     this.flags = stream.readUint32();

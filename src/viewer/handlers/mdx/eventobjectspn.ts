@@ -17,7 +17,7 @@ export default class EventObjectSpn extends EmittedObject {
     const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     const internalModel = <MdxModel>emitterObject.internalModel;
 
-    this.internalInstance = <MdxModelInstance>internalModel.addInstance();
+    this.internalInstance = internalModel.addInstance();
   }
 
   bind() {
@@ -25,7 +25,7 @@ export default class EventObjectSpn extends EmittedObject {
     const instance = <MdxModelInstance>emitter.instance;
     const scene = <Scene>instance.scene;
     const node = instance.nodes[emitter.emitterObject.index];
-    const internalInstance = <MdxModelInstance>this.internalInstance;
+    const internalInstance = this.internalInstance;
 
     internalInstance.setScene(scene);
     internalInstance.setSequence(0);

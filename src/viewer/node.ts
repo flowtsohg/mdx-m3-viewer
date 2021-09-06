@@ -10,21 +10,21 @@ const scalingHeap = vec3.create();
  * A node.
  */
 export class Node {
-  pivot: vec3 = vec3.create();
-  localLocation: vec3 = vec3.create();
-  localRotation: quat = quat.create();
-  localScale: vec3 = vec3.fromValues(1, 1, 1);
-  worldLocation: vec3 = vec3.create();
-  worldRotation: quat = quat.create();
-  worldScale: vec3 = vec3.fromValues(1, 1, 1);
-  inverseWorldLocation: vec3 = vec3.create();
-  inverseWorldRotation: quat = quat.create();
-  inverseWorldScale: vec3 = vec3.fromValues(1, 1, 1);
-  localMatrix: mat4 = mat4.create();
-  worldMatrix: mat4 = mat4.create();
-  dontInheritTranslation: boolean = false;
-  dontInheritRotation: boolean = false;
-  dontInheritScaling: boolean = true;
+  pivot = vec3.create();
+  localLocation = vec3.create();
+  localRotation = quat.create();
+  localScale = vec3.fromValues(1, 1, 1);
+  worldLocation = vec3.create();
+  worldRotation = quat.create();
+  worldScale = vec3.fromValues(1, 1, 1);
+  inverseWorldLocation = vec3.create();
+  inverseWorldRotation = quat.create();
+  inverseWorldScale = vec3.fromValues(1, 1, 1);
+  localMatrix = mat4.create();
+  worldMatrix = mat4.create();
+  dontInheritTranslation = false;
+  dontInheritRotation = false;
+  dontInheritScaling = true;
   parent: Node | SkeletalNode | null = null;
   children: Node[] = [];
 

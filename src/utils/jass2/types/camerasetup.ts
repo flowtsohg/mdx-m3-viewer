@@ -5,12 +5,12 @@ import JassLocation from './location';
  * type camerasetup
  */
 export default class JassCameraSetup extends JassHandle {
-  targetDistance: number = 0;
-  farZ: number = 0;
-  angleOfAttack: number = 0;
-  fieldOfView: number = 0;
-  roll: number = 0;
-  rotation: number = 0;
-  zOffset: number = 0;
-  destPosition: JassLocation = new JassLocation(0, 0);
+  targetDistance = 0;
+  farZ = 0;
+  angleOfAttack = 0;
+  fieldOfView = 0;
+  roll = 0;
+  rotation = 0;
+  zOffset = 0;
+  destPosition = new JassLocation(0, 0);
 }

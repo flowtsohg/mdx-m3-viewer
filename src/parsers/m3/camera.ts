@@ -7,18 +7,18 @@ import { Float32AnimationReference } from './animationreference';
  * A camera.
  */
 export default class Camera {
-  version: number = -1;
-  bone: number = -1;
-  name: Reference = new Reference();
-  fieldOfView: Float32AnimationReference = new Float32AnimationReference();
-  unknown0: number = 0;
-  farClip: Float32AnimationReference = new Float32AnimationReference();
-  nearClip: Float32AnimationReference = new Float32AnimationReference();
-  clip2: Float32AnimationReference = new Float32AnimationReference();
-  focalDepth: Float32AnimationReference = new Float32AnimationReference();
-  falloffStart: Float32AnimationReference = new Float32AnimationReference();
-  falloffEnd: Float32AnimationReference = new Float32AnimationReference();
-  depthOfField: Float32AnimationReference = new Float32AnimationReference();
+  version = -1;
+  bone = -1;
+  name = new Reference();
+  fieldOfView = new Float32AnimationReference();
+  unknown0 = 0;
+  farClip = new Float32AnimationReference();
+  nearClip = new Float32AnimationReference();
+  clip2 = new Float32AnimationReference();
+  focalDepth = new Float32AnimationReference();
+  falloffStart = new Float32AnimationReference();
+  falloffEnd = new Float32AnimationReference();
+  depthOfField = new Float32AnimationReference();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

@@ -5,8 +5,8 @@ import Unit from './unit';
  * war3mapUnits.doo - the units and items file.
  */
 export default class War3MapUnitsDoo {
-  version: number = 8;
-  subversion: number = 11;
+  version = 8;
+  subversion = 11;
   units: Unit[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {

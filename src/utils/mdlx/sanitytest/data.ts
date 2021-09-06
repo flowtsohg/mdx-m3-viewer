@@ -24,8 +24,8 @@ export default class SanityTestData {
   current: SanityTestNode;
   stack: SanityTestNode[];
   map: Map<MdlxType, SanityTestNode> = new Map();
-  foundStand: boolean = false;
-  foundDeath: boolean = false;
+  foundStand = false;
+  foundDeath = false;
 
   constructor(model: Model) {
     this.model = model;

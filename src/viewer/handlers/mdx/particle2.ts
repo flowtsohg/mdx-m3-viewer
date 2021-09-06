@@ -18,11 +18,11 @@ const gravityHeap = new Float32Array(1);
  * A type 2 particle.
  */
 export default class Particle2 extends EmittedObject {
-  tail: number = 0;
-  gravity: number = 0;
-  location: vec3 = vec3.create();
-  velocity: vec3 = vec3.create();
-  scale: vec3 = vec3.create();
+  tail = 0;
+  gravity = 0;
+  location = vec3.create();
+  velocity = vec3.create();
+  scale = vec3.create();
   facing = 0; // XYQuad
 
   bind(tail: number) {

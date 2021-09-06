@@ -11,7 +11,7 @@ const vertexHeap = vec3.create();
  * An MDX splat or ubersplat object.
  */
 export default class EventObjectSplUbr extends EmittedObject {
-  vertices: Float32Array = new Float32Array(12);
+  vertices = new Float32Array(12);
 
   bind() {
     const emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;

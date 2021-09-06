@@ -4,8 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * A random unit.
  */
 export default class RandomUnit {
-  id: string = '\0\0\0\0';
-  chance: number = 0;
+  id = '\0\0\0\0';
+  chance = 0;
 
   load(stream: BinaryStream) {
     this.id = stream.readBinary(4);

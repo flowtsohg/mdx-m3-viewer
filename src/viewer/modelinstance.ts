@@ -10,25 +10,25 @@ import Texture from './texture';
  */
 export default abstract class ModelInstance extends Node {
   scene: Scene | null = null;
-  left: number = -1;
-  right: number = -1;
-  bottom: number = -1;
-  top: number = -1;
-  plane: number = -1;
-  depth: number = 0;
-  updateFrame: number = 0;
+  left = -1;
+  right = -1;
+  bottom = -1;
+  top = -1;
+  plane = -1;
+  depth = 0;
+  updateFrame = 0;
   model: Model;
   /**
    * Allows to slow down or speed up animations of this instance, and any children.
    */
-  timeScale: number = 1;
+  timeScale = 1;
   /**
    * If false, this instance won't be rendered.
    * 
    * When working with Warcraft 3 instances, it is preferable to use hide() and show().
    * These hide and show also internal instances of this instance.
    */
-  rendered: boolean = true;
+  rendered = true;
   textureOverrides: Map<number, Texture> = new Map();
 
   constructor(model: Model) {

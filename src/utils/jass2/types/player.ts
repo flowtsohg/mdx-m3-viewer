@@ -6,13 +6,13 @@ import JassAgent from './agent';
 export default class JassPlayer extends JassAgent {
   index: number;
   name: string;
-  team: number = -1;
-  startLocation: number = -1;
-  forcedStartLocation: number = -1;
-  color: number = -1;
-  racePreference: number = -1;
-  raceSelectable: boolean = false;
-  controller: number = -1;
+  team = -1;
+  startLocation = -1;
+  forcedStartLocation = -1;
+  color = -1;
+  racePreference = -1;
+  raceSelectable = false;
+  controller = -1;
   alliances: Map<number, object> = new Map();
 
   constructor(index: number, maxPlayers: number) {

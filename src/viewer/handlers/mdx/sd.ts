@@ -14,7 +14,7 @@ class SdSequence {
   values: (Uint32Array | Float32Array)[] = [];
   inTans: (Uint32Array | Float32Array)[] = [];
   outTans: (Uint32Array | Float32Array)[] = [];
-  constant: boolean = false;
+  constant = false;
 
   constructor(sd: Sd, start: number, end: number, animation: Animation, isGlobal: boolean) {
     this.sd = sd;

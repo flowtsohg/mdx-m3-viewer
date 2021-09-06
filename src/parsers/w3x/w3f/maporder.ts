@@ -5,8 +5,8 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * A map order.
  */
 export default class MapOrder {
-  u1: number = 0;
-  path: string = '';
+  u1 = 0;
+  path = '';
 
   load(stream: BinaryStream) {
     this.u1 = stream.readInt8();

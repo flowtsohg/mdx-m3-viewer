@@ -7,25 +7,25 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * war3campaign.w3f - the campaign information file.
  */
 export default class War3CampaignW3f {
-  version: number = 0;
-  campaignVersion: number = 0;
-  editorVersion: number = 0;
-  name: string = '';
-  difficulty: string = '';
-  author: string = '';
-  description: string = '';
-  mode: number = -1; // 0: fixed difficulty, only w3m maps, 1: variable difficulty, only w3m maps, 1: fixed..., contains w3x maps, 2: variable..., contains w3xm maps.
-  backgroundScreen: number = -1; // -1 = none or custom path
-  backgroundScreenPath: string = '';
-  minimapImagePath: string = '';
-  ambientSound: number = 0; // -1 = imported, 0 = none, >0 = preset index
-  ambientSoundPath: string = '';
-  terrainFog: number = 0; // 0 = not used, >0 = index of terrain fog style
-  fogStartZ: number = 0;
-  fogEndZ: number = 0;
-  fogDensity: number = 0;
-  fogColor: Uint8Array = new Uint8Array(4);
-  userInterface: number = -1; // 0 = human
+  version = 0;
+  campaignVersion = 0;
+  editorVersion = 0;
+  name = '';
+  difficulty = '';
+  author = '';
+  description = '';
+  mode = -1; // 0: fixed difficulty, only w3m maps, 1: variable difficulty, only w3m maps, 1: fixed..., contains w3x maps, 2: variable..., contains w3xm maps.
+  backgroundScreen = -1; // -1 = none or custom path
+  backgroundScreenPath = '';
+  minimapImagePath = '';
+  ambientSound = 0; // -1 = imported, 0 = none, >0 = preset index
+  ambientSoundPath = '';
+  terrainFog = 0; // 0 = not used, >0 = index of terrain fog style
+  fogStartZ = 0;
+  fogEndZ = 0;
+  fogDensity = 0;
+  fogColor = new Uint8Array(4);
+  userInterface = -1; // 0 = human
   mapTitles: MapTitle[] = [];
   mapOrders: MapOrder[] = [];
 

@@ -6,18 +6,18 @@ import Reference from './reference';
  * An event.
  */
 export default class Event {
-  version: number = -1;
-  name: Reference = new Reference();
-  unknown0: number = 0;
-  unknown1: number = 0;
-  unknown2: number = 0;
-  matrix: Float32Array = new Float32Array(16);
-  unknown3: number = 0;
-  unknown4: number = 0;
-  unknown5: number = 0;
-  unknown6: number = 0;
-  unknown7: number = 0;
-  unknown8: number = 0;
+  version = -1;
+  name = new Reference();
+  unknown0 = 0;
+  unknown1 = 0;
+  unknown2 = 0;
+  matrix = new Float32Array(16);
+  unknown3 = 0;
+  unknown4 = 0;
+  unknown5 = 0;
+  unknown6 = 0;
+  unknown7 = 0;
+  unknown8 = 0;
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

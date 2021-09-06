@@ -8,16 +8,15 @@ export enum WidgetState {
   WALK,
 }
 
-
 /**
  * A widget.
  */
 export class Widget {
   instance: MdxModelInstance;
-  state: WidgetState = WidgetState.IDLE;
+  state = WidgetState.IDLE;
 
   constructor(map: War3MapViewerMap, model: MdxModel) {
-    this.instance = <MdxModelInstance>model.addInstance();
+    this.instance = model.addInstance();
 
     this.instance.setScene(map.worldScene);
   }

@@ -26,15 +26,15 @@ export class SkeletalNode {
   inverseWorldScale: vec3;
   localMatrix: mat4;
   worldMatrix: mat4;
-  dontInheritTranslation: boolean = false;
-  dontInheritRotation: boolean = false;
-  dontInheritScaling: boolean = false;
-  billboarded: boolean = false;
-  billboardedX: boolean = false;
-  billboardedY: boolean = false;
-  billboardedZ: boolean = false;
-  dirty: boolean = true;
-  wasDirty: boolean = false;
+  dontInheritTranslation = false;
+  dontInheritRotation = false;
+  dontInheritScaling = false;
+  billboarded = false;
+  billboardedX = false;
+  billboardedY = false;
+  billboardedZ = false;
+  dirty = true;
+  wasDirty = false;
   parent: SkeletalNode | Node | null = null;
   children: Node[] = [];
   /**

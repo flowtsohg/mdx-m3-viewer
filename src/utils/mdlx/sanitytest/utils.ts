@@ -218,7 +218,7 @@ export function getObjectName(object: MdlxType, index: number) {
   return name;
 }
 
-export function testObjects(data: SanityTestData, objects: MdlxType[], handler?: (data: SanityTestData, object: any, index: number) => void) {
+export function testObjects<T extends MdlxType>(data: SanityTestData, objects: T[], handler?: (data: SanityTestData, object: T, index: number) => void) {
   const l = objects.length;
 
   if (l) {

@@ -4,9 +4,9 @@ import BinaryStream from '../../common/binarystream';
  * A bounding sphere.
  */
 export default class BoundingSphere {
-  min: Float32Array = new Float32Array(3);
-  max: Float32Array = new Float32Array(3);
-  radius: number = 0;
+  min = new Float32Array(3);
+  max = new Float32Array(3);
+  radius = 0;
 
   load(stream: BinaryStream) {
     stream.readFloat32Array(this.min);

@@ -8,7 +8,7 @@ import { EMITTER_RIBBON, SETTING_PARTICLES_HIGH } from './geometryemitterfuncs';
  * An MDX ribbon emitter.
  */
 export default class RibbonEmitterObject extends GenericObject {
-  geometryEmitterType: number = EMITTER_RIBBON;
+  geometryEmitterType = EMITTER_RIBBON;
   layer: Layer;
   heightAbove: number;
   heightBelow: number;
@@ -25,7 +25,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * 
    * The ribbons will simply be black.
    */
-  ok: boolean = true;
+  ok = true;
 
   constructor(model: MdxModel, emitter: RibbonEmitter, index: number) {
     super(model, emitter, index);

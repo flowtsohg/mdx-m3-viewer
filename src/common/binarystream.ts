@@ -12,7 +12,7 @@ const uint8 = new Uint8Array(8);
 export default class BinaryStream {
   buffer: ArrayBuffer;
   uint8array: Uint8Array;
-  index: number = 0;
+  index = 0;
   byteLength: number;
   remaining: number;
 

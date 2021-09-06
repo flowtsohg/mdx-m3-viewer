@@ -6,12 +6,12 @@ import Layer from './layer';
  * A material.
  */
 export default class Material {
-  priorityPlane: number = 0;
-  flags: number = 0;
+  priorityPlane = 0;
+  flags = 0;
   /** 
    * @since 900
    */
-  shader: string = '';
+  shader = '';
   layers: Layer[] = [];
 
   readMdx(stream: BinaryStream, version: number) {

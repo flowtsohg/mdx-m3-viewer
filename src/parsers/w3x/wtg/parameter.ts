@@ -7,11 +7,11 @@ import { TriggerData } from './triggerdata';
  * A function parameter. Can be a function itself, in which case it will have a SubParameters structure.
  */
 export default class Parameter {
-  type: number = 0;
-  value: string = '';
+  type = 0;
+  value = '';
   subParameters: SubParameters | null = null;
-  u1: number = 0;
-  isArray: number = 0;
+  u1 = 0;
+  isArray = 0;
   arrayIndex: Parameter | null = null;
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {

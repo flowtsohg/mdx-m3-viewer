@@ -8,7 +8,7 @@ const valueHeap = new Uint32Array(1);
  * The abstract base MDX event object emitter.
  */
 export default abstract class EventObjectEmitter extends MdxEmitter {
-  lastValue: number = 0;
+  lastValue = 0;
 
   updateEmission(dt: number) {
     const instance = <MdxModelInstance>this.instance;

@@ -21,15 +21,15 @@ export default class War3MapViewer extends ModelViewer {
   groundShader: Shader;
   waterShader: Shader;
   cliffShader: Shader;
-  terrainData: MappedData = new MappedData();
-  cliffTypesData: MappedData = new MappedData();
-  waterData: MappedData = new MappedData();
-  doodadsData: MappedData = new MappedData();
-  doodadMetaData: MappedData = new MappedData();
-  destructableMetaData: MappedData = new MappedData();
-  unitsData: MappedData = new MappedData();
-  unitMetaData: MappedData = new MappedData();
-  loadedBaseFiles: boolean = false;
+  terrainData = new MappedData();
+  cliffTypesData = new MappedData();
+  waterData = new MappedData();
+  doodadsData = new MappedData();
+  doodadMetaData = new MappedData();
+  destructableMetaData = new MappedData();
+  unitsData = new MappedData();
+  unitMetaData = new MappedData();
+  loadedBaseFiles = false;
   map: War3MapViewerMap | null = null;
 
   constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver, isReforged: boolean) {

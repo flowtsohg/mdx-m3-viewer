@@ -6,9 +6,9 @@ import IndexEntry from './indexentry';
  */
 export default class Reference {
   index: IndexEntry[] | null = null;
-  entries: number = 0;
-  id: number = 0;
-  flags: number = 0;
+  entries = 0;
+  id = 0;
+  flags = 0;
 
   load(stream: BinaryStream, index: IndexEntry[]) {
     this.index = index;

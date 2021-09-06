@@ -30,21 +30,21 @@ export default class M3Layer {
   model: M3Model;
   material: M3StandardMaterial;
   index: number;
-  active: number = 0;
+  active = 0;
   layer: Layer | null = null;
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
-  source: string = '';
+  source = '';
   texture: M3Texture | null = null;
-  flags: number = 0;
-  colorChannels: number = 0;
-  type: string = '';
-  op: number = 0;
-  uvCoordinate: number = 0;
-  textureUnit: number = 0;
-  invert: number = 0;
-  clampResult: number = 0;
-  teamColorMode: number = 0;
+  flags = 0;
+  colorChannels = 0;
+  type = '';
+  op = 0;
+  uvCoordinate = 0;
+  textureUnit = 0;
+  invert = 0;
+  clampResult = 0;
+  teamColorMode = 0;
 
   constructor(material: M3StandardMaterial, index: number, layerReference: Reference, type: string, op: number) {
     const model = material.model;

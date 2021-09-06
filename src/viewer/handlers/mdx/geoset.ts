@@ -11,6 +11,7 @@ export default class Geoset {
   positionOffset: number;
   normalOffset: number;
   uvOffset: number;
+  tangentOffset: number;
   skinOffset: number;
   faceOffset: number;
   vertices: number;
@@ -18,12 +19,13 @@ export default class Geoset {
   faceType: number;
   geosetAnimation: GeosetAnimation | null = null;
 
-  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number, faceType: number) {
+  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, tangentOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number, faceType: number) {
     this.model = model;
     this.index = index;
     this.positionOffset = positionOffset;
     this.normalOffset = normalOffset;
     this.uvOffset = uvOffset;
+    this.tangentOffset = tangentOffset;
     this.skinOffset = skinOffset;
     this.faceOffset = faceOffset;
     this.vertices = vertices;
@@ -80,6 +82,8 @@ export default class Geoset {
     const attribs = shader.attribs;
 
     this.bindShared(gl, attribs, coordId);
+
+    gl.vertexAttribPointer(attribs['a_tangent'], 4, gl.FLOAT, false, 0, this.tangentOffset);
 
     if (usingSkin) {
       gl.vertexAttribPointer(attribs['a_bones'], 4, gl.UNSIGNED_BYTE, false, 8, this.skinOffset);

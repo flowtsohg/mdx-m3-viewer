@@ -4,12 +4,12 @@
 export default class ClientBuffer {
   gl: WebGLRenderingContext;
   buffer: WebGLBuffer;
-  size: number = 0;
+  size = 0;
   arrayBuffer: ArrayBuffer | null = null;
   byteView: Uint8Array | null = null;
   floatView: Float32Array | null = null;
 
-  constructor(gl: WebGLRenderingContext, size: number = 4) {
+  constructor(gl: WebGLRenderingContext, size = 4) {
     this.gl = gl;
     this.buffer = <WebGLBuffer>gl.createBuffer();
 
@@ -32,7 +32,7 @@ export default class ClientBuffer {
     }
   }
 
-  bindAndUpdate(size: number = this.size) {
+  bindAndUpdate(size = this.size) {
     const gl = this.gl;
     const byteView = <Uint8Array>this.byteView;
 

@@ -6,10 +6,10 @@ import TerrainDoodad from './terraindoodad';
  * war3map.doo - the doodad and destructible file.
  */
 export default class War3MapDoo {
-  version: number = 0;
-  u1: Uint8Array = new Uint8Array(4);
+  version = 0;
+  u1 = new Uint8Array(4);
   doodads: Doodad[] = [];
-  u2: Uint8Array = new Uint8Array(4);
+  u2 = new Uint8Array(4);
   terrainDoodads: TerrainDoodad[] = [];
 
   load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {

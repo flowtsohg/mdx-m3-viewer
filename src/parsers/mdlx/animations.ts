@@ -5,9 +5,9 @@ import TokenStream from './tokenstream';
  * An animation.
  */
 export abstract class Animation {
-  name: string = '';
-  interpolationType: number = 0;
-  globalSequenceId: number = -1;
+  name = '';
+  interpolationType = 0;
+  globalSequenceId = -1;
   frames: number[] = [];
   values: (Uint32Array | Float32Array)[] = [];
   inTans: (Uint32Array | Float32Array)[] = [];
@@ -230,7 +230,7 @@ export class Vector3Animation extends Animation {
   }
 
   readMdlValue(stream: TokenStream) {
-    return <Float32Array>stream.readVector(new Float32Array(3));
+    return stream.readVector(new Float32Array(3));
   }
 
   writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
@@ -251,7 +251,7 @@ export class Vector4Animation extends Animation {
   }
 
   readMdlValue(stream: TokenStream) {
-    return <Float32Array>stream.readVector(new Float32Array(4));
+    return stream.readVector(new Float32Array(4));
   }
 
   writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {

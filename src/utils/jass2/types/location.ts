@@ -6,7 +6,7 @@ import JassAgent from './agent';
 export default class JassLocation extends JassAgent {
   x: number;
   y: number;
-  z: number = 0;
+  z = 0;
 
   constructor(x: number, y: number) {
     super();

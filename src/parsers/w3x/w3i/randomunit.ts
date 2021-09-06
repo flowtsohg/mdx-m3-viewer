@@ -4,7 +4,7 @@ import BinaryStream from '../../../common/binarystream';
  * A random unit.
  */
 export default class RandomUnit {
-  chance: number = 0;
+  chance = 0;
   ids: string[] = [];
 
   load(stream: BinaryStream, positions: number) {

@@ -6,12 +6,12 @@ import AnimatedObject from './animatedobject';
  * A camera.
  */
 export default class Camera extends AnimatedObject {
-  name: string = '';
-  position: Float32Array = new Float32Array(3);
-  fieldOfView: number = 0;
-  farClippingPlane: number = 0;
-  nearClippingPlane: number = 0;
-  targetPosition: Float32Array = new Float32Array(3);
+  name = '';
+  position = new Float32Array(3);
+  fieldOfView = 0;
+  farClippingPlane = 0;
+  nearClippingPlane = 0;
+  targetPosition = new Float32Array(3);
 
   readMdx(stream: BinaryStream) {
     const size = stream.readUint32();

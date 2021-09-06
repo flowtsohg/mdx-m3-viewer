@@ -12,14 +12,14 @@ const CONTENT_JPG = 0x0;
  * A BLP1 image.
  */
 export class BlpImage {
-  content: number = 0;
-  alphaBits: number = 0;
-  width: number = 0;
-  height: number = 0;
-  type: number = 0;
-  hasMipmaps: boolean = false;
-  mipmapOffsets: Uint32Array = new Uint32Array(16);
-  mipmapSizes: Uint32Array = new Uint32Array(16);
+  content = 0;
+  alphaBits = 0;
+  width = 0;
+  height = 0;
+  type = 0;
+  hasMipmaps = false;
+  mipmapOffsets = new Uint32Array(16);
+  mipmapSizes = new Uint32Array(16);
   uint8array: Uint8Array | null = null;
   /**
    * Used for JPG images.

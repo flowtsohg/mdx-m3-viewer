@@ -8,51 +8,51 @@ import RandomUnit from './randomunit';
  * A unit.
  */
 export default class Unit {
-  id: string = '\0\0\0\0';
-  variation: number = 0;
-  location: Float32Array = new Float32Array(3);
-  angle: number = 0;
-  scale: Float32Array = new Float32Array([1, 1, 1]);
+  id = '\0\0\0\0';
+  variation = 0;
+  location = new Float32Array(3);
+  angle = 0;
+  scale = new Float32Array([1, 1, 1]);
   /**
    * @since Game version 1.32
    */
-  skin: string = '\0\0\0\0';
-  flags: number = 0;
-  player: number = 0;
-  unknown: number = 0;
-  hitpoints: number = -1;
-  mana: number = -1;
+  skin = '\0\0\0\0';
+  flags = 0;
+  player = 0;
+  unknown = 0;
+  hitpoints = -1;
+  mana = -1;
   /**
    * @since 8
    */
-  droppedItemTable: number = 0;
+  droppedItemTable = 0;
   droppedItemSets: DroppedItemSet[] = [];
-  goldAmount: number = 0;
-  targetAcquisition: number = 0;
-  heroLevel: number = 0;
+  goldAmount = 0;
+  targetAcquisition = 0;
+  heroLevel = 0;
   /**
    * @since 8
    */
-  heroStrength: number = 0;
+  heroStrength = 0;
   /**
    * @since 8
    */
-  heroAgility: number = 0;
+  heroAgility = 0;
   /**
    * @since 8
    */
-  heroIntelligence: number = 0;
+  heroIntelligence = 0;
   itemsInInventory: InventoryItem[] = [];
   modifiedAbilities: ModifiedAbility[] = [];
-  randomFlag: number = 0;
-  level: Uint8Array = new Uint8Array(3);
-  itemClass: number = 0;
-  unitGroup: number = 0;
-  positionInGroup: number = 0;
+  randomFlag = 0;
+  level = new Uint8Array(3);
+  itemClass = 0;
+  unitGroup = 0;
+  positionInGroup = 0;
   randomUnitTables: RandomUnit[] = [];
-  customTeamColor: number = 0;
-  waygate: number = 0;
-  creationNumber: number = 0;
+  customTeamColor = 0;
+  waygate = 0;
+  creationNumber = 0;
 
   load(stream: BinaryStream, version: number, subversion: number, buildVersion: number) {
     this.id = stream.readBinary(4);

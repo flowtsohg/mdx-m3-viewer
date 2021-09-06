@@ -182,7 +182,7 @@ export default function generateListfile(map: War3Map) {
       for (const section of config.sections.values()) {
         for (const value of section.values()) {
           // We know the values are going to be strings.
-          for (const token of (<string>value).split(',')) {
+          for (const token of value.split(',')) {
             filterFile(files, token);
           }
         }

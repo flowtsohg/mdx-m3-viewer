@@ -7,9 +7,9 @@ import { byteLengthUtf8 } from '../../../common/utf8';
  * Used to scope triggers together in a Folder-like hierarchy.
  */
 export default class TriggerCategory {
-  id: number = 0;
-  name: string = '';
-  isComment: number = 0;
+  id = 0;
+  name = '';
+  isComment = 0;
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.readInt32();

@@ -4,17 +4,17 @@ import BinaryStream from '../../common/binarystream';
  * A bounding shape.
  */
 export default class BoundingShape {
-  shape: number = -1;
-  bone: number = -1;
-  unknown0: number = 0;
-  matrix: Float32Array = new Float32Array(16);
-  unknown1: number = 0;
-  unknown2: number = 0;
-  unknown3: number = 0;
-  unknown4: number = 0;
-  unknown5: number = 0;
-  unknown6: number = 0;
-  size: Float32Array = new Float32Array(3);
+  shape = -1;
+  bone = -1;
+  unknown0 = 0;
+  matrix = new Float32Array(16);
+  unknown1 = 0;
+  unknown2 = 0;
+  unknown3 = 0;
+  unknown4 = 0;
+  unknown5 = 0;
+  unknown6 = 0;
+  size = new Float32Array(3);
 
   load(stream: BinaryStream) {
     this.shape = stream.readUint32();

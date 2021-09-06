@@ -6,11 +6,11 @@ import Reference from './reference';
  * Sequence data.
  */
 export default class Sd {
-  version: number = -1;
-  keys: Reference = new Reference();
-  flags: number = 0;
-  biggestKey: number = -1;
-  values: Reference = new Reference();
+  version = -1;
+  keys = new Reference();
+  flags = 0;
+  biggestKey = -1;
+  values = new Reference();
 
   load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;

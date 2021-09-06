@@ -6,6 +6,10 @@ import Model from './model';
 import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
 
+export interface M3HandlerObject {
+  standardShaders: Shader[];
+}
+
 export default {
   load(viewer: ModelViewer) {
     const gl = viewer.gl;
@@ -35,10 +39,9 @@ export default {
       standardShaders[i] = shader;
     }
 
-    viewer.sharedCache.set('m3', {
-      standardShaders,
-      lightPosition: new Float32Array([0, 0, 10000]),
-    });
+    const handlerData: M3HandlerObject = { standardShaders };
+
+    viewer.sharedCache.set('m3', handlerData);
   },
   isValidSource(object: any) {
     if (object instanceof Parser) {

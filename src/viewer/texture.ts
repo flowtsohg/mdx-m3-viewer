@@ -5,6 +5,6 @@ import { HandlerResource } from './handlerresource';
  */
 export default abstract class Texture extends HandlerResource {
   webglResource: WebGLTexture | null = null;
-  width: number = 0;
-  height: number = 0;
+  width = 0;
+  height = 0;
 }

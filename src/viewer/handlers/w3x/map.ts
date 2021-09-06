@@ -30,36 +30,36 @@ export default class War3MapViewerMap {
   viewer: War3MapViewer;
   map: War3Map;
   pathSolver: PathSolver;
-  buildVersion: number = 0;
+  buildVersion = 0;
   solverParams: { tileset: string, reforged?: boolean, hd?: boolean } = { tileset: 'a' };
   worldScene: Scene;
-  waterIndex: number = 0;
-  waterIncreasePerFrame: number = 0;
-  waterHeightOffset: number = 0;
+  waterIndex = 0;
+  waterIncreasePerFrame = 0;
+  waterHeightOffset = 0;
   waterTextures: Texture[] = [];
-  maxDeepColor: Float32Array = new Float32Array(4);
-  minDeepColor: Float32Array = new Float32Array(4);
-  maxShallowColor: Float32Array = new Float32Array(4);
-  minShallowColor: Float32Array = new Float32Array(4);
-  anyReady: boolean = false;
-  terrainReady: boolean = false;
-  cliffsReady: boolean = false;
+  maxDeepColor = new Float32Array(4);
+  minDeepColor = new Float32Array(4);
+  maxShallowColor = new Float32Array(4);
+  minShallowColor = new Float32Array(4);
+  anyReady = false;
+  terrainReady = false;
+  cliffsReady = false;
   doodads: Doodad[] = [];
   terrainDoodads: TerrainDoodad[] = [];
-  doodadsReady: boolean = false;
+  doodadsReady = false;
   units: Unit[] = [];
-  unitsReady: boolean = false;
+  unitsReady = false;
   tilesetTextures: Texture[] = [];
   cliffTextures: Texture[] = [];
   cliffModels: TerrainModel[] = [];
   corners: Corner[][] = [];
-  centerOffset: Float32Array = new Float32Array(2);
-  mapSize: Int32Array = new Int32Array(2);
+  centerOffset = new Float32Array(2);
+  mapSize = new Int32Array(2);
   tilesets: MappedDataRow[] = [];
-  blightTextureIndex: number = -1;
+  blightTextureIndex = -1;
   cliffTilesets: MappedDataRow[] = [];
-  columns: number = 0;
-  rows: number = 0;
+  columns = 0;
+  rows = 0;
   vertexBuffer: WebGLBuffer | null = null;
   faceBuffer: WebGLBuffer | null = null;
   instanceBuffer: WebGLBuffer | null = null;
@@ -136,7 +136,7 @@ export default class War3MapViewerMap {
     try {
       parser.load(mpqFile.bytes());
     } catch (e) {
-
+      console.warn('Failed to correctly parse the map information file');
     }
 
     this.solverParams.tileset = parser.tileset.toLowerCase();
@@ -240,7 +240,7 @@ export default class War3MapViewerMap {
     this.waterTextures = <Texture[]>await Promise.all(waterTextures);
 
     const corners = parser.corners;
-    const [columns, rows] = <Int32Array>this.mapSize;
+    const [columns, rows] = this.mapSize;
     const instanceCount = (columns - 1) * (rows - 1);
     const cliffHeights = new Float32Array(columns * rows);
     const cornerHeights = new Float32Array(columns * rows);
@@ -385,7 +385,7 @@ export default class War3MapViewerMap {
     this.terrainReady = true;
     this.anyReady = true;
 
-    const cliffShader = <Shader>viewer.cliffShader;
+    const cliffShader = viewer.cliffShader;
 
     const cliffPromises = Object.entries(cliffs).map(async (cliff) => {
       const path = cliff[0];
@@ -605,7 +605,7 @@ export default class War3MapViewerMap {
       const gl = this.viewer.gl;
       const webgl = this.viewer.webgl;
       const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
-      const shader = <Shader>this.viewer.groundShader;
+      const shader = this.viewer.groundShader;
       const uniforms = shader.uniforms;
       const attribs = shader.attribs;
       const tilesetTextures = this.tilesetTextures;
@@ -621,7 +621,7 @@ export default class War3MapViewerMap {
       webgl.useShader(shader);
 
       gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
-      gl.uniform2fv(uniforms['u_offset'], <Float32Array>this.centerOffset);
+      gl.uniform2fv(uniforms['u_offset'], this.centerOffset);
       gl.uniform2f(uniforms['u_size'], this.columns, this.rows);
       gl.uniform1i(uniforms['u_heightMap'], 15);
 
@@ -683,7 +683,7 @@ export default class War3MapViewerMap {
       const gl = this.viewer.gl;
       const webgl = this.viewer.webgl;
       const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
-      const shader = <Shader>this.viewer.waterShader;
+      const shader = this.viewer.waterShader;
       const uniforms = shader.uniforms;
       const attribs = shader.attribs;
       const instanceAttrib = attribs['a_InstanceID'];
@@ -698,7 +698,7 @@ export default class War3MapViewerMap {
       webgl.useShader(shader);
 
       gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
-      gl.uniform2fv(uniforms['u_offset'], <Float32Array>this.centerOffset);
+      gl.uniform2fv(uniforms['u_offset'], this.centerOffset);
       gl.uniform2f(uniforms['u_size'], this.columns, this.rows);
       gl.uniform1i(uniforms['u_heightMap'], 0);
       gl.uniform1i(uniforms['u_waterHeightMap'], 1);
@@ -742,7 +742,7 @@ export default class War3MapViewerMap {
       const webgl = this.viewer.webgl;
       const instancedArrays = <ANGLE_instanced_arrays>webgl.extensions['ANGLE_instanced_arrays'];
       const vertexArrayObject = <OES_vertex_array_object>webgl.extensions['OES_vertex_array_object'];
-      const shader = <Shader>this.viewer.cliffShader;
+      const shader = this.viewer.cliffShader;
       const attribs = shader.attribs;
       const uniforms = shader.uniforms;
 
@@ -753,7 +753,7 @@ export default class War3MapViewerMap {
       gl.uniformMatrix4fv(uniforms['u_VP'], false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform1i(uniforms['u_heightMap'], 0);
       gl.uniform2f(uniforms['u_pixel'], 1 / (this.columns + 1), 1 / (this.rows + 1));
-      gl.uniform2fv(uniforms['u_centerOffset'], <Float32Array>this.centerOffset);
+      gl.uniform2fv(uniforms['u_centerOffset'], this.centerOffset);
       gl.uniform1i(uniforms['u_texture1'], 1);
       gl.uniform1i(uniforms['u_texture2'], 2);
 
@@ -931,8 +931,8 @@ export default class War3MapViewerMap {
   }
 
   groundNormal(out: vec3, x: number, y: number) {
-    const centerOffset = <Float32Array>this.centerOffset;
-    const mapSize = <Int32Array>this.mapSize;
+    const centerOffset = this.centerOffset;
+    const mapSize = this.mapSize;
 
     x = (x - centerOffset[0]) / 128;
     y = (y - centerOffset[1]) / 128;
