@@ -11,6 +11,9 @@ export const FOURCC_DXT3 = 0x33545844;
 export const FOURCC_DXT5 = 0x35545844;
 export const FOURCC_ATI2 = 0x32495441;
 
+const FOURCC_DX10 = 0x30315844;
+const DXGI_FORMAT_BC5_UNORM = 0x00000053;
+
 /**
  * A DDS image.
  */
@@ -25,6 +28,7 @@ export class DdsImage {
   load(buffer: ArrayBuffer | Uint8Array) {
     const bytes = bytesOf(buffer);
     const header = new Int32Array(bytes.buffer, 0, 31);
+    let offset = 128; // sizeof(DDS_HEADER) + 4 for the magic.
 
     if (header[0] !== DDS_MAGIC) {
       throw new Error('Wrong magic number');
@@ -34,10 +38,21 @@ export class DdsImage {
       throw new Error('Not FourCC');
     }
 
-    const fourCC = header[21];
-
+    let fourCC = header[21];
+    
     if (fourCC !== FOURCC_DXT1 && fourCC !== FOURCC_DXT3 && fourCC !== FOURCC_DXT5 && fourCC !== FOURCC_ATI2) {
-      throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`);
+      if (fourCC === FOURCC_DX10) {
+        offset += 20; // sizeof(DDS_HEADER_DXT10)
+
+        const extendedHeader = new Int32Array(bytes.buffer, 128, 5);
+
+        if (extendedHeader[0] === DXGI_FORMAT_BC5_UNORM) {
+          fourCC = FOURCC_ATI2;
+        }
+        console.log(extendedHeader);
+      } else {
+        throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`);
+      }
     }
 
     this.format = fourCC;
@@ -59,8 +74,6 @@ export class DdsImage {
 
     this.width = width;
     this.height = height;
-
-    let offset = header[1] + 4;
 
     for (let i = 0; i < mipmaps; i++) {
       const size = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockSize;

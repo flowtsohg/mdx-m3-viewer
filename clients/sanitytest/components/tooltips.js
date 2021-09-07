@@ -30,6 +30,8 @@ Not relevant to portraits.`;
     return `Missing the death animation makes particles and other effects linger for a short time after an object using this model dies.
     
 Not relevant to portraits.`;
+  } else if (message.endsWith('is not in any sequence')) {
+    return 'A keyframe that is not in any animation is useless';
   } else {
     console.log('getTooltip', message)
   }
