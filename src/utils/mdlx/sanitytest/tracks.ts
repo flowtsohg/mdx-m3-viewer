@@ -173,6 +173,8 @@ export default function testTracks(data: SanityTestData, object: Animation | Eve
     }
   } else if (testReference(data, data.model.globalSequences, globalSequenceId, 'global sequence')) {
     separated[globalSequenceId] = [];
+  } else {
+    return;
   }
 
   seprateTracks(data, framesOrTracks, globalSequenceId, separated);

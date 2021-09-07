@@ -255,7 +255,7 @@ export function testObjects<T extends MdlxType>(data: SanityTestData, objects: T
   }
 }
 
-export function testReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
+export function testAndGetReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
   if (index >= 0 && index < objects.length) {
     data.addReference(objects[index]);
 
@@ -265,6 +265,11 @@ export function testReference<T extends MdlxType>(data: SanityTestData, objects:
 
     return;
   }
+}
+
+export function testReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
+  // This explicit test against undefined is needed because global sequences are numbers and could be equal to 0.
+  return testAndGetReference(data, objects, index, typeNameIfError) !== undefined;
 }
 
 /**

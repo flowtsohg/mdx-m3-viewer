@@ -16,7 +16,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation, testExtent } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation, testExtent, testAndGetReference } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -154,7 +154,7 @@ function testLayer(data: SanityTestData, layer: Layer) {
 
 export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) {
   const geosetAnimations = data.model.geosetAnimations;
-  const material = testReference(data, data.model.materials, geoset.materialId, 'material');
+  const material = testAndGetReference(data, data.model.materials, geoset.materialId, 'material');
   let isHd = false;
 
   if (material && material.shader === 'Shader_HD_DefaultUnit') {

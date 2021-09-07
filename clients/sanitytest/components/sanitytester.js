@@ -99,7 +99,13 @@ export default class SanityTester extends Component {
   test(name, buffer, pathSolver) {
     this.logger.info(`Parsing ${name}`);
 
-    let test = new Test(this, name, buffer, pathSolver);
+    let test;
+
+    try {
+      test = new Test(this, name, buffer, pathSolver);
+    } catch (e) {
+      this.logger.error(`An error occured before the test could finish: ${e}`)
+    }
 
     this.tests.push(test);
 
