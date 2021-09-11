@@ -18,7 +18,7 @@ export default class Layer {
   midtoneOffset = new Float32AnimationReference();
   unknown1 = 0;
   noiseAmp = 0;
-  noiseFreq = 0
+  noiseFreq = 0;
   rttChannel = 0;
   videoFrameRate = 0;
   videoStartFrame = 0;

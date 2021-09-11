@@ -25,7 +25,7 @@ import setupGroups from './setupgroups';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 import GenericObject from './genericobject';
-import Batch from './batch';
+import { Batch } from './batch';
 import Geoset from './geoset';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
@@ -157,7 +157,7 @@ export default class MdxModel extends Model {
       const replaceableId = texture.replaceableId;
       const flags = texture.flags;
 
-      if (replaceableId !== 0) {
+      if (path === '' && replaceableId !== 0) {
         path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
 
         if (replaceableId === 1 || replaceableId === 2) {

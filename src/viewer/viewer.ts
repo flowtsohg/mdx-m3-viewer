@@ -94,10 +94,14 @@ export default class ModelViewer extends EventEmitter {
    * A cache of arbitrary data, shared between all of the handlers.
    */
   sharedCache: Map<any, any> = new Map();
-
-  debug = {
-    noShading: 0
-  }
+  /**
+   * Options for debug rendering.
+   * 
+   * How they affect the rendering ultimately depends on the handlers.
+   */
+  debugRendering = {
+    noShading: 0,
+  };
 
   directLoadId = 0;
 

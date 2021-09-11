@@ -3,7 +3,7 @@ import SubParameters from '../../../../parsers/w3x/wtg/subparameters';
 import WeuData from '../data';
 
 let initialized = false;
-let transformers: { [keyof: string]: (data: WeuData, object: Parameter) => boolean };
+let transformers: {[keyof: string]: (data: WeuData, object: Parameter) => boolean };
 
 function preset(name: string) {
   return function (data: WeuData, object: Parameter) {

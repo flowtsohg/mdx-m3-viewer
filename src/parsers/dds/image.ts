@@ -12,6 +12,9 @@ export const FOURCC_DXT5 = 0x35545844;
 export const FOURCC_ATI2 = 0x32495441;
 
 const FOURCC_DX10 = 0x30315844;
+const DXGI_FORMAT_BC1_UNORM = 0x00000047;
+const DXGI_FORMAT_BC2_UNORM = 0x0000004A;
+const DXGI_FORMAT_BC3_UNORM = 0x0000004D;
 const DXGI_FORMAT_BC5_UNORM = 0x00000053;
 
 /**
@@ -45,10 +48,20 @@ export class DdsImage {
         offset += 20; // sizeof(DDS_HEADER_DXT10)
 
         const extendedHeader = new Int32Array(bytes.buffer, 128, 5);
+        const dxgiFormat = extendedHeader[0];
 
-        if (extendedHeader[0] === DXGI_FORMAT_BC5_UNORM) {
+        if (dxgiFormat === DXGI_FORMAT_BC1_UNORM) {
+          fourCC = FOURCC_DXT1;
+        } else if (dxgiFormat === DXGI_FORMAT_BC2_UNORM) {
+          fourCC = FOURCC_DXT3;
+        } else if (dxgiFormat === DXGI_FORMAT_BC3_UNORM) {
+          fourCC = FOURCC_DXT5;
+        } else if (dxgiFormat === DXGI_FORMAT_BC5_UNORM) {
           fourCC = FOURCC_ATI2;
+        } else {
+          throw new Error(`Unsupported DXGI format: ${dxgiFormat}`);
         }
+
         console.log(extendedHeader);
       } else {
         throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`);

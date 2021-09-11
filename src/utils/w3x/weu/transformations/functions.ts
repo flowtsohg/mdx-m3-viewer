@@ -6,7 +6,7 @@ import { transformerIsUnitOwnedByPlayer, transformerIsUnitRace, transformerIsUni
 import transformBlz from './blz';
 
 let initialized = false;
-let transformers: { [keyof: string]: (data: WeuData, object: ECA | SubParameters) => boolean };
+let transformers: {[keyof: string]: (data: WeuData, object: ECA | SubParameters) => boolean };
 
 function rename(name: string) {
   return transformer({

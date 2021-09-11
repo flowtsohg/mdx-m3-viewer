@@ -6,7 +6,7 @@ export type MappedDataValue = string | number | boolean;
 /**
  * A MappedData row.
  */
-export type MappedDataRow = { [key: string]: MappedDataValue };
+export type MappedDataRow = {[key: string]: MappedDataValue };
 
 /**
  * A structure that holds mapped data from INI and SLK files.
@@ -14,7 +14,7 @@ export type MappedDataRow = { [key: string]: MappedDataValue };
  * In the case of SLK files, the first row is expected to hold the names of the columns.
  */
 export class MappedData {
-  map: { [key: string]: MappedDataRow } = {};
+  map: {[key: string]: MappedDataRow } = {};
 
   constructor(buffer?: string) {
     if (buffer) {

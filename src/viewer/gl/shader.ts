@@ -6,8 +6,8 @@ import WebGL from './gl';
 export default class Shader {
   webgl: WebGL;
   program: WebGLProgram;
-  uniforms: { [key: string]: WebGLUniformLocation } = {};
-  attribs: { [key: string]: number } = {};
+  uniforms: {[key: string]: WebGLUniformLocation } = {};
+  attribs: {[key: string]: number } = {};
   attribsCount = 0;
 
   constructor(webgl: WebGL, program: WebGLProgram) {

@@ -103,18 +103,16 @@ function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32A
 function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, object: Animation, frames: number[] | Uint32Array) {
   const { globalSequenceId, interpolationType, values } = object;
   let start;
-  let end;
 
   if (globalSequenceId === -1) {
-    [start, end] = data.model.sequences[sequence].interval;
+    start = data.model.sequences[sequence].interval[0];
   } else {
-    [start, end] = [0, data.model.globalSequences[globalSequenceId]];
+    start = 0;
   }
 
   const firstIndex = indices[0];
   const lastIndex = indices[indices.length - 1];
   const firstFrame = frames[firstIndex];
-  const lastFrame = frames[lastIndex];
 
   // Missing the opening track for a specific sequence can cause bugged warping with negative interpolations.
   if (interpolationType !== 0 && firstFrame !== start) {

@@ -1,4 +1,4 @@
-import { isPowerOfTwo, powerOfTwo } from '../../../common/math';
+import { isPowerOfTwo } from '../../../common/math';
 import { BlpImage } from '../../../parsers/blp/image';
 import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';

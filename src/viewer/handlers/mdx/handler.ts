@@ -18,6 +18,7 @@ import hdVert from './shaders/hd.vert';
 import hdFrag from './shaders/hd.frag';
 import particlesVert from './shaders/particles.vert';
 import particlesFrag from './shaders/particles.frag';
+import { SkinningType } from './batch';
 
 export interface MdxHandlerObject {
   pathSolver?: PathSolver;
@@ -26,11 +27,14 @@ export interface MdxHandlerObject {
   extendedShader: Shader;
   hdSkinShader: Shader;
   hdVertexGroupShader: Shader;
+  hdExtendedVertexGroupShader: Shader;
   particlesShader: Shader;
   rectBuffer: WebGLBuffer;
   teamColors: MdxTexture[];
   teamGlows: MdxTexture[];
-  eventObjectTables: { [key: string]: GenericResource[] };
+  eventObjectTables: {[key: string]: GenericResource[] };
+
+  hdSkinShaderDebugNoShading: Shader;
 }
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
@@ -55,7 +59,10 @@ export default {
     const extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
     const hdSkinShader = webgl.createShader('#define SKIN\n' + hdVert, hdFrag);
     const hdVertexGroupShader = webgl.createShader(hdVert, hdFrag);
+    const hdExtendedVertexGroupShader = webgl.createShader('#define EXTENDED_BONES\n' + hdVert, hdFrag);
     const particlesShader = webgl.createShader(particlesVert, particlesFrag);
+
+    const hdSkinShaderDebugNoShading = webgl.createShader('#define SKIN\n' + hdVert, '#define NO_SHADING\n' + hdFrag);
 
     const rectBuffer = <WebGLBuffer>gl.createBuffer();
 
@@ -65,7 +72,7 @@ export default {
     const teamColors: MdxTexture[] = [];
     const teamGlows: MdxTexture[] = [];
 
-    const eventObjectTables: { [key: string]: GenericResource[] } = {};
+    const eventObjectTables: {[key: string]: GenericResource[] } = {};
 
     const handlerData: MdxHandlerObject = {
       pathSolver,
@@ -75,6 +82,7 @@ export default {
       extendedShader,
       hdSkinShader,
       hdVertexGroupShader,
+      hdExtendedVertexGroupShader,
       particlesShader,
       // Geometry emitters buffer.
       rectBuffer,
@@ -82,6 +90,8 @@ export default {
       teamColors,
       teamGlows,
       eventObjectTables,
+
+      hdSkinShaderDebugNoShading,
     };
 
     viewer.sharedCache.set('mdx', handlerData);
@@ -260,4 +270,27 @@ export default {
 
     return;
   },
+  getBatchShader(viewer: ModelViewer, skinningType: SkinningType, isHd: boolean) {
+    const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
+
+    if (isHd) {
+      if (skinningType === SkinningType.Skin) {
+        if (viewer.debugRendering.noShading) {
+          return mdxCache.hdSkinShaderDebugNoShading;
+        } else {
+          return mdxCache.hdSkinShader;
+        }
+      } else if (skinningType === SkinningType.VertexGroups) {
+        return mdxCache.hdVertexGroupShader;
+      } else {
+        return mdxCache.hdExtendedVertexGroupShader;
+      }
+    } else {
+      if (skinningType === SkinningType.VertexGroups) {
+        return mdxCache.standardShader;
+      } else {
+        return mdxCache.extendedShader;
+      }
+    }
+  }
 };

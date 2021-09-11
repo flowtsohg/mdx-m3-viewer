@@ -1,5 +1,5 @@
 import boneTexture from '../../shaders/bonetexture.glsl';
-import transformVertexGroups from './transformvertexgroups.glsl';
+import transforms from './transforms.glsl';
 
 const shader = `
 uniform mat4 u_VP;
@@ -21,7 +21,7 @@ varying vec4 v_uvTransRot;
 varying float v_uvScale;
 
 ${boneTexture}
-${transformVertexGroups}
+${transforms}
 
 void main() {
   vec3 position = a_position;

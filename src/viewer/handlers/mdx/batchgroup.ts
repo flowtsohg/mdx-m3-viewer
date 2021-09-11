@@ -1,25 +1,23 @@
-import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import Texture from '../../texture';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
-import Batch from './batch';
 import Material from './material';
-import MdxTexture from './texture';
-import { MdxHandlerObject } from './handler';
+import mdxHandler, { MdxHandlerObject } from './handler';
+import { SkinningType } from './batch';
 
 /**
  * A group of batches that are going to be rendered together.
  */
 export default class BatchGroup {
   model: MdxModel;
-  isExtendedOrUsingSkin: boolean;
+  skinningType: SkinningType;
   isHd: boolean;
   objects: number[] = [];
 
-  constructor(model: MdxModel, isExtended: boolean, isHd: boolean) {
+  constructor(model: MdxModel, skinningType: SkinningType, isHd: boolean) {
     this.model = model;
-    this.isExtendedOrUsingSkin = isExtended;
+    this.skinningType = skinningType;
     this.isHd = isHd;
   }
 
@@ -35,25 +33,11 @@ export default class BatchGroup {
     const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
     const gl = viewer.gl;
     const webgl = viewer.webgl;
-    const isExtended = this.isExtendedOrUsingSkin;
+    const skinningType = this.skinningType;
     const isHd = this.isHd;
     const teamColors = mdxCache.teamColors;
     const teamGlows = mdxCache.teamGlows;
-    let shader;
-
-    if (isHd) {
-      if (isExtended) {
-        shader = mdxCache.hdSkinShader;
-      } else {
-        shader = mdxCache.hdVertexGroupShader;
-      }
-    } else {
-      if (isExtended) {
-        shader = mdxCache.extendedShader;
-      } else {
-        shader = mdxCache.standardShader;
-      }
-    }
+    const shader = mdxHandler.getBatchShader(viewer, skinningType, isHd);
 
     shader.use();
 
@@ -81,8 +65,6 @@ export default class BatchGroup {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
     if (isHd) {
-      gl.uniform1f(uniforms['u_debugNoShading'], viewer.debug.noShading);
-
       gl.uniform1i(uniforms['u_diffuseMap'], 0);
       gl.uniform1i(uniforms['u_normalsMap'], 1);
       gl.uniform1i(uniforms['u_ormMap'], 2);
@@ -114,29 +96,35 @@ export default class BatchGroup {
           const normalsId = normalsLayer.textureId;
           const ormId = ormLayer.textureId;
           const emissiveId = emissiveLayer.textureId;
+          const teamColorId = teamColorLayer.textureId;
           const environmentMapId = environmentMapLayer.textureId;
 
           const diffuseTexture = textures[diffuseId];
           const normalsTexture = textures[normalsId];
           const ormTexture = textures[ormId];
           const emissiveTexture = textures[emissiveId];
-          const tcTexture = teamColors[instance.teamColor];
+          let teamColorTexture = textures[teamColorId];
           const environmentMapTexture = textures[environmentMapId];
 
+          if (teamColorTexture.replaceableId === 0 || teamColorTexture.replaceableId === 1) {
+            teamColorTexture = teamColors[instance.teamColor];
+          }
+          
           const actualDiffuseTexture = textureOverrides.get(diffuseId) || diffuseTexture.texture;
           const actualNormalsTexture = textureOverrides.get(normalsId) || normalsTexture.texture;
           const actualOrmTexture = textureOverrides.get(ormId) || ormTexture.texture;
           const actualEmissiveTexture = textureOverrides.get(emissiveId) || emissiveTexture.texture;
+          const actualTeamColorTexture = textureOverrides.get(teamColorId) || teamColorTexture.texture;
           const actualEnvironmentMapTexture = textureOverrides.get(environmentMapId) || environmentMapTexture.texture;
 
           webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
           webgl.bindTextureAndWrap(actualNormalsTexture, 1, normalsTexture.wrapS, normalsTexture.wrapT);
           webgl.bindTextureAndWrap(actualOrmTexture, 2, ormTexture.wrapS, ormTexture.wrapT);
           webgl.bindTextureAndWrap(actualEmissiveTexture, 3, emissiveTexture.wrapS, emissiveTexture.wrapT);
-          webgl.bindTextureAndWrap(tcTexture.texture, 4, tcTexture.wrapS, tcTexture.wrapT);
+          webgl.bindTextureAndWrap(actualTeamColorTexture, 4, teamColorTexture.wrapS, teamColorTexture.wrapT);
           webgl.bindTextureAndWrap(actualEnvironmentMapTexture, 5, environmentMapTexture.wrapS, environmentMapTexture.wrapT);
 
-          geoset.bindHd(shader, batch.isExtendedOrUsingSkin, diffuseLayer.coordId);
+          geoset.bindHd(shader, batch.skinningType, diffuseLayer.coordId);
           geoset.render();
         }
       }
@@ -192,7 +180,7 @@ export default class BatchGroup {
 
           webgl.bindTextureAndWrap(texture, 0, layerTexture.wrapS, layerTexture.wrapT);
 
-          if (isExtended) {
+          if (skinningType === SkinningType.ExtendedVertexGroups) {
             geoset.bindExtended(shader, layer.coordId);
           } else {
             geoset.bind(shader, layer.coordId);

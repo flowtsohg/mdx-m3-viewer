@@ -7,7 +7,6 @@ import Geoset from '../../../parsers/mdlx/geoset';
 import GeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import Bone from '../../../parsers/mdlx/bone';
 import Light from '../../../parsers/mdlx/light';
-import Attachment from '../../../parsers/mdlx/attachment';
 import ParticleEmitter from '../../../parsers/mdlx/particleemitter';
 import ParticleEmitter2 from '../../../parsers/mdlx/particleemitter2';
 import ParticleEmitterPopcorn from '../../../parsers/mdlx/particleemitterpopcorn';
@@ -16,7 +15,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation, testExtent, testAndGetReference } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, getAnimation, testExtent, testAndGetReference } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {

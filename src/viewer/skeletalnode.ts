@@ -208,7 +208,7 @@ const NODE_SHARED_SIZE = 65;
  * 
  * The returned object contains the node array itself, the backing buffer, and all of the different shared arrays.
  */
-export function createSkeletalNodes(count: number, Node: typeof SkeletalNode = SkeletalNode) {
+export function createSkeletalNodes(count: number, Node = SkeletalNode) {
   const data = new Float32Array(count * NODE_SHARED_SIZE);
   const nodes = [];
   let offset = 0;

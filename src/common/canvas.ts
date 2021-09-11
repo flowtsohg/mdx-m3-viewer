@@ -12,7 +12,7 @@ if (typeof window === 'object') {
 }
 
 export function blobToImage(blob: Blob) {
-  return new Promise((resolve: (image: HTMLImageElement) => void) => {
+  return new Promise<HTMLImageElement>((resolve,  reject) => {
     const url = URL.createObjectURL(blob);
     const image = new Image();
 
@@ -20,8 +20,8 @@ export function blobToImage(blob: Blob) {
       resolve(image);
     };
 
-    image.onerror = () => {
-      resolve(image);
+    image.onerror = (e) => {
+      reject(e);
     };
 
     image.src = url;
@@ -29,7 +29,7 @@ export function blobToImage(blob: Blob) {
 }
 
 export function blobToImageData(blob: Blob) {
-  return new Promise((resolve, reject) => {
+  return new Promise<ImageData>((resolve, reject) => {
     const url = URL.createObjectURL(blob);
     const image = new Image();
 

@@ -6,7 +6,6 @@ import MdlxGeoset from '../../../parsers/mdlx/geoset';
 import MdlxGeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import MdlxBone from '../../../parsers/mdlx/bone';
 import ModelViewer from '../../../viewer/viewer';
-import { PathSolver } from '../../../viewer/handlerresource';
 import Texture from '../../../viewer/texture';
 
 interface Primitive {

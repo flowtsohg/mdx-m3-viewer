@@ -3,21 +3,32 @@ import Layer from './layer';
 import Material from './material';
 
 /**
+ * The type of skinning a batch uses.
+ * 
+ * Vertex groups are used for SD batches with a range of 0-4 bones per vertex.
+ * 
+ * Extended vertex groups are used for SD batches with a range of 0-8 bones per vertex.
+ * 
+ * Skin is used for HD batches with a range of 0-4 bones per vertex.
+ */
+export enum SkinningType  {
+  VertexGroups,
+  ExtendedVertexGroups,
+  Skin,
+}
+
+/**
  * An MDX batch.
  */
-export default class Batch {
+export class Batch {
   index: number;
   geoset: Geoset;
   layer: Layer;
   material: Material | null;
-  /**
-   * If this is a TFT batch, determines if it's an extended batch.
-   * If this is an HD batch, determines if it has skin or vertex groups.
-   */
-  isExtendedOrUsingSkin: boolean;
+  skinningType: SkinningType;
   isHd: boolean;
 
-  constructor(index: number, geoset: Geoset, layerOrMaterial: Layer | Material, isExtendedOrUsingSkin: boolean, isHd: boolean) {
+  constructor(index: number, geoset: Geoset, layerOrMaterial: Layer | Material, skinningType: SkinningType, isHd: boolean) {
     let material;
     let layer;
 
@@ -31,7 +42,7 @@ export default class Batch {
 
     this.index = index;
     this.geoset = geoset;
-    this.isExtendedOrUsingSkin = isExtendedOrUsingSkin;
+    this.skinningType = skinningType;
     this.isHd = isHd;
     this.layer = layer;
     this.material = material;

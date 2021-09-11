@@ -31,7 +31,7 @@ export interface FetchResult {
 export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
-    return new Promise((resolve: (data: FetchResult) => void) => {
+    return new Promise<FetchResult>((resolve) => {
       const image = new Image();
 
       image.onload = () => {

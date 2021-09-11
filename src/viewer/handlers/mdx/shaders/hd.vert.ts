@@ -1,6 +1,6 @@
 
 import boneTexture from '../../shaders/bonetexture.glsl';
-import transformVertexGroups from './transformvertexgroups.glsl';
+import transforms from './transforms.glsl';
 
 const shader = `
 uniform mat4 u_VP;
@@ -18,32 +18,11 @@ attribute vec4 a_tangent;
 varying vec2 v_uv;
 varying float v_layerAlpha;
 varying vec3 v_lightDir;
-varying vec3 v_halfVec;
+varying vec3 v_eyeVec;
+varying vec3 v_normal;
 
 ${boneTexture}
-
-#ifdef SKIN
-attribute vec4 a_bones;
-attribute vec4 a_weights;
-
-void transformSkin(inout vec3 position, inout vec3 normal, inout vec3 tangent, inout vec3 binormal) {
-  mat4 bone;
-
-  bone += fetchMatrix(a_bones[0], 0.0) * a_weights[0];
-  bone += fetchMatrix(a_bones[1], 0.0) * a_weights[1];
-  bone += fetchMatrix(a_bones[2], 0.0) * a_weights[2];
-  bone += fetchMatrix(a_bones[3], 0.0) * a_weights[3];
-
-  mat3 rotation = mat3(bone);
-
-  position = vec3(bone * vec4(position, 1.0));
-  normal = rotation * normal;
-  tangent = rotation * tangent;
-  binormal = rotation * binormal;
-}
-#else
-${transformVertexGroups}
-#endif
+${transforms}
 
 vec3 TBN(vec3 vector, vec3 tangent, vec3 binormal, vec3 normal) {
   return vec3(dot(vector, tangent), dot(vector, binormal), dot(vector, normal));
@@ -53,13 +32,18 @@ void main() {
   vec3 position = a_position;
   vec3 normal = a_normal;
   vec3 tangent = a_tangent.xyz;
+
+  // Re-orthogonalize the tangent in case it wasnt normalized.
+  // See "One last thing" at https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+  tangent = normalize(tangent - dot(tangent, normal) * normal);
+
   vec3 binormal = cross(normal, tangent) * a_tangent.w;
 
   if (u_hasBones) {
     #ifdef SKIN
       transformSkin(position, normal, tangent, binormal);
     #else
-      transformVertexGroups(position, normal);
+      transformVertexGroupsHD(position, normal, tangent, binormal);
     #endif
   }
 
@@ -70,16 +54,15 @@ void main() {
   vec3 b = normalize(mv * binormal);
   vec3 n = normalize(mv * normal);
 
-  vec3 eyeVec = normalize(u_eyePos - position_mv);
-  vec3 halfVec = normalize(eyeVec - u_lightPos);
-
-  v_halfVec = TBN(halfVec, t, b, n);
+  v_eyeVec = normalize(u_eyePos - position_mv);
 
   vec3 lightDir = normalize(u_lightPos - position_mv);
   v_lightDir = normalize(TBN(lightDir, t, b, n));
   
   v_uv = a_uv;
   v_layerAlpha = u_layerAlpha;
+
+  v_normal = normal;
 
   gl_Position = u_VP * vec4(position, 1.0);
 }

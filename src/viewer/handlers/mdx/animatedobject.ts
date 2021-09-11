@@ -8,7 +8,7 @@ import { Sd, createTypedSd } from './sd';
 export default class AnimatedObject {
   model: MdxModel;
   animations: Map<string, Sd> = new Map();
-  variants: { [key: string]: Uint8Array } = {};
+  variants: {[key: string]: Uint8Array } = {};
 
   constructor(model: MdxModel, object: MdlxAnimatedObject) {
     this.model = model;

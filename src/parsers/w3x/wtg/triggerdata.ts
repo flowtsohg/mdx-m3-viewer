@@ -4,7 +4,7 @@ import { IniSection, IniFile } from '../../ini/file';
 /**
  * A standard object mapping strings to strings.
  */
-export type StringObject = { [key: string]: string };
+export type StringObject = {[key: string]: string };
 
 
 export type FunctionSignature = { args: string[], scriptName: string | null, returnType: string | null };
@@ -12,7 +12,7 @@ export type FunctionSignature = { args: string[], scriptName: string | null, ret
 /**
  * A standard object mapping strings to function signatures and an optional Jass name.
  */
-export type FunctionObject = { [key: string]: FunctionSignature };
+export type FunctionObject = {[key: string]: FunctionSignature };
 
 /**
  * Trigger data needed to load a WTG file.

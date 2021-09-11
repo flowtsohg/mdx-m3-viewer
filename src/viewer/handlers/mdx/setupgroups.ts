@@ -1,5 +1,5 @@
 import MdxModel from './model';
-import Batch from './batch';
+import { Batch } from './batch';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 import GenericObject from './genericobject';
@@ -19,7 +19,7 @@ function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject | 
 
 function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
   if (group instanceof BatchGroup) {
-    return (object instanceof Batch) && (object.isExtendedOrUsingSkin === group.isExtendedOrUsingSkin) && (object.isHd === group.isHd);
+    return (object instanceof Batch) && (object.skinningType === group.skinningType) && (object.isHd === group.isHd);
   } else {
     // All of the emitter objects are generic objects.
     return (object instanceof GenericObject);
@@ -28,7 +28,7 @@ function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | Particl
 
 function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
   if (object instanceof Batch) {
-    return new BatchGroup(model, object.isExtendedOrUsingSkin, object.isHd);
+    return new BatchGroup(model, object.skinningType, object.isHd);
   } else {
     return new EmitterGroup(model);
   }

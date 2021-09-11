@@ -11,7 +11,7 @@ body {
     width: 100%;
     height: 100vh;
     grid-template-rows: auto 1fr;
-    grid-template-columns: 200px 1fr 1fr;
+    grid-template-columns: 200px 0.9fr 1.1fr;
     grid-template-areas: "tests-header results-header viewer-and-mdl-header" "tests results viewer-and-mdl";
     padding: 5px;
     grid-gap: 5px;

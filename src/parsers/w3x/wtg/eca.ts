@@ -1,7 +1,7 @@
 import BinaryStream from '../../../common/binarystream';
 import { byteLengthUtf8 } from '../../../common/utf8';
 import Parameter from './parameter';
-import { FunctionSignature, TriggerData } from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 /**
  * An Event/Condition/Action.

@@ -10,15 +10,15 @@
   ],
   "rules": {
     "eol-last": "error",
-    "indent": [
+    "@typescript-eslint/indent": [
       "error",
       2
     ],
     "no-tabs": "error",
-    "semi": "error",
-    "no-extra-semi": 2,
+    "@typescript-eslint/semi": "error",
+    "@typescript-eslint/no-extra-semi": 2,
     "prefer-const": "error",
-    "object-curly-spacing": [ "error", "always", { "arraysInObjects": false, "objectsInObjects": false }],
+    "@typescript-eslint/object-curly-spacing": [ "error", "always", { "arraysInObjects": false, "objectsInObjects": false }],
     "array-bracket-spacing": ["error", "never"],
     "@typescript-eslint/no-unnecessary-type-assertion": "error",
     "no-return-await": "error"

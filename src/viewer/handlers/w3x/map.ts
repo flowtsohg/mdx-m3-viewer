@@ -8,7 +8,6 @@ import War3MapW3u from '../../../parsers/w3x/w3u/file';
 import War3MapW3d from '../../../parsers/w3x/w3d/file';
 import ModificationTable from '../../../parsers/w3x/w3u/modificationtable';
 import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
-import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import Grid from '../../grid';
 import { PathSolver } from '../../handlerresource';
@@ -249,7 +248,7 @@ export default class War3MapViewerMap {
     const cornerVariations = new Uint8Array(instanceCount * 4);
     const waterFlags = new Uint8Array(instanceCount);
     let instance = 0;
-    const cliffs: { [key: string]: { locations: number[], textures: number[] } } = {};
+    const cliffs: {[key: string]: { locations: number[], textures: number[] }} = {};
 
     this.columns = columns - 1;
     this.rows = rows - 1;
@@ -368,7 +367,7 @@ export default class War3MapViewerMap {
 
     this.instanceBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceCount).map((currentValue, index, array) => index), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceCount).map((currentValue, index) => index), gl.STATIC_DRAW);
 
     this.textureBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
