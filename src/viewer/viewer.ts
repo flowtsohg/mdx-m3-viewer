@@ -11,11 +11,16 @@ import { blobToImage } from '../common/canvas';
 
 export enum DebugRenderMode {
   None,
-  DiffuseMap,
+  Diffuse,
   NormalMap,
-  OrmMap,
-  EmissiveMap,
+  Occlusion,
+  Roughness,
+  Metallic,
+  TCFactor,
+  Emissive,
   TexCoords,
+  Normals,
+  Tangents,
 }
 
 /**

@@ -10,11 +10,12 @@ uniform sampler2D u_texture;
 uniform float u_filterMode;
 
 varying vec2 v_uv;
+varying vec3 v_normal;
 varying vec4 v_color;
 varying vec4 v_uvTransRot;
 varying float v_uvScale;
 
-void main() {
+vec4 getDiffuseColor() {
   vec2 uv = v_uv;
 
   // Translation animation
@@ -39,11 +40,31 @@ void main() {
     discard;
   }
 
-  // if (!u_unshaded) {
-  //   color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
-  // }
+  return color;
+}
 
-  gl_FragColor = color;
+void onlyTexCoords() {
+  gl_FragColor = vec4(v_uv, 0.0, 1.0);
+}
+
+void onlyNormals() {
+  gl_FragColor = vec4(v_normal, 1.0);
+}
+
+void onlyDiffuse() {
+  gl_FragColor = getDiffuseColor();
+}
+
+void main() {
+  #if defined(ONLY_DIFFUSE)
+  onlyDiffuse();
+  #elif defined(ONLY_TEXCOORDS)
+  onlyTexCoords();
+  #elif defined(ONLY_NORMALS)
+  onlyNormals();
+  #else
+  onlyDiffuse();
+  #endif
 }
 `;
 

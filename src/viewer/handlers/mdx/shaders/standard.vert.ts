@@ -16,6 +16,7 @@ attribute vec3 a_normal;
 attribute vec2 a_uv;
 
 varying vec2 v_uv;
+varying vec3 v_normal;
 varying vec4 v_color;
 varying vec4 v_uvTransRot;
 varying float v_uvScale;
@@ -32,6 +33,7 @@ void main() {
   }
 
   v_uv = a_uv;
+  v_normal = normal;
   v_color = u_vertexColor * u_geosetColor.bgra * vec4(1.0, 1.0, 1.0, u_layerAlpha);
   v_uvTransRot = vec4(u_uvTrans, u_uvRot);
   v_uvScale = u_uvScale;

@@ -21,6 +21,10 @@ varying vec3 v_lightDir;
 varying vec3 v_eyeVec;
 varying vec3 v_normal;
 
+#if defined(ONLY_TANGENTS)
+varying vec3 v_tangent;
+#endif
+
 ${boneTexture}
 ${transforms}
 
@@ -63,6 +67,10 @@ void main() {
   v_layerAlpha = u_layerAlpha;
 
   v_normal = normal;
+
+  #if defined(ONLY_TANGENTS)
+  v_tangent = tangent;
+  #endif
 
   gl_Position = u_VP * vec4(position, 1.0);
 }

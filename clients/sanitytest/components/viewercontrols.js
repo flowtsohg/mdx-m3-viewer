@@ -100,11 +100,16 @@ export default class ViewerControls extends Component {
       }, container
     });
     this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'None' }));
-    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Diffuse map' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Diffuse' }));
     this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Normal map' }));
-    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'ORM map' }));
-    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Emissive map' }));
-    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Texcoords' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Occlusion' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Roughness' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Metallic' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'TC Factor' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Emissive' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'TexCoords' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Normals' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Tangents' }));
   }
 
   frame(frame) {

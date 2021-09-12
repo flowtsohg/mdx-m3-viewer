@@ -12,8 +12,8 @@ import GenericResource from '../../genericresource';
 import Texture from '../../texture';
 import Model from './model';
 import MdxTexture from './texture';
-import standardVert from './shaders/standard.vert';
-import standardFrag from './shaders/standard.frag';
+import sdVert from './shaders/standard.vert';
+import sdFrag from './shaders/standard.frag';
 import hdVert from './shaders/hd.vert';
 import hdFrag from './shaders/hd.frag';
 import particlesVert from './shaders/particles.vert';
@@ -23,18 +23,18 @@ import { SkinningType } from './batch';
 export interface MdxHandlerObject {
   pathSolver?: PathSolver;
   reforged: boolean;
-  standardShader: Shader;
-  extendedShader: Shader;
+  sdShader: Shader;
+  sdExtendedShader: Shader;
+  hdShader: Shader;
+  hdExtendedShader: Shader;
   hdSkinShader: Shader;
-  hdVertexGroupShader: Shader;
-  hdExtendedVertexGroupShader: Shader;
   particlesShader: Shader;
+  sdDebugShaders: Shader[][];
+  hdDebugShaders: Shader[][];
   rectBuffer: WebGLBuffer;
   teamColors: MdxTexture[];
   teamGlows: MdxTexture[];
   eventObjectTables: {[key: string]: GenericResource[] };
-
-  debugShaders: Shader[][];
 }
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
@@ -55,22 +55,84 @@ export default {
       throw new Error('MDX: No instanced rendering support!');
     }
 
-    const standardShader = webgl.createShader(standardVert, standardFrag);
-    const extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
-    const hdSkinShader = webgl.createShader('#define SKIN\n' + hdVert, hdFrag);
-    const hdVertexGroupShader = webgl.createShader(hdVert, hdFrag);
-    const hdExtendedVertexGroupShader = webgl.createShader('#define EXTENDED_BONES\n' + hdVert, hdFrag);
+    // Shaders. Lots of them.
+    const sdExtendedVert = '#define EXTENDED_BONES\n' + sdVert;
+    const sdDiffuse = '#define ONLY_DIFFUSE\n' + sdFrag;
+    const sdTexcoords = '#define ONLY_TEXCOORDS\n' + sdFrag;
+    const sdNormals = '#define ONLY_NORMALS\n' + sdFrag;
+    const hdExtendedVert = '#define EXTENDED_BONES\n' + hdVert;
+    const hdSkinVert = '#define SKIN\n' + hdVert;
+    const hdDiffuse = '#define ONLY_DIFFUSE\n' + hdFrag;
+    const hdNormalMap = '#define ONLY_NORMAL_MAP\n' + hdFrag;
+    const hdOcclusion = '#define ONLY_OCCLUSION\n' + hdFrag;
+    const hdRoughness = '#define ONLY_ROUGHNESS\n' + hdFrag;
+    const hdMetallic = '#define ONLY_METALLIC\n' + hdFrag;
+    const hdTCFactor = '#define ONLY_TC_FACTOR\n' + hdFrag;
+    const hdEmissive = '#define ONLY_EMISSIVE\n' + hdFrag;
+    const hdTexCoords = '#define ONLY_TEXCOORDS\n' + hdFrag;
+    const hdNormals = '#define ONLY_NORMALS\n' + hdFrag;
+    const hdTangents = '#define ONLY_TANGENTS\n' + hdFrag;
+    
+    const sdShader = webgl.createShader(sdVert, sdFrag);
+    const sdExtendedShader = webgl.createShader(sdExtendedVert, sdFrag);
+    const hdShader = webgl.createShader(hdVert, hdFrag);
+    const hdExtendedShader = webgl.createShader(hdExtendedVert, hdFrag);
+    const hdSkinShader = webgl.createShader(hdSkinVert, hdFrag);
     const particlesShader = webgl.createShader(particlesVert, particlesFrag);
 
-    const debugHdSkinShaders: Shader[] = [];
-    debugHdSkinShaders[DebugRenderMode.DiffuseMap] = webgl.createShader('#define SKIN\n' + hdVert, '#define ONLY_DIFFUSE_MAP\n' + hdFrag);
-    debugHdSkinShaders[DebugRenderMode.NormalMap] = webgl.createShader('#define SKIN\n' + hdVert, '#define ONLY_NORMAL_MAP\n' + hdFrag);
-    debugHdSkinShaders[DebugRenderMode.OrmMap] = webgl.createShader('#define SKIN\n' + hdVert, '#define ONLY_ORM_MAP\n' + hdFrag);
-    debugHdSkinShaders[DebugRenderMode.EmissiveMap] = webgl.createShader('#define SKIN\n' + hdVert, '#define ONLY_EMISSIVE_MAP\n' + hdFrag);
-    debugHdSkinShaders[DebugRenderMode.TexCoords] = webgl.createShader('#define SKIN\n' + hdVert, '#define ONLY_TEXCOORDS\n' + hdFrag);
+    const sdDebugShaders: Shader[][] = [];
+    const hdDebugShaders: Shader[][] = [];
 
-    const debugShaders: Shader[][] = [];
-    debugShaders[SkinningType.Skin] = debugHdSkinShaders;
+    let shaders: Shader[] = [];
+    shaders[DebugRenderMode.Diffuse] = webgl.createShader(sdVert, sdDiffuse);
+    shaders[DebugRenderMode.TexCoords] = webgl.createShader(sdVert, sdTexcoords);
+    shaders[DebugRenderMode.Normals] = webgl.createShader(sdVert, sdNormals);
+    sdDebugShaders[SkinningType.VertexGroups] = shaders;
+
+    shaders = [];
+    shaders[DebugRenderMode.Diffuse] = webgl.createShader(sdExtendedVert, sdDiffuse);
+    shaders[DebugRenderMode.TexCoords] = webgl.createShader(sdExtendedVert, sdTexcoords);
+    shaders[DebugRenderMode.Normals] = webgl.createShader(sdExtendedVert, sdNormals);
+    sdDebugShaders[SkinningType.ExtendedVertexGroups] = shaders;
+
+    shaders = [];
+    shaders[DebugRenderMode.Diffuse] = webgl.createShader(hdVert, hdDiffuse);
+    shaders[DebugRenderMode.NormalMap] = webgl.createShader(hdVert, hdNormalMap);
+    shaders[DebugRenderMode.Occlusion] = webgl.createShader(hdVert, hdOcclusion);
+    shaders[DebugRenderMode.Roughness] = webgl.createShader(hdVert, hdRoughness);
+    shaders[DebugRenderMode.Metallic] = webgl.createShader(hdVert, hdMetallic);
+    shaders[DebugRenderMode.TCFactor] = webgl.createShader(hdVert, hdTCFactor);
+    shaders[DebugRenderMode.Emissive] = webgl.createShader(hdVert, hdEmissive);
+    shaders[DebugRenderMode.TexCoords] = webgl.createShader(hdVert, hdTexCoords);
+    shaders[DebugRenderMode.Normals] = webgl.createShader(hdVert, hdNormals);
+    shaders[DebugRenderMode.Tangents] = webgl.createShader('#define ONLY_TANGENTS\n' + hdVert, hdTangents);
+    hdDebugShaders[SkinningType.VertexGroups] = shaders;
+
+    shaders = [];
+    shaders[DebugRenderMode.Diffuse] = webgl.createShader(hdExtendedVert, hdDiffuse);
+    shaders[DebugRenderMode.NormalMap] = webgl.createShader(hdExtendedVert, hdNormalMap);
+    shaders[DebugRenderMode.Occlusion] = webgl.createShader(hdExtendedVert, hdOcclusion);
+    shaders[DebugRenderMode.Roughness] = webgl.createShader(hdExtendedVert, hdRoughness);
+    shaders[DebugRenderMode.Metallic] = webgl.createShader(hdExtendedVert, hdMetallic);
+    shaders[DebugRenderMode.TCFactor] = webgl.createShader(hdExtendedVert, hdTCFactor);
+    shaders[DebugRenderMode.Emissive] = webgl.createShader(hdExtendedVert, hdEmissive);
+    shaders[DebugRenderMode.TexCoords] = webgl.createShader(hdExtendedVert, hdTexCoords);
+    shaders[DebugRenderMode.Normals] = webgl.createShader(hdExtendedVert, hdNormals);
+    shaders[DebugRenderMode.Tangents] = webgl.createShader('#define ONLY_TANGENTS\n' + hdExtendedVert, hdTangents);
+    hdDebugShaders[SkinningType.ExtendedVertexGroups] = shaders;
+
+    shaders = [];
+    shaders[DebugRenderMode.Diffuse] = webgl.createShader(hdSkinVert, hdDiffuse);
+    shaders[DebugRenderMode.NormalMap] = webgl.createShader(hdSkinVert, hdNormalMap);
+    shaders[DebugRenderMode.Occlusion] = webgl.createShader(hdSkinVert, hdOcclusion);
+    shaders[DebugRenderMode.Roughness] = webgl.createShader(hdSkinVert, hdRoughness);
+    shaders[DebugRenderMode.Metallic] = webgl.createShader(hdSkinVert, hdMetallic);
+    shaders[DebugRenderMode.TCFactor] = webgl.createShader(hdSkinVert, hdTCFactor);
+    shaders[DebugRenderMode.Emissive] = webgl.createShader(hdSkinVert, hdEmissive);
+    shaders[DebugRenderMode.TexCoords] = webgl.createShader(hdSkinVert, hdTexCoords);
+    shaders[DebugRenderMode.Normals] = webgl.createShader(hdSkinVert, hdNormals);
+    shaders[DebugRenderMode.Tangents] = webgl.createShader('#define ONLY_TANGENTS\n' + hdSkinVert, hdTangents);
+    hdDebugShaders[SkinningType.Skin] = shaders;
 
     const rectBuffer = <WebGLBuffer>gl.createBuffer();
 
@@ -86,20 +148,20 @@ export default {
       pathSolver,
       reforged,
       // Shaders.
-      standardShader,
-      extendedShader,
+      sdShader,
+      sdExtendedShader,
+      hdShader,
+      hdExtendedShader,
       hdSkinShader,
-      hdVertexGroupShader,
-      hdExtendedVertexGroupShader,
       particlesShader,
+      sdDebugShaders,
+      hdDebugShaders,
       // Geometry emitters buffer.
       rectBuffer,
       // Team color/glow textures - loaded when the first model that uses team textures is loaded.
       teamColors,
       teamGlows,
       eventObjectTables,
-
-      debugShaders,
     };
 
     viewer.sharedCache.set('mdx', handlerData);
@@ -284,7 +346,7 @@ export default {
 
     if (isHd) {
       if (debugRenderMode !== DebugRenderMode.None) {
-        const shaders = mdxCache.debugShaders[SkinningType.Skin];
+        const shaders = mdxCache.hdDebugShaders[skinningType];
         if (shaders) {
           const shader = shaders[debugRenderMode];
           if (shader) {
@@ -296,15 +358,25 @@ export default {
       if (skinningType === SkinningType.Skin) {
         return mdxCache.hdSkinShader;
       } else if (skinningType === SkinningType.VertexGroups) {
-        return mdxCache.hdVertexGroupShader;
+        return mdxCache.hdShader;
       } else {
-        return mdxCache.hdExtendedVertexGroupShader;
+        return mdxCache.hdExtendedShader;
       }
     } else {
+      if (debugRenderMode !== DebugRenderMode.None) {
+        const shaders = mdxCache.sdDebugShaders[skinningType];
+        if (shaders) {
+          const shader = shaders[debugRenderMode];
+          if (shader) {
+            return shader;
+          }
+        }
+      }
+
       if (skinningType === SkinningType.VertexGroups) {
-        return mdxCache.standardShader;
+        return mdxCache.sdShader;
       } else {
-        return mdxCache.extendedShader;
+        return mdxCache.sdExtendedShader;
       }
     }
   }

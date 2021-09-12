@@ -17,6 +17,10 @@ varying vec3 v_lightDir;
 varying vec3 v_eyeVec;
 varying vec3 v_normal;
 
+#if defined(ONLY_TANGENTS)
+varying vec3 v_tangent;
+#endif
+
 vec3 decodeNormal() {
   vec2 xy = texture2D(u_normalsMap, v_uv).xy * 2.0 - 1.0;
   
@@ -92,7 +96,7 @@ void PBR() {
   gl_FragColor = vec4(color, baseColor.a * v_layerAlpha);
 }
 
-void onlyDiffuseMap() {
+void onlyDiffuse() {
   vec4 baseColor = getDiffuseColor();
   vec3 tc = getTeamColor();
   float tcFactor = getOrmColor().a;
@@ -108,8 +112,20 @@ void onlyNormalMap() {
   gl_FragColor = vec4(decodeNormal(), 1.0);
 }
 
-void onlyOrmMap() {
-  gl_FragColor = vec4(getOrmColor().rgb, 1.0);
+void onlyOcclusion() {
+  gl_FragColor = vec4(getOrmColor().rrr, 1.0);
+}
+
+void onlyRoughness() {
+  gl_FragColor = vec4(getOrmColor().ggg, 1.0);
+}
+
+void onlyMetallic() {
+  gl_FragColor = vec4(getOrmColor().bbb, 1.0);
+}
+
+void onlyTeamColorFactor() {
+  gl_FragColor = vec4(getOrmColor().aaa, 1.0);
 }
 
 void onlyEmissiveMap() {
@@ -119,6 +135,16 @@ void onlyEmissiveMap() {
 void onlyTexCoords() {
   gl_FragColor = vec4(v_uv, 0.0, 1.0);
 }
+
+void onlyNormals() {
+  gl_FragColor = vec4(v_normal, 1.0);
+}
+
+#if defined(ONLY_TANGENTS)
+void onlyTangents() {
+  gl_FragColor = vec4(v_tangent, 1.0);
+}
+#endif
 
 void lambert() {
   vec4 baseColor = getDiffuseColor();
@@ -141,16 +167,26 @@ void lambert() {
 }
 
 void main() {
-  #if defined(ONLY_DIFFUSE_MAP)
-  onlyDiffuseMap();
+  #if defined(ONLY_DIFFUSE)
+  onlyDiffuse();
   #elif defined(ONLY_NORMAL_MAP)
   onlyNormalMap();
-  #elif defined(ONLY_ORM_MAP)
-  onlyOrmMap();
-  #elif defined(ONLY_EMISSIVE_MAP)
+  #elif defined(ONLY_OCCLUSION)
+  onlyOcclusion();
+  #elif defined(ONLY_ROUGHNESS)
+  onlyRoughness();
+  #elif defined(ONLY_METALLIC)
+  onlyMetallic();
+  #elif defined(ONLY_TC_FACTOR)
+  onlyTeamColorFactor();
+  #elif defined(ONLY_EMISSIVE)
   onlyEmissiveMap();
   #elif defined(ONLY_TEXCOORDS)
   onlyTexCoords();
+  #elif defined(ONLY_NORMALS)
+  onlyNormals();
+  #elif defined(ONLY_TANGENTS)
+  onlyTangents();
   #else
   lambert();
   #endif
