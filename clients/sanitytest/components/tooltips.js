@@ -35,7 +35,7 @@ Not relevant to portraits.`;
   } else if (message.includes('is lower than the track before it at')) {
     return 'A keyframe is not supposed to have a frame before the previous keyframe.';
   } else {
-    console.log('getTooltip', message)
+    //console.log('getTooltip', message)
   }
 
   return '';

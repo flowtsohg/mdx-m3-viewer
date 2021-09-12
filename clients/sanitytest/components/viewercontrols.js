@@ -1,3 +1,4 @@
+import { DebugRenderMode } from '../../../src/viewer/viewer';
 import Component from "../../shared/component";
 import Toggle from "../../shared/components/toggle";
 import { clearSelect, createElement } from "../../shared/domutils";
@@ -88,17 +89,22 @@ export default class ViewerControls extends Component {
     createElement({ textContent: 'Camera:', container });
     this.camerasElement = createElement({ tagName: 'select', className: 'controls', onchange: () => this.viewer.setCamera(this.camerasElement.selectedIndex - 1), container });
 
-    // Shading.
+    // Debug modes.
     container = createElement({ container: this.container });
 
-    createElement({ textContent: 'Shading:', container });
-    this.shadingToggle = new Toggle('Yes', 'No', (e) => {
-      if (e.clicked) {
-        this.viewer.viewer.debug.noShading = 1;
-      } else {
-        this.viewer.viewer.debug.noShading = 0;
-      }
-    }, { className: 'controls', container });
+    createElement({ textContent: 'Debug Mode:', container });
+    this.debugRenderSelect = createElement({
+      tagName: 'select', className: 'controls', onchange: () => {
+        // Somewhat hacky way to treat an enum.
+        this.viewer.viewer.debugRenderMode = this.debugRenderSelect.selectedIndex;
+      }, container
+    });
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'None' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Diffuse map' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Normal map' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'ORM map' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Emissive map' }));
+    this.debugRenderSelect.add(createElement({ tagName: 'option', textContent: 'Texcoords' }));
   }
 
   frame(frame) {

@@ -9,6 +9,15 @@ import ClientBuffer from './gl/clientbuffer';
 import { isImageSource, ImageTexture, detectMime } from './imagetexture';
 import { blobToImage } from '../common/canvas';
 
+export enum DebugRenderMode {
+  None,
+  DiffuseMap,
+  NormalMap,
+  OrmMap,
+  EmissiveMap,
+  TexCoords,
+}
+
 /**
  * A viewer handler.
  */
@@ -95,13 +104,11 @@ export default class ModelViewer extends EventEmitter {
    */
   sharedCache: Map<any, any> = new Map();
   /**
-   * Options for debug rendering.
+   * Debug rendering mode.
    * 
-   * How they affect the rendering ultimately depends on the handlers.
+   * How it affects the rendering ultimately depends on the handlers.
    */
-  debugRendering = {
-    noShading: 0,
-  };
+  debugRenderMode = DebugRenderMode.None;
 
   directLoadId = 0;
 

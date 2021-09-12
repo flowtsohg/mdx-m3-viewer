@@ -1,4 +1,4 @@
-import ModelViewer from './viewer';
+import ModelViewer, { DebugRenderMode } from './viewer';
 import Scene from './scene';
 import Camera from './camera';
 import { Node } from './node';
@@ -11,6 +11,7 @@ import handlers from './handlers';
 
 export default {
   ModelViewer,
+  DebugRenderMode,
   Scene,
   Camera,
   Node,

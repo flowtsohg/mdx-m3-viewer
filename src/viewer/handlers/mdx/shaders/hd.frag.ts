@@ -31,6 +31,29 @@ vec2 sampleEnvironmentMap(vec3 normal) {
   return uv;
 }
 
+vec4 getDiffuseColor() {
+  vec4 color = texture2D(u_diffuseMap, v_uv);
+
+  // 1bit Alpha
+  if (u_filterMode == 1.0 && color.a < 0.75) {
+    discard;
+  }
+
+  return color;
+}
+
+vec4 getOrmColor() {
+  return texture2D(u_ormMap, v_uv);
+}
+
+vec3 getEmissiveColor() {
+  return texture2D(u_emissiveMap, v_uv).rgb;
+}
+
+vec3 getTeamColor() {
+  return texture2D(u_teamColorMap, v_uv).rgb;
+}
+
 void PBR() {
   vec3 f0 = vec3(0.04);
   vec4 baseColor = texture2D(u_diffuseMap, v_uv);
@@ -69,38 +92,68 @@ void PBR() {
   gl_FragColor = vec4(color, baseColor.a * v_layerAlpha);
 }
 
-void lambert() {
-  vec4 baseColor = texture2D(u_diffuseMap, v_uv);
-  vec4 orma = texture2D(u_ormMap, v_uv);
-  vec3 emissive = texture2D(u_emissiveMap, v_uv).rgb;
-  float ao = orma.r;
-  float teamColorFactor = orma.a;
+void onlyDiffuseMap() {
+  vec4 baseColor = getDiffuseColor();
+  vec3 tc = getTeamColor();
+  float tcFactor = getOrmColor().a;
 
-  // 1bit Alpha
-  if (u_filterMode == 1.0 && baseColor.a < 0.75) {
-    discard;
+  if (tcFactor > 0.1) {
+    baseColor.rgb *= tc * tcFactor;
   }
 
+  gl_FragColor = baseColor;
+}
+
+void onlyNormalMap() {
+  gl_FragColor = vec4(decodeNormal(), 1.0);
+}
+
+void onlyOrmMap() {
+  gl_FragColor = vec4(getOrmColor().rgb, 1.0);
+}
+
+void onlyEmissiveMap() {
+  gl_FragColor = vec4(getEmissiveColor(), 1.0);
+}
+
+void onlyTexCoords() {
+  gl_FragColor = vec4(v_uv, 0.0, 1.0);
+}
+
+void lambert() {
+  vec4 baseColor = getDiffuseColor();
+  vec3 normal = decodeNormal();
+  vec4 orm = getOrmColor();
+  vec3 emissive = getEmissiveColor();
+  vec3 tc = getTeamColor();
+  float tcFactor = orm.a;
+  float lambertFactor = dot(normal, v_lightDir);
   vec3 color = baseColor.rgb;
 
-  if (teamColorFactor > 0.1) {
-    color *= texture2D(u_teamColorMap, v_uv).rgb * teamColorFactor;
+  if (tcFactor > 0.1) {
+    color *= tc * tcFactor;
   }
-
-  #ifndef NO_SHADING
-  vec3 normal = decodeNormal();
-  float lambertFactor = dot(normal, v_lightDir);
   
   color *= clamp(lambertFactor + 0.3, 0.0, 1.0);
-  #endif
-
   color += emissive;
 
-  gl_FragColor = vec4(color, baseColor.a * v_layerAlpha);
+  gl_FragColor = vec4(color, baseColor.a);
 }
 
 void main() {
+  #if defined(ONLY_DIFFUSE_MAP)
+  onlyDiffuseMap();
+  #elif defined(ONLY_NORMAL_MAP)
+  onlyNormalMap();
+  #elif defined(ONLY_ORM_MAP)
+  onlyOrmMap();
+  #elif defined(ONLY_EMISSIVE_MAP)
+  onlyEmissiveMap();
+  #elif defined(ONLY_TEXCOORDS)
+  onlyTexCoords();
+  #else
   lambert();
+  #endif
 }
 `;
 
