@@ -2,13 +2,13 @@ import { extname } from '../../../common/path';
 import Sequence from '../../../parsers/mdlx/sequence';
 import Texture from '../../../parsers/mdlx/texture';
 import Material from '../../../parsers/mdlx/material';
-import Layer from '../../../parsers/mdlx/layer';
+import Layer, { FilterMode as LayerFilterMode } from '../../../parsers/mdlx/layer';
 import Geoset from '../../../parsers/mdlx/geoset';
 import GeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import Bone from '../../../parsers/mdlx/bone';
 import Light from '../../../parsers/mdlx/light';
 import ParticleEmitter from '../../../parsers/mdlx/particleemitter';
-import ParticleEmitter2 from '../../../parsers/mdlx/particleemitter2';
+import ParticleEmitter2, { FilterMode as Particle2FilterMode, Flags as Particle2Flags } from '../../../parsers/mdlx/particleemitter2';
 import ParticleEmitterPopcorn from '../../../parsers/mdlx/particleemitterpopcorn';
 import RibbonEmitter from '../../../parsers/mdlx/ribbonemitter';
 import EventObject from '../../../parsers/mdlx/eventobject';
@@ -148,7 +148,7 @@ function testLayer(data: SanityTestData, layer: Layer) {
 
   const filterMode = layer.filterMode;
 
-  data.assertWarning(filterMode >= 0 && filterMode <= 6, `Invalid filter mode: ${layer.filterMode}`);
+  data.assertWarning(filterMode >= LayerFilterMode.None && filterMode <= LayerFilterMode.Modulate2x, `Invalid filter mode: ${layer.filterMode}`);
 }
 
 export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) {
@@ -289,11 +289,10 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 
   const filterMode = emitter.filterMode;
 
-  data.assertWarning(filterMode >= 0 && filterMode <= 4, `Invalid filter mode: ${emitter.filterMode}`);
+  data.assertWarning(filterMode >= Particle2FilterMode.Blend && filterMode <= Particle2FilterMode.AlphaKey, `Invalid filter mode: ${emitter.filterMode}`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID: ${replaceableId}`);
 
-  // XY Quad.
-  if (emitter.flags & 0x100000) {
+  if (emitter.flags & Particle2Flags.XYQuad) {
     data.assertSevere(emitter.speed !== 0 && emitter.latitude !== 0, 'XY Quad emitters must have a non-zero speed and latitude');
   }
 

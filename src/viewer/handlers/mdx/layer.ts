@@ -1,4 +1,4 @@
-import MdlxLayer from '../../../parsers/mdlx/layer';
+import MdlxLayer, { FilterMode, Flags } from '../../../parsers/mdlx/layer';
 import MdxModel from './model';
 import AnimatedObject from './animatedobject';
 import TextureAnimation from './textureanimation';
@@ -11,7 +11,7 @@ import Shader from '../../gl/shader';
 export default class Layer extends AnimatedObject {
   index: number;
   priorityPlane: number;
-  filterMode: number;
+  filterMode: FilterMode;
   textureId = 0;
   coordId: number;
   alpha: number;
@@ -37,8 +37,8 @@ export default class Layer extends AnimatedObject {
     this.index = layerId;
     this.priorityPlane = priorityPlane;
 
-    if (filterMode > 6) {
-      filterMode = 2;
+    if (filterMode > FilterMode.Modulate2x) {
+      filterMode = FilterMode.Blend;
     }
 
     this.filterMode = filterMode;
@@ -52,16 +52,16 @@ export default class Layer extends AnimatedObject {
 
     const flags = layer.flags;
 
-    this.unshaded = flags & 0x1;
-    this.sphereEnvironmentMap = flags & 0x2;
-    this.twoSided = flags & 0x10;
-    this.unfogged = flags & 0x20;
-    this.noDepthTest = flags & 0x40;
-    this.noDepthSet = flags & 0x80;
+    this.unshaded = flags & Flags.Unshaded;
+    this.sphereEnvironmentMap = flags & Flags.SphereEnvMap;
+    this.twoSided = flags & Flags.TwoSided;
+    this.unfogged = flags & Flags.Unfogged;
+    this.noDepthTest = flags & Flags.NoDepthTest;
+    this.noDepthSet = flags & Flags.NoDepthSet;
 
-    this.depthMaskValue = (filterMode === 0 || filterMode === 1);
+    this.depthMaskValue = (filterMode === FilterMode.None || filterMode === FilterMode.Transparent);
 
-    if (filterMode > 1) {
+    if (filterMode > FilterMode.Transparent) {
       this.blended = true;
       [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
     }

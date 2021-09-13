@@ -1,4 +1,4 @@
-import MdlxLight from '../../../parsers/mdlx/light';
+import MdlxLight, { LightType } from '../../../parsers/mdlx/light';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 
@@ -6,7 +6,7 @@ import GenericObject from './genericobject';
  * An MDX light.
  */
 export default class Light extends GenericObject {
-  type: number;
+  type: LightType;
   attenuation: Float32Array;
   color: Float32Array;
   intensity: number;

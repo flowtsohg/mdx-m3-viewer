@@ -1,3 +1,4 @@
+import { WrapMode } from '../../../parsers/mdlx/texture';
 import Texture from '../../texture';
 
 /**
@@ -9,14 +10,14 @@ export default class MdxTexture {
   wrapS = 0x812f; // CLAMP_TO_EDGE
   wrapT = 0x812f;
 
-  constructor(replaceableId: number, repeatS: boolean, repeatT: boolean) {
+  constructor(replaceableId: number, wrapMode: WrapMode) {
     this.replaceableId = replaceableId;
 
-    if (repeatS) {
+    if (wrapMode & WrapMode.WrapWidth) {
       this.wrapS = 0x2901; // REPEAT
     }
 
-    if (repeatT) {
+    if (wrapMode & WrapMode.WrapHeight) {
       this.wrapT = 0x2901;
     }
   }

@@ -1,6 +1,6 @@
 import unique from '../../../common/arrayunique';
 import { basename } from '../../../common/path';
-import { Animation } from '../../../parsers/mdlx/animations';
+import { Animation, InterpolationType } from '../../../parsers/mdlx/animations';
 import AnimatedObject from '../../../parsers/mdlx/animatedobject';
 import GenericObject from '../../../parsers/mdlx/genericobject';
 import Extent from '../../../parsers/mdlx/extent';
@@ -398,7 +398,7 @@ export function testAnimation(data: SanityTestData, animation: Animation) {
   data.assertWarning(name !== 'KP2G', 'Using a gravity animation.');
 
   // The game seems to force visiblity (and others?) interpolation types to none.
-  data.assertWarning(animatedTypeNames.get(name) !== 'Visibility' || interpolationType === 0, 'Interpolation type not set to None');
+  data.assertWarning(animatedTypeNames.get(name) !== 'Visibility' || interpolationType === InterpolationType.DontInterp, 'Interpolation type not set to None');
 
   testTracks(data, animation);
 }

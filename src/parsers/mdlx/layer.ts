@@ -2,32 +2,57 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
 
-const filterModeToMdx = {
-  None: 0,
-  Transparent: 1,
-  Blend: 2,
-  Additive: 3,
-  AddAlpha: 4,
-  Modulate: 5,
-  Modulate2x: 6,
-};
+export const enum FilterMode {
+  None = 0,
+  Transparent = 1,
+  Blend = 2,
+  Additive = 3,
+  AddAlpha = 4,
+  Modulate = 5,
+  Modulate2x = 6,
+}
 
-const filterModeToMdl = {
-  0: 'None',
-  1: 'Transparent',
-  2: 'Blend',
-  3: 'Additive',
-  4: 'AddAlpha',
-  5: 'Modulate',
-  6: 'Modulate2x',
-};
+export const enum Flags {
+  None = 0x0,
+  Unshaded = 0x1,
+  SphereEnvMap = 0x2,
+  TwoSided = 0x10,
+  Unfogged = 0x20,
+  NoDepthTest = 0x40,
+  NoDepthSet = 0x80,
+  Unlit = 0x100,
+}
+
+// These two functions are needed because I am using const enums, which lets TS completely remove them from the output.
+// I think it's worth it for the price of these two functions that effectively were always here either way.
+function stringToMode(s: string) {
+  if (s === 'None') return FilterMode.None;
+  if (s === 'Transparent') return FilterMode.Transparent;
+  if (s === 'Blend') return FilterMode.Blend;
+  if (s === 'Additive') return FilterMode.Additive;
+  if (s === 'AddAlpha') return FilterMode.AddAlpha;
+  if (s === 'Modulate') return FilterMode.Modulate;
+  if (s === 'Modulate2x') return FilterMode.Modulate2x;
+  return FilterMode.None;
+}
+
+function modeToString(m: FilterMode) {
+  if (m === FilterMode.None) return 'None';
+  if (m === FilterMode.Transparent) return 'Transparent';
+  if (m === FilterMode.Blend) return 'Blend';
+  if (m === FilterMode.Additive) return 'Additive';
+  if (m === FilterMode.AddAlpha) return 'AddAlpha';
+  if (m === FilterMode.Modulate) return 'Modulate';
+  if (m === FilterMode.Modulate2x) return 'Modulate2x';
+  return 'None';
+}
 
 /**
  * A layer.
  */
 export default class Layer extends AnimatedObject {
-  filterMode = 0;
-  flags = 0;
+  filterMode = FilterMode.None;
+  flags = Flags.None;
   textureId = -1;
   textureAnimationId = -1;
   coordId = 0;
@@ -94,21 +119,21 @@ export default class Layer extends AnimatedObject {
   readMdl(stream: TokenStream) {
     for (const token of super.readAnimatedBlock(stream)) {
       if (token === 'FilterMode') {
-        this.filterMode = filterModeToMdx[stream.read()];
+        this.filterMode = stringToMode(stream.read());
       } else if (token === 'Unshaded') {
-        this.flags |= 0x1;
+        this.flags |= Flags.Unshaded;
       } else if (token === 'SphereEnvMap') {
-        this.flags |= 0x2;
+        this.flags |= Flags.SphereEnvMap;
       } else if (token === 'TwoSided') {
-        this.flags |= 0x10;
+        this.flags |= Flags.TwoSided;
       } else if (token === 'Unfogged') {
-        this.flags |= 0x20;
+        this.flags |= Flags.Unfogged;
       } else if (token === 'NoDepthTest') {
-        this.flags |= 0x40;
+        this.flags |= Flags.NoDepthTest;
       } else if (token === 'NoDepthSet') {
-        this.flags |= 0x80;
+        this.flags |= Flags.NoDepthSet;
       } else if (token === 'Unlit') {
-        this.flags |= 0x100;
+        this.flags |= Flags.Unlit;
       } else if (token === 'static TextureID') {
         this.textureId = stream.readInt();
       } else if (token === 'TextureID') {
@@ -146,34 +171,34 @@ export default class Layer extends AnimatedObject {
   writeMdl(stream: TokenStream, version: number) {
     stream.startBlock('Layer');
 
-    stream.writeFlagAttrib('FilterMode', filterModeToMdl[this.filterMode]);
+    stream.writeFlagAttrib('FilterMode', modeToString(this.filterMode));
 
-    if (this.flags & 0x1) {
+    if (this.flags & Flags.Unshaded) {
       stream.writeFlag('Unshaded');
     }
 
-    if (this.flags & 0x2) {
+    if (this.flags & Flags.SphereEnvMap) {
       stream.writeFlag('SphereEnvMap');
     }
 
-    if (this.flags & 0x10) {
+    if (this.flags & Flags.TwoSided) {
       stream.writeFlag('TwoSided');
     }
 
-    if (this.flags & 0x20) {
+    if (this.flags & Flags.Unfogged) {
       stream.writeFlag('Unfogged');
     }
 
-    if (this.flags & 0x40) {
+    if (this.flags & Flags.NoDepthTest) {
       stream.writeFlag('NoDepthTest');
     }
 
-    if (this.flags & 0x80) {
+    if (this.flags & Flags.NoDepthSet) {
       stream.writeFlag('NoDepthSet');
     }
 
     if (version > 800) {
-      if (this.flags & 0x100) {
+      if (this.flags & Flags.Unlit) {
         stream.writeFlag('Unlit');
       }
     }

@@ -1,4 +1,4 @@
-import { Animation } from '../../../parsers/mdlx/animations';
+import { Animation, InterpolationType } from '../../../parsers/mdlx/animations';
 import EventObject from '../../../parsers/mdlx/eventobject';
 import SanityTestData from './data';
 import { testReference } from './utils';
@@ -115,7 +115,7 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
   const firstFrame = frames[firstIndex];
 
   // Missing the opening track for a specific sequence can cause bugged warping with negative interpolations.
-  if (interpolationType !== 0 && firstFrame !== start) {
+  if (interpolationType !== InterpolationType.DontInterp && firstFrame !== start) {
     const firstValue = values[firstIndex];
     const lastValue = values[lastIndex];
 

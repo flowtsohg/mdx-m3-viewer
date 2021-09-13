@@ -53,7 +53,7 @@ void transformVertexGroups(inout vec3 position, inout vec3 normal) {
   mat3 rotation = mat3(bone);
 
   position = vec3(bone * vec4(position, 1.0));
-  normal = rotation * normal;
+  normal = normalize(rotation * normal);
 }
 
 void transformVertexGroupsHD(inout vec3 position, inout vec3 normal, inout vec3 tangent, inout vec3 binormal) {
@@ -61,9 +61,9 @@ void transformVertexGroupsHD(inout vec3 position, inout vec3 normal, inout vec3 
   mat3 rotation = mat3(bone);
 
   position = vec3(bone * vec4(position, 1.0));
-  normal = rotation * normal;
-  tangent = rotation * tangent;
-  binormal = rotation * binormal;
+  normal = normalize(rotation * normal);
+  tangent = normalize(rotation * tangent);
+  binormal = normalize(rotation * binormal);
 }
 #endif
 `;

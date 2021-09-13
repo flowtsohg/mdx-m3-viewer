@@ -8,12 +8,14 @@ ${quatTransform}
 
 uniform sampler2D u_texture;
 uniform float u_filterMode;
+uniform bool u_unshaded;
 
 varying vec2 v_uv;
 varying vec3 v_normal;
 varying vec4 v_color;
 varying vec4 v_uvTransRot;
 varying float v_uvScale;
+varying vec3 v_lightDir;
 
 vec4 getDiffuseColor() {
   vec2 uv = v_uv;
@@ -55,6 +57,19 @@ void onlyDiffuse() {
   gl_FragColor = getDiffuseColor();
 }
 
+void lambert() {
+  vec4 color = getDiffuseColor();
+
+  if (!u_unshaded) {
+    float lambertFactor = clamp(dot(v_normal, v_lightDir), 0.0, 1.0);
+    lambertFactor = clamp(lambertFactor + 0.7, 0.0, 1.0);
+
+    color.rgb *= lambertFactor;
+  }
+
+  gl_FragColor = color;
+}
+
 void main() {
   #if defined(ONLY_DIFFUSE)
   onlyDiffuse();
@@ -63,7 +78,7 @@ void main() {
   #elif defined(ONLY_NORMALS)
   onlyNormals();
   #else
-  onlyDiffuse();
+  lambert();
   #endif
 }
 `;

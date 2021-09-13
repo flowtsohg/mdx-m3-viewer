@@ -2,11 +2,18 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import GenericObject from './genericobject';
 
+export const enum Shape {
+  Box = 0,
+  Plane = 1,
+  Sphere = 2,
+  Cylinder = 3,
+}
+
 /**
  * A collision shape.
  */
 export default class CollisionShape extends GenericObject {
-  type = -1;
+  type = Shape.Box;
   vertices: Float32Array[] = [new Float32Array(3), new Float32Array(3)];
   boundsRadius = 0;
 
@@ -21,11 +28,11 @@ export default class CollisionShape extends GenericObject {
 
     stream.readFloat32Array(this.vertices[0]);
 
-    if (this.type !== 2) {
+    if (this.type !== Shape.Sphere) {
       stream.readFloat32Array(this.vertices[1]);
     }
 
-    if (this.type === 2 || this.type === 3) {
+    if (this.type === Shape.Sphere || this.type === Shape.Cylinder) {
       this.boundsRadius = stream.readFloat32();
     }
   }
@@ -36,11 +43,11 @@ export default class CollisionShape extends GenericObject {
     stream.writeUint32(this.type);
     stream.writeFloat32Array(this.vertices[0]);
 
-    if (this.type !== 2) {
+    if (this.type !== Shape.Sphere) {
       stream.writeFloat32Array(this.vertices[1]);
     }
 
-    if (this.type === 2 || this.type === 3) {
+    if (this.type === Shape.Sphere || this.type === Shape.Cylinder) {
       stream.writeFloat32(this.boundsRadius);
     }
   }
@@ -48,13 +55,13 @@ export default class CollisionShape extends GenericObject {
   readMdl(stream: TokenStream) {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'Box') {
-        this.type = 0;
+        this.type = Shape.Box;
       } else if (token === 'Plane') {
-        this.type = 1;
+        this.type = Shape.Plane;
       } else if (token === 'Sphere') {
-        this.type = 2;
+        this.type = Shape.Sphere;
       } else if (token === 'Cylinder') {
-        this.type = 3;
+        this.type = Shape.Cylinder;
       } else if (token === 'Vertices') {
         const count = stream.readInt();
 
@@ -83,15 +90,15 @@ export default class CollisionShape extends GenericObject {
     let vertices = 2;
     let boundsRadius = false;
 
-    if (this.type === 0) {
+    if (this.type === Shape.Box) {
       type = 'Box';
-    } else if (this.type === 1) {
+    } else if (this.type === Shape.Plane) {
       type = 'Plane';
-    } else if (this.type === 2) {
+    } else if (this.type === Shape.Sphere) {
       type = 'Sphere';
       vertices = 1;
       boundsRadius = true;
-    } else if (this.type === 3) {
+    } else if (this.type === Shape.Cylinder) {
       type = 'Cylinder';
       boundsRadius = true;
     }
@@ -117,11 +124,11 @@ export default class CollisionShape extends GenericObject {
   override getByteLength() {
     let size = 16 + super.getByteLength();
 
-    if (this.type !== 2) {
+    if (this.type !== Shape.Sphere) {
       size += 12;
     }
 
-    if (this.type === 2 || this.type === 3) {
+    if (this.type === Shape.Sphere || this.type === Shape.Cylinder) {
       size += 4;
     }
 

@@ -2,6 +2,11 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import GenericObject from './genericobject';
 
+export const enum Flags {
+  EmitterUsesMDL = 0x8000,
+  EmitterUsesTGA = 0x10000,
+}
+
 /**
  * A particle emitter.
  */
@@ -54,9 +59,9 @@ export default class ParticleEmitter extends GenericObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'EmitterUsesMDL') {
-        this.flags |= 0x8000;
+        this.flags |= Flags.EmitterUsesMDL;
       } else if (token === 'EmitterUsesTGA') {
-        this.flags |= 0x10000;
+        this.flags |= Flags.EmitterUsesTGA;
       } else if (token === 'static EmissionRate') {
         this.emissionRate = stream.readFloat();
       } else if (token === 'EmissionRate') {
@@ -99,11 +104,11 @@ export default class ParticleEmitter extends GenericObject {
     stream.startObjectBlock('ParticleEmitter', this.name);
     this.writeGenericHeader(stream);
 
-    if (this.flags & 0x8000) {
+    if (this.flags & Flags.EmitterUsesMDL) {
       stream.writeFlag('EmitterUsesMDL');
     }
 
-    if (this.flags & 0x10000) {
+    if (this.flags & Flags.EmitterUsesTGA) {
       stream.writeFlag('EmitterUsesTGA');
     }
 
@@ -135,7 +140,7 @@ export default class ParticleEmitter extends GenericObject {
       stream.writeNumberAttrib('static InitVelocity', this.speed);
     }
 
-    if ((this.flags & 0x8000) || (this.flags & 0x10000)) {
+    if ((this.flags & Flags.EmitterUsesMDL) || (this.flags & Flags.EmitterUsesTGA)) {
       stream.writeStringAttrib('Path', this.path);
     }
 

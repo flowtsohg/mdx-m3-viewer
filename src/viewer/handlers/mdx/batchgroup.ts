@@ -59,7 +59,7 @@ export default class BatchGroup {
       gl.uniform1f(uniforms['u_hasBones'], 0);
     }
 
-    gl.uniform1i(uniforms['u_texture'], 0);
+    gl.uniform3fv(uniforms['u_lightPos'], scene.lightPosition);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
@@ -79,7 +79,6 @@ export default class BatchGroup {
       gl.uniformMatrix4fv(uniforms['u_MV'], false, camera.viewMatrix);
 
       gl.uniform3fv(uniforms['u_eyePos'], camera.location);
-      gl.uniform3fv(uniforms['u_lightPos'], scene.lightPosition);
 
       for (const index of this.objects) {
         const batch = batches[index];
@@ -134,7 +133,8 @@ export default class BatchGroup {
       const uvAnims = instance.uvAnims;
 
       gl.uniform4fv(uniforms['u_vertexColor'], instance.vertexColor);
-
+      gl.uniform1i(uniforms['u_texture'], 0);
+      
       for (const object of this.objects) {
         const batch = batches[object];
         const geoset = batch.geoset;
@@ -152,6 +152,7 @@ export default class BatchGroup {
           gl.uniform4fv(uniforms['u_geosetColor'], geosetColor);
 
           gl.uniform1f(uniforms['u_layerAlpha'], layerAlpha);
+          gl.uniform1f(uniforms['u_unshaded'], layer.unshaded);
 
           gl.uniform2f(uniforms['u_uvTrans'], uvAnim[0], uvAnim[1]);
           gl.uniform2f(uniforms['u_uvRot'], uvAnim[2], uvAnim[3]);

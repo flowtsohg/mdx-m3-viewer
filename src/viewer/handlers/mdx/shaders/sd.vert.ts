@@ -3,6 +3,7 @@ import transforms from './transforms.glsl';
 
 const shader = `
 uniform mat4 u_VP;
+uniform vec3 u_lightPos;
 uniform vec4 u_vertexColor;
 uniform vec4 u_geosetColor;
 uniform float u_layerAlpha;
@@ -20,6 +21,7 @@ varying vec3 v_normal;
 varying vec4 v_color;
 varying vec4 v_uvTransRot;
 varying float v_uvScale;
+varying vec3 v_lightDir;
 
 ${boneTexture}
 ${transforms}
@@ -37,6 +39,7 @@ void main() {
   v_color = u_vertexColor * u_geosetColor.bgra * vec4(1.0, 1.0, 1.0, u_layerAlpha);
   v_uvTransRot = vec4(u_uvTrans, u_uvRot);
   v_uvScale = u_uvScale;
+  v_lightDir = normalize(u_lightPos - position);
 
   gl_Position = u_VP * vec4(position, 1.0);
 }

@@ -15,6 +15,7 @@ import Particle2 from './particle2';
 import Ribbon from './ribbon';
 import EventObjectSplUbr from './eventobjectsplubr';
 import MdxTexture from './texture';
+import { HeadOrTail } from '../../../parsers/mdlx/particleemitter2';
 
 const locationHeap = vec3.create();
 const startHeap = vec3.create();
@@ -56,10 +57,6 @@ export const FLOAT_OFFSET_P3 = BYTE_OFFSET_P3 >> 2;
 export const FLOAT_OFFSET_HEALTH = BYTE_OFFSET_HEALTH >> 2;
 export const BYTE_OFFSET_TEAM_COLOR = BYTE_OFFSET_LEFT_RIGHT_TOP;
 
-// Head or tail.
-export const HEAD = 0;
-export const TAIL = 1;
-
 // Emitter types
 export const EMITTER_PARTICLE2 = 0;
 export const EMITTER_RIBBON = 1;
@@ -94,7 +91,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
     const scale = object.scale;
     const tail = object.tail;
 
-    if (tail === HEAD) {
+    if (tail === HeadOrTail.Head) {
       // If this is a model space emitter, the location is in local space, so convert it to world space.
       if (modelSpace) {
         location = vec3.transformMat4(locationHeap, location, node.worldMatrix);

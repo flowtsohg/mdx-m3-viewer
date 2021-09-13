@@ -152,15 +152,16 @@ void lambert() {
   vec4 orm = getOrmColor();
   vec3 emissive = getEmissiveColor();
   vec3 tc = getTeamColor();
+  float aoFactor = orm.r;
   float tcFactor = orm.a;
-  float lambertFactor = dot(normal, v_lightDir);
+  float lambertFactor = clamp(dot(normal, v_lightDir), 0.0, 1.0);
   vec3 color = baseColor.rgb;
 
   if (tcFactor > 0.1) {
     color *= tc * tcFactor;
   }
   
-  color *= clamp(lambertFactor + 0.3, 0.0, 1.0);
+  color *= clamp(lambertFactor * aoFactor + 0.1, 0.0, 1.0);
   color += emissive;
 
   gl_FragColor = vec4(color, baseColor.a);

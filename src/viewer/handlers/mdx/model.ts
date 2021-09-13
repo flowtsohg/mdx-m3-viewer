@@ -29,6 +29,7 @@ import { Batch } from './batch';
 import Geoset from './geoset';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
+import { WrapMode } from '../../../parsers/mdlx/texture';
 
 /**
  * An MDX model.
@@ -155,7 +156,7 @@ export default class MdxModel extends Model {
       const texture = textures[i];
       let path = texture.path;
       const replaceableId = texture.replaceableId;
-      const flags = texture.flags;
+      const wrapMode = texture.wrapMode;
 
       if (path === '' && replaceableId !== 0) {
         path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
@@ -165,7 +166,7 @@ export default class MdxModel extends Model {
         }
       }
 
-      const mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
+      const mdxTexture = new MdxTexture(replaceableId, wrapMode);
 
       viewer.load(path, pathSolver, solverParams)
         .then((texture) => {

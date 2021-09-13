@@ -12,13 +12,14 @@ import GenericResource from '../../genericresource';
 import Texture from '../../texture';
 import Model from './model';
 import MdxTexture from './texture';
-import sdVert from './shaders/standard.vert';
-import sdFrag from './shaders/standard.frag';
+import sdVert from './shaders/sd.vert';
+import sdFrag from './shaders/sd.frag';
 import hdVert from './shaders/hd.vert';
 import hdFrag from './shaders/hd.frag';
 import particlesVert from './shaders/particles.vert';
 import particlesFrag from './shaders/particles.frag';
 import { SkinningType } from './batch';
+import { WrapMode } from '../../../parsers/mdlx/texture';
 
 export interface MdxHandlerObject {
   pathSolver?: PathSolver;
@@ -186,8 +187,8 @@ export default {
         const id = `${i}`.padStart(2, '0');
         const end = `${id}.${ext}`;
 
-        const teamColor = new MdxTexture(1, true, true);
-        const teamGlow = new MdxTexture(2, true, true);
+        const teamColor = new MdxTexture(1, WrapMode.WrapBoth);
+        const teamGlow = new MdxTexture(2, WrapMode.WrapBoth);
 
         viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${end}`, pathSolver, params)
           .then((texture) => teamColor.texture = <Texture>texture);

@@ -471,7 +471,7 @@ export default class MdxModelInstance extends ModelInstance {
       this.allowParticleSpawn = true;
 
       if (this.frame >= interval[1]) {
-        if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
+        if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.nonLooping === 0)) {
           this.frame = interval[0];
 
           this.resetEventEmitters();

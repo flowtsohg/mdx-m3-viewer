@@ -1,12 +1,18 @@
 import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 
+export const enum InterpolationType {
+  DontInterp = 0,
+  Linear = 1,
+  Hermite = 2,
+  Bezier = 3,
+}
 /**
  * An animation.
  */
 export abstract class Animation {
   name = '';
-  interpolationType = 0;
+  interpolationType = InterpolationType.DontInterp;
   globalSequenceId = -1;
   frames: number[] = [];
   values: (Uint32Array | Float32Array)[] = [];
@@ -58,7 +64,7 @@ export abstract class Animation {
       stream.writeInt32(frames[i]);
       this.writeMdxValue(stream, values[i]);
 
-      if (interpolationType > 1) {
+      if (interpolationType > InterpolationType.Linear) {
         this.writeMdxValue(stream, inTans[i]);
         this.writeMdxValue(stream, outTans[i]);
       }
@@ -81,13 +87,13 @@ export abstract class Animation {
     const token = stream.read();
 
     if (token === 'DontInterp') {
-      interpolationType = 0;
+      interpolationType = InterpolationType.DontInterp;
     } else if (token === 'Linear') {
-      interpolationType = 1;
+      interpolationType = InterpolationType.Linear;
     } else if (token === 'Hermite') {
-      interpolationType = 2;
+      interpolationType = InterpolationType.Hermite;
     } else if (token === 'Bezier') {
-      interpolationType = 3;
+      interpolationType = InterpolationType.Bezier;
     }
 
     this.interpolationType = interpolationType;
@@ -103,7 +109,7 @@ export abstract class Animation {
       frames[i] = stream.readInt();
       values[i] = this.readMdlValue(stream);
 
-      if (interpolationType > 1) {
+      if (interpolationType > InterpolationType.Linear) {
         stream.read(); // InTan
         inTans[i] = this.readMdlValue(stream);
         stream.read(); // OutTan
@@ -126,13 +132,13 @@ export abstract class Animation {
 
     let token = '';
 
-    if (this.interpolationType === 0) {
+    if (this.interpolationType === InterpolationType.DontInterp) {
       token = 'DontInterp';
-    } else if (this.interpolationType === 1) {
+    } else if (this.interpolationType === InterpolationType.Linear) {
       token = 'Linear';
-    } else if (this.interpolationType === 2) {
+    } else if (this.interpolationType === InterpolationType.Hermite) {
       token = 'Hermite';
-    } else if (this.interpolationType === 3) {
+    } else if (this.interpolationType === InterpolationType.Bezier) {
       token = 'Bezier';
     }
 
@@ -145,7 +151,7 @@ export abstract class Animation {
     for (let i = 0; i < tracksCount; i++) {
       this.writeMdlValue(stream, `${frames[i]}:`, values[i]);
 
-      if (interpolationType > 1) {
+      if (interpolationType > InterpolationType.Linear) {
         stream.indent();
         this.writeMdlValue(stream, 'InTan', inTans[i]);
         this.writeMdlValue(stream, 'OutTan', outTans[i]);
@@ -164,7 +170,7 @@ export abstract class Animation {
       const bytesPerValue = this.values[0].byteLength;
       let valuesPerTrack = 1;
 
-      if (this.interpolationType > 1) {
+      if (this.interpolationType > InterpolationType.Linear) {
         valuesPerTrack = 3;
       }
 

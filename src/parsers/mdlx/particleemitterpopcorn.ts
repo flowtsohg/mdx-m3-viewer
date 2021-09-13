@@ -2,6 +2,12 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import GenericObject from './genericobject';
 
+export const enum Flags {
+  Unshaded = 0x8000,
+  SortPrimsFarZ = 0x10000,
+  Unfogged = 0x40000,
+}
+
 /**
  * A popcorn particle emitter.
  * References a pkfx file, which is used by the PopcornFX runtime.
@@ -56,11 +62,11 @@ export default class ParticleEmitterPopcorn extends GenericObject {
   readMdl(stream: TokenStream) {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'SortPrimsFarZ') {
-        this.flags |= 0x10000;
+        this.flags |= Flags.SortPrimsFarZ;
       } else if (token === 'Unshaded') {
-        this.flags |= 0x8000;
+        this.flags |= Flags.Unshaded;
       } else if (token === 'Unfogged') {
-        this.flags |= 0x40000;
+        this.flags |= Flags.Unfogged;
       } else if (token === 'static LifeSpan') {
         this.lifeSpan = stream.readFloat();
       } else if (token === 'LifeSpan') {
@@ -99,15 +105,15 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     stream.startObjectBlock('ParticleEmitterPopcorn', this.name);
     this.writeGenericHeader(stream);
 
-    if (this.flags & 0x10000) {
+    if (this.flags & Flags.SortPrimsFarZ) {
       stream.writeFlag('SortPrimsFarZ');
     }
 
-    if (this.flags & 0x8000) {
+    if (this.flags & Flags.Unshaded) {
       stream.writeFlag('Unshaded');
     }
 
-    if (this.flags & 0x40000) {
+    if (this.flags & Flags.Unfogged) {
       stream.writeFlag('Unfogged');
     }
 

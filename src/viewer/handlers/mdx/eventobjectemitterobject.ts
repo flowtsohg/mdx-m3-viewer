@@ -8,6 +8,7 @@ import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
+import { WrapMode } from '../../../parsers/mdlx/texture';
 
 /**
  * An event object.
@@ -91,7 +92,7 @@ export default class EventObjectEmitterObject extends GenericObject {
           if (type === 'SPN') {
             this.internalModel = <MdxModel>data.resources[0];
           } else if (type === 'SPL' || type === 'UBR') {
-            this.internalTexture = new MdxTexture(0, true, true);
+            this.internalTexture = new MdxTexture(0, WrapMode.WrapBoth);
             this.internalTexture.texture = <Texture>data.resources[0];
 
             this.scale = <number>row['Scale'];

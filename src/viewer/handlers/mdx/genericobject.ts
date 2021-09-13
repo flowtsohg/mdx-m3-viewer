@@ -1,6 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
 import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-addon';
-import MdlxGenericObject from '../../../parsers/mdlx/genericobject';
+import MdlxGenericObject, { Flags } from '../../../parsers/mdlx/genericobject';
 import AnimatedObject from './animatedobject';
 import MdxModel from './model';
 
@@ -21,12 +21,6 @@ export default class GenericObject extends AnimatedObject {
   billboardedY: number;
   billboardedZ: number;
   cameraAnchored: number;
-  emitterUsesMdlOrUnshaded: number;
-  emitterUsesTgaOrSortPrimitivesFarZ: number;
-  lineEmitter: number;
-  unfogged: number;
-  modelSpace: number;
-  xYQuad: number;
   anyBillboarding: boolean;
 
   constructor(model: MdxModel, object: MdlxGenericObject, index: number) {
@@ -39,21 +33,14 @@ export default class GenericObject extends AnimatedObject {
     this.pivot = <vec3>model.pivotPoints[object.objectId] || vec3.create();
 
     const flags = object.flags;
-
-    this.dontInheritTranslation = flags & 0x1;
-    this.dontInheritRotation = flags & 0x2;
-    this.dontInheritScaling = flags & 0x4;
-    this.billboarded = flags & 0x8;
-    this.billboardedX = flags & 0x10;
-    this.billboardedY = flags & 0x20;
-    this.billboardedZ = flags & 0x40;
-    this.cameraAnchored = flags & 0x80;
-    this.emitterUsesMdlOrUnshaded = flags & 0x8000;
-    this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 0x10000;
-    this.lineEmitter = flags & 0x20000;
-    this.unfogged = flags & 0x40000;
-    this.modelSpace = flags & 0x80000;
-    this.xYQuad = flags & 0x100000;
+    this.dontInheritTranslation = flags & Flags.DontInheritTranslation;
+    this.dontInheritRotation = flags & Flags.DontInheritRotation;
+    this.dontInheritScaling = flags & Flags.DontInheritScaling;
+    this.billboarded = flags & Flags.Billboarded;
+    this.billboardedX = flags & Flags.BillboardedLockX;
+    this.billboardedY = flags & Flags.BillboardedLockY;
+    this.billboardedZ = flags & Flags.BillboardedLockZ;
+    this.cameraAnchored = flags & Flags.CameraAnchored;
 
     this.anyBillboarding = (this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ) !== 0;
 

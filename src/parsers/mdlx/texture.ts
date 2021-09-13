@@ -1,24 +1,31 @@
 import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 
+export const enum WrapMode {
+  RepeatBoth = 0,
+  WrapWidth = 1,
+  WrapHeight = 2,
+  WrapBoth = 3,
+}
+
 /**
  * A texture.
  */
 export default class Texture {
   replaceableId = 0;
   path = '';
-  flags = 0;
+  wrapMode = WrapMode.RepeatBoth;
 
   readMdx(stream: BinaryStream) {
     this.replaceableId = stream.readUint32();
     this.path = stream.read(260);
-    this.flags = stream.readUint32();
+    this.wrapMode = stream.readUint32();
   }
 
   writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.replaceableId);
     stream.skip(260 - stream.write(this.path));
-    stream.writeUint32(this.flags);
+    stream.writeUint32(this.wrapMode);
   }
 
   readMdl(stream: TokenStream) {
@@ -28,9 +35,9 @@ export default class Texture {
       } else if (token === 'ReplaceableId') {
         this.replaceableId = stream.readInt();
       } else if (token === 'WrapWidth') {
-        this.flags |= 0x1;
+        this.wrapMode |= WrapMode.WrapWidth;
       } else if (token === 'WrapHeight') {
-        this.flags |= 0x2;
+        this.wrapMode |= WrapMode.WrapHeight;
       } else {
         throw new Error(`Unknown token in Texture: "${token}"`);
       }
@@ -48,11 +55,11 @@ export default class Texture {
       stream.writeNumberAttrib('ReplaceableId', this.replaceableId);
     }
 
-    if (this.flags & 0x1) {
+    if (this.wrapMode & WrapMode.WrapWidth) {
       stream.writeFlag(`WrapWidth`);
     }
 
-    if (this.flags & 0x2) {
+    if (this.wrapMode & WrapMode.WrapHeight) {
       stream.writeFlag(`WrapHeight`);
     }
 

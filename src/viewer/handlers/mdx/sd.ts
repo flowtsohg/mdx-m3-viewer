@@ -1,6 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
 import { lerp, hermite, bezier } from '../../../common/math';
-import { Animation, UintAnimation, FloatAnimation, Vector3Animation } from '../../../parsers/mdlx/animations';
+import { Animation, UintAnimation, FloatAnimation, Vector3Animation, InterpolationType } from '../../../parsers/mdlx/animations';
 import MdxModel from './model';
 
 /**
@@ -122,11 +122,11 @@ class SdSequence {
 }
 
 const forcedInterpMap = {
-  KLAV: 0,
-  KATV: 0,
-  KPEV: 0,
-  KP2V: 0,
-  KRVS: 0,
+  KLAV: InterpolationType.DontInterp,
+  KATV: InterpolationType.DontInterp,
+  KPEV: InterpolationType.DontInterp,
+  KP2V: InterpolationType.DontInterp,
+  KRVS: InterpolationType.DontInterp,
 };
 
 const floatDefval = new Float32Array(1);
@@ -202,7 +202,7 @@ export abstract class Sd {
   name: string;
   globalSequence: SdSequence | null = null;
   sequences: SdSequence[] = [];
-  interpolationType: number;
+  interpolationType: InterpolationType;
 
   abstract copy(out: Uint32Array | Float32Array | vec3 | quat, value: Uint32Array | Float32Array | vec3 | quat): void;
   abstract interpolate(out: Uint32Array | Float32Array | vec3 | quat, values: (Uint32Array | Float32Array | vec3 | quat)[], inTans: (Uint32Array | Float32Array | vec3 | quat)[], outTans: (Uint32Array | Float32Array | vec3 | quat)[], start: number, end: number, t: number): void;
@@ -261,13 +261,13 @@ export class ScalarSd extends Sd {
     const interpolationType = this.interpolationType;
     const startValue = values[start][0];
 
-    if (interpolationType === 0) {
+    if (interpolationType === InterpolationType.DontInterp) {
       out[0] = startValue;
-    } else if (interpolationType === 1) {
+    } else if (interpolationType === InterpolationType.Linear) {
       out[0] = lerp(startValue, values[end][0], t);
-    } else if (interpolationType === 2) {
+    } else if (interpolationType === InterpolationType.Hermite) {
       out[0] = hermite(startValue, outTans[start][0], inTans[end][0], values[end][0], t);
-    } else if (interpolationType === 3) {
+    } else if (interpolationType === InterpolationType.Bezier) {
       out[0] = bezier(startValue, outTans[start][0], inTans[end][0], values[end][0], t);
     }
   }
@@ -284,13 +284,13 @@ export class VectorSd extends Sd {
   interpolate(out: vec3, values: vec3[], inTans: vec3[], outTans: vec3[], start: number, end: number, t: number) {
     const interpolationType = this.interpolationType;
 
-    if (interpolationType === 0) {
+    if (interpolationType === InterpolationType.DontInterp) {
       vec3.copy(out, values[start]);
-    } else if (interpolationType === 1) {
+    } else if (interpolationType === InterpolationType.Linear) {
       vec3.lerp(out, values[start], values[end], t);
-    } else if (interpolationType === 2) {
+    } else if (interpolationType === InterpolationType.Hermite) {
       vec3.hermite(out, values[start], outTans[start], inTans[end], values[end], t);
-    } else if (interpolationType === 3) {
+    } else if (interpolationType === InterpolationType.Bezier) {
       vec3.bezier(out, values[start], outTans[start], inTans[end], values[end], t);
     }
   }
@@ -307,11 +307,11 @@ export class QuatSd extends Sd {
   interpolate(out: quat, values: quat[], inTans: quat[], outTans: quat[], start: number, end: number, t: number) {
     const interpolationType = this.interpolationType;
 
-    if (interpolationType === 0) {
+    if (interpolationType === InterpolationType.DontInterp) {
       quat.copy(out, values[start]);
-    } else if (interpolationType === 1) {
+    } else if (interpolationType === InterpolationType.Linear) {
       quat.slerp(out, values[start], values[end], t);
-    } else if (interpolationType === 2 || interpolationType === 3) {
+    } else if (interpolationType === InterpolationType.Hermite || interpolationType === InterpolationType.Bezier) {
       quat.sqlerp(out, values[start], outTans[start], inTans[end], values[end], t);
     }
   }

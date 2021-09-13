@@ -1,7 +1,7 @@
 import MdlxModel from '../../../parsers/mdlx/model';
 import MdlxTexture from '../../../parsers/mdlx/texture';
 import MdlxMaterial from '../../../parsers/mdlx/material';
-import MdlxLayer from '../../../parsers/mdlx/layer';
+import MdlxLayer, { Flags } from '../../../parsers/mdlx/layer';
 import MdlxGeoset from '../../../parsers/mdlx/geoset';
 import MdlxGeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import MdlxBone from '../../../parsers/mdlx/bone';
@@ -27,7 +27,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   let lines: boolean | undefined;
   let color: Float32Array | undefined;
   let texture: Texture | Promise<Texture> | undefined;
-  let layerFlags = 0;
+  let layerFlags = Flags.Unshaded;
 
   if (material) {
     lines = material.lines;
@@ -35,7 +35,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
     texture = material.texture;
 
     if (material.twoSided) {
-      layerFlags |= 0x10;
+      layerFlags |= Flags.TwoSided;
     }
   }
 

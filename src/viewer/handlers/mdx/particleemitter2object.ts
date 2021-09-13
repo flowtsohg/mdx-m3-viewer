@@ -1,4 +1,4 @@
-import MdlxParticleEmitter2 from '../../../parsers/mdlx/particleemitter2';
+import MdlxParticleEmitter2, { Flags, HeadOrTail } from '../../../parsers/mdlx/particleemitter2';
 import Texture from '../../texture';
 import MdxModel from './model';
 import GenericObject from './genericobject';
@@ -6,6 +6,7 @@ import { emitterFilterMode } from './filtermode';
 import replaceableIds from './replaceableids';
 import { EMITTER_PARTICLE2, SETTING_PARTICLES_HIGH } from './geometryemitterfuncs';
 import MdxTexture from './texture';
+import { WrapMode } from '../../../parsers/mdlx/texture';
 
 /**
  * An MDX particle emitter type 2.
@@ -40,6 +41,10 @@ export default class ParticleEmitter2Object extends GenericObject {
   blendSrc: number;
   blendDst: number;
   priorityPlane: number;
+  lineEmitter: number;
+  unfogged: number;
+  modelSpace: number;
+  xYQuad: number;
   /**
    * Even if the internal texture isn't loaded, it's fine to run emitters based on this emitter object.
    * 
@@ -62,6 +67,12 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.tailLength = emitter.tailLength;
     this.timeMiddle = emitter.timeMiddle;
 
+    const flags = emitter.flags;
+    this.lineEmitter = flags & Flags.LineEmitter;
+    this.unfogged = flags & Flags.Unfogged;
+    this.modelSpace = flags & Flags.ModelSpace;
+    this.xYQuad = flags & Flags.XYQuad;
+
     const replaceableId = emitter.replaceableId;
 
     this.columns = emitter.columns;
@@ -72,7 +83,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     } else if (replaceableId > 2) {
       const texturesExt = model.reforged ? '.dds' : '.blp';
 
-      this.internalTexture = new MdxTexture(replaceableId, false, false);
+      this.internalTexture = new MdxTexture(replaceableId, WrapMode.RepeatBoth);
 
       model.viewer.load(`ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`, model.pathSolver, model.solverParams)
         .then((texture) => {
@@ -87,8 +98,8 @@ export default class ParticleEmitter2Object extends GenericObject {
 
     const headOrTail = emitter.headOrTail;
 
-    this.head = (headOrTail === 0 || headOrTail === 2);
-    this.tail = (headOrTail === 1 || headOrTail === 2);
+    this.head = (headOrTail === HeadOrTail.Head || headOrTail === HeadOrTail.Both);
+    this.tail = (headOrTail === HeadOrTail.Tail || headOrTail === HeadOrTail.Both);
 
     this.cellWidth = 1 / emitter.columns;
     this.cellHeight = 1 / emitter.rows;

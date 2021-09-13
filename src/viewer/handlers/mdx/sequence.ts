@@ -7,14 +7,14 @@ import Bounds from '../../bounds';
 export default class Sequence {
   name: string;
   interval: Uint32Array;
-  flags: number;
+  nonLooping: number;
   rarity: number;
   bounds: Bounds;
 
   constructor(sequence: MdlxSequence) {
     this.name = sequence.name;
     this.interval = sequence.interval;
-    this.flags = sequence.flags;
+    this.nonLooping = sequence.nonLooping;
     this.rarity = sequence.rarity;
     this.bounds = new Bounds();
 

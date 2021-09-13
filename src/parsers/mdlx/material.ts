@@ -2,12 +2,21 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import Layer from './layer';
 
+export const enum Flags {
+  None = 0x0,
+  ConstantColor = 0x1,
+  TwoSided = 0x2,
+  SortPrimsNearZ = 0x8,
+  SortPrimsFarZ = 0x10,
+  FullResolution = 0x20,
+}
+
 /**
  * A material.
  */
 export default class Material {
   priorityPlane = 0;
-  flags = 0;
+  flags = Flags.None;
   /** 
    * @since 900
    */
@@ -55,15 +64,15 @@ export default class Material {
   readMdl(stream: TokenStream) {
     for (const token of stream.readBlock()) {
       if (token === 'ConstantColor') {
-        this.flags |= 0x1;
+        this.flags |= Flags.ConstantColor;
       } else if (token === 'TwoSided') {
-        this.flags |= 0x2;
+        this.flags |= Flags.TwoSided;
       } else if (token === 'SortPrimsNearZ') {
-        this.flags |= 0x8;
+        this.flags |= Flags.SortPrimsNearZ;
       } else if (token === 'SortPrimsFarZ') {
-        this.flags |= 0x10;
+        this.flags |= Flags.SortPrimsFarZ;
       } else if (token === 'FullResolution') {
-        this.flags |= 0x20;
+        this.flags |= Flags.FullResolution;
       } else if (token === 'PriorityPlane') {
         this.priorityPlane = stream.readInt();
       } else if (token === 'Shader') {
@@ -83,25 +92,25 @@ export default class Material {
   writeMdl(stream: TokenStream, version: number) {
     stream.startBlock('Material');
 
-    if (this.flags & 0x1) {
+    if (this.flags & Flags.ConstantColor) {
       stream.writeFlag('ConstantColor');
     }
 
     if (version > 800) {
-      if (this.flags & 0x2) {
+      if (this.flags & Flags.TwoSided) {
         stream.writeFlag('TwoSided');
       }
     }
 
-    if (this.flags & 0x8) {
+    if (this.flags & Flags.SortPrimsNearZ) {
       stream.writeFlag('SortPrimsNearZ');
     }
 
-    if (this.flags & 0x10) {
+    if (this.flags & Flags.SortPrimsFarZ) {
       stream.writeFlag('SortPrimsFarZ');
     }
 
-    if (this.flags & 0x20) {
+    if (this.flags & Flags.FullResolution) {
       stream.writeFlag('FullResolution');
     }
 

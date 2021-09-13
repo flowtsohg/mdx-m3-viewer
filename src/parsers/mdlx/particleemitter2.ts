@@ -2,6 +2,29 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import GenericObject from './genericobject';
 
+export const enum Flags {
+  Unshaded = 0x8000,
+  SortPrimsFarZ = 0x10000,
+  LineEmitter = 0x20000,
+  Unfogged = 0x40000,
+  ModelSpace = 0x80000,
+  XYQuad = 0x100000,
+}
+
+export const enum FilterMode {
+  Blend = 0,
+  Additive = 1,
+  Modulate = 2,
+  Modulate2x = 3,
+  AlphaKey = 4,
+}
+
+export const enum HeadOrTail {
+  Head = 0,
+  Tail = 1,
+  Both = 2,
+}
+
 /**
  * A particle emitter type 2.
  */
@@ -14,10 +37,10 @@ export default class ParticleEmitter2 extends GenericObject {
   emissionRate = 0;
   width = 0;
   length = 0;
-  filterMode = 0;
+  filterMode = FilterMode.Blend;
   rows = 0;
   columns = 0;
-  headOrTail = 0;
+  headOrTail = HeadOrTail.Head;
   tailLength = 0;
   timeMiddle = 0;
   segmentColors: Float32Array[] = [new Float32Array(3), new Float32Array(3), new Float32Array(3)];
@@ -106,17 +129,17 @@ export default class ParticleEmitter2 extends GenericObject {
   readMdl(stream: TokenStream) {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'SortPrimsFarZ') {
-        this.flags |= 0x10000;
+        this.flags |= Flags.SortPrimsFarZ;
       } else if (token === 'Unshaded') {
-        this.flags |= 0x8000;
+        this.flags |= Flags.Unshaded;
       } else if (token === 'LineEmitter') {
-        this.flags |= 0x20000;
+        this.flags |= Flags.LineEmitter;
       } else if (token === 'Unfogged') {
-        this.flags |= 0x40000;
+        this.flags |= Flags.Unfogged;
       } else if (token === 'ModelSpace') {
-        this.flags |= 0x80000;
+        this.flags |= Flags.ModelSpace;
       } else if (token === 'XYQuad') {
-        this.flags |= 0x100000;
+        this.flags |= Flags.XYQuad;
       } else if (token === 'static Speed') {
         this.speed = stream.readFloat();
       } else if (token === 'Speed') {
@@ -152,25 +175,25 @@ export default class ParticleEmitter2 extends GenericObject {
       } else if (token === 'Length') {
         this.readAnimation(stream, 'KP2W');
       } else if (token === 'Blend') {
-        this.filterMode = 0;
+        this.filterMode = FilterMode.Blend;
       } else if (token === 'Additive') {
-        this.filterMode = 1;
+        this.filterMode = FilterMode.Additive;
       } else if (token === 'Modulate') {
-        this.filterMode = 2;
+        this.filterMode = FilterMode.Modulate;
       } else if (token === 'Modulate2x') {
-        this.filterMode = 3;
+        this.filterMode = FilterMode.Modulate2x;
       } else if (token === 'AlphaKey') {
-        this.filterMode = 4;
+        this.filterMode = FilterMode.AlphaKey;
       } else if (token === 'Rows') {
         this.rows = stream.readInt();
       } else if (token === 'Columns') {
         this.columns = stream.readInt();
       } else if (token === 'Head') {
-        this.headOrTail = 0;
+        this.headOrTail = HeadOrTail.Head;
       } else if (token === 'Tail') {
-        this.headOrTail = 1;
+        this.headOrTail = HeadOrTail.Tail;
       } else if (token === 'Both') {
-        this.headOrTail = 2;
+        this.headOrTail = HeadOrTail.Both;
       } else if (token === 'TailLength') {
         this.tailLength = stream.readFloat();
       } else if (token === 'Time') {
@@ -212,27 +235,27 @@ export default class ParticleEmitter2 extends GenericObject {
     stream.startObjectBlock('ParticleEmitter2', this.name);
     this.writeGenericHeader(stream);
 
-    if (this.flags & 0x10000) {
+    if (this.flags & Flags.SortPrimsFarZ) {
       stream.writeFlag('SortPrimsFarZ');
     }
 
-    if (this.flags & 0x8000) {
+    if (this.flags & Flags.Unshaded) {
       stream.writeFlag('Unshaded');
     }
 
-    if (this.flags & 0x20000) {
+    if (this.flags & Flags.LineEmitter) {
       stream.writeFlag('LineEmitter');
     }
 
-    if (this.flags & 0x40000) {
+    if (this.flags & Flags.Unfogged) {
       stream.writeFlag('Unfogged');
     }
 
-    if (this.flags & 0x80000) {
+    if (this.flags & Flags.ModelSpace) {
       stream.writeFlag('ModelSpace');
     }
 
-    if (this.flags & 0x100000) {
+    if (this.flags & Flags.XYQuad) {
       stream.writeFlag('XYQuad');
     }
 
@@ -272,26 +295,26 @@ export default class ParticleEmitter2 extends GenericObject {
       stream.writeNumberAttrib('static Length', this.length);
     }
 
-    if (this.filterMode === 0) {
+    if (this.filterMode === FilterMode.Blend) {
       stream.writeFlag('Blend');
-    } else if (this.filterMode === 1) {
+    } else if (this.filterMode === FilterMode.Additive) {
       stream.writeFlag('Additive');
-    } else if (this.filterMode === 2) {
+    } else if (this.filterMode === FilterMode.Modulate) {
       stream.writeFlag('Modulate');
-    } else if (this.filterMode === 3) {
-      stream.writeFlag('Modulate2x'); // Does this exist in any model?
-    } else if (this.filterMode === 4) {
+    } else if (this.filterMode === FilterMode.Modulate2x) {
+      stream.writeFlag('Modulate2x');
+    } else if (this.filterMode === FilterMode.AlphaKey) {
       stream.writeFlag('AlphaKey');
     }
 
     stream.writeNumberAttrib('Rows', this.rows);
     stream.writeNumberAttrib('Columns', this.columns);
 
-    if (this.headOrTail === 0) {
+    if (this.headOrTail === HeadOrTail.Head) {
       stream.writeFlag('Head');
-    } else if (this.headOrTail === 1) {
+    } else if (this.headOrTail === HeadOrTail.Tail) {
       stream.writeFlag('Tail');
-    } else if (this.headOrTail === 2) {
+    } else if (this.headOrTail === HeadOrTail.Both) {
       stream.writeFlag('Both');
     }
 

@@ -2,6 +2,18 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
 
+export const enum Flags {
+  None = 0x0,
+  DontInheritTranslation = 0x1,
+  DontInheritRotation = 0x2,
+  DontInheritScaling = 0x4,
+  Billboarded = 0x8,
+  BillboardedLockX = 0x10,
+  BillboardedLockY = 0x20,
+  BillboardedLockZ = 0x40,
+  CameraAnchored = 0x80,
+}
+
 /**
  * A generic object.
  *
@@ -12,9 +24,9 @@ export default abstract class GenericObject extends AnimatedObject {
   name = '';
   objectId = -1;
   parentId = -1;
-  flags: number;
+  flags: Flags;
 
-  constructor(flags = 0) {
+  constructor(flags = Flags.None) {
     super();
 
     this.flags = flags;
@@ -58,23 +70,23 @@ export default abstract class GenericObject extends AnimatedObject {
       } else if (token === 'Parent') {
         this.parentId = stream.readInt();
       } else if (token === 'BillboardedLockZ') {
-        this.flags |= 0x40;
+        this.flags |= Flags.BillboardedLockZ;
       } else if (token === 'BillboardedLockY') {
-        this.flags |= 0x20;
+        this.flags |= Flags.BillboardedLockY;
       } else if (token === 'BillboardedLockX') {
-        this.flags |= 0x10;
+        this.flags |= Flags.BillboardedLockX;
       } else if (token === 'Billboarded') {
-        this.flags |= 0x8;
+        this.flags |= Flags.Billboarded;
       } else if (token === 'CameraAnchored') {
-        this.flags |= 0x80;
+        this.flags |= Flags.CameraAnchored;
       } else if (token === 'DontInherit') {
         for (token of stream.readBlock()) {
           if (token === 'Rotation') {
-            this.flags |= 0x2;
+            this.flags |= Flags.DontInheritRotation;
           } else if (token === 'Translation') {
-            this.flags |= 0x1;
+            this.flags |= Flags.DontInheritTranslation;
           } else if (token === 'Scaling') {
-            this.flags |= 0x4;
+            this.flags |= Flags.DontInheritScaling;
           }
         }
       } else if (token === 'Translation') {
@@ -96,35 +108,35 @@ export default abstract class GenericObject extends AnimatedObject {
       stream.writeNumberAttrib('Parent', this.parentId);
     }
 
-    if (this.flags & 0x40) {
+    if (this.flags & Flags.BillboardedLockZ) {
       stream.writeFlag('BillboardedLockZ');
     }
 
-    if (this.flags & 0x20) {
+    if (this.flags & Flags.BillboardedLockY) {
       stream.writeFlag('BillboardedLockY');
     }
 
-    if (this.flags & 0x10) {
+    if (this.flags & Flags.BillboardedLockX) {
       stream.writeFlag('BillboardedLockX');
     }
 
-    if (this.flags & 0x8) {
+    if (this.flags & Flags.Billboarded) {
       stream.writeFlag('Billboarded');
     }
 
-    if (this.flags & 0x80) {
+    if (this.flags & Flags.CameraAnchored) {
       stream.writeFlag('CameraAnchored');
     }
 
-    if (this.flags & 0x2) {
+    if (this.flags & Flags.DontInheritRotation) {
       stream.writeFlag(`DontInherit { Rotation }`);
     }
 
-    if (this.flags & 0x1) {
+    if (this.flags & Flags.DontInheritTranslation) {
       stream.writeFlag(`DontInherit { Translation }`);
     }
 
-    if (this.flags & 0x4) {
+    if (this.flags & Flags.DontInheritScaling) {
       stream.writeFlag(`DontInherit { Scaling }`);
     }
   }

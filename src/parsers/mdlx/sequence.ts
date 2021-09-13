@@ -9,7 +9,7 @@ export default class Sequence {
   name = '';
   interval = new Uint32Array(2);
   moveSpeed = 0;
-  flags = 0;
+  nonLooping = 0;
   rarity = 0;
   syncPoint = 0;
   extent = new Extent();
@@ -18,7 +18,7 @@ export default class Sequence {
     this.name = stream.read(80);
     stream.readUint32Array(this.interval);
     this.moveSpeed = stream.readFloat32();
-    this.flags = stream.readUint32();
+    this.nonLooping = stream.readUint32();
     this.rarity = stream.readFloat32();
     this.syncPoint = stream.readUint32();
     this.extent.readMdx(stream);
@@ -28,7 +28,7 @@ export default class Sequence {
     stream.skip(80 - stream.write(this.name));
     stream.writeUint32Array(this.interval);
     stream.writeFloat32(this.moveSpeed);
-    stream.writeUint32(this.flags);
+    stream.writeUint32(this.nonLooping);
     stream.writeFloat32(this.rarity);
     stream.writeUint32(this.syncPoint);
     this.extent.writeMdx(stream);
@@ -41,7 +41,7 @@ export default class Sequence {
       if (token === 'Interval') {
         stream.readVector(this.interval);
       } else if (token === 'NonLooping') {
-        this.flags = 1;
+        this.nonLooping = 1;
       } else if (token === 'MoveSpeed') {
         this.moveSpeed = stream.readFloat();
       } else if (token === 'Rarity') {
@@ -62,7 +62,7 @@ export default class Sequence {
     stream.startObjectBlock('Anim', this.name);
     stream.writeVectorAttrib('Interval', this.interval);
 
-    if (this.flags === 1) {
+    if (this.nonLooping === 1) {
       stream.writeFlag('NonLooping');
     }
 

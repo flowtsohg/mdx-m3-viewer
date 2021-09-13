@@ -2,11 +2,18 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import GenericObject from './genericobject';
 
+export const enum LightType {
+  None = -1,
+  Omnidirectional = 0,
+  Directional = 1,
+  Ambient = 2,
+}
+
 /**
  * A light.
  */
 export default class Light extends GenericObject {
-  type = -1;
+  type = LightType.None;
   attenuation = new Float32Array(2);
   color = new Float32Array(3);
   intensity = 0;
@@ -51,11 +58,11 @@ export default class Light extends GenericObject {
   readMdl(stream: TokenStream) {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'Omnidirectional') {
-        this.type = 0;
+        this.type = LightType.Omnidirectional;
       } else if (token === 'Directional') {
-        this.type = 1;
+        this.type = LightType.Directional;
       } else if (token === 'Ambient') {
-        this.type = 2;
+        this.type = LightType.Ambient;
       } else if (token === 'static AttenuationStart') {
         this.attenuation[0] = stream.readFloat();
       } else if (token === 'AttenuationStart') {
@@ -92,11 +99,11 @@ export default class Light extends GenericObject {
     stream.startObjectBlock('Light', this.name);
     this.writeGenericHeader(stream);
 
-    if (this.type === 0) {
+    if (this.type === LightType.Omnidirectional) {
       stream.writeFlag('Omnidirectional');
-    } else if (this.type === 1) {
+    } else if (this.type === LightType.Directional) {
       stream.writeFlag('Directional');
-    } else if (this.type === 2) {
+    } else if (this.type === LightType.Ambient) {
       stream.writeFlag('Ambient');
     }
 
