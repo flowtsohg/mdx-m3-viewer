@@ -6,7 +6,7 @@ import { HandlerResourceData } from './handlerresource';
 /**
  * Checks if the given source is a supported image texture source.
  */
-export function isImageSource(src: any) {
+export function isImageSource(src: unknown) {
   return src instanceof ImageData || src instanceof HTMLImageElement || src instanceof HTMLCanvasElement || src instanceof HTMLVideoElement;
 }
 

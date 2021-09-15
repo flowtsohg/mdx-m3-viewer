@@ -12,7 +12,7 @@ export default {
       console.warn('DDS: No compressed textures support! This might reduce performance.');
     }
   },
-  isValidSource(object: any) {
+  isValidSource(object: unknown) {
     if (object instanceof DdsImage) {
       return true;
     }

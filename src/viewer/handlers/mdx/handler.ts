@@ -36,6 +36,10 @@ export interface MdxHandlerObject {
   teamColors: MdxTexture[];
   teamGlows: MdxTexture[];
   eventObjectTables: {[key: string]: GenericResource[] };
+
+  // lutTexture: MdxTexture | null;
+  // envDiffuseTexture: MdxTexture | null;
+  // envSpecularTexture: MdxTexture | null;
 }
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
@@ -140,11 +144,6 @@ export default {
     gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
-    const teamColors: MdxTexture[] = [];
-    const teamGlows: MdxTexture[] = [];
-
-    const eventObjectTables: {[key: string]: GenericResource[] } = {};
-
     const handlerData: MdxHandlerObject = {
       pathSolver,
       reforged,
@@ -160,14 +159,18 @@ export default {
       // Geometry emitters buffer.
       rectBuffer,
       // Team color/glow textures - loaded when the first model that uses team textures is loaded.
-      teamColors,
-      teamGlows,
-      eventObjectTables,
+      teamColors: [],
+      teamGlows: [],
+      eventObjectTables: {},
+
+      // lutTexture: null,
+      // envDiffuseTexture: null,
+      // envSpecularTexture: null,
     };
 
     viewer.sharedCache.set('mdx', handlerData);
   },
-  isValidSource(object: any) {
+  isValidSource(object: unknown) {
     if (object instanceof MdlxModel) {
       return true;
     }
@@ -175,6 +178,26 @@ export default {
     return isMdx(object) || isMdl(object);
   },
   resource: Model,
+  // async loadEnv(viewer: ModelViewer) {
+  //   const mdxHandler = <MdxHandlerObject>viewer.sharedCache.get('mdx');
+
+  //   if (!mdxHandler.lutTexture) {
+  //     mdxHandler.lutTexture = new MdxTexture(0, WrapMode.WrapBoth);
+  //     mdxHandler.envDiffuseTexture = new MdxTexture(0, WrapMode.WrapBoth);
+  //     mdxHandler.envSpecularTexture = new MdxTexture(0, WrapMode.WrapBoth);
+
+  //     const [lutTexture, diffuseTexture, specularTexture] = await Promise.all([
+  //       viewer.load('env/lut.png'),
+  //       viewer.load('env/diffuse-sRGB.png'),
+  //       viewer.load('env/specular-sRGB.png'),
+  //     ]);
+
+  //     mdxHandler.lutTexture.texture = <Texture>lutTexture;
+  //     mdxHandler.envDiffuseTexture.texture = <Texture>diffuseTexture;
+  //     mdxHandler.envSpecularTexture.texture = <Texture>specularTexture;
+  //   }
+
+  // },
   loadTeamTextures(viewer: ModelViewer) {
     const { pathSolver, reforged, teamColors, teamGlows } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
 

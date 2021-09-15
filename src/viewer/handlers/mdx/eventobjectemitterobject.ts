@@ -85,15 +85,15 @@ export default class EventObjectEmitterObject extends GenericObject {
         resolve();
 
         if (data) {
-          const row = data.row;
+          const { row, resources } = data;
 
           this.ok = true;
 
           if (type === 'SPN') {
-            this.internalModel = <MdxModel>data.resources[0];
+            this.internalModel = <MdxModel>resources[0];
           } else if (type === 'SPL' || type === 'UBR') {
             this.internalTexture = new MdxTexture(0, WrapMode.WrapBoth);
-            this.internalTexture.texture = <Texture>data.resources[0];
+            this.internalTexture.texture = <Texture>resources[0];
 
             this.scale = <number>row['Scale'];
             this.colors[0] = new Float32Array([<number>row['StartR'], <number>row['StartG'], <number>row['StartB'], <number>row['StartA']]);
@@ -132,8 +132,8 @@ export default class EventObjectEmitterObject extends GenericObject {
             this.pitchVariance = <number>row['PitchVariance'];
             this.volume = <number>row['Volume'];
 
-            for (const resource of data.resources) {
-              this.decodedBuffers.push((<GenericResource>resource).data);
+            for (const resource of resources) {
+              this.decodedBuffers.push(<AudioBuffer>(<GenericResource>resource).data);
             }
           }
         }

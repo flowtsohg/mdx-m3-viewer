@@ -16,6 +16,7 @@ import Ribbon from './ribbon';
 import EventObjectSplUbr from './eventobjectsplubr';
 import MdxTexture from './texture';
 import { HeadOrTail } from '../../../parsers/mdlx/particleemitter2';
+import { MdxHandlerObject } from './handler';
 
 const locationHeap = vec3.create();
 const startHeap = vec3.create();
@@ -70,6 +71,9 @@ export const EMITTER_EVENT_TEXTURE_OFFSET = 10000;
 // The game scales the emission rate of particle emitters depending on the particles setting.
 // High seems to double the emission.
 export const SETTING_PARTICLES_HIGH = 2;
+
+export type GeometryEmitter = ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter;
+export type GeometryEmitterObject = ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject;
 
 function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
   const instance = <MdxModelInstance>emitter.instance;
@@ -148,7 +152,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   const model = emitterObject.model;
   const viewer = model.viewer;
   const gl = viewer.gl;
-  const mdxCache = viewer.sharedCache.get('mdx');
+  const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
   const uniforms = shader.uniforms;
   const colors = emitterObject.colors;
   const intervals = emitterObject.intervals;
@@ -383,9 +387,9 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 }
 
-export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter, shader: Shader) {
+export function renderEmitter(emitter: GeometryEmitter, shader: Shader) {
   let alive = emitter.alive;
-  const emitterObject = <ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject>emitter.emitterObject;
+  const emitterObject = <GeometryEmitterObject>emitter.emitterObject;
   const emitterType = emitterObject.geometryEmitterType;
 
   if (emitterType === EMITTER_RIBBON) {

@@ -1,7 +1,7 @@
 /**
  * Detects if the given object is an M3 source.
  */
-export default function isM3(bytes: any) {
+export default function isM3(bytes: unknown) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }

@@ -20,6 +20,7 @@ varying float v_layerAlpha;
 varying vec3 v_lightDir;
 varying vec3 v_eyeVec;
 varying vec3 v_normal;
+// varying vec3 v_lightDirWorld;
 
 #if defined(ONLY_TANGENTS)
 varying vec3 v_tangent;
@@ -67,6 +68,7 @@ void main() {
   v_layerAlpha = u_layerAlpha;
 
   v_normal = normal;
+  // v_lightDirWorld = normalize(lightDir);
 
   #if defined(ONLY_TANGENTS)
   v_tangent = tangent;

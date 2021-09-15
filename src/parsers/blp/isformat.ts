@@ -1,7 +1,7 @@
 /**
  * Detects if the given object is a BLP source.
  */
-export default function isBlp(bytes: any) {
+export default function isBlp(bytes: unknown) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }

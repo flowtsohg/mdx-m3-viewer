@@ -1,7 +1,15 @@
+interface PrimitiveShape {
+  vertices: Float32Array;
+  uvs: Float32Array;
+  faces: Uint16Array;
+  edges: Uint16Array;
+  boundingRadius: number;
+}
+
 /**
  * Creates a rectangle geometry object.
  */
-export function createRectangle(w: number, d: number) {
+export function createRectangle(w: number, d: number): PrimitiveShape {
   return {
     vertices: new Float32Array([-w, d, 0, -w, -d, 0, w, -d, 0, w, d, 0]),
     uvs: new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]),
@@ -21,7 +29,7 @@ export function createUnitRectangle() {
 /**
  * Creates a cube geometry object.
  */
-export function createCube(w: number, d: number, h: number) {
+export function createCube(w: number, d: number, h: number): PrimitiveShape {
   return {
     vertices: new Float32Array([-w, -d, -h, -w, -d, h, -w, d, -h, -w, d, h, w, d, -h, w, d, h, w, -d, -h, w, -d, h]),
     uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
@@ -41,7 +49,7 @@ export function createUnitCube() {
 /**
  * Creates a sphere geometry object.
  */
-export function createSphere(radius: number, stacks: number, slices: number) {
+export function createSphere(radius: number, stacks: number, slices: number): PrimitiveShape {
   const points = (stacks + 1) * (slices + 1);
   const vertices = new Float32Array(points * 3);
   const uvs = new Float32Array(points * 2);
@@ -112,7 +120,7 @@ export function createUnitSphere(stacks: number, slices: number) {
 /**
  * Creates a cylinder geometry object.
  */
-export function createCylinder(radius: number, height: number, slices: number) {
+export function createCylinder(radius: number, height: number, slices: number): PrimitiveShape {
   slices = Math.max(slices, 3);
 
   const points = (slices + 1) * 2 + 2;
@@ -213,7 +221,7 @@ export function createUnitCylinder(slices: number) {
 /**
  * Create a furstum geometry.
  */
-export function createFrustum(fieldOfView: number, aspectRatio: number, nearClipPlane: number, farClipPlane: number) {
+export function createFrustum(fieldOfView: number, aspectRatio: number, nearClipPlane: number, farClipPlane: number): PrimitiveShape {
   const tanFov = 2 * Math.tan(fieldOfView / 2);
   const nearHeight = (tanFov * nearClipPlane) / 2;
   const nearWidth = (nearClipPlane * aspectRatio) / 2;

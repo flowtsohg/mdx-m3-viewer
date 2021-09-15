@@ -72,6 +72,10 @@ export default class BatchGroup {
       gl.uniform1i(uniforms['u_teamColorMap'], 4);
       gl.uniform1i(uniforms['u_environmentMap'], 5);
 
+      // gl.uniform1i(uniforms['u_lutMap'], 6);
+      // gl.uniform1i(uniforms['u_envDiffuseMap'], 7);
+      // gl.uniform1i(uniforms['u_envSpecularMap'], 8);
+
       gl.disable(gl.BLEND);
       gl.enable(gl.DEPTH_TEST);
       gl.depthMask(true);
@@ -122,6 +126,13 @@ export default class BatchGroup {
           webgl.bindTextureAndWrap(actualEmissiveTexture, 3, emissiveTexture.wrapS, emissiveTexture.wrapT);
           webgl.bindTextureAndWrap(actualTeamColorTexture, 4, teamColorTexture.wrapS, teamColorTexture.wrapT);
           webgl.bindTextureAndWrap(actualEnvironmentMapTexture, 5, environmentMapTexture.wrapS, environmentMapTexture.wrapT);
+
+          // const { lutTexture, envDiffuseTexture, envSpecularTexture }= mdxCache;
+          // if (lutTexture && envDiffuseTexture && envSpecularTexture) {
+          //   webgl.bindTextureAndWrap(lutTexture.texture, 6, lutTexture.wrapS, lutTexture.wrapT);
+          //   webgl.bindTextureAndWrap(envDiffuseTexture.texture, 7, envDiffuseTexture.wrapS, envDiffuseTexture.wrapT);
+          //   webgl.bindTextureAndWrap(envSpecularTexture.texture, 8, envSpecularTexture.wrapS, envSpecularTexture.wrapT);
+          // }
 
           geoset.bindHd(shader, batch.skinningType, diffuseLayer.coordId);
           geoset.render();

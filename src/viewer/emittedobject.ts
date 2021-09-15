@@ -8,7 +8,7 @@ export default abstract class EmittedObject {
   index = -1;
   health = 0;
 
-  abstract bind(emitData?: any): void;
+  abstract bind(emitData?: unknown): void;
   abstract update(dt: number): void;
 
   constructor(emitter: Emitter) {

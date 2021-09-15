@@ -29,7 +29,6 @@ import { Batch } from './batch';
 import Geoset from './geoset';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
-import { WrapMode } from '../../../parsers/mdlx/texture';
 
 /**
  * An MDX model.
@@ -148,6 +147,8 @@ export default class MdxModel extends Model {
 
     if (this.hd) {
       solverParams.hd = true;
+
+      // mdxHandler.loadEnv(viewer);
     }
 
     // Textures.

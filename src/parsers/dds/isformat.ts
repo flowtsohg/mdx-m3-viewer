@@ -1,7 +1,7 @@
 /**
  * Detects if the given object is a DDS source.
  */
-export default function isDds(bytes: any) {
+export default function isDds(bytes: unknown) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }

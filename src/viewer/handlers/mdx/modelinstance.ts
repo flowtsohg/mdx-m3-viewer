@@ -29,6 +29,8 @@ const colorHeap = new Float32Array(3);
 const alphaHeap = new Float32Array(1);
 const textureIdHeap = new Uint32Array(1);
 
+type SkeletalNodeObject = AttachmentInstance | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | EventObjectEmitter;
+
 /**
  * An MDX model instance.
  */
@@ -222,7 +224,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Initialize a skeletal node.
    */
-  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: Bone | Light | Helper | AttachmentInstance | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | EventObjectEmitter) {
+  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: SkeletalNodeObject) {
     vec3.copy(node.pivot, genericObject.pivot);
 
     if (genericObject.parentId === -1) {
@@ -310,7 +312,7 @@ export default class MdxModelInstance extends ModelInstance {
 
         // If the attachment/emitter is visible, update it.
         if (visibilityHeap[0] > 0) {
-          node.object.update(dt);
+          (<SkeletalNodeObject>node.object).update(dt);
         }
       }
 

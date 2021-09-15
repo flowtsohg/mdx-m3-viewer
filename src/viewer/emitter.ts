@@ -50,7 +50,7 @@ export default abstract class Emitter {
     this.currentEmission = 0;
   }
 
-  emitObject(emitData?: any) {
+  emitObject(emitData?: unknown) {
     const objects = this.objects;
 
     // If there are no unused objects, create a new one.

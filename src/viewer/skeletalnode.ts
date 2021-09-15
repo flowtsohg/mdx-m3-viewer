@@ -40,7 +40,7 @@ export class SkeletalNode {
   /**
    * The object associated with this node, if there is any.
    */
-  object: any = null;
+  object: unknown = null;
 
   constructor(pivot: vec3,
     localLocation: vec3, localRotation: quat, localScale: vec3,

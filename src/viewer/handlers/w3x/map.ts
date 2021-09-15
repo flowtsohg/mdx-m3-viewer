@@ -392,7 +392,7 @@ export default class War3MapViewerMap {
       const resource = await viewer.loadBaseFile(path, 'arrayBuffer');
 
       if (resource) {
-        return new TerrainModel(this, resource.data, locations, textures, cliffShader);
+        return new TerrainModel(this, <ArrayBuffer>resource.data, locations, textures, cliffShader);
       }
 
       return;

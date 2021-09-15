@@ -43,7 +43,7 @@ export default {
 
     viewer.sharedCache.set('m3', handlerData);
   },
-  isValidSource(object: any) {
+  isValidSource(object: unknown) {
     if (object instanceof Parser) {
       return true;
     }

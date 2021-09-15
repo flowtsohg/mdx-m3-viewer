@@ -28,7 +28,7 @@ export enum DebugRenderMode {
  */
 export interface Handler {
   load?: (viewer: ModelViewer, ...args: any[]) => void;
-  isValidSource: (src: any) => boolean;
+  isValidSource: (src: unknown) => boolean;
   resource: new (src: any, resourceData: HandlerResourceData) => HandlerResource
 }
 
@@ -107,7 +107,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * A cache of arbitrary data, shared between all of the handlers.
    */
-  sharedCache: Map<any, any> = new Map();
+  sharedCache: Map<unknown, unknown> = new Map();
   /**
    * Debug rendering mode.
    * 
@@ -150,7 +150,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Add an handler.
    */
-  addHandler(handler: Handler, ...args: any[]) {
+  addHandler(handler: Handler, ...args: unknown[]) {
     if (handler) {
       const handlers = this.handlers;
 
@@ -347,7 +347,7 @@ export default class ModelViewer extends EventEmitter {
     return promise;
   }
 
-  detectFormat(src: any) {
+  detectFormat(src: unknown) {
     for (const handler of this.handlers) {
       if (handler.isValidSource(src)) {
         return handler;

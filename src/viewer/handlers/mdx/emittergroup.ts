@@ -2,7 +2,8 @@ import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
-import { renderEmitter } from './geometryemitterfuncs';
+import { GeometryEmitter, renderEmitter } from './geometryemitterfuncs';
+import { MdxHandlerObject } from './handler';
 
 /**
  * A group of emitters that are going to be rendered together.
@@ -22,11 +23,11 @@ export default class EmitterGroup {
     const viewer = model.viewer;
     const gl = viewer.gl;
     const instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions['ANGLE_instanced_arrays'];
-    const mdxCache = viewer.sharedCache.get('mdx');
-    const shader = <Shader>mdxCache.particlesShader;
+    const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
+    const shader = mdxCache.particlesShader;
     const uniforms = shader.uniforms;
     const attribs = shader.attribs;
-    const rectBuffer = <WebGLBuffer>mdxCache.rectBuffer;
+    const rectBuffer = mdxCache.rectBuffer;
 
     gl.depthMask(false);
     gl.enable(gl.BLEND);
@@ -53,7 +54,7 @@ export default class EmitterGroup {
     instancedArrays.vertexAttribDivisorANGLE(attribs['a_leftRightTop'], 1);
 
     for (const index of this.objects) {
-      renderEmitter(nodes[index].object, shader);
+      renderEmitter(<GeometryEmitter>nodes[index].object, shader);
     }
 
     instancedArrays.vertexAttribDivisorANGLE(attribs['a_leftRightTop'], 0);

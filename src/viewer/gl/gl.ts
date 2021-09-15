@@ -12,7 +12,7 @@ export default class WebGL {
   gl: WebGLRenderingContext;
   currentShader: Shader | null = null;
   emptyTexture: WebGLTexture;
-  extensions: {[key: string]: any } = {};
+  extensions: {[key: string]: unknown } = {};
 
   constructor(canvas: HTMLCanvasElement, options: object = { alpha: false }) {
     let gl = <WebGLRenderingContext>canvas.getContext('webgl', options);

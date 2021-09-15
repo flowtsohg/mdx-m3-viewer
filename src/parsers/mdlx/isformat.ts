@@ -3,7 +3,7 @@ import { isStringInBytes, isStringInString } from '../../common/searches';
 /**
  * Detects if the given object is an MDX source.
  */
-export function isMdx(bytes: any) {
+export function isMdx(bytes: unknown) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }
@@ -20,7 +20,7 @@ export function isMdx(bytes: any) {
 /**
  * Detects if the given object is an MDL source.
  */
-export function isMdl(bytes: any) {
+export function isMdl(bytes: unknown) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }

@@ -33,7 +33,7 @@ import MaterialReference from '../../../parsers/m3/materialreference';
 export default class M3Model extends Model {
   name = '';
   batches: M3Batch[] = [];
-  materials: [any[], M3StandardMaterial[]] = [[], []]; // 2D array for the possibility of adding more material types in the future
+  materials: [unknown[], M3StandardMaterial[]] = [[], []]; // 2D array for the possibility of adding more material types in the future
   materialMaps: MaterialReference[] = [];
   bones: M3Bone[] = [];
   boneLookup: Uint16Array;

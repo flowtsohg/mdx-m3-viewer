@@ -96,17 +96,17 @@ export default class War3MapViewer extends ModelViewer {
       throw new Error('Failed to load the base files');
     }
 
-    this.terrainData.load(terrain.data);
-    this.cliffTypesData.load(cliffTypes.data);
-    this.waterData.load(water.data);
-    this.doodadsData.load(doodads.data);
-    this.doodadMetaData.load(doodadMetaData.data);
-    this.doodadsData.load(destructableData.data);
-    this.destructableMetaData.load(destructableMetaData.data);
-    this.unitsData.load(unitData.data);
-    this.unitsData.load(unitUi.data);
-    this.unitsData.load(itemData.data);
-    this.unitMetaData.load(unitMetaData.data);
+    this.terrainData.load(<string>terrain.data);
+    this.cliffTypesData.load(<string>cliffTypes.data);
+    this.waterData.load(<string>water.data);
+    this.doodadsData.load(<string>doodads.data);
+    this.doodadMetaData.load(<string>doodadMetaData.data);
+    this.doodadsData.load(<string>destructableData.data);
+    this.destructableMetaData.load(<string>destructableMetaData.data);
+    this.unitsData.load(<string>unitData.data);
+    this.unitsData.load(<string>unitUi.data);
+    this.unitsData.load(<string>itemData.data);
+    this.unitMetaData.load(<string>unitMetaData.data);
 
     if (reforgedPromises) {
       const [doodadSkins, destructableSkin, unitSkin, itemSkin] = await Promise.all(reforgedPromises);
@@ -115,10 +115,10 @@ export default class War3MapViewer extends ModelViewer {
         throw new Error('Failed to load the base Reforged files');
       }
 
-      this.doodadsData.load(doodadSkins.data);
-      this.doodadsData.load(destructableSkin.data);
-      this.unitsData.load(unitSkin.data);
-      this.unitsData.load(itemSkin.data);
+      this.doodadsData.load(<string>doodadSkins.data);
+      this.doodadsData.load(<string>destructableSkin.data);
+      this.unitsData.load(<string>unitSkin.data);
+      this.unitsData.load(<string>itemSkin.data);
     }
 
     this.loadedBaseFiles = true;

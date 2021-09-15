@@ -4,9 +4,9 @@ import { Resource, ResourceData } from './resource';
  * A generic resource.
  */
 export default class GenericResource extends Resource {
-  data: any = null;
+  data: unknown = null;
 
-  constructor(data: any, resourceData: ResourceData) {
+  constructor(data: unknown, resourceData: ResourceData) {
     super(resourceData);
 
     this.data = data;
