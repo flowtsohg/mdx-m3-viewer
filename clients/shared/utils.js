@@ -49,3 +49,23 @@ async function readEntriesPromise(directoryReader) {
     console.log(err);
   }
 }
+
+export async function readFile(file, asText) {
+  return new Promise((resolve) => {
+    let reader = new FileReader();
+
+    reader.addEventListener('loadend', (e) => {
+      resolve(e.target.result);
+    });
+
+    if (asText) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
+  });
+}
+
+export async function readEntry(entry, asText) {
+  return new Promise((resolve) => entry.file(async (file) => resolve(await readFile(file, asText))));
+}

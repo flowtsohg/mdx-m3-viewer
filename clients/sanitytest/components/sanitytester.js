@@ -1,10 +1,10 @@
-import { extname } from "../../../src/common/path";
+import { basename, extname } from "../../../src/common/path";
 import War3Map from "../../../src/parsers/w3x/map";
 import Component from "../../shared/component";
 import Toggle from "../../shared/components/toggle";
 import { createElement, hideElement, showElement } from "../../shared/domutils";
 import localOrHive from "../../shared/localorhive";
-import { getAllFileEntries } from "../../shared/utils";
+import { getAllFileEntries, readFile, readEntry } from "../../shared/utils";
 import Test from "../test";
 import Logger from "./logger";
 import Viewer from "./viewer";
@@ -187,29 +187,19 @@ export default class SanityTester extends Component {
   /**
    * Load a file, e.g. resulting from a Drag & Drop action.
    */
-  loadFile(file) {
+  async loadFile(file) {
     let name = file.name;
     let ext = extname(name);
 
     if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
       this.logger.info(`Reading ${name}`);
 
-      let reader = new FileReader();
+      let buffer = await readFile(file, ext === '.mdl');
 
-      reader.addEventListener('loadend', (e) => {
-        let buffer = e.target.result;
-
-        if (ext === '.w3m' || ext === '.w3x') {
-          this.loadMap(name, buffer);
-        } else {
-          this.test(name, buffer);
-        }
-      });
-
-      if (ext === '.mdl') {
-        reader.readAsText(file);
+      if (ext === '.w3m' || ext === '.w3x') {
+        this.loadMap(name, buffer);
       } else {
-        reader.readAsArrayBuffer(file);
+        this.test(name, buffer);
       }
     } else {
       this.logger.info(`${name} is not a supported file, skipping it`);
@@ -221,7 +211,10 @@ export default class SanityTester extends Component {
    */
   async loadDataTransfer(dataTransfer) {
     let entries = await getAllFileEntries(dataTransfer.items);
+    let names = [];
+    let promises = [];
 
+    // First start reading all of the relevant files.
     for (let entry of entries) {
       let name = entry.name;
       let ext = extname(name);
@@ -229,27 +222,40 @@ export default class SanityTester extends Component {
       if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
         this.logger.info(`Reading ${name}`);
 
-        entry.file((file) => {
-          let reader = new FileReader();
-
-          reader.addEventListener('loadend', (e) => {
-            let buffer = e.target.result;
-
-            if (ext === '.w3m' || ext === '.w3x') {
-              this.loadMap(name, buffer);
-            } else {
-              this.test(name, buffer);
-            }
-          });
-
-          if (ext === '.mdl') {
-            reader.readAsText(file);
-          } else {
-            reader.readAsArrayBuffer(file);
-          }
-        });
+        names.push(name.toLowerCase());
+        promises.push(readEntry(entry, ext === '.mdl'));
       } else {
         this.logger.info(`${name} is not a supported file, skipping it`);
+      }
+    }
+
+    // Finish reading...
+    let buffers = await Promise.all(promises);
+
+    // Now map from names to buffers.
+    let overrides = new Map();
+
+    for (let i = 0, l = names.length; i < l; i++) {
+      overrides.set(names[i], buffers[i]);
+    }
+
+    // Path solver to see if a resource that needs loading is one of the files in the data transfer.
+    let pathSolver = (src, params) => {
+      let override = overrides.get(basename(src).toLowerCase());
+
+      if (override) {
+        return override;
+      } else {
+        return localOrHive(src, params);
+      }
+    };
+
+    // Finally load the tests.
+    for (let [name, buffer] of overrides.entries()) {
+      if (name.endsWith('.w3m') || name.endsWith('.w3x')) {
+        this.loadMap(name, buffer);
+      } else {
+        this.test(name, buffer, pathSolver);
       }
     }
   }
@@ -280,7 +286,7 @@ export default class SanityTester extends Component {
 
       if (files.length) {
         let pathSolver = (src, params) => {
-          let override = overrides.get(src);
+          let override = overrides.get(basename(src).toLowerCase());
 
           if (override) {
             return override;

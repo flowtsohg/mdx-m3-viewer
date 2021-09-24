@@ -1,9 +1,12 @@
+import mdlStructure from "../../../src/utils/mdlx/mdlstructure";
 import Component from "../../shared/component";
 import { createElement } from "../../shared/domutils";
 
 export default class MdlView extends Component {
-  constructor(mdl) {
+  constructor(parser) {
     super({ className: 'mdl-view' });
+
+    const mdl = mdlStructure(parser);
 
     this.structureElement = createElement({ className: 'mdl-structure', container: this.container });
     this.sourceElement = createElement({ tagName: 'pre', className: 'mdl-source', container: this.container });

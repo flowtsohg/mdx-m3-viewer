@@ -47,7 +47,7 @@ export function extname(path: string) {
  * 
  * Path/To/My/File.ext => File
  */
-export function name(path: string) {
+export function filename(path: string) {
   path = basename(path);
 
   const index = path.lastIndexOf('.');

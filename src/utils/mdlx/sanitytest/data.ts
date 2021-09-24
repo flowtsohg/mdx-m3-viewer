@@ -26,6 +26,7 @@ export default class SanityTestData {
   map: Map<MdlxType, SanityTestNode> = new Map();
   foundStand = false;
   foundDeath = false;
+  boneUsageMap = new Map();
 
   constructor(model: Model) {
     this.model = model;

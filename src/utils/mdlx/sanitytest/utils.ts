@@ -27,6 +27,10 @@ import SanityTestData from './data';
 import testTracks from './tracks';
 import { SanityTestNode } from './data';
 
+export function isBetween(x: number, minVal: number, maxVal: number) {
+  return x >= minVal && x <= maxVal;
+}
+
 export const sequenceNames = new Set([
   'attack',
   'birth',
@@ -283,12 +287,21 @@ export function getTextureIds(layer: Layer) {
   return [layer.textureId];
 }
 
-function testVertexSkinning(data: SanityTestData, vertex: number, bone: number) {
+function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, isHd: boolean) {
   const object = data.objects[bone];
+
+  if (isHd) {
+    data.assertError(isBetween(bone, 0, 255), `Vertex ${vertex}: References bone ${bone} but there can only be 256 bones in an HD model`);
+  }
 
   if (object) {
     if (!(object instanceof Bone)) {
       data.addSevere(`Vertex ${vertex}: Attached to "${object.name}" which is not a bone`);
+    } else {
+      // Add a use for this bone, to check later if bones have vertices attached to them.
+      const uses = data.boneUsageMap.get(bone) || 0;
+     
+      data.boneUsageMap.set(bone, uses + 1);
     }
   } else {
     data.addError(`Vertex ${vertex}: Attached to object ${bone} which does not exist`);
@@ -316,19 +329,19 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
       const weight3 = skin[offset + 7];
 
       if (weight0 > 0) {
-        testVertexSkinning(data, i, bone0);
+        testVertexSkinning(data, i, bone0, true);
       }
 
       if (weight1 > 0) {
-        testVertexSkinning(data, i, bone1);
+        testVertexSkinning(data, i, bone1, true);
       }
 
       if (weight2 > 0) {
-        testVertexSkinning(data, i, bone2);
+        testVertexSkinning(data, i, bone2, true);
       }
 
       if (weight3 > 0) {
-        testVertexSkinning(data, i, bone3);
+        testVertexSkinning(data, i, bone3, true);
       }
 
       const weight = weight0 + weight1 + weight2 + weight3;
@@ -358,7 +371,7 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
 
         if (slice) {
           for (const bone of slice) {
-            testVertexSkinning(data, i, bone);
+            testVertexSkinning(data, i, bone, false);
           }
         } else {
           const vertexGroup = vertexGroups[i];

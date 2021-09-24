@@ -1,4 +1,4 @@
-import { extname } from "../../src/common/path";
+import { basename, extname } from "../../src/common/path";
 import MdlxModel from '../../src/parsers/mdlx/model';
 import { BlpImage } from '../../src/parsers/blp/image';
 import { DdsImage } from '../../src/parsers/dds/image';
@@ -6,10 +6,6 @@ import TgaImage from '../../src/parsers/tga/image';
 import TestResults from "./components/testresults";
 import TestMeta from "./components/testmeta";
 import MdlView from "./components/mdlview";
-import mdlxSanityTest from '../../src/utils/mdlx/sanitytest/sanitytest';
-import mdlStructure from '../../src/utils/mdlx/mdlstructure';
-import blpSanityTest from '../../src/utils/blp/sanitytest';
-import ddsSanityTest from '../../src/utils/dds/sanitytest';
 
 export default class Test {
   constructor(tester, name, buffer, pathSolver) {
@@ -19,6 +15,7 @@ export default class Test {
     let isDds = ext === '.dds';
 
     this.name = name;
+    this.shortName = basename(name);
     this.parsingError = false;
     this.results = null;
     this.mdl = null;
@@ -50,29 +47,15 @@ export default class Test {
     }
 
     if (isMdlx) {
-      this.results = new TestResults(mdlxSanityTest(this.parser));
-      this.mdl = new MdlView(mdlStructure(this.parser));
+      this.results = new TestResults(this.parser);
+      this.mdl = new MdlView(this.parser);
     } else if (isBlp) {
-      this.results = new TestResults(blpSanityTest(this.parser), this.getMipmaps(this.parser));
+      this.results = new TestResults(this.parser);
     } else if (isDds) {
-      this.results = new TestResults(ddsSanityTest(this.parser));
+      this.results = new TestResults(this.parser);
     }
 
-    this.meta = new TestMeta(this.name, this.parsingError, this.results, { onclick: () => tester.render(this) });
-  }
-
-  getMipmaps(image) {
-    let mipmaps = [];
-
-    for (let i = 0, l = image.mipmaps(); i < l; i++) {
-      try {
-        mipmaps.push(image.getMipmap(i));
-      } catch (e) {
-        mipmaps.push(e);
-      }
-    }
-
-    return mipmaps;
+    this.meta = new TestMeta(this.shortName, this.parsingError, this.results, { onclick: () => tester.render(this) });
   }
 
   show() {

@@ -39,7 +39,7 @@ export default class BlpTexture extends Texture {
     const mipmaps = image.mipmaps();
 
     // If there is one mipmap, or fake mipmaps, or it's an NPOT image, use just the first mipmap. Otherwise load all of them.
-    if (mipmaps === 1 || image.hasFakeMipmaps() || !isPOT) {
+    if (mipmaps === 1 || image.fakeMipmaps() || !isPOT) {
       const imageData = image.getMipmap(0);
 
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);

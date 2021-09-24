@@ -5,7 +5,7 @@ import { bytesOf } from '../../common/bytesof';
 import convertBitRange from '../../common/convertbitrange';
 
 export const BLP1_MAGIC = 0x31504c42;
-const CONTENT_JPG = 0x0;
+export const CONTENT_JPG = 0x0;
 // const CONTENT_PALLETE = 0x1;
 
 /**
@@ -132,8 +132,9 @@ export class BlpImage {
     return mipmaps;
   }
 
-  hasFakeMipmaps() {
+  fakeMipmaps() {
     const offsets = this.mipmapOffsets;
+    let mipmaps = 0;
 
     for (let i = 0; i < 16; i++) {
       const offset = offsets[i];
@@ -141,12 +142,13 @@ export class BlpImage {
       if (offset > 0) {
         for (let j = i + 1; j < 16; j++) {
           if (offset === offsets[j]) {
-            return true;
+            mipmaps += 1;
+            break;
           }
         }
       }
     }
 
-    return false;
+    return mipmaps;
   }
 }

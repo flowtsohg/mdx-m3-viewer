@@ -10,7 +10,7 @@ import { setupCamera } from "../../shared/camera";
 import ViewerControls from "./viewercontrols";
 import createPrimitive from '../../../src/utils/mdlx/primitives/createprimitive';
 import { createUnitRectangle, createUnitCube, createUnitSphere } from '../../../src/utils/mdlx/primitives/primitives';
-import { name as pathName } from '../../../src/common/path';
+import { filename } from '../../../src/common/path';
 import Model from '../../../src/viewer/model';
 import Texture from '../../../src/viewer/texture';
 
@@ -123,8 +123,8 @@ export default class Viewer extends Component {
     step();
   }
 
-  load(test) {
-    this.viewer.load(test.parser, (src, params) => {
+  async load(test) {
+    const modelOrTexture = await this.viewer.load(test.parser, (src, params) => {
       if (src === test.parser) {
         return src;
       }
@@ -135,71 +135,72 @@ export default class Viewer extends Component {
       }
 
       return localOrHive(src, params);
-    })
-      .then((modelOrTexture) => {
-        if (modelOrTexture) {
-          let instance;
+    });
 
-          if (modelOrTexture instanceof Model) {
-            instance = modelOrTexture.addInstance();
-            instance.setTeamColor(this.teamColor);
+    if (!modelOrTexture) {
+      return;
+    }
 
-            let boundingBox = this.boxModel.addInstance();
-            boundingBox.hide();
-            boundingBox.setScene(this.scene);
-            boundingBox.setParent(instance);
+    let instance;
 
-            let boundingSphere = this.sphereModel.addInstance();
-            boundingSphere.hide();
-            boundingSphere.setScene(this.scene);
-            boundingSphere.setParent(instance);
+    if (modelOrTexture instanceof Model) {
+      instance = modelOrTexture.addInstance();
+      instance.setTeamColor(this.teamColor);
 
-            test.boundingBox = boundingBox;
-            test.boundingSphere = boundingSphere;
+      let boundingBox = this.boxModel.addInstance();
+      boundingBox.hide();
+      boundingBox.setScene(this.scene);
+      boundingBox.setParent(instance);
 
-            // let cameraPromises = [];
+      let boundingSphere = this.sphereModel.addInstance();
+      boundingSphere.hide();
+      boundingSphere.setScene(this.scene);
+      boundingSphere.setParent(instance);
 
-            // for (let camera of modelOrTexture.cameras) {
-            //   console.log(camera)
-            //   cameraPromises.push(ModelViewer.default.utils.mdlx.createPrimitive(this.viewer, ModelViewer.default.utils.mdlx.primitives.createFrustum(camera.fieldOfView, this.canvas.width / this.canvas.height, camera.nearClippingPlane, camera.farClippingPlane), { lines: true }));
-            // }
+      test.boundingBox = boundingBox;
+      test.boundingSphere = boundingSphere;
 
-            // Promise.all(cameraPromises)
-            //   .then((cameraModels) => {
-            //     for (let i = 0, l = cameraModels.length; i < l; i++) {
-            //       let model = cameraModels[i];
-            //       let instance = model.addInstance();
+      // let cameraPromises = [];
 
-            //       //instance.hide();
-            //       instance.setScene(this.scene);
+      // for (let camera of modelOrTexture.cameras) {
+      //   console.log(camera)
+      //   cameraPromises.push(ModelViewer.default.utils.mdlx.createPrimitive(this.viewer, ModelViewer.default.utils.mdlx.primitives.createFrustum(camera.fieldOfView, this.canvas.width / this.canvas.height, camera.nearClippingPlane, camera.farClippingPlane), { lines: true }));
+      // }
 
-            //       instance.setLocation(modelOrTexture.cameras[i].position);
-            //       instance.face(modelOrTexture.cameras[i].targetPosition, [0, 0, 1]);
+      // Promise.all(cameraPromises)
+      //   .then((cameraModels) => {
+      //     for (let i = 0, l = cameraModels.length; i < l; i++) {
+      //       let model = cameraModels[i];
+      //       let instance = model.addInstance();
 
-            //       test.cameras.push(instance);
-            //     }
-            //   });
-          } else {
-            instance = this.textureModel.addInstance();
+      //       //instance.hide();
+      //       instance.setScene(this.scene);
 
-            instance.scale([modelOrTexture.width, modelOrTexture.height, 1]);
-            instance.setTexture(0, modelOrTexture);
-          }
+      //       instance.setLocation(modelOrTexture.cameras[i].position);
+      //       instance.face(modelOrTexture.cameras[i].targetPosition, [0, 0, 1]);
 
-          instance.hide();
-          instance.setSequenceLoopMode(2);
-          instance.setScene(this.scene);
+      //       test.cameras.push(instance);
+      //     }
+      //   });
+    } else {
+      instance = this.textureModel.addInstance();
 
-          test.resource = modelOrTexture;
-          test.instance = instance;
+      instance.scale([modelOrTexture.width, modelOrTexture.height, 1]);
+      instance.setTexture(0, modelOrTexture);
+    }
 
-          this.tryToInjectCustomTextures(test);
+    instance.hide();
+    instance.setSequenceLoopMode(2);
+    instance.setScene(this.scene);
 
-          if (test === this.tester.visibleTest) {
-            this.render(test);
-          }
-        }
-      });
+    test.resource = modelOrTexture;
+    test.instance = instance;
+
+    this.tryToInjectCustomTextures(test);
+
+    if (test === this.tester.visibleTest) {
+      this.render(test);
+    }
   }
 
   render(test) {
@@ -324,8 +325,8 @@ export default class Viewer extends Component {
           let textures = test.parser.textures;
 
           for (let i = 0, l = textures.length; i < l; i++) {
-            let a = pathName(textures[i].path).toLowerCase();
-            let b = pathName(customTest.name).toLowerCase();
+            let a = filename(textures[i].path).toLowerCase();
+            let b = filename(customTest.name).toLowerCase();
 
             if (a === b) {
               test.instance.setTexture(i, customTest.resource);
@@ -343,8 +344,8 @@ export default class Viewer extends Component {
             let textures = customTest.parser.textures;
 
             for (let i = 0, l = textures.length; i < l; i++) {
-              let a = pathName(textures[i].path).toLowerCase();
-              let b = pathName(test.name).toLowerCase();
+              let a = filename(textures[i].path).toLowerCase();
+              let b = filename(test.name).toLowerCase();
 
               if (a === b) {
                 customTest.instance.setTexture(i, test.resource);
@@ -355,20 +356,20 @@ export default class Viewer extends Component {
           } else {
             // Inject this model into others.
             let emitters = test.parser.particleEmitters;
-            let a = pathName(customTest.name).toLowerCase();
+            let a = filename(customTest.name).toLowerCase();
 
             for (let i = 0, l = emitters.length; i < l; i++) {
-              let b = pathName(emitters[i].path).toLowerCase();
+              let b = filename(emitters[i].path).toLowerCase();
 
               console.log('inject into other', a, b);
             }
 
             // Inject other models into this one.
             emitters = customTest.parser.particleEmitters;
-            a = pathName(customTest.name).toLowerCase();
+            a = filename(customTest.name).toLowerCase();
 
             for (let i = 0, l = emitters.length; i < l; i++) {
-              let b = pathName(emitters[i].path).toLowerCase();
+              let b = filename(emitters[i].path).toLowerCase();
 
               console.log('inject from other', a, b);
             }

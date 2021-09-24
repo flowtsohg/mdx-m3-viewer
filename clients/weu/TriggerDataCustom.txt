@@ -2,6 +2,14 @@
 
 UnitStateMaxLifeSec=0,unitstate,UNIT_STATE_MAX_LIFE,WESTRING_USTATE_MAXLIFE
 
+SaveLoadOp0=0,integer,0,"0"
+SaveLoadOp1=0,integer,1,"1"
+SaveLoadOp2=0,integer,2,"2"
+SaveLoadOp3=0,integer,3,"3"
+SaveLoadOp4=0,integer,4,"4"
+SaveLoadOp5=0,integer,5,"5"
+SaveLoadOp6=0,integer,6,"6"
+
 [TriggerEvents]
 
 [TriggerConditions]
