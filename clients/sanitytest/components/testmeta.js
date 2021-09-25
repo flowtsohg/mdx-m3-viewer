@@ -21,30 +21,24 @@ export default class TestMeta extends Component {
       createElement({ className: 'error', textContent: 'Parsing failed', container });
     }
 
-    if (results) {
-      results = results.results;
+    if (results.errors || results.severe || results.warnings || results.unused) {
+      if (results.errors) {
+        createElement({ className: 'error', textContent: `${results.errors} ${singleOrPlural('error', results.errors)}`, container });
+      }
 
-      if (results.errors || results.severe || results.warnings || results.unused) {
-        if (results.errors) {
-          createElement({ className: 'error', textContent: `${results.errors} ${singleOrPlural('error', results.errors)}`, container });
-        }
+      if (results.severe) {
+        createElement({ className: 'severe', textContent: `${results.severe} ${singleOrPlural('severe warning', results.severe)}`, container });
+      }
 
-        if (results.severe) {
-          createElement({ className: 'severe', textContent: `${results.severe} ${singleOrPlural('severe warning', results.severe)}`, container });
-        }
+      if (results.warnings) {
+        createElement({ className: 'warning', textContent: `${results.warnings} ${singleOrPlural('warning', results.warnings)}`, container });
+      }
 
-        if (results.warnings) {
-          createElement({ className: 'warning', textContent: `${results.warnings} ${singleOrPlural('warning', results.warnings)}`, container });
-        }
-
-        if (results.unused) {
-          createElement({ className: 'unused', textContent: `${results.unused} unused`, container });
-        }
-      } else {
-        createElement({ className: 'bold', textContent: 'Passed', container });
+      if (results.unused) {
+        createElement({ className: 'unused', textContent: `${results.unused} unused`, container });
       }
     } else {
-      createElement({ className: 'bold', textContent: 'Not tested', container });
+      createElement({ className: 'bold', textContent: 'Passed', container });
     }
   }
 }

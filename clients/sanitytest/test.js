@@ -46,16 +46,13 @@ export default class Test {
       tester.logger.error(`Failed to parse ${name}: ${e}. The test will attempt to run on whatever data loaded`);
     }
 
+    this.results = new TestResults(this.parser);
+
     if (isMdlx) {
-      this.results = new TestResults(this.parser);
       this.mdl = new MdlView(this.parser);
-    } else if (isBlp) {
-      this.results = new TestResults(this.parser);
-    } else if (isDds) {
-      this.results = new TestResults(this.parser);
     }
 
-    this.meta = new TestMeta(this.shortName, this.parsingError, this.results, { onclick: () => tester.render(this) });
+    this.meta = new TestMeta(this.shortName, this.parsingError, this.results.results, { onclick: () => tester.render(this) });
   }
 
   show() {

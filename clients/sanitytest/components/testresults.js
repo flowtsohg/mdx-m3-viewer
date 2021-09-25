@@ -21,7 +21,7 @@ export default class TestResults extends Component {
     const isBlp = parser instanceof BlpImage;
     const isDds = parser instanceof DdsImage;
     const isTga = parser instanceof TgaImage;
-    let results;
+    const isImage = isBlp || isDds || isTga;
 
     if (isBlp || isDds || isTga) {
       createElement({ textContent: `Width: ${parser.width}`, container });
@@ -60,63 +60,108 @@ export default class TestResults extends Component {
       createElement({ tagName: 'hr', container });
     }
 
+    let results;
+
     if (isMdlx) {
       results = mdlxSanityTest(parser);
     } else if (isBlp) {
       results = blpSanityTest(parser);
     } else if (isDds) {
       results = ddsSanityTest(parser);
+    } else {
+      results = {};
     }
 
-    const nodes = results.nodes;
-
-    if (nodes.length) {
-      for (let node of nodes) {
+    if (results.nodes && results.nodes.length) {
+      for (let node of results.nodes) {
         this.nodes.push(new TestResultsNode(node, container));
       }
     } else {
       this.nodes.push(new TestResultsNode({ type: 'bold', message: 'Passed' }, container));
     }
 
-    if (isBlp) {
-      const mipmaps = this.getMipmaps(parser);
+    this.results = results;
 
-      for (let i = 0, l = mipmaps.length; i < l; i++) {
-        let mipmap = mipmaps[i];
+    if (isImage) {
+      createElement({ tagName: 'hr', container });
 
-        if (mipmap instanceof ImageData) {
-          let image = imageDataToImage(mipmap);
+      if (isBlp || isDds) {
+        for (let i = 0, l = parser.mipmaps(); i < l; i++) {
+          try {
+            let imageData;
 
-          image.className = 'padded';
+            if (isBlp) {
+              imageData = parser.getMipmap(i);
+            } else {
+              imageData = this.getDdsMipmap(parser, i);
+            }
 
-          this.container.appendChild(image);
-        } else {
-          if (results.errors === undefined) {
-            results.errors = 1;
-          } else {
-            results.errors += 1;
+            this.addMipmap(imageData);
+          } catch (e) {
+            if (this.results.errors === undefined) {
+              this.results.errors = 1;
+            } else {
+              this.results.errors += 1;
+            }
+
+            this.nodes.push(new TestResultsNode({ type: 'error', message: `Mipmap ${i}: ${e}` }, this.container));
           }
-
-          this.nodes.push(new TestResultsNode({ type: 'error', message: `Mipmap ${i}: ${mipmap}` }, container));
         }
+      } else {
+        this.addMipmap(parser.data);
       }
     }
-
-    this.results = results;
   }
 
-  getMipmaps(image) {
-    let mipmaps = [];
+  getDdsMipmap(parser, i) {
+    const mipmap = parser.getMipmap(i);
 
-    for (let i = 0, l = image.mipmaps(); i < l; i++) {
-      try {
-        mipmaps.push(image.getMipmap(i));
-      } catch (e) {
-        mipmaps.push(e);
+    if (parser.format === FOURCC_DXT1) {
+      const imageData = new ImageData(mipmap.width, mipmap.height);
+      const inData = mipmap.data;
+      const outData = imageData.data;
+
+      for (let i = 0, l = mipmap.width * mipmap.height; i < l; i++) {
+        const offset4 = i * 4;
+        const uint16 = inData[i];
+        const r = (uint16 & 0b11111) * (255 / 0b11111);
+        const g = ((uint16 >> 5) & 0b111111) * (255 / 0b111111);
+        const b = ((uint16 >> 11) & 0b11111) * (255 / 0b11111);
+
+        outData[offset4 + 0] = b;
+        outData[offset4 + 1] = g;
+        outData[offset4 + 2] = r;
+        outData[offset4 + 3] = 255;
       }
-    }
 
-    return mipmaps;
+      return imageData;
+    } else if (parser.format === FOURCC_ATI2) {
+      const imageData = new ImageData(mipmap.width, mipmap.height);
+      const inData = mipmap.data;
+      const outData = imageData.data;
+
+      for (let i = 0, l = mipmap.width * mipmap.height; i < l; i++) {
+        const offset2 = i * 2;
+        const offset4 = i * 4;
+
+        outData[offset4 + 0] = inData[offset2 + 0];
+        outData[offset4 + 1] = inData[offset2 + 1];
+        outData[offset4 + 2] = 0;
+        outData[offset4 + 3] = 255;
+      }
+
+      return imageData;
+    } else {
+      return new ImageData(new Uint8ClampedArray(mipmap.data.buffer), mipmap.width, mipmap.height);
+    }
+  }
+
+  addMipmap(imageData) {
+    const image = imageDataToImage(imageData);
+
+    image.className = 'padded';
+
+    this.container.appendChild(image);
   }
 
   filter(unused, warnings, severe, errors) {

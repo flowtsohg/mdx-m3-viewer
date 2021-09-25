@@ -104,7 +104,7 @@ export default class SanityTester extends Component {
     try {
       test = new Test(this, name, buffer, pathSolver);
     } catch (e) {
-      this.logger.error(`An error occured before the test could finish: ${e}`)
+      this.logger.error(`An error occured before the test could finish: ${e.stack}`)
     }
 
     this.tests.push(test);
