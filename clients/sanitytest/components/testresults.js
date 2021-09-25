@@ -34,7 +34,11 @@ export default class TestResults extends Component {
           createElement({ textContent: `Content: Palette`, container });
         }
 
-        createElement({ textContent: `Alpha bits: ${parser.alphaBits}`, container });
+        if (parser.alphaBits > 8) {
+          createElement({ textContent: `Alpha bits: ${parser.alphaBits} (fake)`, container });
+        } else {
+          createElement({ textContent: `Alpha bits: ${parser.alphaBits}`, container });
+        }
 
         createElement({ textContent: `Mipmaps: ${parser.mipmaps()} (fake: ${parser.fakeMipmaps()})`, container });
       } else if (isDds) {

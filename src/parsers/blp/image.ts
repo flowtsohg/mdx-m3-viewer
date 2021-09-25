@@ -87,13 +87,17 @@ export class BlpImage {
       const width = Math.max(this.width / (1 << level), 1); // max of 1 because for non-square textures one dimension will eventually be <1.
       const height = Math.max(this.height / (1 << level), 1);
       const size = width * height;
-      const alphaBits = this.alphaBits;
+      let alphaBits = this.alphaBits;
       let bitStream;
       let bitsToByte = 0;
 
       imageData = new ImageData(width, height);
 
       if (alphaBits > 0) {
+        if (alphaBits > 8) {
+          alphaBits = 8;
+        }
+        
         bitStream = new BitStream(uint8array.buffer, offset + size, Math.ceil((size * alphaBits) / 8));
         bitsToByte = convertBitRange(alphaBits, 8);
       }
