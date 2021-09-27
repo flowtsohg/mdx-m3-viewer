@@ -14,6 +14,7 @@ module.exports = (env, argv) => ({
     'sanitytest': { import: './clients/sanitytest/index.js', filename: 'sanitytest.min.js' },
     'tests': { import: './clients/tests/index.js', filename: 'tests.min.js' },
     'weu': { import: './clients/weu/index.js', filename: 'weu.min.js' },
+    'mdlxoptimizer': { import: './clients/mdlxoptimizer/index.ts', filename: 'mdlxoptimizer.min.js' },
   },
   plugins: [
     new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8')),

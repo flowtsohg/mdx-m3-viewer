@@ -6,12 +6,13 @@ export function aFrame() {
   });
 }
 
-export async function getAllFileEntries(dataTransferItemList) {
+export async function getAllFileEntries(dataTransfer) {
+  const items = dataTransfer.items;
   let files = [];
   let queue = [];
 
-  for (let i = 0; i < dataTransferItemList.length; i++) {
-    queue.push(dataTransferItemList[i].webkitGetAsEntry());
+  for (let i = 0; i < items.length; i++) {
+    queue.push(items[i].webkitGetAsEntry());
   }
 
   while (queue.length > 0) {

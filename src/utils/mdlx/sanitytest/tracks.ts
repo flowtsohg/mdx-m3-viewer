@@ -70,7 +70,7 @@ function getSequenceName(data: SanityTestData, sequence: number, globalSequenceI
 
 const EPSILON = 0.001;
 
-function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
+export function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
   let d = 0;
 
   for (let i = 0, l = a.length; i < l; i++) {
@@ -90,7 +90,7 @@ function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Ar
   return d;
 }
 
-function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array) {
+export function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array) {
   for (let i = 0, l = a.length; i < l; i++) {
     if (a[i] !== b[i]) {
       return false;

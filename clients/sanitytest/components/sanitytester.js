@@ -210,7 +210,7 @@ export default class SanityTester extends Component {
    * Load all of the entries from a data transfer, e.g. resulting from a Drag & Drop action.
    */
   async loadDataTransfer(dataTransfer) {
-    let entries = await getAllFileEntries(dataTransfer.items);
+    let entries = await getAllFileEntries(dataTransfer);
     let names = [];
     let promises = [];
 
