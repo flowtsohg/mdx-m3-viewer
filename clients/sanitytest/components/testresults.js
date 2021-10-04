@@ -116,26 +116,7 @@ export default class TestResults extends Component {
   getDdsMipmap(parser, i) {
     const mipmap = parser.getMipmap(i);
 
-    if (parser.format === FOURCC_DXT1) {
-      const imageData = new ImageData(mipmap.width, mipmap.height);
-      const inData = mipmap.data;
-      const outData = imageData.data;
-
-      for (let i = 0, l = mipmap.width * mipmap.height; i < l; i++) {
-        const offset4 = i * 4;
-        const uint16 = inData[i];
-        const r = (uint16 & 0b11111) * (255 / 0b11111);
-        const g = ((uint16 >> 5) & 0b111111) * (255 / 0b111111);
-        const b = ((uint16 >> 11) & 0b11111) * (255 / 0b11111);
-
-        outData[offset4 + 0] = b;
-        outData[offset4 + 1] = g;
-        outData[offset4 + 2] = r;
-        outData[offset4 + 3] = 255;
-      }
-
-      return imageData;
-    } else if (parser.format === FOURCC_ATI2) {
+    if (parser.format === FOURCC_ATI2) {
       const imageData = new ImageData(mipmap.width, mipmap.height);
       const inData = mipmap.data;
       const outData = imageData.data;

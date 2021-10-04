@@ -61,7 +61,7 @@ export default class DdsTexture extends Texture {
       if (internalFormat) {
         gl.compressedTexImage2D(gl.TEXTURE_2D, i, internalFormat, width, height, 0, data);
       } else if (format === FOURCC_DXT1) {
-        gl.texImage2D(gl.TEXTURE_2D, i, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, data);
+        gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
       } else if (format === FOURCC_DXT3) {
         gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
       } else if (format === FOURCC_DXT5) {

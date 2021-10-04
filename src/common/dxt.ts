@@ -3,30 +3,53 @@ import convertBitRange from './convertbitrange';
 const dxt4to8 = convertBitRange(4, 8);
 const dxt5to8 = convertBitRange(5, 8);
 const dxt6to8 = convertBitRange(6, 8);
-const dx1colors = new Uint16Array(4);
+const dx1colors = new Uint8Array(16);
 const dx3colors = new Uint8Array(12);
 const dx5alphas = new Uint8Array(8);
 const red = new Uint8Array(8);
 const green = new Uint8Array(8);
 
-function dx1Colors16(out: Uint16Array, color0: number, color1: number) {
-  const r0 = color0 & 0x1f;
-  const g0 = color0 & 0x7e0;
-  const b0 = color0 & 0xf800;
-  const r1 = color1 & 0x1f;
-  const g1 = color1 & 0x7e0;
-  const b1 = color1 & 0xf800;
+function dx1Colors(out: Uint8Array, color0: number, color1: number) {
+  const r0 = ((color0 >> 11) & 31) * dxt5to8;
+  const g0 = ((color0 >> 5) & 63) * dxt6to8;
+  const b0 = (color0 & 31) * dxt5to8;
+  const r1 = ((color1 >> 11) & 31) * dxt5to8;
+  const g1 = ((color1 >> 5) & 63) * dxt6to8;
+  const b1 = (color1 & 31) * dxt5to8;
 
   // Minimum and maximum colors.
-  out[0] = color0;
-  out[1] = color1;
+  out[0] = r0;
+  out[1] = g0;
+  out[2] = b0;
+  out[3] = 255;
+  out[4] = r1;
+  out[5] = g1;
+  out[6] = b1;
+  out[7] = 255;
 
   // Interpolated colors.
-  out[2] = ((5 * r0 + 3 * r1) >> 3) | (((5 * g0 + 3 * g1) >> 3) & 0x7e0) | (((5 * b0 + 3 * b1) >> 3) & 0xf800);
-  out[3] = ((5 * r1 + 3 * r0) >> 3) | (((5 * g1 + 3 * g0) >> 3) & 0x7e0) | (((5 * b1 + 3 * b0) >> 3) & 0xf800);
+  if (color0 > color1) {
+    out[8] = (5 * r0 + 3 * r1) >> 3;
+    out[9] = (5 * g0 + 3 * g1) >> 3;
+    out[10] = (5 * b0 + 3 * b1) >> 3;
+    out[11] = 255;
+    out[12] = (5 * r1 + 3 * r0) >> 3;
+    out[13] = (5 * g1 + 3 * g0) >> 3;
+    out[14] = (5 * b1 + 3 * b0) >> 3;
+    out[15] = 255;
+  } else {
+    out[8] = (r0 + r1) >> 1;
+    out[9] = (g0 + g1) >> 1;
+    out[10] = (b0 + b1) >> 1;
+    out[11] = 255;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 0;
+  }
 }
 
-function dx1Colors8(out: Uint8Array, color0: number, color1: number) {
+function dx3Colors(out: Uint8Array, color0: number, color1: number) {
   const r0 = ((color0 >> 11) & 31) * dxt5to8;
   const g0 = ((color0 >> 5) & 63) * dxt6to8;
   const b0 = (color0 & 31) * dxt5to8;
@@ -103,27 +126,33 @@ function rgColors(out: Uint8Array, color0: number, color1: number) {
  * DXT1 is also known as BC1.
  */
 export function decodeDxt1(src: Uint8Array, width: number, height: number) {
-  const dst = new Uint16Array(width * height);
+  const dst = new Uint8Array(width * height * 4);
 
   for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
     for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
       const i = 8 * (blockY * blockWidth + blockX);
 
       // Get the color values.
-      dx1Colors16(dx1colors, src[i] + 256 * src[i + 1], src[i + 2] + 256 * src[i + 3]);
+      dx1Colors(dx1colors, src[i] + 256 * src[i + 1], src[i + 2] + 256 * src[i + 3]);
 
       // The offset to the first pixel in the destination.
-      const dstI = (blockY * 4) * width + blockX * 4;
+      const dstI = (blockY * 16) * width + blockX * 16;
 
       // All 32 color bits.
       const bits = src[i + 4] | (src[i + 5] << 8) | (src[i + 6] << 16) | (src[i + 7] << 24);
 
       for (let row = 0; row < 4; row++) {
         const rowOffset = row * 8;
-        const dstOffset = dstI + row * width;
+        const dstOffset = dstI + row * width * 4;
 
         for (let column = 0; column < 4; column++) {
-          dst[dstOffset + column] = dx1colors[(bits >> (rowOffset + column * 2)) & 3];
+          const dstIndex = dstOffset + column * 4;
+          const colorOffset = ((bits >> (rowOffset + column * 2)) & 3) * 4;
+
+          dst[dstIndex + 0] = dx1colors[colorOffset + 0];
+          dst[dstIndex + 1] = dx1colors[colorOffset + 1];
+          dst[dstIndex + 2] = dx1colors[colorOffset + 2];
+          dst[dstIndex + 3] = dx1colors[colorOffset + 3];
         }
       }
     }
@@ -141,12 +170,12 @@ export function decodeDxt3(src: Uint8Array, width: number, height: number) {
   const dst = new Uint8Array(width * height * 4);
   const rowBytes = width * 4;
 
-  for (let blockY = 0, blockHeight = width / 4; blockY < blockHeight; blockY++) {
-    for (let blockX = 0, blockWidth = height / 4; blockX < blockWidth; blockX++) {
+  for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
+    for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
       const i = 16 * (blockY * blockWidth + blockX);
 
       // Get the color values.
-      dx1Colors8(dx3colors, src[i + 8] + 256 * src[i + 9], src[i + 10] + 256 * src[i + 11]);
+      dx3Colors(dx3colors, src[i + 8] + 256 * src[i + 9], src[i + 10] + 256 * src[i + 11]);
 
       let dstI = (blockY * 16) * width + blockX * 16;
 
@@ -192,7 +221,7 @@ export function decodeDxt5(src: Uint8Array, width: number, height: number) {
       dx5Alphas(dx5alphas, src[i], src[i + 1]);
 
       // Get the color values.
-      dx1Colors8(dx3colors, src[i + 8] + 256 * src[i + 9], src[i + 10] + 256 * src[i + 11]);
+      dx3Colors(dx3colors, src[i + 8] + 256 * src[i + 9], src[i + 10] + 256 * src[i + 11]);
 
       // The offset to the first pixel in the destination.
       let dstI = (blockY * 16) * width + blockX * 16;

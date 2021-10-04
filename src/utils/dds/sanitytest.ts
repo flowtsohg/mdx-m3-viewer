@@ -16,6 +16,10 @@ export default function sanityTest(texture: DdsImage) {
     nodes.push({ type: 'warning', message: `Expected ${expectedMipmaps} mipmaps, but got ${mipmaps}` });
   }
 
+  if ((width % 4 !== 0) || (height % 4 !== 0)) {
+    nodes.push({ type: 'warning', message: `Expected the width and height to be multiples of four, but got ${width}x${height}` });
+  }
+
   if (!isPowerOfTwo(width) || !isPowerOfTwo(height)) {
     nodes.push({ type: 'warning', message: `Expected the width and height to be powers of two, but got ${width}x${height}` });
   }

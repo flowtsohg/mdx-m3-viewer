@@ -244,7 +244,7 @@ export function testLight(data: SanityTestData, light: Light) {
   const attenuation = light.attenuation;
 
   data.assertWarning(attenuation[0] >= 80, `Minimum attenuation should probably be bigger than or equal to 80, but is ${attenuation[0]}`);
-  data.assertWarning(attenuation[1] <= 200, `Maximum attenuation should probably be smaller than or equal to 200, but is ${attenuation[0]}`);
+  data.assertWarning(attenuation[1] <= 200, `Maximum attenuation should probably be smaller than or equal to 200, but is ${attenuation[1]}`);
   data.assertWarning(attenuation[1] - attenuation[0] > 0, `The maximum attenuation should be bigger than the minimum, but isn't`);
 }
 

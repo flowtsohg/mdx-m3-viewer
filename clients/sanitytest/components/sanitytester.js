@@ -96,7 +96,7 @@ export default class SanityTester extends Component {
   }
 
   // pathSolver is used for API tests.
-  test(name, buffer, pathSolver) {
+  test(name, buffer, render, pathSolver) {
     this.logger.info(`Parsing ${name}`);
 
     let test;
@@ -122,7 +122,11 @@ export default class SanityTester extends Component {
 
     this.viewer.load(test);
 
-    this.render(test);
+    if (render) {
+      this.render(test);
+    } else {
+      test.hide();
+    }
   }
 
   render(test) {
@@ -163,6 +167,8 @@ export default class SanityTester extends Component {
       return localOrHive(src, params);
     };
 
+    let render = true;
+
     for (let importName of map.getImportNames()) {
       let ext = extname(importName);
 
@@ -171,12 +177,14 @@ export default class SanityTester extends Component {
 
         if (file) {
           if (ext === '.mdx') {
-            this.test(`${name}:${importName}`, file.arrayBuffer(), pathSolver);
+            this.test(`${name}:${importName}`, file.arrayBuffer(), render, pathSolver);
           } else if (ext === '.mdl') {
-            this.test(`${name}:${importName}`, file.text(), pathSolver);
+            this.test(`${name}:${importName}`, file.text(), render, pathSolver);
           } else if (ext === '.blp' || ext === '.dds' || ext === '.tga') {
-            this.test(`${name}:${importName}`, file.arrayBuffer());
+            this.test(`${name}:${importName}`, file.arrayBuffer(), render);
           }
+
+          render = false;
         } else {
           this.logger.error(`The map says it imports ${importName} but it couldn't be found`);
         }
@@ -199,7 +207,7 @@ export default class SanityTester extends Component {
       if (ext === '.w3m' || ext === '.w3x') {
         this.loadMap(name, buffer);
       } else {
-        this.test(name, buffer);
+        this.test(name, buffer, true);
       }
     } else {
       this.logger.info(`${name} is not a supported file, skipping it`);
@@ -250,13 +258,17 @@ export default class SanityTester extends Component {
       }
     };
 
+    let render = true;
+
     // Finally load the tests.
     for (let [name, buffer] of overrides.entries()) {
       if (name.endsWith('.w3m') || name.endsWith('.w3x')) {
         this.loadMap(name, buffer);
       } else {
-        this.test(name, buffer, pathSolver);
+        this.test(name, buffer, render, pathSolver);
       }
+
+      render = false;
     }
   }
 
@@ -295,6 +307,8 @@ export default class SanityTester extends Component {
           }
         };
 
+        let render = true;
+
         for (let file of files) {
           fetch(file)
             .then(async (response) => {
@@ -306,7 +320,9 @@ export default class SanityTester extends Component {
                 buffer = await response.arrayBuffer();
               }
 
-              this.test(file, buffer, pathSolver);
+              this.test(file, buffer, render, pathSolver);
+
+              render = false;
             });
         }
       }
