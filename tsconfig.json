@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "outDir": "./dist/cjs",
     "moduleResolution": "node",
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "types": ["node"],
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "suppressImplicitAnyIndexErrors": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
-    "strict": true,
-    "module": "commonjs",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-    "target": "es2017",
-    "types": [
-      "node"
-    ],
-    "outDir": "./dist"
-  }
+    "suppressImplicitAnyIndexErrors": true,
+  },
+  "exclude": ["clients"]
 }

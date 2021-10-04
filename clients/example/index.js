@@ -1,9 +1,7 @@
-// How webpack exports to the web.
-const handlers = ModelViewer.default.viewer.handlers;
-const common = ModelViewer.default.common;
-const glMatrix = common.glMatrix;
-const vec3 = glMatrix.vec3;
-const quat = glMatrix.quat;
+import ModelViewer from '../../src';
+import { setupCamera } from '../shared/camera';
+const handlers = ModelViewer.viewer.handlers;
+const common = ModelViewer.common;
 
 let canvas = document.getElementById('canvas');
 
@@ -11,7 +9,7 @@ canvas.width = 800;
 canvas.height = 600;
 
 // Create the viewer!
-let viewer = new ModelViewer.default.viewer.ModelViewer(canvas);
+let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
 let scene = viewer.addScene();

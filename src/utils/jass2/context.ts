@@ -1,18 +1,16 @@
 
 import { EventEmitter } from 'events';
-// @ts-ignore
-import { to_luastring, to_jsstring } from 'fengari/src/fengaricore';
-// @ts-ignore
-import { lua_State, lua_pop, lua_getglobal, lua_pcall, lua_atnativeerror, lua_pushstring, lua_touserdata, lua_rawgeti, LUA_REGISTRYINDEX, lua_resume, LUA_OK, LUA_YIELD } from 'fengari/src/lua';
-// @ts-ignore
-import { luaL_newstate, luaL_loadstring, luaL_tolstring, luaL_unref, luaL_checknumber } from 'fengari/src/lauxlib';
-//import { luaL_openlibs } from 'fengari/src/lualib';
+import { lua_State } from 'fengari/src/lstate';
+import { lua_atnativeerror, lua_getglobal, lua_pcall, lua_pop, lua_pushstring, lua_rawgeti, lua_touserdata } from 'fengari/src/lapi';
+import { LUA_REGISTRYINDEX, thread_status, to_jsstring, to_luastring } from 'fengari/src/defs';
+import { luaL_checknumber, luaL_loadstring, luaL_newstate, luaL_tolstring } from 'fengari/src/lauxlib';
+import { lua_resume } from 'fengari/src/ldo';
+import War3Map from '../../parsers/w3x/map';
 import jass2lua from './jass2lua';
 import bindNatives from './natives';
 import JassPlayer from './types/player';
 import constantHandles from './constanthandles';
 import Thread from './thread';
-import War3Map from '../../parsers/w3x/map';
 import JassHandle from './types/handle';
 import JassLocation from './types/location';
 import JassTimer from './types/timer';
@@ -122,9 +120,9 @@ export default class Context extends EventEmitter {
         const L = thread.L;
         const status = lua_resume(L, this.L, 0);
 
-        if (status === LUA_OK) {
+        if (status === thread_status.LUA_OK) {
           threads.delete(thread);
-        } else if (status === LUA_YIELD) {
+        } else if (status === thread_status.LUA_YIELD) {
           thread.sleep = luaL_checknumber(L, 1);
         } else {
           console.log('[JS] Something went wrong during execution');

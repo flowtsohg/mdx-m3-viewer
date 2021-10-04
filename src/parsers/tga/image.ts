@@ -1,4 +1,3 @@
-// @ts-ignore
 import TgaLoader from 'tga-js';
 import { bytesOf } from '../../common/bytesof';
 
