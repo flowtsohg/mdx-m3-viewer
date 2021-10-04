@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "5.9.22",
+  "version": "5.9.23",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
@@ -9,7 +9,7 @@
     "build": "webpack --mode=production",
     "dev": "webpack -w --mode=development",
     "serve": "webpack serve",
-    "prepublish": "node clean.js && tsc && tsc -m es6 --outDir dist/esm"
+    "prepublishOnly": "node clean.js && tsc && tsc -m es6 --outDir dist/esm"
   },
   "repository": {
     "type": "git",
