@@ -51,7 +51,7 @@ module.exports = (env, argv) => {
     resolve: {
       extensions: ['.js', '.ts'],
     },
-    devtool: argv.mode === 'development' ? 'eval-cheap-module-source-map' : false,
+    devtool: argv.mode === 'development' ? 'eval-cheap-module-source-map' : 'source-map',
     optimization: {
       minimizer: [new TerserPlugin({
         extractComments: false,

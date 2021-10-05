@@ -1,6 +1,5 @@
 declare module 'fengari/src/lstate' {
   class lua_State {}
-  // module.exports.lua_State       = lua_State;
   // module.exports.CallInfo        = CallInfo;
   // module.exports.CIST_OAH        = (1<<0);  /* original value of 'allowhook' */
   // module.exports.CIST_LUA        = (1<<1);  /* call is running a Lua function */
