@@ -6,7 +6,7 @@ import { isMdx, isMdl } from '../../../parsers/mdlx/isformat';
 import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
 import ModelViewer, { DebugRenderMode } from '../../viewer';
 import Shader from '../../gl/shader';
-import { PathSolver } from '../../handlerresource';
+import { PathSolver, SolverParams } from '../../handlerresource';
 import { Resource } from '../../resource';
 import GenericResource from '../../genericresource';
 import Texture from '../../texture';
@@ -264,8 +264,8 @@ export default {
     }
 
     const { pathSolver, reforged, eventObjectTables } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
-    const params = reforged ? { reforged: true } : undefined;
-    const safePathSolver = (src: any, params: any): any => {
+    const params: SolverParams = reforged ? { reforged: true } : {};
+    const safePathSolver: PathSolver = (src: unknown, params?: SolverParams): unknown => {
       if (pathSolver) {
         return pathSolver(src, params);
       }
@@ -300,7 +300,7 @@ export default {
         }
       }
 
-      const promises = paths.map((path) => viewer.loadGeneric(safePathSolver(path, params), 'text', mappedDataCallback));
+      const promises = paths.map((path) => viewer.loadGeneric(<string>safePathSolver(path, params), 'text', mappedDataCallback));
       const resources = await Promise.all(promises);
 
       for (const resource of resources) {
@@ -339,7 +339,7 @@ export default {
           const file = this.getEventObjectSoundFile(fileName, reforged, isHd, tables);
 
           if (file) {
-            promises.push(viewer.loadGeneric(safePathSolver(file, params), 'arrayBuffer', decodedDataCallback));
+            promises.push(viewer.loadGeneric(<string>safePathSolver(file, params), 'arrayBuffer', decodedDataCallback));
           }
         }
       }

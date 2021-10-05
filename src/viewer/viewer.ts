@@ -3,7 +3,7 @@ import { FetchDataTypeName, FetchDataType, FetchResult, fetchDataType } from '..
 import WebGL from './gl/gl';
 import Scene from './scene';
 import { Resource } from './resource';
-import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresource';
+import { PathSolver, HandlerResourceData, HandlerResource, SolverParams } from './handlerresource';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import { isImageSource, ImageTexture, detectMime } from './imagetexture';
@@ -218,8 +218,8 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Given a source and an optional path solver, loads a resource and returns a promise to it.
    */
-  async load(src: any, pathSolver?: PathSolver, solverParams?: any): Promise<Resource | undefined> {
-    let finalSrc: any;
+  async load(src: unknown, pathSolver?: PathSolver, solverParams?: SolverParams): Promise<Resource | undefined> {
+    let finalSrc: unknown;
     let fetchUrl = '';
     let promise;
 
@@ -291,7 +291,7 @@ export default class ModelViewer extends EventEmitter {
 
           // If the source is an image source, load it directly.
           if (isImageSource(actualSrc)) {
-            return new ImageTexture(actualSrc, { viewer: this, fetchUrl, pathSolver });
+            return new ImageTexture(<TexImageSource>actualSrc, { viewer: this, fetchUrl, pathSolver });
           }
 
           // If the source is a buffer of an image, convert it to an image, and load it directly.
@@ -384,7 +384,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If `callback` returns a promise, the resource's `data` will be whatever the promise resolved to.
    */
-  async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any): Promise<GenericResource | undefined> {
+  async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => unknown): Promise<GenericResource | undefined> {
     // Check the promise cache and return a promise if one exists.
     const promise = this.promiseMap.get(fetchUrl);
     if (promise) {
@@ -405,7 +405,7 @@ export default class ModelViewer extends EventEmitter {
         let resource;
 
         if (value.ok) {
-          let data = value.data;
+          let data: unknown = value.data;
 
           if (callback) {
             data = await callback(<FetchDataType>data);

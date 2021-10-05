@@ -127,7 +127,7 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   loadBaseFile(path: string, dataType: FetchDataTypeName): Promise<GenericResource | undefined> {
-    return super.loadGeneric(this.wc3PathSolver(path), dataType);
+    return super.loadGeneric(<string>this.wc3PathSolver(path), dataType);
   }
 
   /**

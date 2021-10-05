@@ -81,7 +81,7 @@ export default class War3MapViewerMap {
 
     this.loadMapInformation();
 
-    this.pathSolver = (src, params): any => {
+    this.pathSolver = (src, params): unknown => {
       // The type won't be a string for loads from memory, where the final source is the input source.
       // The primitive constructor is one example of this.
       if (typeof src === 'string') {
@@ -119,7 +119,7 @@ export default class War3MapViewerMap {
     this.worldScene.detach();
   }
 
-  load(src: any): Promise<Resource | undefined> {
+  load(src: unknown): Promise<Resource | undefined> {
     return this.viewer.load(src, this.pathSolver, this.solverParams);
   }
 

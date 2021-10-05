@@ -8,6 +8,7 @@ import MdlxBone from '../../../parsers/mdlx/bone';
 import ModelViewer from '../../../viewer/viewer';
 import Texture from '../../../viewer/texture';
 import { Resource } from '../../../viewer/resource';
+import { PathSolver } from '../../../viewer/handlerresource';
 
 interface Primitive {
   vertices: Float32Array;
@@ -57,7 +58,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
 
   model.textures[0] = tex;
 
-  const pathSolver = (src: any): any => {
+  const pathSolver: PathSolver = (src: unknown): unknown => {
     if (src === model) {
       return model;
     }

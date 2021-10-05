@@ -1,9 +1,12 @@
 import { ResourceData, Resource } from './resource';
 
+
+export type SolverParams ={[key: string]: unknown };
+
 /**
  * A path solver used for resolving fetch paths.
  */
-export type PathSolver = (src: any, params?: any) => any;
+export type PathSolver = (src: unknown, params?: SolverParams) => unknown;
 
 /**
  * The data sent to every handler resource as part of the loading process.
