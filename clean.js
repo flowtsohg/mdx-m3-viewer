@@ -24,4 +24,4 @@ console.log("Cleaning build files...");
 deleteFolderRecursive("./dist/cjs");
 
 console.log("Successfully cleaned the build files!");
-console.log("Running TSC, it might take a while...");
+console.log("Running TSC and Webpack, it might take a while...");

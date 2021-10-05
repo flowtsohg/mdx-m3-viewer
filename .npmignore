@@ -6,5 +6,5 @@ Viewer.code-workspace
 Viewer.sublime-project
 src
 clients
-dist/bundles
+dist/clients
 clean.js
