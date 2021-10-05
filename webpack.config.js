@@ -33,9 +33,8 @@ module.exports = (env, argv) => ({
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        use: [
-          'ts-loader',
-        ],
+        loader: 'ts-loader',
+        options: { compilerOptions: { module: 'esnext', declaration: false } }
       },
     ],
   },

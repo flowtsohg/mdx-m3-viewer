@@ -22,6 +22,6 @@ function deleteFolderRecursive(path) {
 console.log("Cleaning build files...");
 
 deleteFolderRecursive("./dist/cjs");
-deleteFolderRecursive("./dist/esm");
 
 console.log("Successfully cleaned the build files!");
+console.log("Running TSC, it might take a while...");
