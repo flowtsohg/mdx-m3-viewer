@@ -1,7 +1,6 @@
-import ModelViewer from '../../src';
+import * as ModelViewer from '../../src/';
 import { setupCamera } from '../shared/camera';
 const handlers = ModelViewer.viewer.handlers;
-const common = ModelViewer.common;
 
 let canvas = document.getElementById('canvas');
 
