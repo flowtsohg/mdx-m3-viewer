@@ -1,4 +1,4 @@
-function hash(buffer: Uint8Array) {
+function hash(buffer: Uint8Array): number {
   let o = 0;
   let len = buffer.length;
   let a = 0x9e3779b9;
@@ -70,7 +70,7 @@ const buffer = new Uint8Array(0x400);
  * 
  * See http://burtleburtle.net/bob/hash/doobs.html
  */
-export default function sstrhash2(key: string) {
+export default function sstrhash2(key: string): number {
   let offset = 0;
 
   buffer.fill(0);

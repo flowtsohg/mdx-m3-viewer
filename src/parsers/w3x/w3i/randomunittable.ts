@@ -12,7 +12,7 @@ export default class RandomUnitTable {
   columnTypes = new Int32Array(0);
   units: RandomUnit[] = [];
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.id = stream.readInt32();
     this.name = stream.readNull();
     this.positions = stream.readInt32();
@@ -27,7 +27,7 @@ export default class RandomUnitTable {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt32(this.id);
     stream.writeNull(this.name);
     stream.writeInt32(this.positions);
@@ -39,7 +39,7 @@ export default class RandomUnitTable {
     }
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 13 + byteLengthUtf8(this.name) + this.columnTypes.byteLength + (this.units.length * (4 + 4 * this.positions));
   }
 }

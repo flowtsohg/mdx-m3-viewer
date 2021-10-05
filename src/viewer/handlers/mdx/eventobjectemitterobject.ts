@@ -140,7 +140,7 @@ export default class EventObjectEmitterObject extends GenericObject {
       });
   }
 
-  getValue(out: Uint32Array, instance: MdxModelInstance) {
+  getValue(out: Uint32Array, instance: MdxModelInstance): number {
     if (this.globalSequence !== -1) {
       const globalSequence = this.globalSequence;
 
@@ -156,7 +156,7 @@ export default class EventObjectEmitterObject extends GenericObject {
     }
   }
 
-  getValueAtTime(out: Uint32Array, frame: number, start: number, end: number) {
+  getValueAtTime(out: Uint32Array, frame: number, start: number, end: number): number {
     const tracks = this.tracks;
 
     if (frame >= start && frame <= end) {

@@ -14,7 +14,7 @@ export default class Parameter {
   isArray = 0;
   arrayIndex: Parameter | null = null;
 
-  load(stream: BinaryStream, version: number, triggerData: TriggerData) {
+  load(stream: BinaryStream, version: number, triggerData: TriggerData): void {
     this.type = stream.readInt32();
 
     if (this.type < -1 || this.type > 3) {
@@ -56,7 +56,7 @@ export default class Parameter {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeInt32(this.type);
     stream.writeNull(this.value);
 
@@ -80,7 +80,7 @@ export default class Parameter {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 9 + byteLengthUtf8(this.value);
 
     if (this.subParameters) {

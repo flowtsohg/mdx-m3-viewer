@@ -53,7 +53,7 @@ export default class ParticleEmitter2 extends GenericObject {
   priorityPlane = 0;
   replaceableId = 0;
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -90,7 +90,7 @@ export default class ParticleEmitter2 extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -126,7 +126,7 @@ export default class ParticleEmitter2 extends GenericObject {
     this.writeNonGenericAnimationChunks(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'SortPrimsFarZ') {
         this.flags |= Flags.SortPrimsFarZ;
@@ -231,7 +231,7 @@ export default class ParticleEmitter2 extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('ParticleEmitter2', this.name);
     this.writeGenericHeader(stream);
 
@@ -347,7 +347,7 @@ export default class ParticleEmitter2 extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 175 + super.getByteLength();
   }
 }

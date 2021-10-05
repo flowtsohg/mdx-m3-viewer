@@ -17,17 +17,17 @@ export default class MpqHashTable {
     this.addEmpties(4);
   }
 
-  clear() {
+  clear(): void {
     this.entries.length = 0;
   }
 
-  addEmpties(howMany: number) {
+  addEmpties(howMany: number): void {
     for (let i = 0; i < howMany; i++) {
       this.entries.push(new MpqHash());
     }
   }
 
-  getInsertionIndex(name: string) {
+  getInsertionIndex(name: string): number {
     const entries = this.entries;
     const offset = this.c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);
 
@@ -43,7 +43,7 @@ export default class MpqHashTable {
     return -1;
   }
 
-  add(name: string, blockIndex: number) {
+  add(name: string, blockIndex: number): MpqHash | undefined {
     const insertionIndex = this.getInsertionIndex(name);
 
     if (insertionIndex !== -1) {
@@ -61,7 +61,7 @@ export default class MpqHashTable {
     return;
   }
 
-  load(bytes: Uint8Array) {
+  load(bytes: Uint8Array): void {
     const entriesCount = bytes.byteLength / 16;
     const uint32array = new Uint32Array(this.c.decryptBlock(bytes, HASH_TABLE_KEY).buffer);
     let offset = 0;
@@ -77,7 +77,7 @@ export default class MpqHashTable {
     }
   }
 
-  save(bytes: Uint8Array) {
+  save(bytes: Uint8Array): void {
     const uint32array = new Uint32Array(this.entries.length * 4);
     let offset = 0;
 
@@ -94,7 +94,7 @@ export default class MpqHashTable {
     bytes.set(uint8array);
   }
 
-  get(name: string) {
+  get(name: string): MpqHash | null {
     const c = this.c;
     const entries = this.entries;
     const offset = c.hash(name, HASH_TABLE_INDEX) & (entries.length - 1);

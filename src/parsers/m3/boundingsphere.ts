@@ -8,7 +8,7 @@ export default class BoundingSphere {
   max = new Float32Array(3);
   radius = 0;
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     stream.readFloat32Array(this.min);
     stream.readFloat32Array(this.max);
     this.radius = stream.readFloat32();

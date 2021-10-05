@@ -9,7 +9,7 @@ const emissionRateHeap = new Float32Array(1);
  * An MDX particle emitter.
  */
 export default class ParticleEmitter extends MdxEmitter {
-  updateEmission(dt: number) {
+  updateEmission(dt: number): void {
     const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
@@ -21,11 +21,11 @@ export default class ParticleEmitter extends MdxEmitter {
     }
   }
 
-  emit() {
+  emit(): void {
     this.emitObject();
   }
 
-  createObject() {
+  createObject(): Particle {
     return new Particle(this);
   }
 }

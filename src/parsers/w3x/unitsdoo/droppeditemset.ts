@@ -7,7 +7,7 @@ import DroppedItem from './droppeditem';
 export default class DroppedItemSet {
   items: DroppedItem[] = [];
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       const item = new DroppedItem();
 
@@ -17,7 +17,7 @@ export default class DroppedItemSet {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt32(this.items.length);
 
     for (const item of this.items) {
@@ -25,7 +25,7 @@ export default class DroppedItemSet {
     }
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 4 + this.items.length * 8;
   }
 }

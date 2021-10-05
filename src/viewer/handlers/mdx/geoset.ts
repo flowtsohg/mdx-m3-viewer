@@ -40,13 +40,13 @@ export default class Geoset {
     }
   }
 
-  bindShared(gl: WebGLRenderingContext, attribs: {[key: string]: number }, coordId: number) {
+  bindShared(gl: WebGLRenderingContext, attribs: {[key: string]: number }, coordId: number): void {
     gl.vertexAttribPointer(attribs['a_position'], 3, gl.FLOAT, false, 0, this.positionOffset);
     gl.vertexAttribPointer(attribs['a_normal'], 3, gl.FLOAT, false, 0, this.normalOffset);
     gl.vertexAttribPointer(attribs['a_uv'], 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
   }
 
-  bindVertexGroups(gl: WebGLRenderingContext, attribs: {[key: string]: number }) {
+  bindVertexGroups(gl: WebGLRenderingContext, attribs: {[key: string]: number }): void {
     const model = this.model;
     const skinDataType = model.skinDataType;
     const bytesPerSkinElement = model.bytesPerSkinElement;
@@ -55,7 +55,7 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs['a_boneNumber'], 1, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset + 4 * bytesPerSkinElement);
   }
 
-  bindVertexGroupsExtended(gl: WebGLRenderingContext, attribs: {[key: string]: number }) {
+  bindVertexGroupsExtended(gl: WebGLRenderingContext, attribs: {[key: string]: number }): void {
     const model = this.model;
     const skinDataType = model.skinDataType;
     const bytesPerSkinElement = model.bytesPerSkinElement;
@@ -65,12 +65,12 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs['a_boneNumber'], 1, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 8 * bytesPerSkinElement);
   }
 
-  bindSkin(gl: WebGLRenderingContext, attribs: {[key: string]: number }) {
+  bindSkin(gl: WebGLRenderingContext, attribs: {[key: string]: number }): void {
     gl.vertexAttribPointer(attribs['a_bones'], 4, gl.UNSIGNED_BYTE, false, 8, this.skinOffset);
     gl.vertexAttribPointer(attribs['a_weights'], 4, gl.UNSIGNED_BYTE, true, 8, this.skinOffset + 4);
   }
 
-  bind(shader: Shader, coordId: number) {
+  bind(shader: Shader, coordId: number): void {
     const gl = this.model.viewer.gl;
     const attribs = shader.attribs;
 
@@ -78,7 +78,7 @@ export default class Geoset {
     this.bindVertexGroups(gl, attribs);
   }
 
-  bindExtended(shader: Shader, coordId: number) {
+  bindExtended(shader: Shader, coordId: number): void{
     const gl = this.model.viewer.gl;
     const attribs = shader.attribs;
 
@@ -86,7 +86,7 @@ export default class Geoset {
     this.bindVertexGroupsExtended(gl, attribs);
   }
 
-  bindHd(shader: Shader, skinningType: SkinningType, coordId: number) {
+  bindHd(shader: Shader, skinningType: SkinningType, coordId: number): void {
     const gl = this.model.viewer.gl;
     const attribs = shader.attribs;
 
@@ -103,7 +103,7 @@ export default class Geoset {
     }
   }
 
-  render() {
+  render(): void {
     const gl = this.model.viewer.gl;
 
     gl.drawElements(this.faceType, this.elements, gl.UNSIGNED_SHORT, this.faceOffset);

@@ -10,21 +10,21 @@ export default class MapTitle {
   mapTitle = '';
   path = '';
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.visible = stream.readInt32();
     this.chapterTitle = stream.readNull();
     this.mapTitle = stream.readNull();
     this.path = stream.readNull();
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt32(this.visible);
     stream.writeNull(this.chapterTitle);
     stream.writeNull(this.mapTitle);
     stream.writeNull(this.path);
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 7 + byteLengthUtf8(this.chapterTitle) + byteLengthUtf8(this.mapTitle) + byteLengthUtf8(this.path);
   }
 }

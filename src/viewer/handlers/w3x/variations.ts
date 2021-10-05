@@ -132,7 +132,7 @@ const cityCliffVariations = {
   CCCA: 1,
 };
 
-export default function getCliffVariation(dir: string, tag: string, variation: number) {
+export default function getCliffVariation(dir: string, tag: string, variation: number): number {
   if (dir === 'Cliffs') {
     return Math.min(variation, cliffVariations[tag]);
   } else {

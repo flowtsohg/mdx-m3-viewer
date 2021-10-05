@@ -33,7 +33,7 @@ export default class Particle extends EmittedObject {
     this.internalInstance = model.addInstance();
   }
 
-  bind() {
+  bind(): void {
     const emitter = <ParticleEmitter>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const sequence = instance.sequence;
@@ -76,7 +76,7 @@ export default class Particle extends EmittedObject {
     internalInstance.show();
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     const internalInstance = this.internalInstance;
 
     this.health -= dt;

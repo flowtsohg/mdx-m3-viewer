@@ -16,19 +16,19 @@ export default class Texture {
   path = '';
   wrapMode = WrapMode.RepeatBoth;
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     this.replaceableId = stream.readUint32();
     this.path = stream.read(260);
     this.wrapMode = stream.readUint32();
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.replaceableId);
     stream.skip(260 - stream.write(this.path));
     stream.writeUint32(this.wrapMode);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of stream.readBlock()) {
       if (token === 'Image') {
         this.path = stream.read();
@@ -44,7 +44,7 @@ export default class Texture {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startBlock('Bitmap');
 
     if (this.path.length) {

@@ -13,7 +13,7 @@ const vertexHeap = vec3.create();
 export default class EventObjectSplUbr extends EmittedObject {
   vertices = new Float32Array(12);
 
-  bind() {
+  bind(): void {
     const emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
@@ -40,7 +40,7 @@ export default class EventObjectSplUbr extends EmittedObject {
     vec3.add(<vec3>vertices.subarray(9, 11), vertexHeap, worldLocation);
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     this.health -= dt;
   }
 }

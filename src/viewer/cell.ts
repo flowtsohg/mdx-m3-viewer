@@ -21,11 +21,11 @@ export default class Cell {
     this.top = top;
   }
 
-  add(instance: ModelInstance) {
+  add(instance: ModelInstance): void {
     this.instances.push(instance);
   }
 
-  remove(instance: ModelInstance) {
+  remove(instance: ModelInstance): void {
     const index = this.instances.indexOf(instance);
 
     this.instances.splice(index, 1);
@@ -34,11 +34,11 @@ export default class Cell {
   /**
    * Remove all of the instances from this cell.
    */
-  clear() {
+  clear(): void {
     this.instances.length = 0;
   }
 
-  isVisible(camera: Camera) {
+  isVisible(camera: Camera): boolean {
     this.plane = testCell(camera.planes, this.left, this.right, this.bottom, this.top, this.plane);
 
     return this.plane === -1;

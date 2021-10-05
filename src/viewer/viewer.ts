@@ -117,7 +117,7 @@ export default class ModelViewer extends EventEmitter {
 
   directLoadId = 0;
 
-  constructor(canvas: HTMLCanvasElement, options?: object) {
+  constructor(canvas: HTMLCanvasElement, options?: WebGLContextAttributes) {
     super();
 
     const webgl = new WebGL(canvas, options);
@@ -137,7 +137,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Enable audio if AudioContext is available.
    */
-  enableAudio() {
+  enableAudio(): boolean {
     if (typeof AudioContext === 'function') {
       this.audioEnabled = true;
 
@@ -150,7 +150,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Add an handler.
    */
-  addHandler(handler: Handler, ...args: unknown[]) {
+  addHandler(handler: Handler, ...args: unknown[]): boolean {
     if (handler) {
       const handlers = this.handlers;
 
@@ -184,7 +184,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Add a scene.
    */
-  addScene() {
+  addScene(): Scene {
     const scene = new Scene(this);
 
     this.scenes.push(scene);
@@ -195,7 +195,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Remove a scene.
    */
-  removeScene(scene: Scene) {
+  removeScene(scene: Scene): boolean {
     const scenes = this.scenes;
     const index = scenes.indexOf(scene);
 
@@ -211,14 +211,14 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Removes all of the scenes in the viewer.
    */
-  clear() {
+  clear(): void {
     this.scenes.length = 0;
   }
 
   /**
    * Given a source and an optional path solver, loads a resource and returns a promise to it.
    */
-  async load(src: any, pathSolver?: PathSolver, solverParams?: any) {
+  async load(src: any, pathSolver?: PathSolver, solverParams?: any): Promise<Resource | undefined> {
     let finalSrc: any;
     let fetchUrl = '';
     let promise;
@@ -347,7 +347,7 @@ export default class ModelViewer extends EventEmitter {
     return promise;
   }
 
-  detectFormat(src: unknown) {
+  detectFormat(src: unknown): Handler | undefined {
     for (const handler of this.handlers) {
       if (handler.isValidSource(src)) {
         return handler;
@@ -360,14 +360,14 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Check whether the given string maps to a resource in the cache.
    */
-  has(key: string) {
+  has(key: string): boolean {
     return this.resourceMap.has(key);
   }
 
   /**
    * Get a resource from the cache.
    */
-  get(key: string) {
+  get(key: string): Resource | undefined {
     return this.resourceMap.get(key);
   }
 
@@ -384,7 +384,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If `callback` returns a promise, the resource's `data` will be whatever the promise resolved to.
    */
-  async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
+  async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any): Promise<GenericResource | undefined> {
     // Check the promise cache and return a promise if one exists.
     const promise = this.promiseMap.get(fetchUrl);
     if (promise) {
@@ -438,7 +438,7 @@ export default class ModelViewer extends EventEmitter {
    * Note that this only removes the resource from the viewer's cache.
    * If it's being referenced and used e.g. by a scene, it will not be garbage collected.
    */
-  unload(resource: Resource) {
+  unload(resource: Resource): boolean {
     const fetchUrl = resource.fetchUrl;
 
     if (fetchUrl !== '') {
@@ -462,19 +462,19 @@ export default class ModelViewer extends EventEmitter {
    * This empty resource will block the "idle" event (and thus whenAllLoaded) until it's resolved.
    * This is used when a resource might get loaded in the future, but it is not known what it is yet.
    */
-  promise() {
+  promise(): () => void {
     const promise = Promise.resolve(undefined);
     const key = `${performance.now()}`;
 
     this.promiseMap.set(key, promise);
 
-    return () => {
+    return (): void => {
       this.promiseMap.delete(key);
       this.checkLoadingStatus();
     };
   }
 
-  checkLoadingStatus() {
+  checkLoadingStatus(): void {
     if (this.promiseMap.size === 0) {
       // A timeout is used so that this event will arrive after the current frame to let everything settle.
       setTimeout(() => this.emit('idle'), 0);
@@ -486,7 +486,9 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If a callback is given, it will be called, otherwise, a promise is returned.
    */
-  whenAllLoaded(callback?: (viewer: ModelViewer) => void) {
+  whenAllLoaded(): Promise<ModelViewer>;
+  whenAllLoaded(callback: (viewer: ModelViewer) => void): void;
+  whenAllLoaded(callback?: (viewer: ModelViewer) => void): Promise<ModelViewer> | void {
     const promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
       if (this.promiseMap.size === 0) {
         resolve(this);
@@ -500,8 +502,6 @@ export default class ModelViewer extends EventEmitter {
     } else {
       return promise;
     }
-
-    return;
   }
 
   /**
@@ -509,12 +509,13 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If a callback is given, it will be called, otherwise, a promise is returned.
    */
-  toBlob(callback?: BlobCallback) {
+  toBlob(): Promise<Blob>; 
+  toBlob(callback: BlobCallback): void;
+  toBlob(callback?: BlobCallback): Promise<Blob | null> | void {
     const promise = new Promise((resolve: BlobCallback) => this.canvas.toBlob((blob) => resolve(blob)));
 
     if (callback) {
       promise.then((blob) => callback(blob));
-      return;
     } else {
       return promise;
     }
@@ -523,7 +524,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update and render a frame.
    */
-  updateAndRender(dt = 1000 / 60) {
+  updateAndRender(dt = 1000 / 60): void {
     this.update(dt);
     this.startFrame();
     this.render();
@@ -532,7 +533,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update all of the scenes, which includes updating their cameras, audio context if one exists, and all of the instances they hold.
    */
-  update(dt = 1000 / 60) {
+  update(dt = 1000 / 60): void {
     // Animations are in milliseconds, while particle movement and such is in seconds.
     // It's easier to pass the time in seconds here, and turn it back to milliseconds for each instance, than it is to do the opposite for each particle.
     dt *= 0.001;
@@ -559,7 +560,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    * Call this at some point before render() if you need more control.
    */
-  startFrame() {
+  startFrame(): void {
     const gl = this.gl;
 
     // See https://www.opengl.org/wiki/FAQ#Masking
@@ -571,7 +572,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Render.
    */
-  render() {
+  render(): void {
     for (const scene of this.scenes) {
       scene.render();
     }
@@ -580,7 +581,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Clear all of the emitted objects in this viewer.
    */
-  clearEmittedObjects() {
+  clearEmittedObjects(): void {
     for (const scene of this.scenes) {
       scene.clearEmittedObjects();
     }

@@ -10,7 +10,7 @@ export default class RibbonEmitter extends MdxEmitter {
   first: Ribbon | null = null;
   last: Ribbon | null = null;
 
-  updateEmission(dt: number) {
+  updateEmission(dt: number): void {
     const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
@@ -21,7 +21,7 @@ export default class RibbonEmitter extends MdxEmitter {
     }
   }
 
-  emit() {
+  emit(): void {
     const ribbon = <Ribbon>this.emitObject();
     const last = this.last;
 
@@ -35,7 +35,7 @@ export default class RibbonEmitter extends MdxEmitter {
     this.last = ribbon;
   }
 
-  override kill(object: Ribbon) {
+  override kill(object: Ribbon): void {
     super.kill(object);
 
     const prev = object.prev;

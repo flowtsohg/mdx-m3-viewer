@@ -10,7 +10,7 @@ export default class RandomItemTable {
   name = '';
   sets: RandomItemSet[] = [];
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.id = stream.readInt32();
     this.name = stream.readNull();
 
@@ -23,7 +23,7 @@ export default class RandomItemTable {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt32(this.id);
     stream.writeNull(this.name);
     stream.writeUint32(this.sets.length);
@@ -33,7 +33,7 @@ export default class RandomItemTable {
     }
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 9 + byteLengthUtf8(this.name);
 
     for (const set of this.sets) {

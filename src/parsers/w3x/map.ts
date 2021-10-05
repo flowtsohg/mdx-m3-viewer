@@ -8,6 +8,7 @@ import War3MapWtg from './wtg/file';
 import War3MapWts from './wts/file';
 import { TriggerData } from './wtg/triggerdata';
 import War3MapW3i from './w3i/file';
+import MpqFile from '../mpq/file';
 
 type War3MapModificationNames = 'w3a' | 'w3b' | 'w3d' | 'w3h' | 'w3q' | 'w3t' | 'w3u';
 
@@ -39,7 +40,7 @@ export default class War3Map {
    * 
    * Note that this clears the map from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer | Uint8Array, readonly = false) {
+  load(buffer: ArrayBuffer | Uint8Array, readonly = false): void {
     const stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?
@@ -63,7 +64,7 @@ export default class War3Map {
    * Save this map.
    * If the archive is in readonly mode, returns null.
    */
-  save() {
+  save(): Uint8Array | null {
     if (this.readonly) {
       return null;
     }
@@ -102,14 +103,14 @@ export default class War3Map {
   /**
    * A shortcut to the internal archive function.
    */
-  getFileNames() {
+  getFileNames(): string[] {
     return this.archive.getFileNames();
   }
 
   /**
    * Gets a list of the file names imported in this map.
    */
-  getImportNames() {
+  getImportNames(): string[] {
     const names = [];
 
     for (const entry of this.imports.entries.values()) {
@@ -130,7 +131,7 @@ export default class War3Map {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  setImportsFile() {
+  setImportsFile(): boolean {
     if (this.readonly) {
       return false;
     }
@@ -152,7 +153,7 @@ export default class War3Map {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  import(name: string, buffer: ArrayBuffer | string) {
+  import(name: string, buffer: ArrayBuffer | string): boolean {
     if (this.readonly) {
       return false;
     }
@@ -169,7 +170,7 @@ export default class War3Map {
   /**
    * A shortcut to the internal archive function.
    */
-  set(name: string, buffer: ArrayBuffer | string) {
+  set(name: string, buffer: ArrayBuffer | string): boolean {
     if (this.readonly) {
       return false;
     }
@@ -180,21 +181,21 @@ export default class War3Map {
   /**
    * A shortcut to the internal archive function.
    */
-  get(name: string) {
+  get(name: string): MpqFile | null {
     return this.archive.get(name);
   }
 
   /**
    * Get the map's script.
    */
-  getScriptFile() {
+  getScriptFile(): MpqFile | null {
     return this.get('war3map.j') || this.get('scripts\\war3map.j') || this.get('war3map.lua') || this.get('scripts\\war3map.lua');
   }
 
   /**
    * A shortcut to the internal archive function.
    */
-  has(name: string) {
+  has(name: string): boolean {
     return this.archive.has(name);
   }
 
@@ -205,7 +206,7 @@ export default class War3Map {
    * 
    * Use this rather than the internal archive's delete.
    */
-  delete(name: string) {
+  delete(name: string): boolean {
     if (this.readonly) {
       return false;
     }
@@ -219,7 +220,7 @@ export default class War3Map {
   /**
    * A shortcut to the internal archive function.
    */
-  rename(name: string, newName: string) {
+  rename(name: string, newName: string): boolean {
     if (this.readonly) {
       return false;
     }
@@ -234,12 +235,7 @@ export default class War3Map {
     return false;
   }
 
-
-
-  /**
-   * @throws if an error occurs, or the file does not exist.
-   */
-  getMapInformation() {
+  getMapInformation(): War3MapW3i {
     const file = this.archive.get('war3map.w3i');
 
     if (!file) {
@@ -253,10 +249,7 @@ export default class War3Map {
     return parser;
   }
 
-  /**
-   * Read the imports file.
-   */
-  readImports() {
+  readImports(): void {
     const file = this.archive.get('war3map.imp');
 
     if (file) {
@@ -268,10 +261,7 @@ export default class War3Map {
     }
   }
 
-  /**
-   * Read and parse the trigger file.
-   */
-  readTriggers(triggerData: TriggerData) {
+  readTriggers(triggerData: TriggerData): War3MapWtg | undefined {
     const file = this.archive.get('war3map.wtg');
 
     if (file) {
@@ -292,7 +282,7 @@ export default class War3Map {
   /**
    * Read and parse the custom text trigger file.
    */
-  readCustomTextTriggers() {
+  readCustomTextTriggers(): War3MapWct | undefined {
     const file = this.archive.get('war3map.wct');
 
     if (file) {
@@ -313,7 +303,7 @@ export default class War3Map {
   /**
    * Read and parse the string table file.
    */
-  readStringTable() {
+  readStringTable(): War3MapWts | undefined {
     const file = this.archive.get('war3map.wts');
 
     if (file) {
@@ -334,7 +324,7 @@ export default class War3Map {
   /**
    * Read and parse all of the modification tables.
    */
-  readModifications() {
+  readModifications(): War3MapModifications {
     const modifications: War3MapModifications = {};
 
     // useOptionalInts:

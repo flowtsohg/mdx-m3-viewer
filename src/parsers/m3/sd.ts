@@ -12,7 +12,7 @@ export default class Sd {
   biggestKey = -1;
   values = new Reference();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.keys.load(stream, index);
     this.flags = stream.readUint32();

@@ -17,7 +17,7 @@ export default abstract class MdxEmitter extends Emitter {
     this.emitterObject = emitterObject;
   }
 
-  override update(dt: number) {
+  override update(dt: number): void {
     if (this.emitterObject.ok) {
       super.update(dt);
     }

@@ -14,7 +14,7 @@ export default class War3MapW3e {
   centerOffset = new Float32Array(2);
   corners: Corner[][] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3E!') {
@@ -50,7 +50,7 @@ export default class War3MapW3e {
   }
 
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('W3E!');
@@ -81,7 +81,7 @@ export default class War3MapW3e {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 37 + (this.groundTilesets.length * 4) + (this.cliffTilesets.length * 4) + (this.mapSize[0] * this.mapSize[1] * 7);
   }
 }

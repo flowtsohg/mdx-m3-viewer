@@ -9,14 +9,14 @@ export default class UpgradeAvailabilityChange {
   levelAffected = 0;
   availability = 0;
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.playerFlags = stream.readUint32();
     this.id = stream.readBinary(4);
     this.levelAffected = stream.readInt32();
     this.availability = stream.readInt32();
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeUint32(this.playerFlags);
     stream.writeBinary(this.id);
     stream.writeInt32(this.levelAffected);

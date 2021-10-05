@@ -16,7 +16,7 @@ export default class BoundingShape {
   unknown6 = 0;
   size = new Float32Array(3);
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.shape = stream.readUint32();
     this.bone = stream.readInt16();
     this.unknown0 = stream.readUint16();

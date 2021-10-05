@@ -25,7 +25,7 @@ interface MdlStructureNode {
   nodes?: MdlStructureNode[];
 }
 
-function mdlObjects(stream: TokenStream, model: Model, objects: (Sequence | Layer | Texture | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | Camera | CollisionShape | FaceEffect)[], out: MdlStructureNode[]) {
+function mdlObjects(stream: TokenStream, model: Model, objects: (Sequence | Layer | Texture | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | Camera | CollisionShape | FaceEffect)[], out: MdlStructureNode[]): void {
   if (objects.length) {
     for (const [index, object] of objects.entries()) {
       object.writeMdl(stream, model.version);
@@ -35,7 +35,7 @@ function mdlObjects(stream: TokenStream, model: Model, objects: (Sequence | Laye
   }
 }
 
-function mdlObjectsBlock(stream: TokenStream, model: Model, objects: (Sequence | Texture | TextureAnimation)[], out: MdlStructureNode[]) {
+function mdlObjectsBlock(stream: TokenStream, model: Model, objects: (Sequence | Texture | TextureAnimation)[], out: MdlStructureNode[]): void {
   if (objects.length) {
     const name = getObjectTypeName(objects[0]) + 's';
     const nodes = <MdlStructureNode[]>[];
@@ -48,7 +48,7 @@ function mdlObjectsBlock(stream: TokenStream, model: Model, objects: (Sequence |
   }
 }
 
-export default function mdlStructure(model: Model) {
+export default function mdlStructure(model: Model): MdlStructureNode[] {
   const stream = new TokenStream();
   const out = <MdlStructureNode[]>[];
 
@@ -117,5 +117,5 @@ export default function mdlStructure(model: Model) {
     stream.clear();
   }
 
-  return { nodes: out };
+  return out;
 }

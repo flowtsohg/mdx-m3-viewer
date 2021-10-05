@@ -18,7 +18,7 @@ export default class AnimatedObject {
     }
   }
 
-  getScalarValue(out: Uint32Array | Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: number) {
+  getScalarValue(out: Uint32Array | Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: number): number {
     if (sequence !== -1) {
       const animation = this.animations.get(name);
 
@@ -32,7 +32,7 @@ export default class AnimatedObject {
     return -1;
   }
 
-  getVectorValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
+  getVectorValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array): number {
     if (sequence !== -1) {
       const animation = this.animations.get(name);
 
@@ -48,7 +48,7 @@ export default class AnimatedObject {
     return -1;
   }
 
-  getQuatValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
+  getQuatValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array): number {
     if (sequence !== -1) {
       const animation = this.animations.get(name);
 
@@ -65,7 +65,7 @@ export default class AnimatedObject {
     return -1;
   }
 
-  addVariants(name: string, variantName: string) {
+  addVariants(name: string, variantName: string): void {
     const animation = this.animations.get(name);
     const sequences = this.model.sequences.length;
     const variants = new Uint8Array(sequences);
@@ -81,7 +81,7 @@ export default class AnimatedObject {
     this.variants[variantName] = variants;
   }
 
-  addVariantIntersection(names: string[], variantName: string) {
+  addVariantIntersection(names: string[], variantName: string): void {
     const sequences = this.model.sequences.length;
     const variants = new Uint8Array(sequences);
 

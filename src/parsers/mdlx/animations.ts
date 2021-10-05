@@ -24,7 +24,7 @@ export abstract class Animation {
   abstract readMdlValue(stream: TokenStream): Uint32Array | Float32Array;
   abstract writeMdlValue(stream: TokenStream, name: string, value: Uint32Array | Float32Array): void;
 
-  readMdx(stream: BinaryStream, name: string) {
+  readMdx(stream: BinaryStream, name: string): void {
     const frames = this.frames;
     const values = this.values;
     const inTans = this.inTans;
@@ -47,7 +47,7 @@ export abstract class Animation {
     }
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     const interpolationType = this.interpolationType;
     const frames = this.frames;
     const values = this.values;
@@ -71,7 +71,7 @@ export abstract class Animation {
     }
   }
 
-  readMdl(stream: TokenStream, name: string) {
+  readMdl(stream: TokenStream, name: string): void {
     const frames = this.frames;
     const values = this.values;
     const inTans = this.inTans;
@@ -120,7 +120,7 @@ export abstract class Animation {
     stream.read(); // }
   }
 
-  writeMdl(stream: TokenStream, name: string) {
+  writeMdl(stream: TokenStream, name: string): void {
     const interpolationType = this.interpolationType;
     const frames = this.frames;
     const values = this.values;
@@ -162,7 +162,7 @@ export abstract class Animation {
     stream.endBlock();
   }
 
-  getByteLength() {
+  getByteLength(): number {
     const tracksCount = this.frames.length;
     let size = 16;
 
@@ -185,19 +185,19 @@ export abstract class Animation {
  * A uint animation.
  */
 export class UintAnimation extends Animation {
-  readMdxValue(stream: BinaryStream) {
+  readMdxValue(stream: BinaryStream): Uint32Array {
     return stream.readUint32Array(1);
   }
 
-  writeMdxValue(stream: BinaryStream, value: Uint32Array) {
+  writeMdxValue(stream: BinaryStream, value: Uint32Array): void {
     stream.writeUint32(value[0]);
   }
 
-  readMdlValue(stream: TokenStream) {
+  readMdlValue(stream: TokenStream): Uint32Array {
     return new Uint32Array([stream.readInt()]);
   }
 
-  writeMdlValue(stream: TokenStream, name: string, value: Uint32Array) {
+  writeMdlValue(stream: TokenStream, name: string, value: Uint32Array): void {
     stream.writeNumberAttrib(name, value[0]);
   }
 }
@@ -206,19 +206,19 @@ export class UintAnimation extends Animation {
  * A float animation
  */
 export class FloatAnimation extends Animation {
-  readMdxValue(stream: BinaryStream) {
+  readMdxValue(stream: BinaryStream): Float32Array {
     return stream.readFloat32Array(1);
   }
 
-  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+  writeMdxValue(stream: BinaryStream, value: Float32Array): void {
     stream.writeFloat32(value[0]);
   }
 
-  readMdlValue(stream: TokenStream) {
+  readMdlValue(stream: TokenStream): Float32Array {
     return new Float32Array([stream.readFloat()]);
   }
 
-  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array): void {
     stream.writeNumberAttrib(name, value[0]);
   }
 }
@@ -227,19 +227,19 @@ export class FloatAnimation extends Animation {
  * A vector 3 animation.
  */
 export class Vector3Animation extends Animation {
-  readMdxValue(stream: BinaryStream) {
+  readMdxValue(stream: BinaryStream): Float32Array {
     return stream.readFloat32Array(3);
   }
 
-  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+  writeMdxValue(stream: BinaryStream, value: Float32Array): void {
     stream.writeFloat32Array(value);
   }
 
-  readMdlValue(stream: TokenStream) {
+  readMdlValue(stream: TokenStream): Float32Array {
     return stream.readVector(new Float32Array(3));
   }
 
-  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array): void {
     stream.writeVectorAttrib(name, value);
   }
 }
@@ -248,19 +248,19 @@ export class Vector3Animation extends Animation {
  * A vector 4 animation.
  */
 export class Vector4Animation extends Animation {
-  readMdxValue(stream: BinaryStream) {
+  readMdxValue(stream: BinaryStream): Float32Array {
     return stream.readFloat32Array(4);
   }
 
-  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+  writeMdxValue(stream: BinaryStream, value: Float32Array): void {
     stream.writeFloat32Array(value);
   }
 
-  readMdlValue(stream: TokenStream) {
+  readMdlValue(stream: TokenStream): Float32Array {
     return stream.readVector(new Float32Array(4));
   }
 
-  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array): void {
     stream.writeVectorAttrib(name, value);
   }
 }

@@ -210,7 +210,7 @@ export default class M3Model extends Model {
     return new M3ModelInstance(this);
   }
 
-  setupGeometry(parser: M3ParserModel, div: M3ParserDivision) {
+  setupGeometry(parser: M3ParserModel, div: M3ParserDivision): void {
     const gl = this.viewer.gl;
     let uvSetCount = 1;
     const vertexFlags = parser.vertexFlags;
@@ -255,13 +255,14 @@ export default class M3Model extends Model {
     this.uvSetCount = uvSetCount;
   }
 
-  mapMaterial(index: number) {
+  mapMaterial(index: number): M3StandardMaterial {
     const materialMap = this.materialMaps[index];
 
-    return this.materials[materialMap.materialType][materialMap.materialIndex];
+    // return this.materials[materialMap.materialType][materialMap.materialIndex];
+    return this.materials[1][materialMap.materialIndex];
   }
 
-  addGlobalAnims() {
+  addGlobalAnims(): void {
     /*
     var i, l;
     var glbirth, glstand, gldeath;

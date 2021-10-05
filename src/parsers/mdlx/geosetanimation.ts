@@ -11,7 +11,7 @@ export default class GeosetAnimation extends AnimatedObject {
   color = new Float32Array([1, 1, 1]);
   geosetId = -1;
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     const size = stream.readUint32();
 
     this.alpha = stream.readFloat32();
@@ -22,7 +22,7 @@ export default class GeosetAnimation extends AnimatedObject {
     this.readAnimations(stream, size - 28);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
     stream.writeFloat32(this.alpha);
     stream.writeUint32(this.flags);
@@ -32,7 +32,7 @@ export default class GeosetAnimation extends AnimatedObject {
     this.writeAnimations(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readAnimatedBlock(stream)) {
       if (token === 'DropShadow') {
         this.flags |= 0x1;
@@ -54,7 +54,7 @@ export default class GeosetAnimation extends AnimatedObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startBlock('GeosetAnim');
 
     if (this.flags & 0x1) {
@@ -76,7 +76,7 @@ export default class GeosetAnimation extends AnimatedObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 28 + super.getByteLength();
   }
 }

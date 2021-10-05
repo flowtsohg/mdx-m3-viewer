@@ -54,7 +54,7 @@ export default class Unit {
   waygate = 0;
   creationNumber = 0;
 
-  load(stream: BinaryStream, version: number, subversion: number, buildVersion: number) {
+  load(stream: BinaryStream, version: number, subversion: number, buildVersion: number): void {
     this.id = stream.readBinary(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
@@ -132,7 +132,7 @@ export default class Unit {
     this.creationNumber = stream.readInt32();
   }
 
-  save(stream: BinaryStream, version: number, subversion: number, buildVersion: number) {
+  save(stream: BinaryStream, version: number, subversion: number, buildVersion: number): void {
     stream.writeBinary(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
@@ -202,7 +202,7 @@ export default class Unit {
     stream.writeInt32(this.creationNumber);
   }
 
-  getByteLength(version: number, subversion: number, buildVersion: number) {
+  getByteLength(version: number, subversion: number, buildVersion: number): number {
     let size = 91;
 
     if (buildVersion > 131) {

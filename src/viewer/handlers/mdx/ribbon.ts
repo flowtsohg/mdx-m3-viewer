@@ -20,7 +20,7 @@ export default class Ribbon extends EmittedObject {
   prev: Ribbon | null = null;
   next: Ribbon | null = null;
 
-  bind() {
+  bind(): void {
     const emitter = <RibbonEmitter>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const sequence = instance.sequence;
@@ -56,7 +56,7 @@ export default class Ribbon extends EmittedObject {
     vertices[5] = belowHeap[2];
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     this.health -= dt;
 
     if (this.health > 0) {

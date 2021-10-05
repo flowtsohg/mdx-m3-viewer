@@ -29,7 +29,7 @@ export class BlpImage {
    */
   pallete: Uint8Array | null = null;
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const bytes = bytesOf(buffer);
 
     // This includes the JPG header size, in case its a JPG image.
@@ -61,7 +61,7 @@ export class BlpImage {
     }
   }
 
-  getMipmap(level: number) {
+  getMipmap(level: number): ImageData {
     const uint8array = <Uint8Array>this.uint8array;
     const offset = this.mipmapOffsets[level];
     const size = this.mipmapSizes[level];
@@ -123,7 +123,7 @@ export class BlpImage {
     return imageData;
   }
 
-  mipmaps() {
+  mipmaps(): number {
     let mipmaps = 0;
 
     for (const size of this.mipmapSizes) {
@@ -135,7 +135,7 @@ export class BlpImage {
     return mipmaps;
   }
 
-  fakeMipmaps() {
+  fakeMipmaps(): number {
     const offsets = this.mipmapOffsets;
     let mipmaps = 0;
 

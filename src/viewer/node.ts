@@ -31,7 +31,7 @@ export class Node {
   /**
    * Sets the node's pivot.
    */
-  setPivot(pivot: vec3) {
+  setPivot(pivot: vec3): this {
     vec3.copy(this.pivot, pivot);
 
     this.recalculateTransformation();
@@ -42,7 +42,7 @@ export class Node {
   /**
    * Sets the node's local location.
    */
-  setLocation(location: vec3) {
+  setLocation(location: vec3): this {
     vec3.copy(this.localLocation, location);
 
     this.recalculateTransformation();
@@ -53,7 +53,7 @@ export class Node {
   /**
    * Sets the node's local rotation.
    */
-  setRotation(rotation: quat) {
+  setRotation(rotation: quat): this {
     quat.copy(this.localRotation, rotation);
 
     this.recalculateTransformation();
@@ -64,7 +64,7 @@ export class Node {
   /**
    * Sets the node's local scale.
    */
-  setScale(varying: vec3) {
+  setScale(varying: vec3): this {
     vec3.copy(this.localScale, varying);
 
     this.recalculateTransformation();
@@ -75,7 +75,7 @@ export class Node {
   /**
    * Sets the node's local scale uniformly.
    */
-  setUniformScale(uniform: number) {
+  setUniformScale(uniform: number): this {
     vec3.set(this.localScale, uniform, uniform, uniform);
 
     this.recalculateTransformation();
@@ -86,7 +86,7 @@ export class Node {
   /**
    * Sets the node's local location, rotation, and scale.
    */
-  setTransformation(location: vec3, rotation: quat, scale: vec3) {
+  setTransformation(location: vec3, rotation: quat, scale: vec3): this {
     const localLocation = this.localLocation;
     const localRotation = this.localRotation;
     const localScale = this.localScale;
@@ -115,7 +115,7 @@ export class Node {
   /**
    * Resets the node's local location, pivot, rotation, and scale, to the default values.
    */
-  resetTransformation() {
+  resetTransformation(): this {
     vec3.copy(this.pivot, VEC3_ZERO);
     vec3.copy(this.localLocation, VEC3_ZERO);
     quat.copy(this.localRotation, QUAT_DEFAULT);
@@ -129,7 +129,7 @@ export class Node {
   /**
    * Moves the node's pivot.
    */
-  movePivot(offset: vec3) {
+  movePivot(offset: vec3): this {
     vec3.add(this.pivot, this.pivot, offset);
 
     this.recalculateTransformation();
@@ -140,7 +140,7 @@ export class Node {
   /**
    * Moves the node's local location.
    */
-  move(offset: vec3) {
+  move(offset: vec3): this {
     vec3.add(this.localLocation, this.localLocation, offset);
 
     this.recalculateTransformation();
@@ -151,7 +151,7 @@ export class Node {
   /**
    * Rotates the node's local rotation in world space.
    */
-  rotate(rotation: quat) {
+  rotate(rotation: quat): this {
     quat.mul(this.localRotation, this.localRotation, rotation);
 
     this.recalculateTransformation();
@@ -162,7 +162,7 @@ export class Node {
   /**
    * Rotates the node's local rotation in local space.
    */
-  rotateLocal(rotation: quat) {
+  rotateLocal(rotation: quat): this {
     quat.mul(this.localRotation, rotation, this.localRotation);
 
     this.recalculateTransformation();
@@ -173,7 +173,7 @@ export class Node {
   /**
    * Scales the node.
    */
-  scale(scale: vec3) {
+  scale(scale: vec3): this {
     vec3.mul(this.localScale, this.localScale, scale);
 
     this.recalculateTransformation();
@@ -184,7 +184,7 @@ export class Node {
   /**
    * Scales the node uniformly.
    */
-  uniformScale(scale: number) {
+  uniformScale(scale: number): this {
     vec3.scale(this.localScale, this.localScale, scale);
 
     this.recalculateTransformation();
@@ -192,7 +192,7 @@ export class Node {
     return this;
   }
 
-  face(to: vec3, worldUp: vec3) {
+  face(to: vec3, worldUp: vec3): this {
     quat.conjugate(this.localRotation, quatLookAt(this.localRotation, this.localLocation, to, worldUp));
 
     this.recalculateTransformation();
@@ -203,7 +203,7 @@ export class Node {
   /**
    * Sets the node's parent.
    */
-  setParent(parent?: Node | SkeletalNode) {
+  setParent(parent?: Node | SkeletalNode): this {
     // If the node already had a parent, detach from it first.
     if (this.parent) {
       const children = this.parent.children;
@@ -229,7 +229,7 @@ export class Node {
   /**
    * Recalculate this node's transformation data.
    */
-  recalculateTransformation() {
+  recalculateTransformation(): void {
     const parent = this.parent;
     const localMatrix = this.localMatrix;
     const localLocation = this.localLocation;
@@ -365,7 +365,7 @@ export class Node {
   /**
    * Update this node, and continue down the node hierarchy.
    */
-  update(dt: number) {
+  update(dt: number): void {
     for (const child of this.children) {
       child.update(dt);
     }

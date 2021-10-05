@@ -7,7 +7,7 @@ import ModifiedObject from './modifiedobject';
 export default class ModificationTable {
   objects: ModifiedObject[] = [];
 
-  load(stream: BinaryStream, useOptionalInts: boolean) {
+  load(stream: BinaryStream, useOptionalInts: boolean): void {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       const object = new ModifiedObject();
 
@@ -17,7 +17,7 @@ export default class ModificationTable {
     }
   }
 
-  save(stream: BinaryStream, useOptionalInts: boolean) {
+  save(stream: BinaryStream, useOptionalInts: boolean): void {
     stream.writeUint32(this.objects.length);
 
     for (const object of this.objects) {
@@ -25,7 +25,7 @@ export default class ModificationTable {
     }
   }
 
-  getByteLength(useOptionalInts: boolean) {
+  getByteLength(useOptionalInts: boolean): number {
     let size = 4;
 
     for (const object of this.objects) {

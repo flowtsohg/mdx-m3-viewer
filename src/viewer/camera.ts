@@ -72,7 +72,7 @@ export default class Camera {
   /**
    * Set the camera to perspective projection mode.
    */
-  perspective(fov: number, aspect: number, near: number, far: number) {
+  perspective(fov: number, aspect: number, near: number, far: number): void {
     this.isPerspective = true;
     this.isOrtho = false;
     this.fov = fov;
@@ -86,7 +86,7 @@ export default class Camera {
   /**
    * Set the camera to orthogonal projection mode.
    */
-  ortho(left: number, right: number, bottom: number, top: number, near: number, far: number) {
+  ortho(left: number, right: number, bottom: number, top: number, near: number, far: number): void {
     this.isPerspective = false;
     this.isOrtho = true;
     this.leftClipPlane = left;
@@ -102,7 +102,7 @@ export default class Camera {
   /**
    * Set the camera location in world coordinates.
    */
-  setLocation(location: vec3) {
+  setLocation(location: vec3): void {
     vec3.copy(this.location, location);
 
     this.update();
@@ -111,7 +111,7 @@ export default class Camera {
   /**
    * Move the camera by the given offset in world coordinates.
    */
-  move(offset: vec3) {
+  move(offset: vec3): void {
     vec3.add(this.location, this.location, offset);
 
     this.update();
@@ -120,7 +120,7 @@ export default class Camera {
   /**
    * Set the camera rotation.
    */
-  setRotation(rotation: quat) {
+  setRotation(rotation: quat): void {
     quat.copy(this.rotation, rotation);
 
     this.update();
@@ -129,7 +129,7 @@ export default class Camera {
   /**
    * Rotate the camera by the given rotation.
    */
-  rotate(rotation: quat) {
+  rotate(rotation: quat): void {
     quat.mul(this.rotation, this.rotation, rotation);
 
     this.update();
@@ -138,7 +138,7 @@ export default class Camera {
   /**
    * Look at `to`.
    */
-  face(to: vec3, worldUp: vec3) {
+  face(to: vec3, worldUp: vec3): void {
     quat.mul(this.rotation, facingCorrection, quatLookAt(quatHeap, to, this.location, worldUp));
 
     this.update();
@@ -147,7 +147,7 @@ export default class Camera {
   /**
    * Move to `from` and look at `to`.
    */
-  moveToAndFace(from: vec3, to: vec3, worldUp: vec3) {
+  moveToAndFace(from: vec3, to: vec3, worldUp: vec3): void {
     vec3.copy(this.location, from);
     this.face(to, worldUp);
   }
@@ -155,7 +155,7 @@ export default class Camera {
   /**
    * Reset the location and angles.
    */
-  reset() {
+  reset(): void {
     vec3.set(this.location, 0, 0, 0);
     quat.identity(this.rotation);
 
@@ -165,7 +165,7 @@ export default class Camera {
   /**
    * Recalculate the camera's transformation.
    */
-  update() {
+  update(): void {
     const location = this.location;
     const rotation = this.rotation;
     const inverseRotation = this.inverseRotation;
@@ -214,21 +214,21 @@ export default class Camera {
   /**
    * Given a vector in camera space, return the vector transformed to world space.
    */
-  cameraToWorld(out: vec3, v: vec3) {
+  cameraToWorld(out: vec3, v: vec3): vec3 {
     return vec3.transformMat4(out, v, this.inverseViewMatrix);
   }
 
   /**
    * Given a vector in world space, return the vector transformed to camera space.
    */
-  worldToCamera(out: vec3, v: vec3) {
+  worldToCamera(out: vec3, v: vec3): vec3 {
     return vec3.transformMat4(out, v, this.viewMatrix);
   }
 
   /**
    * Given a vector in world space, return the vector transformed to screen space.
    */
-  worldToScreen(out: Float32Array, v: Float32Array, viewport: vec4) {
+  worldToScreen(out: Float32Array, v: Float32Array, viewport: vec4): Float32Array {
     vec3.transformMat4(vectorHeap, <vec3>v, this.viewProjectionMatrix);
 
     out[0] = Math.round(((vectorHeap[0] + 1) / 2) * viewport[2]);
@@ -240,7 +240,7 @@ export default class Camera {
   /**
    * Given a vector in screen space, return a ray from the near plane to the far plane.
    */
-  screenToWorldRay(out: Float32Array, v: Float32Array, viewport: vec4) {
+  screenToWorldRay(out: Float32Array, v: Float32Array, viewport: vec4): Float32Array {
     const a = vectorHeap;
     const b = vectorHeap2;
     const c = vectorHeap3;

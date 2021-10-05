@@ -12,7 +12,7 @@ export default class War3MapDoo {
   u2 = new Uint8Array(4);
   terrainDoodads: TerrainDoodad[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {
+  load(buffer: ArrayBuffer | Uint8Array, buildVersion: number): void {
     const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3do') {
@@ -41,7 +41,7 @@ export default class War3MapDoo {
     }
   }
 
-  save(buildVersion: number) {
+  save(buildVersion: number): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
 
     stream.writeBinary('W3do');
@@ -63,7 +63,7 @@ export default class War3MapDoo {
     return stream.uint8array;
   }
 
-  getByteLength(buildVersion: number) {
+  getByteLength(buildVersion: number): number {
     let size = 24 + this.terrainDoodads.length * 16;
 
     for (const doodad of this.doodads) {

@@ -12,7 +12,7 @@ export default class Modification {
   value: number | string = 0;
   u1 = 0;
 
-  load(stream: BinaryStream, useOptionalInts: boolean) {
+  load(stream: BinaryStream, useOptionalInts: boolean): void {
     this.id = stream.readBinary(4);
     this.variableType = stream.readInt32();
 
@@ -34,7 +34,7 @@ export default class Modification {
     this.u1 = stream.readInt32();
   }
 
-  save(stream: BinaryStream, useOptionalInts: boolean) {
+  save(stream: BinaryStream, useOptionalInts: boolean): void {
     stream.writeBinary(this.id);
     stream.writeInt32(this.variableType);
 
@@ -56,7 +56,7 @@ export default class Modification {
     stream.writeInt32(this.u1);
   }
 
-  getByteLength(useOptionalInts: boolean) {
+  getByteLength(useOptionalInts: boolean): number {
     let size = 12;
 
     if (useOptionalInts) {

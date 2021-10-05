@@ -22,7 +22,7 @@ export function createRectangle(w: number, d: number): PrimitiveShape {
 /**
  * Creates a unit rectangle geometry object.
  */
-export function createUnitRectangle() {
+export function createUnitRectangle(): PrimitiveShape {
   return createRectangle(1, 1);
 }
 
@@ -42,7 +42,7 @@ export function createCube(w: number, d: number, h: number): PrimitiveShape {
 /**
  * Creates a unit cube geometry object.
  */
-export function createUnitCube() {
+export function createUnitCube(): PrimitiveShape {
   return createCube(1, 1, 1);
 }
 
@@ -113,7 +113,7 @@ export function createSphere(radius: number, stacks: number, slices: number): Pr
 /**
  * Creates a unit sphere geometry object.
  */
-export function createUnitSphere(stacks: number, slices: number) {
+export function createUnitSphere(stacks: number, slices: number): PrimitiveShape {
   return createSphere(1, stacks, slices);
 }
 
@@ -214,7 +214,7 @@ export function createCylinder(radius: number, height: number, slices: number): 
 /**
  * Creates a unit cylinder geometry object.
  */
-export function createUnitCylinder(slices: number) {
+export function createUnitCylinder(slices: number): PrimitiveShape {
   return createCylinder(1, 1, slices);
 }
 

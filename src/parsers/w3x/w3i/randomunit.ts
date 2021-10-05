@@ -7,7 +7,7 @@ export default class RandomUnit {
   chance = 0;
   ids: string[] = [];
 
-  load(stream: BinaryStream, positions: number) {
+  load(stream: BinaryStream, positions: number): void {
     this.chance = stream.readInt32();
 
     for (let i = 0; i < positions; i++) {
@@ -15,7 +15,7 @@ export default class RandomUnit {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt32(this.chance);
 
     for (const id of this.ids) {

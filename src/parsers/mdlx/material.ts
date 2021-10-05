@@ -23,7 +23,7 @@ export default class Material {
   shader = '';
   layers: Layer[] = [];
 
-  readMdx(stream: BinaryStream, version: number) {
+  readMdx(stream: BinaryStream, version: number): void {
     stream.readUint32(); // Don't care about the size.
 
     this.priorityPlane = stream.readInt32();
@@ -44,7 +44,7 @@ export default class Material {
     }
   }
 
-  writeMdx(stream: BinaryStream, version: number) {
+  writeMdx(stream: BinaryStream, version: number): void {
     stream.writeUint32(this.getByteLength(version));
     stream.writeInt32(this.priorityPlane);
     stream.writeUint32(this.flags);
@@ -61,7 +61,7 @@ export default class Material {
     }
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of stream.readBlock()) {
       if (token === 'ConstantColor') {
         this.flags |= Flags.ConstantColor;
@@ -89,7 +89,7 @@ export default class Material {
     }
   }
 
-  writeMdl(stream: TokenStream, version: number) {
+  writeMdl(stream: TokenStream, version: number): void {
     stream.startBlock('Material');
 
     if (this.flags & Flags.ConstantColor) {
@@ -129,7 +129,7 @@ export default class Material {
     stream.endBlock();
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 20;
 
     if (version > 800) {

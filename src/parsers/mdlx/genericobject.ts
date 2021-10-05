@@ -1,6 +1,7 @@
 import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
+import { Animation } from './animations';
 
 export const enum Flags {
   None = 0x0,
@@ -32,7 +33,7 @@ export default abstract class GenericObject extends AnimatedObject {
     this.flags = flags;
   }
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     const size = stream.readUint32();
 
     this.name = stream.read(80);
@@ -43,7 +44,7 @@ export default abstract class GenericObject extends AnimatedObject {
     this.readAnimations(stream, size - 96);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getGenericByteLength());
     stream.skip(80 - stream.write(this.name));
     stream.writeInt32(this.objectId);
@@ -55,13 +56,13 @@ export default abstract class GenericObject extends AnimatedObject {
     }
   }
 
-  writeNonGenericAnimationChunks(stream: BinaryStream) {
+  writeNonGenericAnimationChunks(stream: BinaryStream): void {
     for (const animation of this.eachAnimation(false)) {
       animation.writeMdx(stream);
     }
   }
 
-  * readGenericBlock(stream: TokenStream) {
+  * readGenericBlock(stream: TokenStream): Generator<string> {
     this.name = stream.read();
 
     for (let token of this.readAnimatedBlock(stream)) {
@@ -101,7 +102,7 @@ export default abstract class GenericObject extends AnimatedObject {
     }
   }
 
-  writeGenericHeader(stream: TokenStream) {
+  writeGenericHeader(stream: TokenStream): void {
     stream.writeNumberAttrib('ObjectId', this.objectId);
 
     if (this.parentId !== -1) {
@@ -141,7 +142,7 @@ export default abstract class GenericObject extends AnimatedObject {
     }
   }
 
-  writeGenericAnimations(stream: TokenStream) {
+  writeGenericAnimations(stream: TokenStream): void {
     this.writeAnimation(stream, 'KGTR');
     this.writeAnimation(stream, 'KGRT');
     this.writeAnimation(stream, 'KGSC');
@@ -150,7 +151,7 @@ export default abstract class GenericObject extends AnimatedObject {
   /**
    * Allows to easily iterate either the GenericObject animations or the parent object animations.
    */
-  * eachAnimation(wantGeneric: boolean) {
+  * eachAnimation(wantGeneric: boolean): Generator<Animation> {
     for (const animation of this.animations) {
       const name = animation.name;
       const isGeneric = (name === 'KGTR' || name === 'KGRT' || name === 'KGSC');
@@ -166,7 +167,7 @@ export default abstract class GenericObject extends AnimatedObject {
    * 
    * This is needed because only the KGTR, KGRT, and KGSC animations actually belong to it.
    */
-  getGenericByteLength() {
+  getGenericByteLength(): number {
     let size = 96;
 
     for (const animation of this.eachAnimation(true)) {
@@ -176,7 +177,7 @@ export default abstract class GenericObject extends AnimatedObject {
     return size;
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 96 + super.getByteLength();
   }
 }

@@ -3,7 +3,7 @@ import isTga from '../../../parsers/tga/isformat';
 import Texture from './texture';
 
 export default {
-  isValidSource(object: unknown) {
+  isValidSource(object: unknown): boolean {
     if (object instanceof TgaImage) {
       return true;
     }

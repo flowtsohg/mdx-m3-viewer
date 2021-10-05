@@ -20,7 +20,7 @@ interface WEUTransformerTransformations {
   [keyof: string]: WEUTransformerTransformation | WEUTransformerTransformation[];
 }
 
-function runTests(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation, convertedParameters: string[]) {
+function runTests(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation, convertedParameters: string[]): boolean {
   const parameters = object.parameters;
   const tests = [];
 
@@ -46,7 +46,7 @@ function runTests(data: WeuData, object: ECA | SubParameters, args: string[], ma
   return true;
 }
 
-function setNameAndType(data: WeuData, object: ECA | SubParameters, name: string) {
+function setNameAndType(data: WeuData, object: ECA | SubParameters, name: string): void {
   object.name = name;
   object.type = data.triggerData.getFunctionType(name);
 
@@ -57,7 +57,7 @@ function setNameAndType(data: WeuData, object: ECA | SubParameters, name: string
   }
 }
 
-function setParameters(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation) {
+function setParameters(data: WeuData, object: ECA | SubParameters, args: string[], mapping: WEUTransformerTransformation): void {
   if (mapping.parameters) {
     const parameters = object.parameters;
 
@@ -136,7 +136,7 @@ function setParameters(data: WeuData, object: ECA | SubParameters, args: string[
 }
 
 export default function transformer(transformations: WEUTransformerTransformations) {
-  return function (data: WeuData, object: ECA | SubParameters) {
+  return function (data: WeuData, object: ECA | SubParameters): boolean {
     // The signature for the input (to be replaced) function.
     const signature = data.triggerData.getFunction(object.type, object.name);
 
@@ -179,3 +179,5 @@ export default function transformer(transformations: WEUTransformerTransformatio
     return false;
   };
 }
+
+export type Transformer = ReturnType<typeof transformer>;

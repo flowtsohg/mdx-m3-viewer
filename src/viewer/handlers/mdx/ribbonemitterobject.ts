@@ -43,23 +43,23 @@ export default class RibbonEmitterObject extends GenericObject {
     this.rows = emitter.rows;
   }
 
-  getHeightBelow(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getHeightBelow(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KRHB', sequence, frame, counter, this.heightBelow);
   }
 
-  getHeightAbove(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getHeightAbove(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KRHA', sequence, frame, counter, this.heightAbove);
   }
 
-  getTextureSlot(out: Uint32Array, sequence: number, frame: number, counter: number) {
+  getTextureSlot(out: Uint32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KRTX', sequence, frame, counter, 0);
   }
 
-  getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getColor(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getVectorValue(out, 'KRCO', sequence, frame, counter, this.color);
   }
 
-  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KRAL', sequence, frame, counter, this.alpha);
   }
 
@@ -70,7 +70,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * 
    * Therefore first check the alpha animation, and only if it's >0 check the visibility animation.
    */
-  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number): number {
     const keyframe = this.getAlpha(out, sequence,frame,counter);
     
     if (out[0] === 0) {

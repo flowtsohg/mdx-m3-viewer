@@ -7,11 +7,11 @@ interface FilteredSequence {
   index: number;
 }
 
-function sequenceSorter(a: FilteredSequence, b: FilteredSequence) {
+function sequenceSorter(a: FilteredSequence, b: FilteredSequence): number {
   return a.sequence.rarity - b.sequence.rarity;
 }
 
-function filterSequences(type: string, sequences: Sequence[]) {
+function filterSequences(type: string, sequences: Sequence[]): FilteredSequence[] {
   const filtered = [];
 
   for (let i = 0, l = sequences.length; i < l; i++) {
@@ -26,7 +26,7 @@ function filterSequences(type: string, sequences: Sequence[]) {
   return filtered;
 }
 
-function selectSequence(type: string, sequences: Sequence[]) {
+function selectSequence(type: string, sequences: Sequence[]): FilteredSequence {
   const filtered = filterSequences(type, sequences);
   let i, l;
 
@@ -52,7 +52,7 @@ function selectSequence(type: string, sequences: Sequence[]) {
   return sequence;
 }
 
-export default function randomStandSequence(target: MdxModelInstance) {
+export default function randomStandSequence(target: MdxModelInstance): void {
   const model = <MdxModel>target.model;
   const sequences = model.sequences;
   const sequence = selectSequence('stand', sequences);

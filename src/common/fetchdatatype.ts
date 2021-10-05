@@ -28,17 +28,17 @@ export interface FetchResult {
  *     "bytes" => Uint8Array
  *     "blob" => Blob
  */
-export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
+export async function fetchDataType(path: string, dataType: FetchDataTypeName): Promise<FetchResult> {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
     return new Promise<FetchResult>((resolve) => {
       const image = new Image();
 
-      image.onload = () => {
+      image.onload = (): void => {
         resolve({ ok: true, data: image });
       };
 
-      image.onerror = (e) => {
+      image.onerror = (e): void => {
         resolve({ ok: false, error: 'Image Error', data: e });
       };
 

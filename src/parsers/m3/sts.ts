@@ -9,7 +9,7 @@ export default class Sts {
   version = -1;
   animIds = new Reference();
 
-  load(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(reader: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.animIds.load(reader, index);
 

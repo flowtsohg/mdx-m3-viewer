@@ -7,6 +7,7 @@ import MdlxGeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import MdlxBone from '../../../parsers/mdlx/bone';
 import ModelViewer from '../../../viewer/viewer';
 import Texture from '../../../viewer/texture';
+import { Resource } from '../../../viewer/resource';
 
 interface Primitive {
   vertices: Float32Array;
@@ -23,7 +24,7 @@ interface Material {
   twoSided?: boolean;
 }
 
-export default function createPrimitive(viewer: ModelViewer, primitive: Primitive, material: Material) {
+export default function createPrimitive(viewer: ModelViewer, primitive: Primitive, material: Material): Promise<Resource | undefined> {
   let lines: boolean | undefined;
   let color: Float32Array | undefined;
   let texture: Texture | Promise<Texture> | undefined;
@@ -56,7 +57,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
 
   model.textures[0] = tex;
 
-  const pathSolver = (src: any) => {
+  const pathSolver = (src: any): any => {
     if (src === model) {
       return model;
     }

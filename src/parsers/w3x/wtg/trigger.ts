@@ -17,7 +17,7 @@ export default class Trigger {
   category = 0;
   ecas: ECA[] = [];
 
-  load(stream: BinaryStream, version: number, triggerData: TriggerData) {
+  load(stream: BinaryStream, version: number, triggerData: TriggerData): void {
     this.name = stream.readNull();
     this.description = stream.readNull();
 
@@ -44,7 +44,7 @@ export default class Trigger {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeNull(this.name);
     stream.writeNull(this.description);
 
@@ -64,7 +64,7 @@ export default class Trigger {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 26 + byteLengthUtf8(this.name) + byteLengthUtf8(this.description);
 
     if (version === 7) {

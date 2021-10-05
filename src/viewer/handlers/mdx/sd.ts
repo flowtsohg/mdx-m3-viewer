@@ -74,7 +74,7 @@ class SdSequence {
     }
   }
 
-  getValue(out: Uint32Array | Float32Array, frame: number) {
+  getValue(out: Uint32Array | Float32Array, frame: number): number {
     const frames = this.frames;
     const length = frames.length;
 
@@ -232,7 +232,7 @@ export abstract class Sd {
     }
   }
 
-  getValue(out: Uint32Array | Float32Array, sequence: number, frame: number, counter: number) {
+  getValue(out: Uint32Array | Float32Array, sequence: number, frame: number, counter: number): number {
     if (this.globalSequence) {
       return this.globalSequence.getValue(out, counter % this.globalSequence.end);
     }
@@ -240,7 +240,7 @@ export abstract class Sd {
     return this.sequences[sequence].getValue(out, frame);
   }
 
-  isVariant(sequence: number) {
+  isVariant(sequence: number): boolean {
     if (this.globalSequence) {
       return !this.globalSequence.constant;
     } else {
@@ -253,11 +253,11 @@ export abstract class Sd {
  * A scalar animation.
  */
 export class ScalarSd extends Sd {
-  copy(out: Uint32Array | Float32Array, value: Uint32Array | Float32Array) {
+  copy<T extends Uint32Array | Float32Array>(out: T, value: T): void {
     out[0] = value[0];
   }
 
-  interpolate(out: Uint32Array | Float32Array, values: (Uint32Array | Float32Array)[], inTans: (Uint32Array | Float32Array)[], outTans: (Uint32Array | Float32Array)[], start: number, end: number, t: number) {
+  interpolate<T extends Uint32Array | Float32Array>(out: T, values: T[], inTans: T[], outTans: T[], start: number, end: number, t: number): void {
     const interpolationType = this.interpolationType;
     const startValue = values[start][0];
 
@@ -277,11 +277,11 @@ export class ScalarSd extends Sd {
  * A vector animation.
  */
 export class VectorSd extends Sd {
-  copy(out: vec3, value: vec3) {
+  copy(out: vec3, value: vec3): void {
     vec3.copy(out, value);
   }
 
-  interpolate(out: vec3, values: vec3[], inTans: vec3[], outTans: vec3[], start: number, end: number, t: number) {
+  interpolate(out: vec3, values: vec3[], inTans: vec3[], outTans: vec3[], start: number, end: number, t: number): void {
     const interpolationType = this.interpolationType;
 
     if (interpolationType === InterpolationType.DontInterp) {
@@ -300,11 +300,11 @@ export class VectorSd extends Sd {
  * A quaternion animation.
  */
 export class QuatSd extends Sd {
-  copy(out: quat, value: quat) {
+  copy(out: quat, value: quat): void {
     quat.copy(out, value);
   }
 
-  interpolate(out: quat, values: quat[], inTans: quat[], outTans: quat[], start: number, end: number, t: number) {
+  interpolate(out: quat, values: quat[], inTans: quat[], outTans: quat[], start: number, end: number, t: number): void {
     const interpolationType = this.interpolationType;
 
     if (interpolationType === InterpolationType.DontInterp) {
@@ -317,7 +317,7 @@ export class QuatSd extends Sd {
   }
 }
 
-export function createTypedSd(model: MdxModel, animation: Animation) {
+export function createTypedSd(model: MdxModel, animation: Animation): ScalarSd | VectorSd | QuatSd {
   if (animation instanceof UintAnimation || animation instanceof FloatAnimation) {
     return new ScalarSd(model, animation);
   } else if (animation instanceof Vector3Animation) {

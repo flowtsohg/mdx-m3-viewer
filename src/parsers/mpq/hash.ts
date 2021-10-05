@@ -10,7 +10,7 @@ export default class MpqHash {
   platform = 0xFFFF;
   blockIndex = HASH_ENTRY_EMPTY;
 
-  load(bytes: Uint32Array) {
+  load(bytes: Uint32Array): void {
     const localePlatform = bytes[2];
 
     this.nameA = bytes[0];
@@ -20,7 +20,7 @@ export default class MpqHash {
     this.blockIndex = bytes[3];
   }
 
-  copy(hash: MpqHash) {
+  copy(hash: MpqHash): void {
     this.nameA = hash.nameA;
     this.nameB = hash.nameB;
     this.locale = hash.locale;
@@ -28,14 +28,14 @@ export default class MpqHash {
     this.blockIndex = hash.blockIndex;
   }
 
-  save(bytes: Uint32Array) {
+  save(bytes: Uint32Array): void {
     bytes[0] = this.nameA;
     bytes[1] = this.nameB;
     bytes[2] = (this.locale << 16) | this.platform;
     bytes[3] = this.blockIndex;
   }
 
-  delete() {
+  delete(): void {
     this.nameA = 0xFFFFFFFF;
     this.nameB = 0xFFFFFFFF;
     this.locale = 0xFFFF;

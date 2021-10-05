@@ -34,7 +34,7 @@ export default class M3Region {
     this.elements = triangleIndicesCount;
   }
 
-  render(shader: Shader) {
+  render(shader: Shader): void {
     const gl = this.gl;
 
     gl.uniform1f(shader.uniforms['u_firstBoneLookupIndex'], this.firstBoneLookupIndex);

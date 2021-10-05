@@ -25,7 +25,7 @@ export default class Particle2 extends EmittedObject {
   scale = vec3.create();
   facing = 0; // XYQuad
 
-  bind(tail: number) {
+  bind(tail: number): void {
     const emitter = <ParticleEmitter2>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const sequence = instance.sequence;
@@ -99,7 +99,7 @@ export default class Particle2 extends EmittedObject {
     }
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     this.health -= dt;
 
     if (this.health > 0) {

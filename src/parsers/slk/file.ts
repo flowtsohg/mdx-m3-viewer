@@ -4,7 +4,7 @@
 export default class SlkFile {
   rows: (string | number | boolean)[][] = [];
 
-  load(buffer: string) {
+  load(buffer: string): void {
     if (!buffer.startsWith('ID')) {
       throw new Error('WrongMagicNumber');
     }
@@ -52,7 +52,7 @@ export default class SlkFile {
     }
   }
 
-  save() {
+  save(): string {
     const rows = this.rows;
     const rowCount = rows.length;
     const lines = [];

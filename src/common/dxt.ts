@@ -9,7 +9,7 @@ const dx5alphas = new Uint8Array(8);
 const red = new Uint8Array(8);
 const green = new Uint8Array(8);
 
-function dx1Colors(out: Uint8Array, color0: number, color1: number) {
+function dx1Colors(out: Uint8Array, color0: number, color1: number): void {
   const r0 = ((color0 >> 11) & 31) * dxt5to8;
   const g0 = ((color0 >> 5) & 63) * dxt6to8;
   const b0 = (color0 & 31) * dxt5to8;
@@ -49,7 +49,7 @@ function dx1Colors(out: Uint8Array, color0: number, color1: number) {
   }
 }
 
-function dx3Colors(out: Uint8Array, color0: number, color1: number) {
+function dx3Colors(out: Uint8Array, color0: number, color1: number): void {
   const r0 = ((color0 >> 11) & 31) * dxt5to8;
   const g0 = ((color0 >> 5) & 63) * dxt6to8;
   const b0 = (color0 & 31) * dxt5to8;
@@ -74,7 +74,7 @@ function dx3Colors(out: Uint8Array, color0: number, color1: number) {
   out[11] = (5 * b1 + 3 * b0) >> 3;
 }
 
-function dx5Alphas(out: Uint8Array, alpha0: number, alpha1: number) {
+function dx5Alphas(out: Uint8Array, alpha0: number, alpha1: number): void {
   // Minimum and maximum alphas.
   out[0] = alpha0;
   out[1] = alpha1;
@@ -97,7 +97,7 @@ function dx5Alphas(out: Uint8Array, alpha0: number, alpha1: number) {
   }
 }
 
-function rgColors(out: Uint8Array, color0: number, color1: number) {
+function rgColors(out: Uint8Array, color0: number, color1: number): void {
   // Minimum and maximum red colors.
   out[0] = color0;
   out[1] = color1;
@@ -121,11 +121,11 @@ function rgColors(out: Uint8Array, color0: number, color1: number) {
 }
 
 /**
- * Decodes DXT1 data to a Uint16Array typed array with 5-6-5 RGB bits.
+ * Decodes DXT1 data to a Uint8Array typed array with 8-8-8-8 RGBA bits.
  * 
  * DXT1 is also known as BC1.
  */
-export function decodeDxt1(src: Uint8Array, width: number, height: number) {
+export function decodeDxt1(src: Uint8Array, width: number, height: number): Uint8Array {
   const dst = new Uint8Array(width * height * 4);
 
   for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
@@ -166,7 +166,7 @@ export function decodeDxt1(src: Uint8Array, width: number, height: number) {
  * 
  * DXT3 is also known as BC2.
  */
-export function decodeDxt3(src: Uint8Array, width: number, height: number) {
+export function decodeDxt3(src: Uint8Array, width: number, height: number): Uint8Array {
   const dst = new Uint8Array(width * height * 4);
   const rowBytes = width * 4;
 
@@ -209,7 +209,7 @@ export function decodeDxt3(src: Uint8Array, width: number, height: number) {
  * 
  * DXT5 is also known as BC3.
  */
-export function decodeDxt5(src: Uint8Array, width: number, height: number) {
+export function decodeDxt5(src: Uint8Array, width: number, height: number): Uint8Array {
   const dst = new Uint8Array(width * height * 4);
   const rowBytes = width * 4;
 
@@ -267,7 +267,7 @@ export function decodeDxt5(src: Uint8Array, width: number, height: number) {
  * 
  * RGTC is also known as BC5, ATI2, and 3Dc.
  */
-export function decodeRgtc(src: Uint8Array, width: number, height: number) {
+export function decodeRgtc(src: Uint8Array, width: number, height: number): Uint8Array {
   const dst = new Uint8Array(width * height * 2);
   const rowBytes = width * 2;
 

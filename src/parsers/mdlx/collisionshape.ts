@@ -21,7 +21,7 @@ export default class CollisionShape extends GenericObject {
     super(0x2000);
   }
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     super.readMdx(stream);
 
     this.type = stream.readUint32();
@@ -37,7 +37,7 @@ export default class CollisionShape extends GenericObject {
     }
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     super.writeMdx(stream);
 
     stream.writeUint32(this.type);
@@ -52,7 +52,7 @@ export default class CollisionShape extends GenericObject {
     }
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'Box') {
         this.type = Shape.Box;
@@ -82,7 +82,7 @@ export default class CollisionShape extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('CollisionShape', this.name);
     this.writeGenericHeader(stream);
 
@@ -121,7 +121,7 @@ export default class CollisionShape extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     let size = 16 + super.getByteLength();
 
     if (this.type !== Shape.Sphere) {

@@ -14,7 +14,7 @@ export default class ECA {
   parameters: Parameter[] = [];
   ecas: ECA[] = [];
 
-  load(stream: BinaryStream, version: number, isChildECA: boolean, triggerData: TriggerData) {
+  load(stream: BinaryStream, version: number, isChildECA: boolean, triggerData: TriggerData): void {
     this.type = stream.readInt32();
 
     if (this.type < 0 || this.type > 3) {
@@ -68,7 +68,7 @@ export default class ECA {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeInt32(this.type);
 
     if (this.group !== -1) {
@@ -91,7 +91,7 @@ export default class ECA {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 9 + byteLengthUtf8(this.name);
 
     if (this.group !== -1) {

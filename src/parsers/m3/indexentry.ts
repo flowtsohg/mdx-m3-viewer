@@ -88,6 +88,9 @@ const tagMapping = {
   WRP_: [UnsupportedEntry, { 1: 132 }],
 };
 
+export type EntryType = Md34[] | ModelHeader[] | Sequence[] | Stc[] | Stg[] | Sts[] | Bone[] | Division[] | Region[] | Batch[] | MaterialReference[] | StandardMaterial[] | Layer[] | Event[] | BoundingSphere[] | AttachmentPoint[] | Camera[] | Sd[] | UnsupportedEntry[] | string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | Float32Array[];
+export type SingleEntryType = Md34 | ModelHeader | Sequence | Stc | Stg | Sts | Bone | Division | Region | Batch | MaterialReference | StandardMaterial | Layer | Event | BoundingSphere | AttachmentPoint | Camera | Sd | UnsupportedEntry | string | number | Float32Array;
+
 /**
  * An index entry.
  */
@@ -96,7 +99,7 @@ export default class IndexEntry {
   tag: string;
   offset: number;
   version: number;
-  entries: Md34[] | ModelHeader[] | Sequence[] | Stc[] | Stg[] | Sts[] | Bone[] | Division[] | Region[] | Batch[] | MaterialReference[] | StandardMaterial[] | Layer[] | Event[] | BoundingSphere[] | AttachmentPoint[] | Camera[] | Sd[] | UnsupportedEntry[] | string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | Float32Array[];
+  entries: EntryType;
 
   constructor(stream: BinaryStream, index: IndexEntry[]) {
     const tag = reverse(stream.readBinary(4));

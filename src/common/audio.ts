@@ -8,7 +8,7 @@ if (typeof OfflineAudioContext === 'function') {
 /**
  * A context-less decodeAudioData().
  */
-export function decodeAudioData(buffer: ArrayBuffer) {
+export async function decodeAudioData(buffer: ArrayBuffer): Promise<AudioBuffer | undefined> {
   if (audioContext) {
     return audioContext.decodeAudioData(buffer);
   }

@@ -9,7 +9,7 @@ export default class TokenStream {
     this.index = 0;
   }
 
-  read() {
+  read(): string | undefined {
     const buffer = this.buffer;
     const length = buffer.length;
     let inComment = false;
@@ -110,7 +110,7 @@ export default class TokenStream {
   /**
    * Reads the next token without advancing the stream.
    */
-  peek() {
+  peek(): string | undefined {
     const index = this.index;
     const value = this.read();
 
@@ -119,7 +119,7 @@ export default class TokenStream {
     return value;
   }
 
-  readSafe() {
+  readSafe(): string {
     const token = this.read();
 
     if (token === undefined) {
@@ -143,7 +143,7 @@ export default class TokenStream {
     return token;
   }
 
-  readUntil(delimiter: string) {
+  readUntil(delimiter: string): string {
     let tokens = '';
     let token;
 

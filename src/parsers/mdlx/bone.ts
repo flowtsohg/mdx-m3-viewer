@@ -13,21 +13,21 @@ export default class Bone extends GenericObject {
     super(0x100);
   }
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     super.readMdx(stream);
 
     this.geosetId = stream.readInt32();
     this.geosetAnimationId = stream.readInt32();
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     super.writeMdx(stream);
 
     stream.writeInt32(this.geosetId);
     stream.writeInt32(this.geosetAnimationId);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'GeosetId') {
         token = stream.read();
@@ -51,7 +51,7 @@ export default class Bone extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('Bone', this.name);
     this.writeGenericHeader(stream);
 
@@ -71,7 +71,7 @@ export default class Bone extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 8 + super.getByteLength();
   }
 }

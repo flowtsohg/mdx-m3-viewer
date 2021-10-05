@@ -1,4 +1,3 @@
-import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
@@ -16,7 +15,7 @@ export default class EmitterGroup {
     this.model = model;
   }
 
-  render(instance: MdxModelInstance) {
+  render(instance: MdxModelInstance): void {
     const scene = <Scene>instance.scene;
     const nodes = instance.nodes;
     const model = instance.model;

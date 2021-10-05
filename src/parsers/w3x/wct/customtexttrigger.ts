@@ -7,7 +7,7 @@ import { byteLengthUtf8 } from '../../../common/utf8';
 export default class CustomTextTrigger {
   text = '';
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     const textLength = stream.readInt32();
 
     if (textLength) {
@@ -16,7 +16,7 @@ export default class CustomTextTrigger {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     if (this.text.length) {
       stream.writeInt32(byteLengthUtf8(this.text) + 1);
       stream.write(this.text);
@@ -26,7 +26,7 @@ export default class CustomTextTrigger {
     }
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 4;
 
     if (this.text.length) {

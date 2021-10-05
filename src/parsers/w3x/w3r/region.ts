@@ -15,7 +15,7 @@ export default class Region {
   ambientSound = '';
   color = new Uint8Array(4);
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.left = stream.readFloat32();
     this.right = stream.readFloat32();
     this.bottom = stream.readFloat32();
@@ -27,7 +27,7 @@ export default class Region {
     stream.readUint8Array(this.color);
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeFloat32(this.left);
     stream.writeFloat32(this.right);
     stream.writeFloat32(this.bottom);
@@ -45,7 +45,7 @@ export default class Region {
     stream.writeUint8Array(this.color);
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 30 + byteLengthUtf8(this.name) + byteLengthUtf8(this.ambientSound);
   }
 }

@@ -7,6 +7,7 @@ import M3Model from './model';
 import M3Skeleton from './skeleton';
 import { STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 import { M3HandlerObject } from './handler';
+import M3Node from './node';
 
 const boneHeap = mat4.create();
 
@@ -44,11 +45,11 @@ export default class M3ModelInstance extends ModelInstance {
    * 
    * If a texture isn't given, removes the override if there was one.
    */
-  setTexture(material: number, layer: number, texture?: Texture) {
+  setTexture(material: number, layer: number, texture?: Texture): void {
     this.overrideTexture(material * STANDARD_MATERIAL_OFFSET + layer, texture);
   }
 
-  updateSkeletonAndBoneTexture(dt: number) {
+  updateSkeletonAndBoneTexture(dt: number): void {
     const model = <M3Model>this.model;
     const viewer = model.viewer;
     const buffer = viewer.buffer;
@@ -101,7 +102,7 @@ export default class M3ModelInstance extends ModelInstance {
     boneTexture.bindAndUpdate(floatView, boneTexture.width, 1);
   }
 
-  override renderOpaque() {
+  override renderOpaque(): void {
     const model = <M3Model>this.model;
     const batches = model.batches;
 
@@ -162,7 +163,7 @@ export default class M3ModelInstance extends ModelInstance {
     }
   }
 
-  override updateAnimations(dt: number) {
+  override updateAnimations(dt: number): void {
     const sequenceId = this.sequence;
 
     if (sequenceId !== -1) {
@@ -192,19 +193,19 @@ export default class M3ModelInstance extends ModelInstance {
     }
   }
 
-  setTeamColor(id: number) {
+  setTeamColor(id: number): this {
     this.teamColor = id;
 
     return this;
   }
 
-  setVertexColor(color: Uint8Array) {
+  setVertexColor(color: Uint8Array): this {
     this.vertexColor.set(color);
 
     return this;
   }
 
-  setSequence(id: number) {
+  setSequence(id: number): this {
     const model = <M3Model>this.model;
     this.sequence = id;
     this.frame = 0;
@@ -221,13 +222,13 @@ export default class M3ModelInstance extends ModelInstance {
     return this;
   }
 
-  setSequenceLoopMode(mode: number) {
+  setSequenceLoopMode(mode: number): this {
     this.sequenceLoopMode = mode;
 
     return this;
   }
 
-  getAttachment(id: number) {
+  getAttachment(id: number): M3Node | undefined {
     const model = <M3Model>this.model;
     const attachment = model.attachments[id];
 

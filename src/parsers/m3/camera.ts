@@ -20,7 +20,7 @@ export default class Camera {
   falloffEnd = new Float32AnimationReference();
   depthOfField = new Float32AnimationReference();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.bone = stream.readUint32();
     this.name.load(stream, index);

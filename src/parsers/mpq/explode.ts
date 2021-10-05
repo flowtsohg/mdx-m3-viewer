@@ -128,7 +128,7 @@ const offs2D34 = new Uint8Array(0x100);
 const offs2E34 = new Uint8Array(0x80);
 const offs2EB4 = new Uint8Array(0x100);
 
-function GenDecodeTabs(positions: Uint8Array, start_indexes: Uint8Array, length_bits: Uint8Array) {
+function GenDecodeTabs(positions: Uint8Array, start_indexes: Uint8Array, length_bits: Uint8Array): void {
   for (let i = 0, elements = start_indexes.length; i < elements; i++) {
     const length = 1 << length_bits[i];
 
@@ -138,7 +138,7 @@ function GenDecodeTabs(positions: Uint8Array, start_indexes: Uint8Array, length_
   }
 }
 
-function GenAscTabs() {
+function GenAscTabs(): void {
   let pChCodeAsc = 0xFF;
   let acc, add;
 
@@ -195,7 +195,7 @@ function GenAscTabs() {
   }
 }
 
-function WasteBits(pWork: TDcmpStruct, nBits: number) {
+function WasteBits(pWork: TDcmpStruct, nBits: number): number {
   if (nBits <= pWork.extra_bits) {
     pWork.extra_bits -= nBits;
     pWork.bit_buff >>= nBits;
@@ -216,7 +216,7 @@ function WasteBits(pWork: TDcmpStruct, nBits: number) {
   return PKDCL_OK;
 }
 
-function DecodeLit(pWork: TDcmpStruct) {
+function DecodeLit(pWork: TDcmpStruct): number {
   if (pWork.bit_buff & 1) {
     if (WasteBits(pWork, 1)) {
       return 0x306;
@@ -290,7 +290,7 @@ function DecodeLit(pWork: TDcmpStruct) {
   return WasteBits(pWork, ChBitsAsc[value]) ? 0x306 : value;
 }
 
-function DecodeDist(pWork: TDcmpStruct, rep_length: number) {
+function DecodeDist(pWork: TDcmpStruct, rep_length: number): number {
   const dist_pos_code = DistPosCodes[pWork.bit_buff & 0xFF];
   const dist_pos_bits = DistBits[dist_pos_code];
 
@@ -317,7 +317,7 @@ function DecodeDist(pWork: TDcmpStruct, rep_length: number) {
   return distance + 1;
 }
 
-function Expand(pWork: TDcmpStruct) {
+function Expand(pWork: TDcmpStruct): number {
   let next_literal;
 
   while ((next_literal = DecodeLit(pWork)) < 0x305) {
@@ -345,7 +345,7 @@ function Expand(pWork: TDcmpStruct) {
   return next_literal;
 }
 
-export default function explode(bytes: Uint8Array) {
+export default function explode(bytes: Uint8Array): Uint8Array {
   const pWork = new TDcmpStruct(bytes);
 
   if (pWork.in_buff.byteLength <= 4) {

@@ -3,7 +3,7 @@ import isBlp from '../../../parsers/blp/isformat';
 import Texture from './texture';
 
 export default {
-  isValidSource(object: unknown) {
+  isValidSource(object: unknown): boolean {
     if (object instanceof BlpImage) {
       return true;
     }

@@ -21,7 +21,7 @@ export default class BatchGroup {
     this.isHd = isHd;
   }
 
-  render(instance: MdxModelInstance) {
+  render(instance: MdxModelInstance): void {
     const scene = <Scene>instance.scene;
     const camera = scene.camera;
     const textureOverrides = instance.textureOverrides;

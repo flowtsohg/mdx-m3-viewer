@@ -22,7 +22,7 @@ export default abstract class Emitter {
   /**
    * Update this emitter.
    */
-  update(dt: number) {
+  update(dt: number): void {
     // Emit new objects if needed.
     this.updateEmission(dt);
 
@@ -38,7 +38,7 @@ export default abstract class Emitter {
   /**
    * Clear any emitted objects.
    */
-  clear() {
+  clear(): void {
     const objects = this.objects;
 
     for (let i = 0, l = this.alive; i < l; i++) {
@@ -50,7 +50,7 @@ export default abstract class Emitter {
     this.currentEmission = 0;
   }
 
-  emitObject(emitData?: unknown) {
+  emitObject(emitData?: unknown): EmittedObject {
     const objects = this.objects;
 
     // If there are no unused objects, create a new one.
@@ -75,7 +75,7 @@ export default abstract class Emitter {
     return object;
   }
 
-  kill(object: EmittedObject) {
+  kill(object: EmittedObject): void {
     const objects = this.objects;
 
     this.alive -= 1;

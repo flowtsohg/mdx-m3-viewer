@@ -6,7 +6,7 @@ import SubParameters from '../../../parsers/w3x/wtg/subparameters';
 /**
  * Creates a new Custom Script or comment ECA with the given data.
  */
-export function createCustomScriptOrCommentECA(data: string, isComment: boolean) {
+export function createCustomScriptOrCommentECA(data: string, isComment: boolean): ECA {
   const eca = new ECA();
 
   eca.type = 2; // Action
@@ -32,7 +32,7 @@ export function createCustomScriptOrCommentECA(data: string, isComment: boolean)
 /**
  * Creates a new Custom Script ECA with the given script.
  */
-export function createCustomScriptECA(script: string) {
+export function createCustomScriptECA(script: string): ECA {
   return createCustomScriptOrCommentECA(script, false);
 }
 
@@ -43,7 +43,7 @@ export function createCustomScriptECA(script: string) {
 //   return createCustomScriptOrCommentECA(comment, true);
 // }
 
-function subParametersToEca(subParameters: SubParameters, group: number) {
+function subParametersToEca(subParameters: SubParameters, group: number): ECA {
   const eca = new ECA();
 
   eca.name = subParameters.name;
@@ -55,7 +55,7 @@ function subParametersToEca(subParameters: SubParameters, group: number) {
   return eca;
 }
 
-export function convertSingleToMultiple(eca: ECA) {
+export function convertSingleToMultiple(eca: ECA): boolean {
   if (eca.name === 'IfThenElse') {
     const parameters = eca.parameters;
     const ifParam = subParametersToEca(<SubParameters>parameters[0].subParameters, 0);
@@ -83,7 +83,7 @@ export function convertSingleToMultiple(eca: ECA) {
 /**
  * Given the name of the parent of some child ECA, and the child's group, determine if it's a condition.
  */
-export function isConditionECA(name: string, group: number) {
+export function isConditionECA(name: string, group: number): boolean {
   if (group !== 0) {
     return false;
   }
@@ -109,7 +109,7 @@ const SCRIPT_LINE_LENGTH = 239;
  * 
  *   call BJDebugMsg("hi")
  */
-export function ensureCustomScriptCodeSafety(ecas: ECA[]) {
+export function ensureCustomScriptCodeSafety(ecas: ECA[]): ECA[] {
   const outputEcas = [];
 
   for (const eca of ecas) {
@@ -157,7 +157,7 @@ export function ensureCustomScriptCodeSafety(ecas: ECA[]) {
 /**
  * Given a name, converts all of the non-ASCII characters and space characters to underlines.
  */
-export function ensureNameSafety(name: string) {
+export function ensureNameSafety(name: string): string {
   // Convert non-ASCII characters to underlines, for locales other than en.
   return name.split('').map((c) => c.charCodeAt(0) > 127 ? '_' : c).join('').replace(/\s/g, '_');
 }

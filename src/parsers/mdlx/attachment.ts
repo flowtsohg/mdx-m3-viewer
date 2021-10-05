@@ -13,7 +13,7 @@ export default class Attachment extends GenericObject {
     super(0x800);
   }
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -25,7 +25,7 @@ export default class Attachment extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -36,7 +36,7 @@ export default class Attachment extends GenericObject {
     this.writeNonGenericAnimationChunks(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'AttachmentID') {
         this.attachmentId = stream.readInt();
@@ -50,7 +50,7 @@ export default class Attachment extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('Attachment', this.name);
     this.writeGenericHeader(stream);
 
@@ -66,7 +66,7 @@ export default class Attachment extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 268 + super.getByteLength();
   }
 }

@@ -8,17 +8,17 @@ export default class FaceEffect {
   type = '';
   path = '';
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     this.type = stream.read(80);
     this.path = stream.read(260);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.skip(80 - stream.write(this.type));
     stream.skip(260 - stream.write(this.path));
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     this.type = stream.read();
 
     for (const token of stream.readBlock()) {
@@ -30,7 +30,7 @@ export default class FaceEffect {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('FaceFX', this.type);
     stream.writeStringAttrib('Path', this.path);
     stream.endBlock();

@@ -40,7 +40,7 @@ export default class Grid {
     }
   }
 
-  add(instance: ModelInstance) {
+  add(instance: ModelInstance): void {
     const cells = this.cells;
     const columns = this.columns;
     const left = instance.left;
@@ -57,7 +57,7 @@ export default class Grid {
     }
   }
 
-  remove(instance: ModelInstance) {
+  remove(instance: ModelInstance): void {
     const cells = this.cells;
     const columns = this.columns;
     const left = instance.left;
@@ -76,7 +76,7 @@ export default class Grid {
     }
   }
 
-  moved(instance: ModelInstance) {
+  moved(instance: ModelInstance): void {
     const cellWidth = this.cellWidth;
     const cellDepth = this.cellDepth;
     const bounds = instance.model.bounds;
@@ -118,7 +118,7 @@ export default class Grid {
   /**
    * Removes all of the instances from this grid.
    */
-  clear() {
+  clear(): void {
     for (const cell of this.cells) {
       cell.clear();
     }

@@ -23,7 +23,7 @@ export default class ClientDataTexture {
     this.reserve(width, height);
   }
 
-  reserve(width: number, height: number) {
+  reserve(width: number, height: number): void {
     if (this.width < width || this.height < height) {
       const gl = this.gl;
 
@@ -39,7 +39,7 @@ export default class ClientDataTexture {
     }
   }
 
-  bindAndUpdate(width = this.width, height = this.height) {
+  bindAndUpdate(width = this.width, height = this.height): void {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

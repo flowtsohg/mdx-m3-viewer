@@ -27,13 +27,13 @@ class M3Sd {
 export default class M3SdContainer {
   sd: M3Sd[] = [];
 
-  addSds(sds: M3ParserSd[]) {
+  addSds(sds: M3ParserSd[]): void {
     for (const sd of sds) {
       this.sd.push(new M3Sd(sd));
     }
   }
 
-  getValueUnsafe(index: number, animationReference: AnimationReference, frame: number, runsConcurrent: number) {
+  getValueUnsafe(index: number, animationReference: AnimationReference, frame: number, runsConcurrent: number): number | vec3 | quat | Uint8Array | null {
     const sd = this.sd[index];
 
     if (runsConcurrent) {

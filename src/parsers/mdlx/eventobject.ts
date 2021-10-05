@@ -13,7 +13,7 @@ export default class EventObject extends GenericObject {
     super(0x400);
   }
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     super.readMdx(stream);
 
     stream.skip(4); // KEVT
@@ -24,7 +24,7 @@ export default class EventObject extends GenericObject {
     this.tracks = stream.readUint32Array(count);
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     super.writeMdx(stream);
     stream.writeBinary('KEVT');
     stream.writeUint32(this.tracks.length);
@@ -32,7 +32,7 @@ export default class EventObject extends GenericObject {
     stream.writeUint32Array(this.tracks);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'EventTrack') {
         const count = stream.readInt();
@@ -58,7 +58,7 @@ export default class EventObject extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('EventObject', this.name);
     this.writeGenericHeader(stream);
 
@@ -78,7 +78,7 @@ export default class EventObject extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 12 + this.tracks.byteLength + super.getByteLength();
   }
 }

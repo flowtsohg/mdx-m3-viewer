@@ -7,7 +7,7 @@ import BinaryStream from '../../../common/binarystream';
 export default class RandomItemSet {
   items: RandomItem[] = [];
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       const item = new RandomItem();
 
@@ -17,7 +17,7 @@ export default class RandomItemSet {
     }
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeUint32(this.items.length);
 
     for (const item of this.items) {
@@ -25,7 +25,7 @@ export default class RandomItemSet {
     }
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 4 + this.items.length * 8;
   }
 }

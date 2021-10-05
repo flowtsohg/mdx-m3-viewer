@@ -27,7 +27,7 @@ export class MappedData {
    * 
    * Note that this may override previous properties!
    */
-  load(buffer: string) {
+  load(buffer: string): void {
     if (buffer.startsWith('ID;')) {
       const file = new SlkFile();
       file.load(buffer);
@@ -87,19 +87,19 @@ export class MappedData {
     }
   }
 
-  getRow(key: string) {
+  getRow(key: string): MappedDataRow {
     return this.map[key.toLowerCase()];
   }
 
-  getProperty(key: string, name: string) {
+  getProperty(key: string, name: string): MappedDataValue {
     return this.map[key.toLowerCase()][name];
   }
 
-  setRow(key: string, values: MappedDataRow) {
+  setRow(key: string, values: MappedDataRow): void {
     this.map[key.toLowerCase()] = values;
   }
 
-  findRow(key: string, expectedValue: MappedDataValue) {
+  findRow(key: string, expectedValue: MappedDataValue): MappedDataRow | undefined {
     for (const row of Object.values(this.map)) {
       if (row[key] === expectedValue) {
         return row;

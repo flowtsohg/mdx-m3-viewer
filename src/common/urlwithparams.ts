@@ -3,7 +3,7 @@
  * 
  * The source url can have url parameters already in it.
  */
-export default function urlWithParams(src: string, params: object) {
+export default function urlWithParams(src: string, params: {[key: string]: string }): string {
   if (params) {
     const entries = Object.entries(params);
 

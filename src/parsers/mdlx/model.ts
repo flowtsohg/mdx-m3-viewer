@@ -92,7 +92,7 @@ export default class Model {
    * Load the model from MDX or MDL.
    * The format is detected automatically.
    */
-  load(buffer: ArrayBuffer | Uint8Array | string) {
+  load(buffer: ArrayBuffer | Uint8Array | string): void {
     if (isMdx(buffer)) {
       this.loadMdx(<ArrayBuffer | Uint8Array>buffer);
     } else if (isMdl(buffer)) {
@@ -109,7 +109,7 @@ export default class Model {
   /**
    * Load the model from MDX.
    */
-  loadMdx(buffer: ArrayBuffer | Uint8Array) {
+  loadMdx(buffer: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(buffer);
     let tag;
     let size;
@@ -172,18 +172,18 @@ export default class Model {
     }
   }
 
-  loadVersionChunk(stream: BinaryStream) {
+  loadVersionChunk(stream: BinaryStream): void {
     this.version = stream.readUint32();
   }
 
-  loadModelChunk(stream: BinaryStream) {
+  loadModelChunk(stream: BinaryStream): void {
     this.name = stream.read(80);
     this.animationFile = stream.read(260);
     this.extent.readMdx(stream);
     this.blendTime = stream.readUint32();
   }
 
-  loadStaticObjects<T extends MdxStaticObject>(out: T[], constructor: new () => T, stream: BinaryStream, count: number) {
+  loadStaticObjects<T extends MdxStaticObject>(out: T[], constructor: new () => T, stream: BinaryStream, count: number): void {
     for (let i = 0; i < count; i++) {
       const object = new constructor();
 
@@ -193,13 +193,13 @@ export default class Model {
     }
   }
 
-  loadGlobalSequenceChunk(stream: BinaryStream, size: number) {
+  loadGlobalSequenceChunk(stream: BinaryStream, size: number): void {
     for (let i = 0, l = size / 4; i < l; i++) {
       this.globalSequences.push(stream.readUint32());
     }
   }
 
-  loadDynamicObjects<T extends MdxDynamicObject>(out: T[], constructor: new () => T, stream: BinaryStream, size: number) {
+  loadDynamicObjects<T extends MdxDynamicObject>(out: T[], constructor: new () => T, stream: BinaryStream, size: number): void {
     const end = stream.index + size;
 
     while (stream.index < end) {
@@ -211,13 +211,13 @@ export default class Model {
     }
   }
 
-  loadPivotPointChunk(stream: BinaryStream, size: number) {
+  loadPivotPointChunk(stream: BinaryStream, size: number): void {
     for (let i = 0, l = size / 12; i < l; i++) {
       this.pivotPoints.push(stream.readFloat32Array(3));
     }
   }
 
-  loadBindPoseChunk(stream: BinaryStream, size: number) {
+  loadBindPoseChunk(stream: BinaryStream, _size: number): void {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       this.bindPose[i] = stream.readFloat32Array(12);
     }
@@ -226,7 +226,7 @@ export default class Model {
   /**
    * Save the model as MDX.
    */
-  saveMdx() {
+  saveMdx(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('MDLX');
@@ -268,13 +268,13 @@ export default class Model {
     return stream.uint8array;
   }
 
-  saveVersionChunk(stream: BinaryStream) {
+  saveVersionChunk(stream: BinaryStream): void {
     stream.writeBinary('VERS');
     stream.writeUint32(4);
     stream.writeUint32(this.version);
   }
 
-  saveModelChunk(stream: BinaryStream) {
+  saveModelChunk(stream: BinaryStream): void {
     stream.writeBinary('MODL');
     stream.writeUint32(372);
     stream.skip(80 - stream.write(this.name));
@@ -283,7 +283,7 @@ export default class Model {
     stream.writeUint32(this.blendTime);
   }
 
-  saveStaticObjectChunk(stream: BinaryStream, name: string, objects: (Sequence | Texture | FaceEffect)[], size: number) {
+  saveStaticObjectChunk(stream: BinaryStream, name: string, objects: (Sequence | Texture | FaceEffect)[], size: number): void {
     if (objects.length) {
       stream.writeBinary(name);
       stream.writeUint32(objects.length * size);
@@ -294,7 +294,7 @@ export default class Model {
     }
   }
 
-  saveGlobalSequenceChunk(stream: BinaryStream) {
+  saveGlobalSequenceChunk(stream: BinaryStream): void {
     if (this.globalSequences.length) {
       stream.writeBinary('GLBS');
       stream.writeUint32(this.globalSequences.length * 4);
@@ -305,7 +305,7 @@ export default class Model {
     }
   }
 
-  saveDynamicObjectChunk(stream: BinaryStream, name: string, objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera)[]) {
+  saveDynamicObjectChunk(stream: BinaryStream, name: string, objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera)[]): void {
     if (objects.length) {
       stream.writeBinary(name);
       stream.writeUint32(this.getObjectsByteLength(objects));
@@ -316,7 +316,7 @@ export default class Model {
     }
   }
 
-  savePivotPointChunk(stream: BinaryStream) {
+  savePivotPointChunk(stream: BinaryStream): void {
     if (this.pivotPoints.length) {
       stream.writeBinary('PIVT');
       stream.writeUint32(this.pivotPoints.length * 12);
@@ -327,7 +327,7 @@ export default class Model {
     }
   }
 
-  saveBindPoseChunk(stream: BinaryStream) {
+  saveBindPoseChunk(stream: BinaryStream): void {
     if (this.bindPose.length) {
       stream.writeBinary('BPOS');
       stream.writeUint32(4 + this.bindPose.length * 48);
@@ -342,7 +342,7 @@ export default class Model {
   /**
    * Load the model from MDL.
    */
-  loadMdl(buffer: string) {
+  loadMdl(buffer: string): void {
     let token: string;
     const stream = new TokenStream(buffer);
 
@@ -399,7 +399,7 @@ export default class Model {
     }
   }
 
-  loadVersionBlock(stream: TokenStream) {
+  loadVersionBlock(stream: TokenStream): void {
     for (const token of stream.readBlock()) {
       if (token === 'FormatVersion') {
         this.version = stream.readInt();
@@ -409,7 +409,7 @@ export default class Model {
     }
   }
 
-  loadModelBlock(stream: TokenStream) {
+  loadModelBlock(stream: TokenStream): void {
     this.name = stream.read();
 
     for (const token of stream.readBlock()) {
@@ -446,7 +446,7 @@ export default class Model {
     }
   }
 
-  loadNumberedObjectBlock<T extends MdlNumberedObject>(out: T[], constructor: new () => T, name: string, stream: TokenStream) {
+  loadNumberedObjectBlock<T extends MdlNumberedObject>(out: T[], constructor: new () => T, name: string, stream: TokenStream): void {
     stream.read(); // Don't care about the number, the array will grow.
 
     for (const token of stream.readBlock()) {
@@ -462,7 +462,7 @@ export default class Model {
     }
   }
 
-  loadGlobalSequenceBlock(stream: TokenStream) {
+  loadGlobalSequenceBlock(stream: TokenStream): void {
     stream.read(); // Don't care about the number, the array will grow.
 
     for (const token of stream.readBlock()) {
@@ -474,7 +474,7 @@ export default class Model {
     }
   }
 
-  loadObject<T extends MdlObject>(out: T[], constructor: new () => T, stream: TokenStream) {
+  loadObject<T extends MdlObject>(out: T[], constructor: new () => T, stream: TokenStream): void {
     const object = new constructor();
 
     object.readMdl(stream);
@@ -482,7 +482,7 @@ export default class Model {
     out.push(object);
   }
 
-  loadPivotPointBlock(stream: TokenStream) {
+  loadPivotPointBlock(stream: TokenStream): void {
     const count = stream.readInt();
 
     stream.read(); // {
@@ -494,7 +494,7 @@ export default class Model {
     stream.read(); // }
   }
 
-  loadBindPoseBlock(stream: TokenStream) {
+  loadBindPoseBlock(stream: TokenStream): void {
     for (const token of stream.readBlock()) {
       if (token === 'Matrices') {
         const matrices = stream.readInt();
@@ -515,7 +515,7 @@ export default class Model {
   /**
    * Save the model as MDL.
    */
-  saveMdl() {
+  saveMdl(): string {
     const stream = new TokenStream();
 
     this.saveVersionBlock(stream);
@@ -552,13 +552,13 @@ export default class Model {
     return stream.buffer;
   }
 
-  saveVersionBlock(stream: TokenStream) {
+  saveVersionBlock(stream: TokenStream): void {
     stream.startBlock('Version');
     stream.writeNumberAttrib('FormatVersion', this.version);
     stream.endBlock();
   }
 
-  saveModelBlock(stream: TokenStream) {
+  saveModelBlock(stream: TokenStream): void {
     stream.startObjectBlock('Model', this.name);
     stream.writeNumberAttrib('BlendTime', this.blendTime);
 
@@ -571,7 +571,7 @@ export default class Model {
     stream.endBlock();
   }
 
-  saveStaticObjectsBlock(stream: TokenStream, name: string, objects: (Sequence | Texture | Material | TextureAnimation)[]) {
+  saveStaticObjectsBlock(stream: TokenStream, name: string, objects: (Sequence | Texture | Material | TextureAnimation)[]): void {
     if (objects.length) {
       stream.startBlock(name, objects.length);
 
@@ -583,7 +583,7 @@ export default class Model {
     }
   }
 
-  saveGlobalSequenceBlock(stream: TokenStream) {
+  saveGlobalSequenceBlock(stream: TokenStream): void {
     if (this.globalSequences.length) {
       stream.startBlock('GlobalSequences', this.globalSequences.length);
 
@@ -595,13 +595,13 @@ export default class Model {
     }
   }
 
-  saveObjects(stream: TokenStream, objects: (Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | FaceEffect)[]) {
+  saveObjects(stream: TokenStream, objects: (Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | FaceEffect)[]): void {
     for (const object of objects) {
       object.writeMdl(stream, this.version);
     }
   }
 
-  savePivotPointBlock(stream: TokenStream) {
+  savePivotPointBlock(stream: TokenStream): void {
     if (this.pivotPoints.length) {
       stream.startBlock('PivotPoints', this.pivotPoints.length);
 
@@ -613,7 +613,7 @@ export default class Model {
     }
   }
 
-  saveBindPoseBlock(stream: TokenStream) {
+  saveBindPoseBlock(stream: TokenStream): void {
     if (this.bindPose.length) {
       stream.startBlock('BindPose');
 
@@ -632,7 +632,7 @@ export default class Model {
   /**
    * Calculate the size of the model as MDX.
    */
-  getByteLength() {
+  getByteLength(): number {
     let size = 396;
 
     size += this.getStaticObjectsChunkByteLength(this.sequences, 132);
@@ -669,7 +669,7 @@ export default class Model {
     return size;
   }
 
-  getObjectsByteLength(objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera | UnknownChunk)[]) {
+  getObjectsByteLength(objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera | UnknownChunk)[]): number {
     let size = 0;
 
     for (const object of objects) {
@@ -679,7 +679,7 @@ export default class Model {
     return size;
   }
 
-  getDynamicObjectsChunkByteLength(objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera | UnknownChunk)[]) {
+  getDynamicObjectsChunkByteLength(objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera | UnknownChunk)[]): number {
     if (objects.length) {
       return 8 + this.getObjectsByteLength(objects);
     }
@@ -687,7 +687,7 @@ export default class Model {
     return 0;
   }
 
-  getStaticObjectsChunkByteLength(objects: (Sequence | number | Texture | Float32Array | FaceEffect)[], size: number) {
+  getStaticObjectsChunkByteLength(objects: (Sequence | number | Texture | Float32Array | FaceEffect)[], size: number): number {
     if (objects.length) {
       return 8 + objects.length * size;
     }
@@ -695,7 +695,7 @@ export default class Model {
     return 0;
   }
 
-  getBindPoseChunkByteLength() {
+  getBindPoseChunkByteLength(): number {
     if (this.bindPose.length) {
       return 12 + this.bindPose.length * 48;
     }

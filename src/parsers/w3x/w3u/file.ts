@@ -11,7 +11,7 @@ export default class War3MapW3u {
   originalTable = new ModificationTable();
   customTable = new ModificationTable();
 
-  load(bufferOrStream: ArrayBuffer | Uint8Array | BinaryStream) {
+  load(bufferOrStream: ArrayBuffer | Uint8Array | BinaryStream): void {
     let stream;
 
     if (bufferOrStream instanceof BinaryStream) {
@@ -25,7 +25,7 @@ export default class War3MapW3u {
     this.customTable.load(stream, false);
   }
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
@@ -35,7 +35,7 @@ export default class War3MapW3u {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 4 + this.originalTable.getByteLength(false) + this.customTable.getByteLength(false);
   }
 }

@@ -44,7 +44,7 @@ export default class Geoset {
   skin = new Uint8Array(0);
   uvSets: Float32Array[] = [];
 
-  readMdx(stream: BinaryStream, version: number) {
+  readMdx(stream: BinaryStream, version: number): void {
     stream.readUint32(); // Don't care about the size.
 
     stream.skip(4); // VRTX
@@ -105,7 +105,7 @@ export default class Geoset {
     }
   }
 
-  writeMdx(stream: BinaryStream, version: number) {
+  writeMdx(stream: BinaryStream, version: number): void {
     stream.writeUint32(this.getByteLength(version));
     stream.writeBinary('VRTX');
     stream.writeUint32(this.vertices.length / 3);
@@ -172,7 +172,7 @@ export default class Geoset {
     }
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (let token of stream.readBlock()) {
       if (token === 'Vertices') {
         this.vertices = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
@@ -268,7 +268,7 @@ export default class Geoset {
     }
   }
 
-  writeMdl(stream: TokenStream, version: number) {
+  writeMdl(stream: TokenStream, version: number): void {
     stream.startBlock('Geoset');
 
     stream.writeVectorArrayBlock('Vertices', this.vertices, 3);
@@ -345,7 +345,7 @@ export default class Geoset {
     stream.endBlock();
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
 
     if (version > 800) {

@@ -6,7 +6,7 @@ let initialized = false;
 let transformers: {[keyof: string]: (data: WeuData, object: Parameter) => boolean };
 
 function preset(name: string) {
-  return function (data: WeuData, object: Parameter) {
+  return function (data: WeuData, object: Parameter): boolean {
     const subParameters = new SubParameters();
 
     subParameters.name = name;
@@ -20,7 +20,7 @@ function preset(name: string) {
   };
 }
 
-function initialize() {
+function initialize(): void {
   if (!initialized) {
     initialized = true;
     transformers = {
@@ -63,7 +63,7 @@ function initialize() {
   }
 }
 
-export default function transformPreset(data: WeuData, parameter: Parameter) {
+export default function transformPreset(data: WeuData, parameter: Parameter): boolean {
   if (!initialized) {
     initialize();
   }

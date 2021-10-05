@@ -28,7 +28,7 @@ export class DdsImage {
   mipmapHeights: number[] = [];
   mipmapDatas: Uint8Array[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const bytes = bytesOf(buffer);
     const header = new Int32Array(bytes.buffer, 0, 31);
     let offset = 128; // sizeof(DDS_HEADER) + 4 for the magic.
@@ -101,11 +101,11 @@ export class DdsImage {
     }
   }
 
-  mipmaps() {
+  mipmaps(): number {
     return this.mipmapDatas.length;
   }
 
-  getMipmap(level: number, raw = false) {
+  getMipmap(level: number, raw = false): { width: number, height: number, data: Uint8Array } {
     const width = this.mipmapWidths[level];
     const height = this.mipmapHeights[level];
     const data = this.mipmapDatas[level];

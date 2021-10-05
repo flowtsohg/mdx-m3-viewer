@@ -25,7 +25,7 @@ export abstract class Resource {
    * 
    * Equivalent to viewer.unload(resource).
    */
-  detach() {
+  detach(): boolean {
     return this.viewer.unload(this);
   }
 }

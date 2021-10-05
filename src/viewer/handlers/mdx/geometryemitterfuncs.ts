@@ -75,7 +75,7 @@ export const SETTING_PARTICLES_HIGH = 2;
 export type GeometryEmitter = ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter;
 export type GeometryEmitterObject = ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject;
 
-function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
+function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer): void {
   const instance = <MdxModelInstance>emitter.instance;
   const objects = <Particle2[]>emitter.objects;
   const byteView = <Uint8Array>buffer.byteView;
@@ -143,7 +143,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
   }
 }
 
-function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
+function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader): void {
   const instance = <MdxModelInstance>emitter.instance;
   const textureOverrides = instance.textureOverrides;
   const scene = <Scene>instance.scene;
@@ -230,7 +230,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   }
 }
 
-function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
+function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer): void {
   let object = <Ribbon>emitter.first;
   const byteView = <Uint8Array>buffer.byteView;
   const floatView = <Float32Array>buffer.floatView;
@@ -280,7 +280,7 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
   }
 }
 
-function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader) {
+function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader): void {
   const textureOverrides = emitter.instance.textureOverrides;
   const emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   const layer = emitterObject.layer;
@@ -300,7 +300,7 @@ function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader) {
   gl.uniform1f(uniforms['u_rows'], emitterObject.rows);
 }
 
-function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObjectUbrEmitter, buffer: ClientBuffer) {
+function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObjectUbrEmitter, buffer: ClientBuffer): void {
   const objects = <EventObjectSplUbr[]>emitter.objects;
   const floatView = <Float32Array>buffer.floatView;
   let offset = 0;
@@ -329,7 +329,7 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
   }
 }
 
-function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: Shader) {
+function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: Shader): void {
   const textureOverrides = emitter.instance.textureOverrides;
   const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   const intervalTimes = emitterObject.intervalTimes;
@@ -360,7 +360,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 }
 
-function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: Shader) {
+function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: Shader): void {
   const textureOverrides = emitter.instance.textureOverrides;
   const emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   const intervalTimes = emitterObject.intervalTimes;
@@ -387,7 +387,7 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 }
 
-export function renderEmitter(emitter: GeometryEmitter, shader: Shader) {
+export function renderEmitter(emitter: GeometryEmitter, shader: Shader): void {
   let alive = emitter.alive;
   const emitterObject = <GeometryEmitterObject>emitter.emitterObject;
   const emitterType = emitterObject.geometryEmitterType;

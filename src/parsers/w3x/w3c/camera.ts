@@ -27,7 +27,7 @@ export default class Camera {
    */
   localRoll = 0;
 
-  load(stream: BinaryStream, buildVersion: number) {
+  load(stream: BinaryStream, buildVersion: number): void {
     stream.readFloat32Array(this.targetLocation);
     this.rotation = stream.readFloat32(); // in degrees
     this.angleOfAttack = stream.readFloat32(); // in degrees
@@ -45,7 +45,7 @@ export default class Camera {
     }
   }
 
-  save(stream: BinaryStream, buildVersion: number) {
+  save(stream: BinaryStream, buildVersion: number): void {
     stream.writeFloat32Array(this.targetLocation);
     stream.writeFloat32(this.rotation);
     stream.writeFloat32(this.angleOfAttack);
@@ -63,7 +63,7 @@ export default class Camera {
     }
   }
 
-  getByteLength(buildVersion: number) {
+  getByteLength(buildVersion: number): number {
     let size = 41 + byteLengthUtf8(this.cinematicName);
 
     if (buildVersion > 131) {

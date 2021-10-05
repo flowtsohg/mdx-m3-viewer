@@ -15,7 +15,7 @@ declare module 'tga-js' {
       flags: number;
     };
 
-    open(path: string, callback: Function): void;
+    open(path: string, callback: () => void): void;
     load(data: Uint8Array): void;
     getImageData(imageData: ImageData): ImageData;
     getCanvas(): HTMLCanvasElement;

@@ -3,6 +3,7 @@ import { AnimationReference } from '../../../parsers/m3/animationreference';
 import M3ModelInstance from './modelinstance';
 import M3SdContainer from './sd';
 import M3ParserSd from '../../../parsers/m3/sd';
+import { quat, vec3 } from 'gl-matrix';
 
 /**
  * M3 sequence data.
@@ -43,7 +44,7 @@ export default class M3Stc {
     }
   }
 
-  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance): number | vec3 | quat | Uint8Array | null {
     const ref = this.animRefs[animRef.animId];
 
     if (ref) {

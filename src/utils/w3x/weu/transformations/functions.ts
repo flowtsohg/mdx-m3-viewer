@@ -1,21 +1,21 @@
 import ECA from '../../../../parsers/w3x/wtg/eca';
 import SubParameters from '../../../../parsers/w3x/wtg/subparameters';
 import WeuData from '../data';
-import transformer from './transformer';
+import transformer, { Transformer } from './transformer';
 import { transformerIsUnitOwnedByPlayer, transformerIsUnitRace, transformerIsUnitType } from './specific';
 import transformBlz from './blz';
 
 let initialized = false;
 let transformers: {[keyof: string]: (data: WeuData, object: ECA | SubParameters) => boolean };
 
-function rename(name: string) {
+function rename(name: string): Transformer {
   return transformer({
     [name]: {}
   });
 }
 
-function swap(parameters: number[]) {
-  return function (name: string) {
+function swap(parameters: number[]): (name: string) => Transformer {
+  return function (name: string): Transformer {
     return transformer({
       [name]: {
         parameters
@@ -24,7 +24,7 @@ function swap(parameters: number[]) {
   };
 }
 
-function initialize() {
+function initialize(): void {
   if (!initialized) {
     initialized = true;
 
@@ -917,7 +917,7 @@ function initialize() {
   }
 }
 
-export default function transformFunction(data: WeuData, object: ECA | SubParameters) {
+export default function transformFunction(data: WeuData, object: ECA | SubParameters): boolean {
   if (!initialized) {
     initialize();
   }

@@ -22,7 +22,7 @@ export default class DataTexture {
     this.reserve(width, height);
   }
 
-  reserve(width: number, height: number) {
+  reserve(width: number, height: number): void {
     if (this.width < width || this.height < height) {
       const gl = this.gl;
 
@@ -34,14 +34,14 @@ export default class DataTexture {
     }
   }
 
-  bindAndUpdate(buffer: Float32Array, width = this.width, height = this.height) {
+  bindAndUpdate(buffer: Float32Array, width = this.width, height = this.height): void {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, width, height, this.format, gl.FLOAT, buffer);
   }
 
-  bind(unit: number) {
+  bind(unit: number): void {
     const gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);

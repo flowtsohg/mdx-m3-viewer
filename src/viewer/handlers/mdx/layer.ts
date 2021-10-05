@@ -78,7 +78,7 @@ export default class Layer extends AnimatedObject {
     this.addVariants('KMTF', 'textureId');
   }
 
-  bind(shader: Shader) {
+  bind(shader: Shader): void {
     const gl = this.model.viewer.gl;
 
     // gl.uniform1f(shader.uniforms.u_unshaded, this.unshaded);
@@ -110,11 +110,11 @@ export default class Layer extends AnimatedObject {
     }
   }
 
-  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KMTA', sequence, frame, counter, this.alpha);
   }
 
-  getTextureId(out: Uint32Array, sequence: number, frame: number, counter: number) {
+  getTextureId(out: Uint32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KMTF', sequence, frame, counter, this.textureId);
   }
 }

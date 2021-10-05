@@ -9,7 +9,7 @@ export default class War3MapUnitsDoo {
   subversion = 11;
   units: Unit[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {
+  load(buffer: ArrayBuffer | Uint8Array, buildVersion: number): void {
     const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3do') {
@@ -28,7 +28,7 @@ export default class War3MapUnitsDoo {
     }
   }
 
-  save(buildVersion: number) {
+  save(buildVersion: number): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
 
     stream.writeBinary('W3do');
@@ -43,7 +43,7 @@ export default class War3MapUnitsDoo {
     return stream.uint8array;
   }
 
-  getByteLength(buildVersion: number) {
+  getByteLength(buildVersion: number): number {
     let size = 16;
 
     for (const unit of this.units) {

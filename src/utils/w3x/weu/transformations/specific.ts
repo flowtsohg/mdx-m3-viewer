@@ -9,7 +9,7 @@ import { convertParameterInline } from '../conversions';
  * =>
  * GetOwningPlayer(whichUnit) == whichPlayer
  */
-export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubParameters) {
+export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubParameters): boolean {
   const parameter = <Parameter>data.stack[1];
   const comparator = <ECA>data.stack[2];
   const comparatorParameters = comparator.parameters;
@@ -64,7 +64,7 @@ export function transformerIsUnitOwnedByPlayer(data: WeuData, object: ECA | SubP
  * =>
  * GetUnitRace(whichUnit) == whichRace
  */
-export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters) {
+export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters): boolean {
   const parameter = <Parameter>data.stack[1];
   const comparator = <ECA>data.stack[2];
   const comparatorParameters = comparator.parameters;
@@ -121,7 +121,7 @@ export function transformerIsUnitRace(data: WeuData, object: ECA | SubParameters
  * =>
  * IsUnitDeadBJ(whichUnit) == boolean
  */
-export function transformerIsUnitType(data: WeuData, object: ECA | SubParameters) {
+export function transformerIsUnitType(data: WeuData, object: ECA | SubParameters): boolean {
   const comparator = <ECA>data.stack[2];
 
   if (comparator.name !== 'OperatorCompareBoolean') {

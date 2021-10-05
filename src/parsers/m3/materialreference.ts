@@ -9,7 +9,7 @@ export default class MaterialReference {
   materialType = 0;
   materialIndex = -1;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, _index: IndexEntry[]): void {
     this.version = version;
     this.materialType = stream.readUint32();
     this.materialIndex = stream.readUint32();

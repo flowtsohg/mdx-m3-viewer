@@ -8,13 +8,13 @@ export default class ModifiedAbility {
   activeForAutocast = 0;
   heroLevel = 1;
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.id = stream.readBinary(4);
     this.activeForAutocast = stream.readInt32();
     this.heroLevel = stream.readInt32();
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeBinary(this.id);
     stream.writeInt32(this.activeForAutocast);
     stream.writeInt32(this.heroLevel);

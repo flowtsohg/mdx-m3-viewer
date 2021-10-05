@@ -135,35 +135,35 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.priorityPlane = emitter.priorityPlane;
   }
 
-  getWidth(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getWidth(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2N', sequence, frame, counter, this.width);
   }
 
-  getLength(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getLength(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2W', sequence, frame, counter, this.length);
   }
 
-  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2S', sequence, frame, counter, this.speed);
   }
 
-  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2L', sequence, frame, counter, this.latitude);
   }
 
-  getGravity(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getGravity(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2G', sequence, frame, counter, this.gravity);
   }
 
-  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2E', sequence, frame, counter, this.emissionRate);
   }
 
-  getVariation(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getVariation(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2R', sequence, frame, counter, this.variation);
   }
 
-  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KP2V', sequence, frame, counter, 1);
   }
 }

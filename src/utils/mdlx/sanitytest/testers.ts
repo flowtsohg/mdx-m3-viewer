@@ -18,7 +18,7 @@ import SanityTestData from './data';
 import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, getAnimation, testExtent, testAndGetReference } from './utils';
 import testTracks from './tracks';
 
-export function testHeader(data: SanityTestData) {
+export function testHeader(data: SanityTestData): void {
   const version = data.model.version;
 
   if (version !== 800 && version !== 900 && version !== 1000) {
@@ -36,7 +36,7 @@ export function testHeader(data: SanityTestData) {
   testExtent(data, data.model.extent);
 }
 
-export function testSequences(data: SanityTestData) {
+export function testSequences(data: SanityTestData): void {
   const sequences = data.model.sequences;
 
   if (sequences.length) {
@@ -49,7 +49,7 @@ export function testSequences(data: SanityTestData) {
   }
 }
 
-function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
+function testSequence(data: SanityTestData, sequence: Sequence, index: number): void {
   const name = sequence.name;
   const tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/);
   let token = tokens[0];
@@ -92,12 +92,12 @@ function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
   testExtent(data, sequence.extent);
 }
 
-export function testGlobalSequence(data: SanityTestData, sequence: number) {
+export function testGlobalSequence(data: SanityTestData, sequence: number): void {
   data.assertWarning(sequence !== 0, 'Zero length');
   data.assertWarning(sequence >= 0, `Negative length: ${sequence}`);
 }
 
-export function testTextures(data: SanityTestData) {
+export function testTextures(data: SanityTestData): void {
   const textures = data.model.textures;
 
   if (textures.length) {
@@ -107,7 +107,7 @@ export function testTextures(data: SanityTestData) {
   }
 }
 
-function testTexture(data: SanityTestData, texture: Texture) {
+function testTexture(data: SanityTestData, texture: Texture): void {
   const replaceableId = texture.replaceableId;
   const path = texture.path.toLowerCase();
   const ext = extname(path);
@@ -117,7 +117,7 @@ function testTexture(data: SanityTestData, texture: Texture) {
   data.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
 }
 
-export function testMaterial(data: SanityTestData, material: Material) {
+export function testMaterial(data: SanityTestData, material: Material): void {
   const layers = material.layers;
   const shader = material.shader;
 
@@ -132,7 +132,7 @@ export function testMaterial(data: SanityTestData, material: Material) {
   }
 }
 
-function testLayer(data: SanityTestData, layer: Layer) {
+function testLayer(data: SanityTestData, layer: Layer): void {
   const textures = data.model.textures;
   const textureAnimations = data.model.textureAnimations;
 
@@ -151,7 +151,7 @@ function testLayer(data: SanityTestData, layer: Layer) {
   data.assertWarning(filterMode >= LayerFilterMode.None && filterMode <= LayerFilterMode.Modulate2x, `Invalid filter mode: ${layer.filterMode}`);
 }
 
-export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) {
+export function testGeoset(data: SanityTestData, geoset: Geoset, index: number): void {
   const geosetAnimations = data.model.geosetAnimations;
   const material = testAndGetReference(data, data.model.materials, geoset.materialId, 'material');
   let isHd = false;
@@ -208,7 +208,7 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
   }
 }
 
-export function testGeosetAnimation(data: SanityTestData, geosetAnimation: GeosetAnimation) {
+export function testGeosetAnimation(data: SanityTestData, geosetAnimation: GeosetAnimation): void {
   const geosets = data.model.geosets;
   const geosetId = geosetAnimation.geosetId;
 
@@ -219,7 +219,7 @@ export function testGeosetAnimation(data: SanityTestData, geosetAnimation: Geose
 
 const SUPPOSED_ALPHA_THRESHOLD = 0.1;
 
-export function testBone(data: SanityTestData, bone: Bone, index: number) {
+export function testBone(data: SanityTestData, bone: Bone, index: number): void {
   const geosets = data.model.geosets;
   const geosetAnimations = data.model.geosetAnimations;
   const geosetId = bone.geosetId;
@@ -240,7 +240,7 @@ export function testBone(data: SanityTestData, bone: Bone, index: number) {
   data.assertWarning(data.boneUsageMap.get(index) > 0, `There are no vertices attached to this bone`);
 }
 
-export function testLight(data: SanityTestData, light: Light) {
+export function testLight(data: SanityTestData, light: Light): void {
   const attenuation = light.attenuation;
 
   data.assertWarning(attenuation[0] >= 80, `Minimum attenuation should probably be bigger than or equal to 80, but is ${attenuation[0]}`);
@@ -248,7 +248,7 @@ export function testLight(data: SanityTestData, light: Light) {
   data.assertWarning(attenuation[1] - attenuation[0] > 0, `The maximum attenuation should be bigger than the minimum, but isn't`);
 }
 
-export function testAttachments(data: SanityTestData) {
+export function testAttachments(data: SanityTestData): void {
   const attachments = data.model.attachments;
   let foundOrigin = false;
 
@@ -271,20 +271,20 @@ export function testAttachments(data: SanityTestData) {
   }
 }
 
-export function testPivotPoints(data: SanityTestData) {
+export function testPivotPoints(data: SanityTestData): void {
   const pivotPoints = data.model.pivotPoints;
   const objects = data.objects;
 
   data.assertWarning(pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
 }
 
-export function testParticleEmitter(data: SanityTestData, emitter: ParticleEmitter) {
+export function testParticleEmitter(data: SanityTestData, emitter: ParticleEmitter): void {
   const path = emitter.path.toLowerCase();
 
   data.assertError(path.endsWith('.mdl') || path.endsWith('.mdx'), 'Invalid path');
 }
 
-export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmitter2) {
+export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmitter2): void {
   const replaceableId = emitter.replaceableId;
 
   testReference(data, data.model.textures, emitter.textureId, 'texture');
@@ -305,7 +305,7 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
   }
 }
 
-export function testParticleEmitterPopcorn(data: SanityTestData, emitter: ParticleEmitterPopcorn) {
+export function testParticleEmitterPopcorn(data: SanityTestData, emitter: ParticleEmitterPopcorn): void {
   const path = emitter.path;
 
   if (path.length) {
@@ -313,21 +313,21 @@ export function testParticleEmitterPopcorn(data: SanityTestData, emitter: Partic
   }
 }
 
-export function testRibbonEmitter(data: SanityTestData, emitter: RibbonEmitter) {
+export function testRibbonEmitter(data: SanityTestData, emitter: RibbonEmitter): void {
   testReference(data, data.model.materials, emitter.materialId, 'material');
 }
 
-export function testEventObject(data: SanityTestData, eventObject: EventObject) {
+export function testEventObject(data: SanityTestData, eventObject: EventObject): void {
   testTracks(data, eventObject);
 }
 
-export function testCamera(data: SanityTestData, camera: Camera) {
+export function testCamera(data: SanityTestData, _camera: Camera): void {
   // I don't know what the rules are as to when cameras are used for portraits.
   // Therefore, for now never report them as not used.
   data.addImplicitReference();
 }
 
-export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
+export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect): void {
   const path = faceEffect.path;
 
   if (path.length) {
@@ -337,7 +337,7 @@ export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
   data.addImplicitReference();
 }
 
-export function testBindPose(data: SanityTestData) {
+export function testBindPose(data: SanityTestData): void {
   const matrices = data.model.bindPose;
   const objects = data.objects;
 

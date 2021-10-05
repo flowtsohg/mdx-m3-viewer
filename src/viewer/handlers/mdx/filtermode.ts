@@ -1,7 +1,7 @@
 import { FilterMode as LayerFilterMode } from '../../../parsers/mdlx/layer';
 import { FilterMode as Particle2FilterMode } from '../../../parsers/mdlx/particleemitter2';
 
-export function layerFilterMode(filterMode: LayerFilterMode, gl: WebGLRenderingContext) {
+export function layerFilterMode(filterMode: LayerFilterMode, gl: WebGLRenderingContext): number[] {
   if (filterMode === LayerFilterMode.Blend) {
     return [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA];
   } else if (filterMode === LayerFilterMode.Additive) {
@@ -17,7 +17,7 @@ export function layerFilterMode(filterMode: LayerFilterMode, gl: WebGLRenderingC
   }
 }
 
-export function emitterFilterMode(filterMode: Particle2FilterMode, gl: WebGLRenderingContext) {
+export function emitterFilterMode(filterMode: Particle2FilterMode, gl: WebGLRenderingContext): number[] {
   if (filterMode === Particle2FilterMode.Blend) {
     return [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA];
   } else if (filterMode === Particle2FilterMode.Additive) {

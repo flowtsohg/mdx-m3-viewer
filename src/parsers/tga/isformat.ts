@@ -3,7 +3,7 @@ import { isStringInBytes } from '../../common/searches';
 /**
  * Detects if the given object is a TGA source.
  */
-export default function isTga(bytes: unknown) {
+export default function isTga(bytes: unknown): boolean {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes);
   }

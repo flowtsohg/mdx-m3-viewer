@@ -43,8 +43,51 @@ import JassTexMapFlags from './types/texmapflags';
 import JassFogState from './types/fogstate';
 import JassEffectType from './types/effecttype';
 import JassSoundType from './types/soundtype';
+import { JassEventId, JassGameState } from './types';
 
-export default function constantHandles() {
+export interface ConstantHandles {
+  playerColors: JassPlayerColor[];
+  races: JassRace[];
+  playerGameResults: JassPlayerGameResult[];
+  allianceTypes: JassAllianceType[];
+  versions: JassVersion[];
+  attackTypes: JassAttackType[];
+  damageTypes: JassDamageType[];
+  weaponTypes: JassWeaponType[];
+  pathingTypes: JassPathingType[];
+  mouseButtonTypes: JassMouseButtonType[];
+  animTypes: JassAnimType[];
+  subAnimTypes: JassSubAnimType[];
+  racePrefs: JassRacePreference[];
+  mapControls: JassMapControl[];
+  gameTypes: JassGameType[];
+  mapFlags: JassMapFlag[];
+  placements: JassPlacement[];
+  startLocPrios: JassStartLocPrio[];
+  mapDensities: JassMapDensity[];
+  gameDifficulties: JassGameDifficulty[];
+  gameSpeeds: JassGameSpeed[];
+  playerSlotStates: JassPlayerSlotState[];
+  volumeGroups: JassVolumeGroup[];
+  gameStates: JassGameState[];
+  playerStates: JassPlayerState[];
+  unitStates: JassUnitState[];
+  aiDifficulties: JassAiDifficulty[];
+  playerScores: JassPlayerScore[];
+  events: JassEventId[];
+  limitOps: JassLimitOp[];
+  unitTypes: JassUnitType[];
+  itemTypes: JassItemType[];
+  cameraFields: JassCameraField[];
+  blendModes: JassBlendMode[];
+  rarityControls: JassRarityControl[];
+  texMapFlags: JassTexMapFlags[];
+  fogStates: JassFogState[];
+  effectTypes: JassEffectType[];
+  soundTypes: JassSoundType[];
+}
+
+export default function constantHandles(): ConstantHandles {
   const playerColors = [];
   const races = [];
   const playerGameResults = [];

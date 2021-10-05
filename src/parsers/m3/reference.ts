@@ -1,5 +1,5 @@
 import BinaryStream from '../../common/binarystream';
-import IndexEntry from './indexentry';
+import IndexEntry, { EntryType, SingleEntryType } from './indexentry';
 
 /**
  * A reference.
@@ -10,7 +10,7 @@ export default class Reference {
   id = 0;
   flags = 0;
 
-  load(stream: BinaryStream, index: IndexEntry[]) {
+  load(stream: BinaryStream, index: IndexEntry[]): void {
     this.index = index;
     this.entries = stream.readUint32();
     this.id = stream.readUint32();
@@ -20,7 +20,7 @@ export default class Reference {
   /**
    * Get the entries this index entry references.
    */
-  get() {
+  get(): EntryType | undefined {
     if (this.index && this.id !== 0 && this.entries !== 0) {
       return this.index[this.id].entries;
     }
@@ -31,7 +31,7 @@ export default class Reference {
   /**
    * Get the first entry this index entry references.
    */
-  first() {
+  first(): SingleEntryType | undefined {
     const entries = this.get();
 
     if (entries) {

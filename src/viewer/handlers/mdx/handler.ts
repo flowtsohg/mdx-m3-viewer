@@ -21,6 +21,11 @@ import particlesFrag from './shaders/particles.frag';
 import { SkinningType } from './batch';
 import { WrapMode } from '../../../parsers/mdlx/texture';
 
+export interface EventObjectData {
+  row: MappedDataRow;
+  resources: Resource[];
+}
+
 export interface MdxHandlerObject {
   pathSolver?: PathSolver;
   reforged: boolean;
@@ -42,11 +47,11 @@ export interface MdxHandlerObject {
   // envSpecularTexture: MdxTexture | null;
 }
 
-const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
-const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
+const mappedDataCallback = (data: FetchDataType): MappedData => new MappedData(<string>data);
+const decodedDataCallback = (data: FetchDataType): Promise<AudioBuffer | undefined> => decodeAudioData(<ArrayBuffer>data);
 
 export default {
-  load(viewer: ModelViewer, pathSolver?: PathSolver, reforged = false) {
+  load(viewer: ModelViewer, pathSolver?: PathSolver, reforged = false): void {
     const gl = viewer.gl;
     const webgl = viewer.webgl;
 
@@ -170,7 +175,7 @@ export default {
 
     viewer.sharedCache.set('mdx', handlerData);
   },
-  isValidSource(object: unknown) {
+  isValidSource(object: unknown): boolean {
     if (object instanceof MdlxModel) {
       return true;
     }
@@ -198,7 +203,7 @@ export default {
   //   }
 
   // },
-  loadTeamTextures(viewer: ModelViewer) {
+  loadTeamTextures(viewer: ModelViewer): void {
     const { pathSolver, reforged, teamColors, teamGlows } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
 
     if (teamColors.length === 0) {
@@ -224,7 +229,7 @@ export default {
       }
     }
   },
-  getEventObjectSoundFile(file: string, reforged: boolean, isHd: boolean, tables: GenericResource[]) {
+  getEventObjectSoundFile(file: string, reforged: boolean, isHd: boolean, tables: GenericResource[]): string | undefined {
     if (!reforged || extname(file) === '.flac') {
       return file;
     }
@@ -252,7 +257,7 @@ export default {
 
     return;
   },
-  async getEventObjectData(viewer: ModelViewer, type: string, id: string, isHd: boolean) {
+  async getEventObjectData(viewer: ModelViewer, type: string, id: string, isHd: boolean): Promise<EventObjectData | undefined> {
     // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
     if (type !== 'SPN' && type !== 'SPL' && type !== 'UBR' && type !== 'SND') {
       return;
@@ -260,7 +265,7 @@ export default {
 
     const { pathSolver, reforged, eventObjectTables } = <MdxHandlerObject>viewer.sharedCache.get('mdx');
     const params = reforged ? { reforged: true } : undefined;
-    const safePathSolver = (src: any, params: any) => {
+    const safePathSolver = (src: any, params: any): any => {
       if (pathSolver) {
         return pathSolver(src, params);
       }
@@ -364,7 +369,7 @@ export default {
 
     return;
   },
-  getBatchShader(viewer: ModelViewer, skinningType: SkinningType, isHd: boolean) {
+  getBatchShader(viewer: ModelViewer, skinningType: SkinningType, isHd: boolean): Shader {
     const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
     const debugRenderMode = viewer.debugRenderMode;
 

@@ -23,7 +23,7 @@ export default class Light {
   hotSpot = new Float32AnimationReference();
   falloff = new Float32AnimationReference();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, _index: IndexEntry[]): void {
     this.version = version;
     this.type = stream.readUint8();
     this.unknown0 = stream.readUint8();

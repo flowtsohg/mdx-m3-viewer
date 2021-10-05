@@ -3,6 +3,7 @@ import { AnimationReference } from '../../../parsers/m3/animationreference';
 import M3ModelInstance from './modelinstance';
 import M3Sts from './sts';
 import M3Stc from './stc';
+import { quat, vec3 } from 'gl-matrix';
 
 /**
  * M3 animation data getter.
@@ -20,7 +21,7 @@ export default class M3Stg {
     this.stc = stc;
   }
 
-  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance): number | vec3 | quat | Uint8Array | null {
     const stcIndices = this.stcIndices;
     const stcs = this.stc;
     const stss = this.sts;

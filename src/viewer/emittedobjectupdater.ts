@@ -7,11 +7,11 @@ export default class EmittedObjectUpdater {
   objects: EmittedObject[] = [];
   alive = 0;
 
-  add(object: EmittedObject) {
+  add(object: EmittedObject): void {
     this.objects[this.alive++] = object;
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     const objects = this.objects;
 
     for (let i = 0; i < this.alive; i++) {

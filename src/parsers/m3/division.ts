@@ -13,7 +13,7 @@ export default class Division {
   MSEC = new Reference();
   unknown0 = 0;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.triangles.load(stream, index);
     this.regions.load(stream, index);

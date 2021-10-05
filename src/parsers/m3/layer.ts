@@ -52,7 +52,7 @@ export default class Layer {
   fresnelRotationPitch = 0;
   unknown7 = 0;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.unknown0 = stream.readUint32();
     this.imagePath.load(stream, index);

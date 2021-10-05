@@ -10,7 +10,7 @@ export default class Model {
   index: IndexEntry[] = [];
   model: ModelHeader | null = null;
 
-  load(src: ArrayBuffer | Uint8Array) {
+  load(src: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(src);
     const header = new Md34();
 

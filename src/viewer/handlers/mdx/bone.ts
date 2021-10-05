@@ -15,7 +15,7 @@ export default class Bone extends GenericObject {
     this.geosetAnimation = model.geosetAnimations[bone.geosetAnimationId];
   }
 
-  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number): number {
     if (this.geosetAnimation) {
       return this.geosetAnimation.getAlpha(out, sequence, frame, counter);
     }

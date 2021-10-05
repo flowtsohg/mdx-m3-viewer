@@ -13,7 +13,7 @@ export default class Variable {
   isInitialized = 0;
   initialValue = '';
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number): void {
     this.name = stream.readNull();
     this.type = stream.readNull();
     this.u1 = stream.readInt32();
@@ -27,7 +27,7 @@ export default class Variable {
     this.initialValue = stream.readNull();
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeNull(this.name);
     stream.writeNull(this.type);
     stream.writeInt32(this.u1);
@@ -41,7 +41,7 @@ export default class Variable {
     stream.writeNull(this.initialValue);
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 15 + byteLengthUtf8(this.name) + byteLengthUtf8(this.type) + byteLengthUtf8(this.initialValue);
 
     if (version === 7) {

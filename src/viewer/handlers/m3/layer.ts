@@ -132,7 +132,7 @@ export default class M3Layer {
     }
   }
 
-  bind(shader: Shader, textureOverrides: Map<number, Texture>) {
+  bind(shader: Shader, textureOverrides: Map<number, Texture>): void {
     const gl = this.gl;
     const uniformMap = this.uniformMap;
     const uniforms = shader.uniforms;
@@ -173,7 +173,7 @@ export default class M3Layer {
     }
   }
 
-  unbind(shader: Shader) {
+  unbind(shader: Shader): void {
     if (this.active) {
       this.gl.uniform1f(shader.uniforms[this.uniformMap.enabled], 0);
     }

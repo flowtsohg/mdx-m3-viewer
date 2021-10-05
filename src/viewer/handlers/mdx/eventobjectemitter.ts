@@ -10,7 +10,7 @@ const valueHeap = new Uint32Array(1);
 export default abstract class EventObjectEmitter extends MdxEmitter {
   lastValue = 0;
 
-  updateEmission(dt: number) {
+  updateEmission(_dt: number): void {
     const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
@@ -28,7 +28,7 @@ export default abstract class EventObjectEmitter extends MdxEmitter {
     }
   }
 
-  emit() {
+  emit(): void {
     this.emitObject();
   }
 }

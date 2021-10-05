@@ -52,7 +52,7 @@ export default class War3MapW3i {
   randomItemTables: RandomItemTable[] = [];
   unknown1 = 0;
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -162,7 +162,7 @@ export default class War3MapW3i {
     }
   }
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
@@ -262,7 +262,7 @@ export default class War3MapW3i {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 111 + byteLengthUtf8(this.name) + byteLengthUtf8(this.author) + byteLengthUtf8(this.description) + byteLengthUtf8(this.recommendedPlayers) + byteLengthUtf8(this.loadingScreenText) + byteLengthUtf8(this.loadingScreenTitle) + byteLengthUtf8(this.loadingScreenSubtitle) + byteLengthUtf8(this.prologueScreenText) + byteLengthUtf8(this.prologueScreenTitle) + byteLengthUtf8(this.prologueScreenSubtitle);
 
     for (const player of this.players) {
@@ -307,7 +307,7 @@ export default class War3MapW3i {
    * 
    * Note that this will always return 0 for any version below 1.31.
    */
-  getBuildVersion() {
+  getBuildVersion(): number {
     return this.buildVersion[0] * 100 + this.buildVersion[1];
   }
 }

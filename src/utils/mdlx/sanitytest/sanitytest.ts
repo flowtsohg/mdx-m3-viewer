@@ -1,12 +1,21 @@
 import Model from '../../../parsers/mdlx/model';
-import SanityTestData from './data';
+import SanityTestData, { SanityTestMessage, SanityTestNode } from './data';
 import { testObjects, cleanNode } from './utils';
 import { testHeader, testSequences, testGlobalSequence, testTextures, testMaterial, testGeoset, testGeosetAnimation, testBone, testLight, testAttachments, testPivotPoints, testParticleEmitter, testParticleEmitter2, testParticleEmitterPopcorn, testRibbonEmitter, testEventObject, testCamera, testFaceEffect, testBindPose } from './testers';
+
+export interface SanityTestResult {
+  type: string;
+  nodes: (SanityTestNode | SanityTestMessage)[];
+  errors: number;
+  severe: number;
+  warnings: number;
+  unused: number;
+}
 
 /**
  * Run a sanity test on the model and return the results.
  */
-export default function sanityTest(model: Model) {
+export default function sanityTest(model: Model): SanityTestResult {
   const data = new SanityTestData(model);
 
   // Run the tests.

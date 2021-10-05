@@ -24,27 +24,27 @@ export default class Light extends GenericObject {
     this.ambientIntensity = light.ambientIntensity;
   }
 
-  getAttenuationStart(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAttenuationStart(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KLAS', sequence, frame, counter, this.attenuation[0]);
   }
 
-  getAttenuationEnd(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAttenuationEnd(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KLAE', sequence, frame, counter, this.attenuation[1]);
   }
 
-  getIntensity(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getIntensity(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KLAI', sequence, frame, counter, this.intensity);
   }
 
-  getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getColor(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getVectorValue(out, 'KLAC', sequence, frame, counter, this.color);
   }
 
-  getAmbientIntensity(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAmbientIntensity(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KLBI', sequence, frame, counter, this.ambientIntensity);
   }
 
-  getAmbientColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getAmbientColor(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getVectorValue(out, 'KLBC', sequence, frame, counter, this.ambientColor);
   }
 }

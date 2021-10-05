@@ -1,5 +1,18 @@
 import JassAgent from './agent';
 
+export interface Alliance {
+  passive: boolean,
+  helpRequest: boolean,
+  helpResponse: boolean,
+  sharedXp: boolean,
+  sharedSpells: boolean,
+  sharedVision: boolean,
+  sharedControl: boolean,
+  sharedAdvancedControl: boolean,
+  rescuable: boolean,
+  sharedVisionForced: boolean,
+}
+
 /**
  * type player
  */
@@ -10,10 +23,11 @@ export default class JassPlayer extends JassAgent {
   startLocation = -1;
   forcedStartLocation = -1;
   color = -1;
+  race = 0;
   racePreference = -1;
   raceSelectable = false;
   controller = -1;
-  alliances: Map<number, object> = new Map();
+  alliances: Map<number, Alliance> = new Map();
 
   constructor(index: number, maxPlayers: number) {
     super();

@@ -19,7 +19,7 @@ export default class ParticleEmitter2 extends MdxEmitter {
     this.node = instance.nodes[emitterObject.index];
   }
 
-  updateEmission(dt: number) {
+  updateEmission(dt: number): void {
     const instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
@@ -38,7 +38,7 @@ export default class ParticleEmitter2 extends MdxEmitter {
     }
   }
 
-  emit() {
+  emit(): void {
     const emitterObject = <ParticleEmitter2Object>this.emitterObject;
 
     if (emitterObject.head) {

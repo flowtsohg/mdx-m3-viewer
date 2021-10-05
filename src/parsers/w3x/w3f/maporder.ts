@@ -8,17 +8,17 @@ export default class MapOrder {
   u1 = 0;
   path = '';
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.u1 = stream.readInt8();
     this.path = stream.readNull();
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt8(this.u1);
     stream.writeNull(this.path);
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 2 + byteLengthUtf8(this.path);
   }
 }

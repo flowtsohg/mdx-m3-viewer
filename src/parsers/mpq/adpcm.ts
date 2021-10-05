@@ -25,7 +25,7 @@ const StepSizeTable = new Int32Array([
   32767,
 ]);
 
-function GetNextStepIndex(StepIndex: number, EncodedSample: number) {
+function GetNextStepIndex(StepIndex: number, EncodedSample: number): number {
   StepIndex = StepIndex + NextStepTable[EncodedSample & 0x1F];
 
   if (StepIndex < 0) {
@@ -37,7 +37,7 @@ function GetNextStepIndex(StepIndex: number, EncodedSample: number) {
   return StepIndex;
 }
 
-function UpdatePredictedSample(PredictedSample: number, EncodedSample: number, Difference: number) {
+function UpdatePredictedSample(PredictedSample: number, EncodedSample: number, Difference: number): number {
   if (EncodedSample & 0x40) {
     PredictedSample -= Difference;
 
@@ -55,7 +55,7 @@ function UpdatePredictedSample(PredictedSample: number, EncodedSample: number, D
   return PredictedSample;
 }
 
-function DecodeSample(PredictedSample: number, EncodedSample: number, StepSize: number, Difference: number) {
+function DecodeSample(PredictedSample: number, EncodedSample: number, StepSize: number, Difference: number): number {
   if (EncodedSample & 0x01) {
     Difference += (StepSize >> 0);
   }
@@ -83,7 +83,7 @@ function DecodeSample(PredictedSample: number, EncodedSample: number, StepSize: 
   return UpdatePredictedSample(PredictedSample, EncodedSample, Difference);
 }
 
-export default function DecompressADPCM(pvInBuffer: Uint8Array, ChannelCount: number) {
+export default function DecompressADPCM(pvInBuffer: Uint8Array, ChannelCount: number): Uint8Array {
   const is = new BinaryStream(pvInBuffer);
   const os = <number[]>[];
   let EncodedSample;

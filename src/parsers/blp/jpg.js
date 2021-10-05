@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /* Copyright 2017 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
@@ -16,14 +18,14 @@
 // NOTICE: This file was edited to support loading JPEG data stored in BLP files, which use a non-standard RGBA pixel format.
 // NOTICE2: It has been edited more to support modern building.
 
-let _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol' ? function (obj) {
+const _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol' ? function (obj) {
   return typeof obj;
 } : function (obj) {
   return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj;
 };
 
 
-let JpegError = function JpegErrorClosure() {
+const JpegError = function JpegErrorClosure() {
   function JpegError(msg) {
     this.message = 'JPEG error: ' + msg;
   }
@@ -33,15 +35,15 @@ let JpegError = function JpegErrorClosure() {
   return JpegError;
 }();
 
-let dctZigZag = new Uint8Array([0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63]);
-let dctCos1 = 4017;
-let dctSin1 = 799;
-let dctCos3 = 3406;
-let dctSin3 = 2276;
-let dctCos6 = 1567;
-let dctSin6 = 3784;
-let dctSqrt2 = 5793;
-let dctSqrt1d2 = 2896;
+const dctZigZag = new Uint8Array([0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63]);
+const dctCos1 = 4017;
+const dctSin1 = 799;
+const dctCos3 = 3406;
+const dctSin3 = 2276;
+const dctCos6 = 1567;
+const dctSin6 = 3784;
+const dctSqrt2 = 5793;
+const dctSqrt1d2 = 2896;
 
 function buildHuffmanTable(codeLengths, values) {
   let k = 0,
@@ -92,8 +94,8 @@ function getBlockBufferOffset(component, row, col) {
   return 64 * ((component.blocksPerLine + 1) * row + col);
 }
 function decodeScan(data, offset, frame, components, resetInterval, spectralStart, spectralEnd, successivePrev, successive) {
-  let mcusPerLine = frame.mcusPerLine;
-  let progressive = frame.progressive;
+  const mcusPerLine = frame.mcusPerLine;
+  const progressive = frame.progressive;
   let startOffset = offset,
     bitsData = 0,
     bitsCount = 0;
@@ -104,7 +106,7 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
     }
     bitsData = data[offset++];
     if (bitsData === 0xFF) {
-      let nextByte = data[offset++];
+      const nextByte = data[offset++];
       if (nextByte) {
         throw new JpegError('unexpected marker ' + (bitsData << 8 | nextByte).toString(16));
       }
@@ -136,20 +138,20 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
     if (length === 1) {
       return readBit() === 1 ? 1 : -1;
     }
-    let n = receive(length);
+    const n = receive(length);
     if (n >= 1 << length - 1) {
       return n;
     }
     return n + (-1 << length) + 1;
   }
   function decodeBaseline(component, offset) {
-    let t = decodeHuffman(component.huffmanTableDC);
-    let diff = t === 0 ? 0 : receiveAndExtend(t);
+    const t = decodeHuffman(component.huffmanTableDC);
+    const diff = t === 0 ? 0 : receiveAndExtend(t);
     component.blockData[offset] = component.pred += diff;
     let k = 1;
     while (k < 64) {
-      let rs = decodeHuffman(component.huffmanTableAC);
-      let s = rs & 15,
+      const rs = decodeHuffman(component.huffmanTableAC);
+      const s = rs & 15,
         r = rs >> 4;
       if (s === 0) {
         if (r < 15) {
@@ -159,14 +161,14 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
         continue;
       }
       k += r;
-      let z = dctZigZag[k];
+      const z = dctZigZag[k];
       component.blockData[offset + z] = receiveAndExtend(s);
       k++;
     }
   }
   function decodeDCFirst(component, offset) {
-    let t = decodeHuffman(component.huffmanTableDC);
-    let diff = t === 0 ? 0 : receiveAndExtend(t) << successive;
+    const t = decodeHuffman(component.huffmanTableDC);
+    const diff = t === 0 ? 0 : receiveAndExtend(t) << successive;
     component.blockData[offset] = component.pred += diff;
   }
   function decodeDCSuccessive(component, offset) {
@@ -181,8 +183,8 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
     let k = spectralStart,
       e = spectralEnd;
     while (k <= e) {
-      let rs = decodeHuffman(component.huffmanTableAC);
-      let s = rs & 15,
+      const rs = decodeHuffman(component.huffmanTableAC);
+      const s = rs & 15,
         r = rs >> 4;
       if (s === 0) {
         if (r < 15) {
@@ -193,7 +195,7 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
         continue;
       }
       k += r;
-      let z = dctZigZag[k];
+      const z = dctZigZag[k];
       component.blockData[offset + z] = receiveAndExtend(s) * (1 << successive);
       k++;
     }
@@ -202,12 +204,12 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
     successiveACNextValue;
   function decodeACSuccessive(component, offset) {
     let k = spectralStart;
-    let e = spectralEnd;
+    const e = spectralEnd;
     let r = 0;
     let s;
     let rs;
     while (k <= e) {
-      let z = dctZigZag[k];
+      const z = dctZigZag[k];
       switch (successiveACState) {
         case 0:
           rs = decodeHuffman(component.huffmanTableAC);
@@ -264,20 +266,20 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
     }
   }
   function decodeMcu(component, decode, mcu, row, col) {
-    let mcuRow = mcu / mcusPerLine | 0;
-    let mcuCol = mcu % mcusPerLine;
-    let blockRow = mcuRow * component.v + row;
-    let blockCol = mcuCol * component.h + col;
-    let offset = getBlockBufferOffset(component, blockRow, blockCol);
+    const mcuRow = mcu / mcusPerLine | 0;
+    const mcuCol = mcu % mcusPerLine;
+    const blockRow = mcuRow * component.v + row;
+    const blockCol = mcuCol * component.h + col;
+    const offset = getBlockBufferOffset(component, blockRow, blockCol);
     decode(component, offset);
   }
   function decodeBlock(component, decode, mcu) {
-    let blockRow = mcu / component.blocksPerLine | 0;
-    let blockCol = mcu % component.blocksPerLine;
-    let offset = getBlockBufferOffset(component, blockRow, blockCol);
+    const blockRow = mcu / component.blocksPerLine | 0;
+    const blockCol = mcu % component.blocksPerLine;
+    const offset = getBlockBufferOffset(component, blockRow, blockCol);
     decode(component, offset);
   }
-  let componentsLength = components.length;
+  const componentsLength = components.length;
   let component, i, j, k, n;
   let decodeFn;
   if (progressive) {
@@ -299,7 +301,7 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
   }
   let h, v;
   while (mcu < mcuExpected) {
-    let mcuToRead = resetInterval ? Math.min(mcuExpected - mcu, resetInterval) : mcuExpected;
+    const mcuToRead = resetInterval ? Math.min(mcuExpected - mcu, resetInterval) : mcuExpected;
     for (i = 0; i < componentsLength; i++) {
       components[i].pred = 0;
     }
@@ -331,7 +333,7 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
       // (0, _util.warn)('decodeScan - unexpected MCU data, next marker is: ' + fileMarker.invalid);
       offset = fileMarker.offset;
     }
-    let marker = fileMarker && fileMarker.marker;
+    const marker = fileMarker && fileMarker.marker;
     if (!marker || marker <= 0xFF00) {
       throw new JpegError('marker was not found');
     }
@@ -349,7 +351,7 @@ function decodeScan(data, offset, frame, components, resetInterval, spectralStar
   return offset - startOffset;
 }
 function quantizeAndInverse(component, blockBufferOffset, p) {
-  let qt = component.quantizationTable,
+  const qt = component.quantizationTable,
     blockData = component.blockData;
   let v0, v1, v2, v3, v4, v5, v6, v7;
   let p0, p1, p2, p3, p4, p5, p6, p7;
@@ -498,12 +500,12 @@ function quantizeAndInverse(component, blockBufferOffset, p) {
   }
 }
 function buildComponentData(frame, component) {
-  let blocksPerLine = component.blocksPerLine;
-  let blocksPerColumn = component.blocksPerColumn;
-  let computationBuffer = new Int16Array(64);
+  const blocksPerLine = component.blocksPerLine;
+  const blocksPerColumn = component.blocksPerColumn;
+  const computationBuffer = new Int16Array(64);
   for (let blockRow = 0; blockRow < blocksPerColumn; blockRow++) {
     for (let blockCol = 0; blockCol < blocksPerLine; blockCol++) {
-      let offset = getBlockBufferOffset(component, blockRow, blockCol);
+      const offset = getBlockBufferOffset(component, blockRow, blockCol);
       quantizeAndInverse(component, offset, computationBuffer);
     }
   }
@@ -516,12 +518,12 @@ function findNextFileMarker(data, currentPos, startPos) {
   function peekUint16(pos) {
     return data[pos] << 8 | data[pos + 1];
   }
-  let maxPos = data.length - 1;
+  const maxPos = data.length - 1;
   let newPos = startPos < currentPos ? startPos : currentPos;
   if (currentPos >= maxPos) {
     return null;
   }
-  let currentMarker = peekUint16(currentPos);
+  const currentMarker = peekUint16(currentPos);
   if (currentMarker >= 0xFFC0 && currentMarker <= 0xFFFE) {
     return {
       invalid: null,
@@ -553,32 +555,32 @@ export class JpegImage {
 
   parse(data) {
     function readUint16() {
-      let value = data[offset] << 8 | data[offset + 1];
+      const value = data[offset] << 8 | data[offset + 1];
       offset += 2;
       return value;
     }
     function readDataBlock() {
-      let length = readUint16();
+      const length = readUint16();
       let endOffset = offset + length - 2;
-      let fileMarker = findNextFileMarker(data, endOffset, offset);
+      const fileMarker = findNextFileMarker(data, endOffset, offset);
       if (fileMarker && fileMarker.invalid) {
         // (0, _util.warn)('readDataBlock - incorrect length, next marker is: ' + fileMarker.invalid);
         endOffset = fileMarker.offset;
       }
-      let array = data.subarray(offset, endOffset);
+      const array = data.subarray(offset, endOffset);
       offset += array.length;
       return array;
     }
     function prepareComponents(frame) {
-      let mcusPerLine = Math.ceil(frame.samplesPerLine / 8 / frame.maxH);
-      let mcusPerColumn = Math.ceil(frame.scanLines / 8 / frame.maxV);
+      const mcusPerLine = Math.ceil(frame.samplesPerLine / 8 / frame.maxH);
+      const mcusPerColumn = Math.ceil(frame.scanLines / 8 / frame.maxV);
       for (let i = 0; i < frame.components.length; i++) {
         component = frame.components[i];
-        let blocksPerLine = Math.ceil(Math.ceil(frame.samplesPerLine / 8) * component.h / frame.maxH);
-        let blocksPerColumn = Math.ceil(Math.ceil(frame.scanLines / 8) * component.v / frame.maxV);
-        let blocksPerLineForMcu = mcusPerLine * component.h;
-        let blocksPerColumnForMcu = mcusPerColumn * component.v;
-        let blocksBufferSize = 64 * blocksPerColumnForMcu * (blocksPerLineForMcu + 1);
+        const blocksPerLine = Math.ceil(Math.ceil(frame.samplesPerLine / 8) * component.h / frame.maxH);
+        const blocksPerColumn = Math.ceil(Math.ceil(frame.scanLines / 8) * component.v / frame.maxV);
+        const blocksPerLineForMcu = mcusPerLine * component.h;
+        const blocksPerColumnForMcu = mcusPerColumn * component.v;
+        const blocksBufferSize = 64 * blocksPerColumnForMcu * (blocksPerLineForMcu + 1);
         component.blockData = new Int16Array(blocksBufferSize);
         component.blocksPerLine = blocksPerLine;
         component.blocksPerColumn = blocksPerColumn;
@@ -590,8 +592,8 @@ export class JpegImage {
     let jfif = null;
     let adobe = null;
     let frame, resetInterval;
-    let quantizationTables = [];
-    let huffmanTablesAC = [],
+    const quantizationTables = [];
+    const huffmanTablesAC = [],
       huffmanTablesDC = [];
     let fileMarker = readUint16();
     if (fileMarker !== 0xFFD8) {
@@ -651,8 +653,8 @@ export class JpegImage {
           var quantizationTablesEnd = quantizationTablesLength + offset - 2;
           var z;
           while (offset < quantizationTablesEnd) {
-            let quantizationTableSpec = data[offset++];
-            let tableData = new Uint16Array(64);
+            const quantizationTableSpec = data[offset++];
+            const tableData = new Uint16Array(64);
             if (quantizationTableSpec >> 4 === 0) {
               for (j = 0; j < 64; j++) {
                 z = dctZigZag[j];
@@ -690,15 +692,15 @@ export class JpegImage {
             maxV = 0;
           for (i = 0; i < componentsCount; i++) {
             componentId = data[offset];
-            let h = data[offset + 1] >> 4;
-            let v = data[offset + 1] & 15;
+            const h = data[offset + 1] >> 4;
+            const v = data[offset + 1] & 15;
             if (maxH < h) {
               maxH = h;
             }
             if (maxV < v) {
               maxV = v;
             }
-            let qId = data[offset + 2];
+            const qId = data[offset + 2];
             l = frame.components.push({
               h: h,
               v: v,
@@ -715,13 +717,13 @@ export class JpegImage {
         case 0xFFC4:
           var huffmanLength = readUint16();
           for (i = 2; i < huffmanLength;) {
-            let huffmanTableSpec = data[offset++];
-            let codeLengths = new Uint8Array(16);
+            const huffmanTableSpec = data[offset++];
+            const codeLengths = new Uint8Array(16);
             let codeLengthSum = 0;
             for (j = 0; j < 16; j++, offset++) {
               codeLengthSum += codeLengths[j] = data[offset];
             }
-            let huffmanValues = new Uint8Array(codeLengthSum);
+            const huffmanValues = new Uint8Array(codeLengthSum);
             for (j = 0; j < codeLengthSum; j++, offset++) {
               huffmanValues[j] = data[offset];
             }
@@ -739,9 +741,9 @@ export class JpegImage {
           var components = [],
             component;
           for (i = 0; i < selectorsCount; i++) {
-            let componentIndex = frame.componentIds[data[offset++]];
+            const componentIndex = frame.componentIds[data[offset++]];
             component = frame.components[componentIndex];
-            let tableSpec = data[offset++];
+            const tableSpec = data[offset++];
             component.huffmanTableDC = huffmanTablesDC[tableSpec >> 4];
             component.huffmanTableAC = huffmanTablesAC[tableSpec & 15];
             components.push(component);
@@ -773,7 +775,7 @@ export class JpegImage {
     this.components = [];
     for (i = 0; i < frame.components.length; i++) {
       component = frame.components[i];
-      let quantizationTable = quantizationTables[component.quantizationId];
+      const quantizationTable = quantizationTables[component.quantizationId];
       if (quantizationTable) {
         component.quantizationTable = quantizationTable;
       }
@@ -788,26 +790,26 @@ export class JpegImage {
     this.numComponents = this.components.length;
   }
   getData(imageData) {
-    let data = imageData.data;
-    let components = this.components;
-    let lineData = new Uint8Array((components[0].blocksPerLine << 3) * components[0].blocksPerColumn * 8);
+    const data = imageData.data;
+    const components = this.components;
+    const lineData = new Uint8Array((components[0].blocksPerLine << 3) * components[0].blocksPerColumn * 8);
 
     // NOTICE: This forces BGR->RGB conversion without adding any costs, since really we know this is going to be a hacky BGRA BLP file.
     [components[0], components[2]] = [components[2], components[0]];
 
     for (let i = 0, numComponents = components.length; i < numComponents; i++) {
-      let component = components[i];
-      let blocksPerLine = component.blocksPerLine;
-      let blocksPerColumn = component.blocksPerColumn;
-      let samplesPerLine = blocksPerLine << 3;
+      const component = components[i];
+      const blocksPerLine = component.blocksPerLine;
+      const blocksPerColumn = component.blocksPerColumn;
+      const samplesPerLine = blocksPerLine << 3;
       var j, k, ll = 0;
       var lineOffset = 0;
 
       for (let blockRow = 0; blockRow < blocksPerColumn; blockRow++) {
-        let scanLine = blockRow << 3;
+        const scanLine = blockRow << 3;
 
         for (let blockCol = 0; blockCol < blocksPerLine; blockCol++) {
-          let bufferOffset = getBlockBufferOffset(component, blockRow, blockCol);
+          const bufferOffset = getBlockBufferOffset(component, blockRow, blockCol);
           let offset2 = 0, sample = blockCol << 3;
 
           for (j = 0; j < 8; j++) {

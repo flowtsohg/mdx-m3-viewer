@@ -69,7 +69,7 @@ export default class ModelHeader {
     }
   }
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.modelName.load(stream, index);
     this.flags = stream.readUint32();

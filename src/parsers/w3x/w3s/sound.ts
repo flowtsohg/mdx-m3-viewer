@@ -26,7 +26,7 @@ export default class Sound {
   coneOrientationY = 0;
   coneOrientationZ = 0;
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number): void {
     this.name = stream.readNull();
     this.file = stream.readNull();
     this.eaxEffect = stream.readNull();
@@ -56,7 +56,7 @@ export default class Sound {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeNull(this.name);
     stream.writeNull(this.file);
     stream.writeNull(this.eaxEffect);
@@ -86,7 +86,7 @@ export default class Sound {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     const size = 71 + byteLengthUtf8(this.name) + byteLengthUtf8(this.file) + byteLengthUtf8(this.eaxEffect);
 
     if (version > 1) {

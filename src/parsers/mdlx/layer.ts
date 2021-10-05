@@ -25,7 +25,7 @@ export const enum Flags {
 
 // These two functions are needed because I am using const enums, which lets TS completely remove them from the output.
 // I think it's worth it for the price of these two functions that effectively were always here either way.
-function stringToMode(s: string) {
+function stringToMode(s: string): FilterMode {
   if (s === 'None') return FilterMode.None;
   if (s === 'Transparent') return FilterMode.Transparent;
   if (s === 'Blend') return FilterMode.Blend;
@@ -36,7 +36,7 @@ function stringToMode(s: string) {
   return FilterMode.None;
 }
 
-function modeToString(m: FilterMode) {
+function modeToString(m: FilterMode): string {
   if (m === FilterMode.None) return 'None';
   if (m === FilterMode.Transparent) return 'Transparent';
   if (m === FilterMode.Blend) return 'Blend';
@@ -74,7 +74,7 @@ export default class Layer extends AnimatedObject {
    */
   fresnelTeamColor = 0;
 
-  readMdx(stream: BinaryStream, version: number) {
+  readMdx(stream: BinaryStream, version: number): void {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -96,7 +96,7 @@ export default class Layer extends AnimatedObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  writeMdx(stream: BinaryStream, version: number) {
+  writeMdx(stream: BinaryStream, version: number): void {
     stream.writeUint32(this.getByteLength(version));
     stream.writeUint32(this.filterMode);
     stream.writeUint32(this.flags);
@@ -116,7 +116,7 @@ export default class Layer extends AnimatedObject {
     this.writeAnimations(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readAnimatedBlock(stream)) {
       if (token === 'FilterMode') {
         this.filterMode = stringToMode(stream.read());
@@ -168,7 +168,7 @@ export default class Layer extends AnimatedObject {
     }
   }
 
-  writeMdl(stream: TokenStream, version: number) {
+  writeMdl(stream: TokenStream, version: number): void {
     stream.startBlock('Layer');
 
     stream.writeFlagAttrib('FilterMode', modeToString(this.filterMode));
@@ -240,7 +240,7 @@ export default class Layer extends AnimatedObject {
     stream.endBlock();
   }
 
-  override getByteLength(version: number) {
+  override getByteLength(version: number): number {
     let size = 28 + super.getByteLength();
 
     // See note above in readMdx.

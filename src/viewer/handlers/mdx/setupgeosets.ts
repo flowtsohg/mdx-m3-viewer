@@ -3,7 +3,7 @@ import MdxModel from './model';
 import Geoset from './geoset';
 import { SkinningType, Batch } from './batch';
 
-export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
+export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]): void {
   if (geosets.length > 0) {
     const gl = model.viewer.gl;
     let positionBytes = 0;

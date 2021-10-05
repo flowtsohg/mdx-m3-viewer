@@ -58,7 +58,7 @@ const HAS_IMPLICIT_CODE = new Set([
  * Converts a Trigger to a custom script string.
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
-export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
+export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: string[]): string {
   const name = ensureNameSafety(trigger.name);
   const events = [];
   const conditions = [];
@@ -146,7 +146,7 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
  * Converts an ECA or SubParameters to an array of custom script ECAs.
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
-export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]) {
+export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]): ECA[] {
   const name = object.name;
   const ecas: string[] = [];
   const parameters = object.parameters;
@@ -341,7 +341,7 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
  * Converts a parameter to custom script.
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
-export function convertParameter(data: WeuData, parameter: Parameter, dataType: string, callbacks: string[]) {
+export function convertParameter(data: WeuData, parameter: Parameter, dataType: string, callbacks: string[]): string {
   const { type, value } = parameter;
 
   if (type === 0) {
@@ -404,6 +404,6 @@ export function convertParameter(data: WeuData, parameter: Parameter, dataType: 
 /**
  * Convert a parameter to a custom script string, discarding any generated callbacks.
  */
-export function convertParameterInline(data: WeuData, parameter: Parameter, dataType: string) {
+export function convertParameterInline(data: WeuData, parameter: Parameter, dataType: string): string {
   return convertParameter(data, parameter, dataType, []);
 }

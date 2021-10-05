@@ -12,7 +12,7 @@ export abstract class AnimationReference {
 
   abstract readInitNullValues(stream: BinaryStream): void;
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.interpolationType = stream.readUint16();
     this.animFlags = stream.readUint16();
     this.animId = stream.readUint32();
@@ -27,7 +27,7 @@ export abstract class AnimationReference {
  * A pixel animation reference.
  */
 export class PixelAnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readUint8Array(4);
     this.nullValue = stream.readUint8Array(4);
   }
@@ -37,7 +37,7 @@ export class PixelAnimationReference extends AnimationReference {
  * A uint16 animation reference.
  */
 export class Uint16AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readUint16();
     this.nullValue = stream.readUint16();
   }
@@ -47,7 +47,7 @@ export class Uint16AnimationReference extends AnimationReference {
  * A uint32 animation reference.
  */
 export class Uint32AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readUint32();
     this.nullValue = stream.readUint32();
   }
@@ -57,7 +57,7 @@ export class Uint32AnimationReference extends AnimationReference {
  * A float32 animation reference.
  */
 export class Float32AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readFloat32();
     this.nullValue = stream.readFloat32();
   }
@@ -67,7 +67,7 @@ export class Float32AnimationReference extends AnimationReference {
  * A vec2 animation reference.
  */
 export class Vector2AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readFloat32Array(2);
     this.nullValue = stream.readFloat32Array(2);
   }
@@ -77,7 +77,7 @@ export class Vector2AnimationReference extends AnimationReference {
  * A vec3 animation reference.
  */
 export class Vector3AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readFloat32Array(3);
     this.nullValue = stream.readFloat32Array(3);
   }
@@ -87,7 +87,7 @@ export class Vector3AnimationReference extends AnimationReference {
  * A quat animation reference.
  */
 export class Vector4AnimationReference extends AnimationReference {
-  readInitNullValues(stream: BinaryStream) {
+  readInitNullValues(stream: BinaryStream): void {
     this.initValue = stream.readFloat32Array(4);
     this.nullValue = stream.readFloat32Array(4);
   }

@@ -11,16 +11,16 @@ if (typeof window === 'object') {
   ctx2 = <CanvasRenderingContext2D>canvas2.getContext('2d');
 }
 
-export function blobToImage(blob: Blob) {
+export function blobToImage(blob: Blob): Promise<HTMLImageElement> {
   return new Promise<HTMLImageElement>((resolve,  reject) => {
     const url = URL.createObjectURL(blob);
     const image = new Image();
 
-    image.onload = () => {
+    image.onload = (): void => {
       resolve(image);
     };
 
-    image.onerror = (e) => {
+    image.onerror = (e): void => {
       reject(e);
     };
 
@@ -28,12 +28,12 @@ export function blobToImage(blob: Blob) {
   });
 }
 
-export function blobToImageData(blob: Blob) {
+export function blobToImageData(blob: Blob): Promise<ImageData> {
   return new Promise<ImageData>((resolve, reject) => {
     const url = URL.createObjectURL(blob);
     const image = new Image();
 
-    image.onload = () => {
+    image.onload = (): void => {
       URL.revokeObjectURL(url);
 
       canvas.width = image.width;
@@ -44,7 +44,7 @@ export function blobToImageData(blob: Blob) {
       resolve(ctx.getImageData(0, 0, image.width, image.height));
     };
 
-    image.onerror = (e) => {
+    image.onerror = (e): void => {
       reject(e);
     };
 
@@ -52,7 +52,7 @@ export function blobToImageData(blob: Blob) {
   });
 }
 
-export function imageDataToBlob(imageData: ImageData) {
+export function imageDataToBlob(imageData: ImageData): Promise<Blob | null> {
   return new Promise((resolve: BlobCallback) => {
     canvas.width = imageData.width;
     canvas.height = imageData.height;
@@ -65,7 +65,7 @@ export function imageDataToBlob(imageData: ImageData) {
   });
 }
 
-export function imageDataToDataUrl(imageData: ImageData) {
+export function imageDataToDataUrl(imageData: ImageData): string {
   canvas.width = imageData.width;
   canvas.height = imageData.height;
 
@@ -74,7 +74,7 @@ export function imageDataToDataUrl(imageData: ImageData) {
   return canvas.toDataURL();
 }
 
-export function imageDataToImage(imageData: ImageData) {
+export function imageDataToImage(imageData: ImageData): HTMLImageElement {
   const image = new Image();
 
   image.src = imageDataToDataUrl(imageData);
@@ -82,7 +82,7 @@ export function imageDataToImage(imageData: ImageData) {
   return image;
 }
 
-export function imageToImageData(image: TexImageSource) {
+export function imageToImageData(image: TexImageSource): ImageData {
   const width = image.width;
   const height = image.height;
 
@@ -94,7 +94,7 @@ export function imageToImageData(image: TexImageSource) {
   return ctx.getImageData(0, 0, width, height);
 }
 
-export function resizeImageData(data: TexImageSource, width: number, height: number) {
+export function resizeImageData(data: TexImageSource, width: number, height: number): ImageData {
   if (data instanceof ImageData) {
     canvas.width = data.width;
     canvas.height = data.height;

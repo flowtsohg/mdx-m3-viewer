@@ -16,10 +16,8 @@ import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
-import Bone from './bone';
-import Light from './light';
-import Helper from './helper';
 import { EMITTER_PARTICLE2_TEXTURE_OFFSET, EMITTER_EVENT_TEXTURE_OFFSET } from './geometryemitterfuncs';
+import Bounds from '../../bounds';
 
 const visibilityHeap = new Float32Array(1);
 const translationHeap = vec3.create();
@@ -178,7 +176,7 @@ export default class MdxModelInstance extends ModelInstance {
    * 
    * If a texture isn't given, removes the override if there was one.
    */
-  setTexture(index: number, texture?: Texture) {
+  setTexture(index: number, texture?: Texture): void {
     this.overrideTexture(index, texture);
   }
 
@@ -187,7 +185,7 @@ export default class MdxModelInstance extends ModelInstance {
    * 
    * If a texture isn't given, removes the override if there was one.
    */
-  setParticle2Texture(index: number, texture?: Texture) {
+  setParticle2Texture(index: number, texture?: Texture): void {
     this.overrideTexture(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
   }
 
@@ -196,14 +194,14 @@ export default class MdxModelInstance extends ModelInstance {
    * 
    * If a texture isn't given, removes the override if there was one.
    */
-  setEventTexture(index: number, texture?: Texture) {
+  setEventTexture(index: number, texture?: Texture): void {
     this.overrideTexture(EMITTER_EVENT_TEXTURE_OFFSET + index, texture);
   }
 
   /**
    * Clear all of the emitted objects that belong to this instance.
    */
-  override clearEmittedObjects() {
+  override clearEmittedObjects(): void {
     for (const emitter of this.particleEmitters) {
       emitter.clear();
     }
@@ -224,7 +222,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Initialize a skeletal node.
    */
-  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: SkeletalNodeObject) {
+  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: SkeletalNodeObject): void {
     vec3.copy(node.pivot, genericObject.pivot);
 
     if (genericObject.parentId === -1) {
@@ -251,7 +249,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Overriden to hide also attachment models.
    */
-  override hide() {
+  override hide(): void {
     super.hide();
 
     this.resetAttachments();
@@ -261,7 +259,7 @@ export default class MdxModelInstance extends ModelInstance {
    * Updates all of this instance internal nodes and objects.
    * Nodes that are determined to not be visible will not be updated, nor will any of their children down the hierarchy.
    */
-  updateNodes(dt: number, forced: boolean) {
+  updateNodes(dt: number, forced: boolean): void {
     const sequence = this.sequence;
     const frame = this.frame;
     const counter = this.counter;
@@ -333,7 +331,7 @@ export default class MdxModelInstance extends ModelInstance {
    * This is generally the desired behavior, except when it is moved by the client.
    * Therefore, if an instance is transformed, always do a forced update.
    */
-  override recalculateTransformation() {
+  override recalculateTransformation(): void {
     super.recalculateTransformation();
 
     this.forced = true;
@@ -342,7 +340,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Update the batch data.
    */
-  updateBatches(forced: boolean) {
+  updateBatches(forced: boolean): void {
     const sequence = this.sequence;
     const frame = this.frame;
     const counter = this.counter;
@@ -437,13 +435,13 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
-  updateBoneTexture() {
+  updateBoneTexture(): void {
     if (this.boneTexture) {
       this.boneTexture.bindAndUpdate(<Float32Array>this.worldMatrices);
     }
   }
 
-  override renderOpaque() {
+  override renderOpaque(): void {
     const model = <MdxModel>this.model;
 
     for (const group of model.opaqueGroups) {
@@ -451,7 +449,7 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
-  override renderTranslucent() {
+  override renderTranslucent(): void {
     const model = <MdxModel>this.model;
 
     for (const group of model.translucentGroups) {
@@ -459,7 +457,7 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
-  override updateAnimations(dt: number) {
+  override updateAnimations(dt: number): void {
     const model = <MdxModel>this.model;
     const sequenceId = this.sequence;
 
@@ -508,7 +506,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Set the team color of this instance.
    */
-  setTeamColor(id: number) {
+  setTeamColor(id: number): this {
     this.teamColor = id;
 
     return this;
@@ -517,7 +515,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Set the vertex color of this instance.
    */
-  setVertexColor(color: Float32Array | number[]) {
+  setVertexColor(color: Float32Array | number[]): this {
     this.vertexColor.set(color);
 
     return this;
@@ -526,7 +524,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Set the sequence of this instance.
    */
-  setSequence(id: number) {
+  setSequence(id: number): this {
     const model = <MdxModel>this.model;
     const sequences = model.sequences;
 
@@ -548,7 +546,7 @@ export default class MdxModelInstance extends ModelInstance {
     return this;
   }
 
-  override getBounds() {
+  override getBounds(): Bounds {
     const model = <MdxModel>this.model;
 
     if (this.sequence === -1) {
@@ -568,7 +566,7 @@ export default class MdxModelInstance extends ModelInstance {
    * Set the sequence loop mode.
    * 0 to never loop, 1 to loop based on the model, and 2 to always loop.
    */
-  setSequenceLoopMode(mode: number) {
+  setSequenceLoopMode(mode: number): this {
     this.sequenceLoopMode = mode;
 
     return this;
@@ -577,7 +575,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Get an attachment node.
    */
-  getAttachment(id: number) {
+  getAttachment(id: number): SkeletalNode | undefined {
     const model = <MdxModel>this.model;
     const attachment = model.attachments[id];
 
@@ -588,13 +586,13 @@ export default class MdxModelInstance extends ModelInstance {
     return;
   }
 
-  resetEventEmitters() {
+  resetEventEmitters(): void {
     for (const emitter of this.eventObjectEmitters) {
       emitter.lastValue = 0;
     }
   }
 
-  resetAttachments() {
+  resetAttachments(): void {
     for (const attachment of this.attachments) {
       attachment.internalInstance.hide();
     }

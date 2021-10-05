@@ -5,7 +5,7 @@ import SubParameters from '../../../parsers/w3x/wtg/subparameters';
 import { FunctionSignature, TriggerData } from '../../../parsers/w3x/wtg/triggerdata';
 import WeuData from './data';
 
-function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentObject: ECA | SubParameters | null, signatures: Map<string, FunctionSignature>, customTriggerData: TriggerData) {
+function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, signatures: Map<string, FunctionSignature>, customTriggerData: TriggerData): void {
   // If this object's signature was unknown, attempt to fill in the argument types.
   // Note that this is done every time the signature is encountered.
   // If a parameter's type isn't known in one call, maybe it will be known in another call.
@@ -59,14 +59,14 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
   // Continue the hierarchy down any function call parameter.
   for (const parameter of object.parameters) {
     if (parameter.type === 2 && parameter.subParameters) {
-      typeFunctionCall(wtg, parameter.subParameters, object, signatures, customTriggerData);
+      typeFunctionCall(wtg, parameter.subParameters, signatures, customTriggerData);
     }
   }
 
   // Continue the hierarchy down any ECA.
   if (object instanceof ECA) {
     for (const child of object.ecas) {
-      typeFunctionCall(wtg, child, object, signatures, customTriggerData);
+      typeFunctionCall(wtg, child, signatures, customTriggerData);
     }
   }
 }
@@ -82,7 +82,7 @@ const BIGGEST_SIGNATURE = 20;
  * 
  * With that being said, it already managed to parse and mostly fill the signatures of relevant test maps.
  */
-export default function parseWtg(map: War3Map, customTriggerData: TriggerData, data: WeuData) {
+export default function parseWtg(map: War3Map, customTriggerData: TriggerData, data: WeuData): War3MapWtg | undefined {
   let wtg;
   const signatures: Map<string, FunctionSignature> = new Map();
   let currentName: string | undefined;
@@ -137,7 +137,7 @@ export default function parseWtg(map: War3Map, customTriggerData: TriggerData, d
     if (wtg) {
       for (const trigger of wtg.triggers) {
         for (const eca of trigger.ecas) {
-          typeFunctionCall(wtg, eca, null, signatures, customTriggerData);
+          typeFunctionCall(wtg, eca, signatures, customTriggerData);
         }
       }
     }

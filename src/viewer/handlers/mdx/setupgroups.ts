@@ -7,7 +7,7 @@ import ParticleEmitter2Object from './particleemitter2object';
 import RibbonEmitterObject from './ribbonemitterobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
 
-function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
+function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject): number {
   if (object instanceof Batch || object instanceof RibbonEmitterObject) {
     return object.layer.priorityPlane;
   } else if (object instanceof ParticleEmitter2Object) {
@@ -17,7 +17,7 @@ function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject | 
   }
 }
 
-function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
+function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject): boolean {
   if (group instanceof BatchGroup) {
     return (object instanceof Batch) && (object.skinningType === group.skinningType) && (object.isHd === group.isHd);
   } else {
@@ -26,7 +26,7 @@ function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | Particl
   }
 }
 
-function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
+function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject): BatchGroup | EmitterGroup {
   if (object instanceof Batch) {
     return new BatchGroup(model, object.skinningType, object.isHd);
   } else {
@@ -34,7 +34,7 @@ function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Ob
   }
 }
 
-export default function setupGroups(model: MdxModel) {
+export default function setupGroups(model: MdxModel): void {
   const opaqueBatches = [];
   let translucentBatches = [];
 

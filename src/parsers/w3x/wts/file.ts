@@ -9,7 +9,7 @@ import TokenStream from '../../mdlx/tokenstream';
 export default class War3MapWts {
   stringMap: Map<number, string> = new Map();
 
-  load(buffer: string) {
+  load(buffer: string): void {
     const stream = new TokenStream(buffer);
     let token;
 
@@ -47,7 +47,7 @@ export default class War3MapWts {
     }
   }
 
-  save() {
+  save(): string {
     let buffer = '';
 
     for (const [key, value] of this.stringMap) {
@@ -62,7 +62,7 @@ export default class War3MapWts {
    * 
    * Strings in the form "TRIGSTR_nnn" are also supported.
    */
-  getString(index: number | string) {
+  getString(index: number | string): string | undefined {
     if (typeof index === 'string') {
       if (index.startsWith('TRIGSTR_')) {
         return this.stringMap.get(parseInt(index.slice(8)));
@@ -79,7 +79,7 @@ export default class War3MapWts {
    * 
    * Strings in the form "TRIGSTR_nnn" are also supported.
    */
-  setString(index: number | string, value: string) {
+  setString(index: number | string, value: string): void {
     if (typeof index === 'string') {
       if (index.startsWith('TRIGSTR_')) {
         this.stringMap.set(parseInt(index.slice(8)), value);

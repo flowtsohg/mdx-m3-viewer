@@ -21,7 +21,7 @@ export class Widget {
     this.instance.setScene(map.worldScene);
   }
 
-  update() {
+  update(): void {
     if (this.instance.sequenceEnded || this.instance.sequence === -1) {
       if (this.state === WidgetState.IDLE) {
         randomStandSequence(this.instance);

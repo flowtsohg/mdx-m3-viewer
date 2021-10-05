@@ -8,6 +8,7 @@ import M3Sts from './sts';
 import M3Stc from './stc';
 import M3Stg from './stg';
 import M3Model from './model';
+import { quat, vec3 } from 'gl-matrix';
 
 /**
  * M3 skeleton.
@@ -56,7 +57,7 @@ export default class M3Skeleton {
     }
   }
 
-  update(dt: number) {
+  update(dt: number): void {
     const instance = this.instance;
     const scene = <Scene>instance.scene;
     const nodes = this.nodes;
@@ -81,7 +82,7 @@ export default class M3Skeleton {
     }
   }
 
-  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance): number | vec3 | quat | Uint8Array | null {
     const sequence = instance.sequence;
 
     if (sequence !== -1) {
@@ -91,11 +92,11 @@ export default class M3Skeleton {
     return animRef.initValue;
   }
 
-  getValue(animRef: AnimationReference, instance: M3ModelInstance) {
-    return this.getValueUnsafe(animRef, instance);
+  getValue(animRef: AnimationReference, instance: M3ModelInstance): number {
+    return <number>this.getValueUnsafe(animRef, instance);
   }
 
-  getValue2(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue2(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance): Float32Array {
     const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -104,7 +105,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue3(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue3(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance): Float32Array {
     const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -114,7 +115,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue4(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue4(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance): Float32Array {
     const unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];

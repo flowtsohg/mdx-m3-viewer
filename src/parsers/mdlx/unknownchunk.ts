@@ -12,13 +12,13 @@ export default class UnknownChunk {
     this.chunk = stream.readUint8Array(new Uint8Array(size));
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeBinary(this.tag);
     stream.writeUint32(this.chunk.byteLength);
     stream.writeUint8Array(this.chunk);
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 8 + this.chunk.byteLength;
   }
 }

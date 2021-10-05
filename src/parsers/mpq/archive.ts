@@ -34,7 +34,7 @@ export default class MpqArchive {
    * 
    * Note that this clears the archive from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer | Uint8Array, readonly = false) {
+  load(buffer: ArrayBuffer | Uint8Array, readonly = false): void {
     const bytes = bytesOf(buffer);
 
     this.readonly = readonly;
@@ -113,7 +113,7 @@ export default class MpqArchive {
    *     1) The archive is in readonly mode.
    *     2) The offset of a file encrypted with FILE_OFFSET_ADJUSTED_KEY changed, and the file name is unknown.
    */
-  save() {
+  save(): Uint8Array | null {
     if (this.readonly) {
       return null;
     }
@@ -212,7 +212,7 @@ export default class MpqArchive {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  saveMemory() {
+  saveMemory(): number {
     if (this.readonly) {
       return 0;
     }
@@ -252,7 +252,7 @@ export default class MpqArchive {
     return saved;
   }
 
-  removeBlock(blockIndex: number) {
+  removeBlock(blockIndex: number): void {
     for (const hash of this.hashTable.entries) {
       if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > blockIndex) {
         hash.blockIndex -= 1;
@@ -267,7 +267,7 @@ export default class MpqArchive {
    * 
    * Note that files loaded from an existing archive, without resolved names, will be named FileXXXXXXXX.
    */
-  getFileNames() {
+  getFileNames(): string[] {
     const names = [];
 
     for (const file of this.files) {
@@ -282,7 +282,7 @@ export default class MpqArchive {
   /**
    * Count the files with unresolved names.
    */
-  countUnresolved() {
+  countUnresolved(): number {
     let unresolved = 0;
 
     for (const file of this.files) {
@@ -297,7 +297,7 @@ export default class MpqArchive {
   /**
    * Given an iterable of file names, attempt to resolve the archive files with them.
    */
-  applyListfile(listfile: Iterable<string>) {
+  applyListfile(listfile: Iterable<string>): void {
     for (const file of listfile) {
       this.get(file);
     }
@@ -309,7 +309,7 @@ export default class MpqArchive {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  set(name: string, buffer: ArrayBuffer | Uint8Array | string) {
+  set(name: string, buffer: ArrayBuffer | Uint8Array | string): boolean {
     if (this.readonly) {
       return false;
     }
@@ -344,7 +344,7 @@ export default class MpqArchive {
    * Gets a file from this archive.
    * If the file doesn't exist, null is returned.
    */
-  get(name: string) {
+  get(name: string): MpqFile | null {
     const hash = this.hashTable.get(name);
 
     if (hash) {
@@ -372,7 +372,7 @@ export default class MpqArchive {
    * 
    * Prefer to use get() if you are going to use get() afterwards anyway.
    */
-  has(name: string) {
+  has(name: string): boolean {
     return !!this.get(name);
   }
 

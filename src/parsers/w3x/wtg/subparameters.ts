@@ -12,7 +12,7 @@ export default class SubParameters {
   beginParameters = 0;
   parameters: Parameter[] = [];
 
-  load(stream: BinaryStream, version: number, triggerData: TriggerData) {
+  load(stream: BinaryStream, version: number, triggerData: TriggerData): void {
     this.type = stream.readInt32();
 
     if (this.type < 0 || this.type > 3) {
@@ -50,7 +50,7 @@ export default class SubParameters {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeInt32(this.type);
     stream.writeNull(this.name);
     stream.writeInt32(this.beginParameters);
@@ -60,7 +60,7 @@ export default class SubParameters {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 9 + byteLengthUtf8(this.name);
 
     if (this.parameters.length) {

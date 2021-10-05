@@ -49,7 +49,7 @@ export default class StandardMaterial {
   unknown10 = new Uint32AnimationReference();
   unknown11 = new Uint8Array(12);
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.name.load(stream, index);
     this.additionalFlags = stream.readUint32();

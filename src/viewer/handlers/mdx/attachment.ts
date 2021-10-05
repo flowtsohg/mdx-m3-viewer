@@ -32,7 +32,7 @@ export default class Attachment extends GenericObject {
     }
   }
 
-  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KATV', sequence, frame, counter, 1);
   }
 }

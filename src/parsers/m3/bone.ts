@@ -18,7 +18,7 @@ export default class Bone {
   scale = new Vector3AnimationReference();
   visibility = new Uint32AnimationReference();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.unknown0 = stream.readInt32();
     this.name.load(stream, index);

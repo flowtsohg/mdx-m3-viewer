@@ -50,9 +50,9 @@ export default class Context extends EventEmitter {
     bindNatives(this);
 
     lua_atnativeerror(this.L, (L: lua_State) => {
-      const e = lua_touserdata(L, -1);
+      const e = <Error>lua_touserdata(L, -1);
 
-      lua_pushstring(L, e.stack);
+      lua_pushstring(L, e.stack || 'An unknown error occured');
 
       return 1;
     });
@@ -77,11 +77,11 @@ export default class Context extends EventEmitter {
     // this.stringTable = map.readStringTable();
   }
 
-  start() {
+  start(): void {
     this.t = performance.now();
   }
 
-  step() {
+  step(): void {
     const t = performance.now();
     const dt = (t - this.t) * 0.001;
     const timers = this.timers;
@@ -135,7 +135,7 @@ export default class Context extends EventEmitter {
     this.t = t;
   }
 
-  addHandle(handle: JassHandle) {
+  addHandle(handle: JassHandle): JassHandle {
     if (handle.handleId === -1) {
       let handleId;
 
@@ -153,7 +153,7 @@ export default class Context extends EventEmitter {
     return handle;
   }
 
-  freeHandle(handle: JassHandle) {
+  freeHandle(handle: JassHandle): void {
     if (handle.handleId !== -1) {
       this.freeHandles.push(handle.handleId);
 
@@ -163,7 +163,7 @@ export default class Context extends EventEmitter {
     }
   }
 
-  call(name?: string | number) {
+  call(name?: string | number): void {
     const L = this.L;
 
     if (typeof name === 'string') {
@@ -179,7 +179,7 @@ export default class Context extends EventEmitter {
     }
   }
 
-  run(code: string, isJass: boolean) {
+  run(code: string, isJass: boolean): void {
     const L = this.L;
 
     if (isJass) {
@@ -199,7 +199,7 @@ export default class Context extends EventEmitter {
     }
   }
 
-  open(map: War3Map) {
+  open(map: War3Map): void {
     this.map = map;
 
     const file = map.getScriptFile();

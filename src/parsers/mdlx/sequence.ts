@@ -14,7 +14,7 @@ export default class Sequence {
   syncPoint = 0;
   extent = new Extent();
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     this.name = stream.read(80);
     stream.readUint32Array(this.interval);
     this.moveSpeed = stream.readFloat32();
@@ -24,7 +24,7 @@ export default class Sequence {
     this.extent.readMdx(stream);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.skip(80 - stream.write(this.name));
     stream.writeUint32Array(this.interval);
     stream.writeFloat32(this.moveSpeed);
@@ -34,7 +34,7 @@ export default class Sequence {
     this.extent.writeMdx(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     this.name = stream.read();
 
     for (const token of stream.readBlock()) {
@@ -58,7 +58,7 @@ export default class Sequence {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('Anim', this.name);
     stream.writeVectorAttrib('Interval', this.interval);
 

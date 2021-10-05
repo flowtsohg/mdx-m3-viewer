@@ -4,14 +4,14 @@ const encoder = new TextEncoder();
 /**
  * Decode bytes as a UTF8 string.
  */
-export function decodeUtf8(buffer: ArrayBuffer | Uint8Array) {
+export function decodeUtf8(buffer: ArrayBuffer | Uint8Array): string {
   return decoder.decode(buffer);
 }
 
 /**
  * Encode a UTF8 string to bytes.
  */
-export function encodeUtf8(utf8: string) {
+export function encodeUtf8(utf8: string): Uint8Array {
   return encoder.encode(utf8);
 }
 
@@ -20,7 +20,7 @@ export function encodeUtf8(utf8: string) {
  * 
  * @see https://stackoverflow.com/a/23329386
  */
-export function byteLengthUtf8(str: string) {
+export function byteLengthUtf8(str: string): number {
   // returns the byte length of an utf8 string
   let s = str.length;
   for (let i = str.length - 1; i >= 0; i--) {
@@ -39,7 +39,7 @@ export function byteLengthUtf8(str: string) {
  * 
  * @see https://stackoverflow.com/a/18729931
  */
-export function splitUtf8ByteLength(str: string, chunkBytelength: number) {
+export function splitUtf8ByteLength(str: string, chunkBytelength: number): string[] {
   const chunks = [];
   let pos = 0;
   let bytes = 0;

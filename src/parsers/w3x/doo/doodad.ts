@@ -21,7 +21,7 @@ export default class Doodad {
   editorId = 0;
   u1 = new Uint8Array(8);
 
-  load(stream: BinaryStream, version: number, buildVersion: number) {
+  load(stream: BinaryStream, version: number, buildVersion: number): void {
     this.id = stream.readBinary(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
@@ -50,7 +50,7 @@ export default class Doodad {
     this.editorId = stream.readInt32();
   }
 
-  save(stream: BinaryStream, version: number, buildVersion: number) {
+  save(stream: BinaryStream, version: number, buildVersion: number): void {
     stream.writeBinary(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
@@ -76,7 +76,7 @@ export default class Doodad {
     stream.writeInt32(this.editorId);
   }
 
-  getByteLength(version: number, buildVersion: number) {
+  getByteLength(version: number, buildVersion: number): number {
     let size = 42;
 
     if (buildVersion > 131) {

@@ -13,7 +13,7 @@ export default class Camera extends AnimatedObject {
   nearClippingPlane = 0;
   targetPosition = new Float32Array(3);
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     const size = stream.readUint32();
 
     this.name = stream.read(80);
@@ -26,7 +26,7 @@ export default class Camera extends AnimatedObject {
     this.readAnimations(stream, size - 120);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
     stream.skip(80 - stream.write(this.name));
     stream.writeFloat32Array(this.position);
@@ -38,7 +38,7 @@ export default class Camera extends AnimatedObject {
     this.writeAnimations(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     this.name = stream.read();
 
     for (let token of stream.readBlock()) {
@@ -70,7 +70,7 @@ export default class Camera extends AnimatedObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('Camera', this.name);
 
     stream.writeVectorAttrib('Position', this.position);
@@ -88,7 +88,7 @@ export default class Camera extends AnimatedObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 120 + super.getByteLength();
   }
 }

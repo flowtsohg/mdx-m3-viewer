@@ -6,18 +6,18 @@ import AnimatedObject from './animatedobject';
  * A texture animation.
  */
 export default class TextureAnimation extends AnimatedObject {
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     const size = stream.readUint32();
 
     this.readAnimations(stream, size - 4);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
     this.writeAnimations(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of stream.readBlock()) {
       if (token === 'Translation') {
         this.readAnimation(stream, 'KTAT');
@@ -31,7 +31,7 @@ export default class TextureAnimation extends AnimatedObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startBlock('TVertexAnim ');
     this.writeAnimation(stream, 'KTAT');
     this.writeAnimation(stream, 'KTAR');
@@ -39,7 +39,7 @@ export default class TextureAnimation extends AnimatedObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 4 + super.getByteLength();
   }
 }

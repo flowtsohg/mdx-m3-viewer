@@ -76,7 +76,7 @@ export default class Scene {
    * 
    * It may stay in suspended state indefinitly until the user interacts with the page, due to browser policies.
    */
-  async enableAudio() {
+  async enableAudio(): Promise<boolean> {
     if (typeof AudioContext === 'function') {
       if (!this.audioContext) {
         this.audioContext = new AudioContext();
@@ -97,7 +97,7 @@ export default class Scene {
   /**
    * Suspend the audio context.
    */
-  disableAudio() {
+  disableAudio(): void {
     if (this.audioContext) {
       this.audioContext.suspend();
     }
@@ -110,7 +110,7 @@ export default class Scene {
    * 
    * Equivalent to instance.setScene(scene).
    */
-  addInstance(instance: ModelInstance) {
+  addInstance(instance: ModelInstance): boolean {
     if (instance.scene !== this) {
       if (instance.scene) {
         instance.scene.removeInstance(instance);
@@ -131,7 +131,7 @@ export default class Scene {
    * 
    * Equivalent to ModelInstance.detach().
    */
-  removeInstance(instance: ModelInstance) {
+  removeInstance(instance: ModelInstance): boolean {
     if (instance.scene === this) {
       this.grid.remove(instance);
 
@@ -146,7 +146,7 @@ export default class Scene {
   /**
    * Clear this scene.
    */
-  clear() {
+  clear(): void {
     // First remove references to this scene stored in the instances.
     for (const cell of this.grid.cells) {
       for (const instance of cell.instances) {
@@ -163,7 +163,7 @@ export default class Scene {
    * 
    * Equivalent to viewer.removeScene(scene).
    */
-  detach() {
+  detach(): boolean {
     if (this.viewer) {
       return this.viewer.removeScene(this);
     }
@@ -174,7 +174,7 @@ export default class Scene {
   /**
    * Update this scene.
    */
-  update(dt: number) {
+  update(dt: number): void {
     const camera = this.camera;
 
     // Update the audio context's position if it exists.
@@ -228,7 +228,7 @@ export default class Scene {
     this.updatedParticles = this.emittedObjectUpdater.alive;
   }
 
-  renderInstance(instance: ModelInstance) {
+  renderInstance(instance: ModelInstance): void {
     this.instances[this.visibleInstances++] = instance;
   }
 
@@ -239,7 +239,7 @@ export default class Scene {
    * 
    * Called automatically by `render()`.
    */
-  startFrame() {
+  startFrame(): void {
     const gl = this.viewer.gl;
     const viewport = this.viewport;
 
@@ -264,7 +264,7 @@ export default class Scene {
    * 
    * They are rendered front to back.
    */
-  renderOpaque() {
+  renderOpaque(): void {
     const instances = this.instances;
 
     for (let i = 0, l = instances.length; i < l; i++) {
@@ -277,7 +277,7 @@ export default class Scene {
    * 
    * They are rendered back to front.
    */
-  renderTranslucent() {
+  renderTranslucent(): void {
     const instances = this.instances;
 
     for (let i = instances.length - 1; i >= 0; i--) {
@@ -288,7 +288,7 @@ export default class Scene {
   /**
    * Render this scene.
    */
-  render() {
+  render(): void {
     this.startFrame();
     this.renderOpaque();
     this.renderTranslucent();
@@ -297,7 +297,7 @@ export default class Scene {
   /**
    * Clear all of the emitted objects in this scene.
    */
-  clearEmittedObjects() {
+  clearEmittedObjects(): void {
     for (const object of this.emittedObjectUpdater.objects) {
       object.health = 0;
     }

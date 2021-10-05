@@ -2,11 +2,17 @@ import War3Map from '../../../parsers/w3x/map';
 import { TriggerData } from '../../../parsers/w3x/wtg/triggerdata';
 import CustomTextTrigger from '../../../parsers/w3x/wct/customtexttrigger';
 import parseWtg from './parsewtg';
-import WeuData from './data';
+import WeuData, { WEUChange } from './data';
 import { processTrigger } from './processing';
 import { convertTrigger } from './conversions';
 
-export default function convertWeu(map: War3Map, customTriggerData: TriggerData, weTriggerData: TriggerData) {
+interface Return {
+  ok: boolean;
+  error?: string;
+  changes?: WEUChange[];
+}
+
+export default function convertWeu(map: War3Map, customTriggerData: TriggerData, weTriggerData: TriggerData): Return {
   let wts;
   let wtg;
   let wct;

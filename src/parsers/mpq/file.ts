@@ -46,7 +46,7 @@ export default class MpqFile {
    * 
    * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
-  bytes() {
+  bytes(): Uint8Array {
     // Decode if needed
     if (this.buffer === null) {
       this.decode();
@@ -61,7 +61,7 @@ export default class MpqFile {
    * 
    * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
-  arrayBuffer() {
+  arrayBuffer(): ArrayBuffer {
     return this.bytes().buffer;
   }
 
@@ -70,7 +70,7 @@ export default class MpqFile {
    * 
    * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
-  text() {
+  text(): string {
     return decodeUtf8(this.bytes());
   }
 
@@ -79,7 +79,7 @@ export default class MpqFile {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  set(buffer: Uint8Array) {
+  set(buffer: Uint8Array): boolean {
     if (this.archive.readonly) {
       return false;
     }
@@ -109,7 +109,7 @@ export default class MpqFile {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  delete() {
+  delete(): boolean {
     if (this.archive.readonly) {
       return false;
     }
@@ -140,7 +140,7 @@ export default class MpqFile {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  rename(newName: string) {
+  rename(newName: string): boolean {
     if (this.archive.readonly) {
       return false;
     }
@@ -169,7 +169,7 @@ export default class MpqFile {
   /**
    * Decode this file.
    */
-  decode() {
+  decode(): void {
     if (!this.rawBuffer) {
       throw new Error(`File ${this.name}: Nothing to decode`);
     }
@@ -193,7 +193,7 @@ export default class MpqFile {
 
       // If this block is encrypted, decrypt the sector.
       if (flags & FILE_ENCRYPTED) {
-        sector = <Uint8Array>c.decryptBlock(data.slice(0, block.compressedSize), encryptionKey);
+        sector = c.decryptBlock(data.slice(0, block.compressedSize), encryptionKey);
       } else {
         sector = data.subarray(0, block.compressedSize);
       }
@@ -219,7 +219,7 @@ export default class MpqFile {
 
       // If this file is encrypted, copy the sector offsets and decrypt them.
       if (flags & FILE_ENCRYPTED) {
-        sectorOffsets = <Uint32Array>c.decryptBlock(sectorOffsets.slice(), encryptionKey - 1);
+        sectorOffsets = c.decryptBlock(sectorOffsets.slice(), encryptionKey - 1);
       }
 
       let start = sectorOffsets[0];
@@ -232,7 +232,7 @@ export default class MpqFile {
         // If this file is encrypted, copy the sector and decrypt it.
         // Otherwise a view can be used directly.
         if (flags & FILE_ENCRYPTED) {
-          sector = <Uint8Array>c.decryptBlock(data.slice(start, end), encryptionKey + i);
+          sector = c.decryptBlock(data.slice(start, end), encryptionKey + i);
         } else {
           sector = data.subarray(start, end);
         }
@@ -274,7 +274,7 @@ export default class MpqFile {
     }
   }
 
-  decompressSector(bytes: Uint8Array, decompressedSize: number) {
+  decompressSector(bytes: Uint8Array, decompressedSize: number): Uint8Array {
     // If the size of the data is the same as its decompressed size, it's not compressed.
     if (bytes.byteLength === decompressedSize) {
       return bytes;
@@ -328,7 +328,7 @@ export default class MpqFile {
    * Other files are always stored in sectors, except when a file is smaller than a sector.
    * Sectors themselves are always compressed, except when the result is smaller than the uncompressed data.
    */
-  encode() {
+  encode(): void {
     if (this.buffer !== null && this.rawBuffer === null) {
       const data = this.buffer;
 
@@ -407,7 +407,7 @@ export default class MpqFile {
    * Decrypt this file and encrypt it back, with a new offset in the archive.
    * This is used for files that use FILE_OFFSET_ADJUSTED_KEY, which are encrypted with a key that depends on their offset.
    */
-  reEncrypt(offset: number) {
+  reEncrypt(offset: number): boolean {
     if (!this.rawBuffer) {
       return false;
     }
@@ -468,7 +468,7 @@ export default class MpqFile {
    * The offset of the file has been recalculated.
    * If the offset is different, and this file uses FILE_OFFSET_ADJUSTED_KEY encryption, it must be re-encrypted with the new offset.
    */
-  offsetChanged(offset: number) {
+  offsetChanged(offset: number): boolean {
     const block = this.block;
 
     if (block.offset !== offset && block.flags & FILE_OFFSET_ADJUSTED_KEY) {

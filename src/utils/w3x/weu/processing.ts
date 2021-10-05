@@ -8,7 +8,12 @@ import { convertFunctionCall } from './conversions';
 import transformFunction from './transformations/functions';
 import transformPreset from './transformations/presets';
 
-export function processTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
+interface ConvertionResult {
+  convert: boolean;
+  reason: string;
+}
+
+export function processTrigger(data: WeuData, trigger: Trigger, callbacks: string[]): ConvertionResult {
   data.push(trigger);
 
   const eventsAndConditions = [];
@@ -56,7 +61,7 @@ export function processTrigger(data: WeuData, trigger: Trigger, callbacks: strin
   return { convert: false, reason: '' };
 }
 
-export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
+export function processECA(data: WeuData, eca: ECA, callbacks: string[]): ConvertionResult {
   data.push(eca);
 
   // Test if this function call, or anything down its hierarchy, needs to be converted to custom script.
@@ -144,7 +149,7 @@ export function processECA(data: WeuData, eca: ECA, callbacks: string[]) {
   return { convert: false, reason: '' };
 }
 
-function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]) {
+function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]): ConvertionResult {
   const name = object.name;
 
   // Check if this object can be converted back to normal GUI.
@@ -219,7 +224,7 @@ function processParameter(data: WeuData, parameter: Parameter, callbacks: string
   return { convert: false, reason: '' };
 }
 
-function processSubParameters(data: WeuData, subParameters: SubParameters, callbacks: string[]) {
+function processSubParameters(data: WeuData, subParameters: SubParameters, callbacks: string[]): ConvertionResult {
   data.push(subParameters);
 
   const result = processFunctionCall(data, subParameters, callbacks);

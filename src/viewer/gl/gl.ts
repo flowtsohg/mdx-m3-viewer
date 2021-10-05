@@ -14,11 +14,11 @@ export default class WebGL {
   emptyTexture: WebGLTexture;
   extensions: {[key: string]: unknown } = {};
 
-  constructor(canvas: HTMLCanvasElement, options: object = { alpha: false }) {
-    let gl = <WebGLRenderingContext>canvas.getContext('webgl', options);
+  constructor(canvas: HTMLCanvasElement, options: WebGLContextAttributes = { alpha: false }) {
+    let gl = canvas.getContext('webgl', options);
 
     if (!gl) {
-      gl = <WebGLRenderingContext>canvas.getContext('experimental-webgl', options);
+      gl = <WebGLRenderingContext | null>canvas.getContext('experimental-webgl', options);
     }
 
     if (!gl) {
@@ -44,7 +44,7 @@ export default class WebGL {
    * 
    * If it is, it will be added to `extensions`.
    */
-  ensureExtension(name: string) {
+  ensureExtension(name: string): boolean {
     const ext = this.gl.getExtension(name);
 
     if (ext) {
@@ -56,7 +56,7 @@ export default class WebGL {
     return false;
   }
 
-  createShader(vertexSource: string, fragmentSource: string) {
+  createShader(vertexSource: string, fragmentSource: string): Shader {
     const gl = this.gl;
 
     const vertex = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
@@ -94,7 +94,7 @@ export default class WebGL {
   /**
    * Enables all vertex attribs between [start, end], including start and discluding end.
    */
-  enableVertexAttribs(start: number, end: number) {
+  enableVertexAttribs(start: number, end: number): void {
     const gl = this.gl;
 
     for (let i = start; i < end; i++) {
@@ -105,7 +105,7 @@ export default class WebGL {
   /**
    * Disables all vertex attribs between [start, end], including start and discluding end.
    */
-  disableVertexAttribs(start: number, end: number) {
+  disableVertexAttribs(start: number, end: number): void {
     const gl = this.gl;
 
     for (let i = start; i < end; i++) {
@@ -116,7 +116,7 @@ export default class WebGL {
   /**
    * Use a shader program.
    */
-  useShader(shader: Shader) {
+  useShader(shader: Shader): void {
     if (shader && shader !== this.currentShader) {
       let oldAttribs = 0;
       const newAttribs = shader.attribsCount;
@@ -142,7 +142,7 @@ export default class WebGL {
    * 
    * If the given texture is invalid, a 2x2 black texture will be bound instead.
    */
-  bindTexture(texture: Texture | undefined | null, unit: number) {
+  bindTexture(texture: Texture | undefined | null, unit: number): void {
     const gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);
@@ -155,7 +155,7 @@ export default class WebGL {
     }
   }
 
-  bindTextureAndWrap(texture: Texture | undefined | null, unit: number, wrapS: number, wrapT: number) {
+  bindTextureAndWrap(texture: Texture | undefined | null, unit: number, wrapS: number, wrapT: number): void {
     const gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);
@@ -174,7 +174,7 @@ export default class WebGL {
   /**
    * Set the texture wrap and filter values.
    */
-  setTextureMode(wrapS: number, wrapT: number, magFilter: number, minFilter: number) {
+  setTextureMode(wrapS: number, wrapT: number, magFilter: number, minFilter: number): void {
     const gl = this.gl;
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
@@ -186,21 +186,21 @@ export default class WebGL {
   /**
    * A shortcut for `new ClientBuffer(gl, size)`.
    */
-  createClientBuffer(size = 4) {
+  createClientBuffer(size = 4): ClientBuffer {
     return new ClientBuffer(this.gl, size);
   }
 
   /**
    * A shortcut for `new DataTexture(gl, channels, width, height)`.
    */
-  createDataTexture(channels = 4, width = 1, height = 1) {
+  createDataTexture(channels = 4, width = 1, height = 1): DataTexture {
     return new DataTexture(this.gl, channels, width, height);
   }
 
   /**
    * A shortcut for `new ClientDataTexture(gl, width, height)`.
    */
-  createClientDataTexture(width = 1, height = 1) {
+  createClientDataTexture(width = 1, height = 1): ClientDataTexture {
     return new ClientDataTexture(this.gl, width, height);
   }
 }

@@ -9,19 +9,19 @@ import War3MapW3s from '../../parsers/w3x/w3s/file';
 import War3MapW3u from '../../parsers/w3x/w3u/file';
 import TokenStream from '../jass2/tokenstream';
 
-function isModel(file: string) {
+function isModel(file: string): boolean {
   return file.endsWith('.mdx') || file.endsWith('.mdl');
 }
 
-function isTexture(file: string) {
+function isTexture(file: string): boolean {
   return file.endsWith('.blp') || file.endsWith('.dds') || file.endsWith('.tga');
 }
 
-function isOther(file: string) {
+function isOther(file: string): boolean {
   return file.endsWith('.wav') || file.endsWith('.mp3') || file.endsWith('.slk') || file.endsWith('.txt');
 }
 
-function filterFile(files: string[], file: string) {
+function filterFile(files: string[], file: string): void {
   if (file.length > 6 && (isModel(file) || isTexture(file) || isOther(file))) {
     if (file.endsWith('.mdl')) {
       file = `${file.slice(0, -4)}.mdx`;
@@ -38,7 +38,7 @@ function filterFile(files: string[], file: string) {
  * 
  * Based on code generously shared by Ralle.
  */
-export default function generateListfile(map: War3Map) {
+export default function generateListfile(map: War3Map): Set<string> {
   const files = [
     '(listfile)',
     '(signature)',

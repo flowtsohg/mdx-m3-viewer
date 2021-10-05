@@ -6,7 +6,7 @@ import { HandlerResourceData } from './handlerresource';
 /**
  * Checks if the given source is a supported image texture source.
  */
-export function isImageSource(src: unknown) {
+export function isImageSource(src: unknown): boolean {
   return src instanceof ImageData || src instanceof HTMLImageElement || src instanceof HTMLCanvasElement || src instanceof HTMLVideoElement;
 }
 
@@ -14,7 +14,7 @@ export function isImageSource(src: unknown) {
  * Detects whether the given buffer is a supported format, and if so returns the mime.
  * The supported formats are PNG, JPEG, GIF, and WebP.
  */
-export function detectMime(buffer: Uint8Array) {
+export function detectMime(buffer: Uint8Array): string {
   if (isPng(buffer)) {
     return 'image/png';
   }

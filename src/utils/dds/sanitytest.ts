@@ -1,10 +1,20 @@
 import { isPowerOfTwo } from '../../common/math';
 import { DdsImage } from '../../parsers/dds/image';
 
+export interface SanityTestNode {
+  type: string;
+  message: string;
+}
+
+export interface SanityTestResult {
+  nodes: SanityTestNode[];
+  warnings: number;
+}
+
 /**
  * Tests for issues in DDS textures.
  */
-export default function sanityTest(texture: DdsImage) {
+export default function sanityTest(texture: DdsImage): SanityTestResult {
   
   const nodes = [];
   const width = texture.width;
@@ -32,5 +42,5 @@ export default function sanityTest(texture: DdsImage) {
     }
   }
 
-  return { warnings: nodes.length, nodes };
+  return { nodes, warnings: nodes.length };
 }

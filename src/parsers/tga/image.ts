@@ -9,7 +9,7 @@ export default class TgaImage {
   height = 0;
   data: ImageData | null = null;
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const bytes = bytesOf(buffer);
     const tga = new TgaLoader();
 

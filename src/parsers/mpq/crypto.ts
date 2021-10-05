@@ -29,7 +29,7 @@ export default class MpqCrypto {
     }
   }
 
-  hash(name: string, key: number) {
+  hash(name: string, key: number): number {
     const cryptTable = this.cryptTable;
     let seed1 = 0x7FED7FED;
     let seed2 = 0xEEEEEEEE;
@@ -47,7 +47,7 @@ export default class MpqCrypto {
     return seed1 >>> 0;
   }
 
-  decryptBlock(data: Uint8Array | Uint32Array, key: number) {
+  decryptBlock<T extends Uint8Array | Uint32Array>(data: T, key: number): T {
     const cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
     const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
@@ -79,7 +79,7 @@ export default class MpqCrypto {
     return data;
   }
 
-  encryptBlock(data: Uint8Array | Uint32Array, key: number) {
+  encryptBlock<T extends Uint8Array | Uint32Array>(data: T, key: number): T {
     const cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
     const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
@@ -114,7 +114,7 @@ export default class MpqCrypto {
     return data;
   }
 
-  computeFileKey(name: string, block: MpqBlock) {
+  computeFileKey(name: string, block: MpqBlock): number {
     const sepIndex = name.lastIndexOf('\\');
     const pathlessName = name.substring(sepIndex + 1);
     let encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);

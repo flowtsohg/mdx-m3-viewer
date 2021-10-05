@@ -8,7 +8,7 @@ import WeuData from '../data';
  * A lot were later prepended with Blz to avoid name clashes with user functions.
  * This returns whether the given name matches one of these functions.
  */
-function isBlzNeeded(name: string) {
+function isBlzNeeded(name: string): boolean {
   return name === 'GetTriggerPlayerMouseX' || name === 'GetTriggerPlayerMouseY' || name === 'GetTriggerPlayerMousePosition' || name === 'GetTriggerPlayerMouseButton' ||
     name === 'SetAbilityTooltip' || name === 'SetAbilityExtendedTooltip' || name === 'SetAbilityResearchTooltip' || name === 'SetAbilityResearchExtendedTooltip' ||
     name === 'GetAbilityTooltip' || name === 'GetAbilityExtendedTooltip' || name === 'GetAbilityResearchTooltip' || name === 'GetAbilityResearchExtendedTooltip' ||
@@ -31,7 +31,7 @@ function isBlzNeeded(name: string) {
     name === 'PlaySpecialEffect' || name === 'PlaySpecialEffectWithTimeScale';
 }
 
-export default function transformBlz(data: WeuData, object: ECA | SubParameters) {
+export default function transformBlz(data: WeuData, object: ECA | SubParameters): boolean {
   const name = object.name;
 
   if (!isBlzNeeded(name)) {

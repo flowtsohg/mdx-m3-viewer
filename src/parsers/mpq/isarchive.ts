@@ -2,7 +2,7 @@
  * Search for the MPQ header - MPQ\x1A.
  * The header can be on any 512 bytes boundry offset.
  */
-export function searchHeader(bytes: Uint8Array) {
+export function searchHeader(bytes: Uint8Array): number {
   let offset = -1;
 
   for (let i = 0, l = Math.ceil(bytes.byteLength / 512); i < l; i++) {
@@ -20,7 +20,7 @@ export function searchHeader(bytes: Uint8Array) {
 /**
  * Checks whether the given buffer is either a Warcraft 3 map or otherwise a generic MPQ archive.
  */
-export function isArchive(bytes: Uint8Array) {
+export function isArchive(bytes: Uint8Array): boolean {
   // Check for the map identifier - HM3W
   if (bytes[0] === 72 && bytes[1] === 77 && bytes[2] === 51 && bytes[3] === 87) {
     return true;

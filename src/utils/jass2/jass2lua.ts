@@ -1,6 +1,6 @@
 import TokenStream from './tokenstream';
 
-export default function jass2lua(jass: string) {
+export default function jass2lua(jass: string): string {
   const stream = new TokenStream(jass);
   const tokens = [];
   let token;

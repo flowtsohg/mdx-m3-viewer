@@ -25,19 +25,19 @@ export default class WeuData {
     this.stringTable = stringTable;
   }
 
-  push(object: Trigger | ECA | Parameter | SubParameters) {
+  push(object: Trigger | ECA | Parameter | SubParameters): void {
     this.stack.unshift(object);
   }
 
-  pop() {
+  pop(): void {
     this.stack.shift();
   }
 
-  change(type: string, reason: string, data: string) {
+  change(type: string, reason: string, data: string): void {
     this.changes.push({ type, reason, data, stack: this.stackToString() });
   }
 
-  stackToString() {
+  stackToString(): string {
     return this.stack.map((object) => {
       if (object instanceof Parameter) {
         return object.value;
@@ -47,7 +47,7 @@ export default class WeuData {
     }).reverse().join(' > ');
   }
 
-  getTriggerName() {
+  getTriggerName(): string {
     for (const node of this.stack) {
       if (node instanceof Trigger) {
         return node.name;
@@ -63,7 +63,7 @@ export default class WeuData {
    * This is used to track references that existed in GUI before the conversion, but that will be only in custom scripts afterwards.
    * References that are lost due to the conversion are then added in a new trigger called PreplacedObjectReferences.
    */
-  updateGUIReference(name: string, isGUI: boolean) {
+  updateGUIReference(name: string, isGUI: boolean): void {
     // For now track only units and destructibles.
     // Not sure what else needs tracking.
     if (name.startsWith('gg_unit') || name.startsWith('gg_dest')) {
@@ -76,7 +76,7 @@ export default class WeuData {
     }
   }
 
-  saveGUIReferences(triggers: Trigger[], customTextTriggers: CustomTextTrigger[]) {
+  saveGUIReferences(triggers: Trigger[], customTextTriggers: CustomTextTrigger[]): void {
     const references = [];
 
     // Get all of the references that are no longer references.

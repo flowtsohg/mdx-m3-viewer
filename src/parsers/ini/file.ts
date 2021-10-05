@@ -10,7 +10,7 @@ export class IniFile {
   properties: Map<string, string> = new Map();
   sections: Map<string, IniSection> = new Map();
 
-  load(buffer: string) {
+  load(buffer: string): void {
     // All properties added until a section is reached are added to the properties map.
     // Once a section is reached, any further properties will be added to it until matching another section, etc.
     let section: IniSection | null = this.properties;
@@ -45,7 +45,7 @@ export class IniFile {
     }
   }
 
-  save() {
+  save(): string {
     const lines = [];
 
     for (const [key, value] of this.properties) {
@@ -63,7 +63,7 @@ export class IniFile {
     return lines.join('\r\n');
   }
 
-  getSection(name: string) {
+  getSection(name: string): IniSection | undefined {
     return this.sections.get(name.toLowerCase());
   }
 }

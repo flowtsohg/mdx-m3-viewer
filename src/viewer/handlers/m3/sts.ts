@@ -16,7 +16,7 @@ export default class M3Sts {
     }
   }
 
-  hasData(animRef: AnimationReference) {
+  hasData(animRef: AnimationReference): boolean {
     return this.animIds.has(animRef.animId);
   }
 }

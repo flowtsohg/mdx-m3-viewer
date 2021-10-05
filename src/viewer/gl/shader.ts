@@ -55,7 +55,7 @@ export default class Shader {
     }
   }
 
-  use() {
+  use(): void {
     this.webgl.useShader(this);
   }
 }

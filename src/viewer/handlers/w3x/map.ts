@@ -21,6 +21,7 @@ import TerrainDoodad from './terraindoodad';
 import War3MapViewer from './viewer';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
+import { Resource } from '../../resource';
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
@@ -80,7 +81,7 @@ export default class War3MapViewerMap {
 
     this.loadMapInformation();
 
-    this.pathSolver = (src, params) => {
+    this.pathSolver = (src, params): any => {
       // The type won't be a string for loads from memory, where the final source is the input source.
       // The primitive constructor is one example of this.
       if (typeof src === 'string') {
@@ -114,15 +115,15 @@ export default class War3MapViewerMap {
     this.loadUnitsAndItems();
   }
 
-  die() {
+  die(): void {
     this.worldScene.detach();
   }
 
-  load(src: any) {
+  load(src: any): Promise<Resource | undefined> {
     return this.viewer.load(src, this.pathSolver, this.solverParams);
   }
 
-  loadMapInformation() {
+  loadMapInformation(): void {
     const mpqFile = this.map.get('war3map.w3i');
 
     if (!mpqFile) {
@@ -147,7 +148,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  async loadTerrainCliffsAndWater() {
+  async loadTerrainCliffsAndWater(): Promise<void> {
     const mpqFile = this.map.get('war3map.w3e');
 
     if (!mpqFile) {
@@ -405,7 +406,7 @@ export default class War3MapViewerMap {
     this.cliffsReady = true;
   }
 
-  loadDoodadsAndDestructibles() {
+  loadDoodadsAndDestructibles(): void {
     const mpqFile = this.map.get('war3map.doo');
 
     if (!mpqFile) {
@@ -504,7 +505,7 @@ export default class War3MapViewerMap {
     this.anyReady = true;
   }
 
-  loadUnitsAndItems() {
+  loadUnitsAndItems(): void {
     const mpqFile = this.map.get('war3mapUnits.doo');
 
     if (!mpqFile) {
@@ -565,7 +566,7 @@ export default class War3MapViewerMap {
   /**
    * Update the map.
    */
-  update() {
+  update(): void {
     if (this.anyReady) {
       this.waterIndex += this.waterIncreasePerFrame;
 
@@ -586,7 +587,7 @@ export default class War3MapViewerMap {
   /**
    * Render the map.
    */
-  render() {
+  render(): void {
     if (this.anyReady) {
       const worldScene = this.worldScene;
 
@@ -599,7 +600,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  renderGround() {
+  renderGround(): void {
     if (this.terrainReady) {
       const gl = this.viewer.gl;
       const webgl = this.viewer.webgl;
@@ -677,7 +678,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  renderWater() {
+  renderWater(): void {
     if (this.terrainReady) {
       const gl = this.viewer.gl;
       const webgl = this.viewer.webgl;
@@ -735,7 +736,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  renderCliffs() {
+  renderCliffs(): void {
     if (this.cliffsReady) {
       const gl = this.viewer.gl;
       const webgl = this.viewer.webgl;
@@ -786,14 +787,14 @@ export default class War3MapViewerMap {
     }
   }
 
-  cliffFileName(bottomLeftLayer: number, bottomRightLayer: number, topLeftLayer: number, topRightLayer: number, base: number) {
+  cliffFileName(bottomLeftLayer: number, bottomRightLayer: number, topLeftLayer: number, topRightLayer: number, base: number): string {
     return String.fromCharCode(65 + bottomLeftLayer - base) +
       String.fromCharCode(65 + topLeftLayer - base) +
       String.fromCharCode(65 + topRightLayer - base) +
       String.fromCharCode(65 + bottomRightLayer - base);
   }
 
-  getVariation(groundTexture: number, variation: number) {
+  getVariation(groundTexture: number, variation: number): number {
     const texture = this.tilesetTextures[groundTexture];
 
     // Extended?
@@ -817,7 +818,7 @@ export default class War3MapViewerMap {
   /**
    * Is the corner at the given column and row a cliff?
    */
-  isCliff(column: number, row: number) {
+  isCliff(column: number, row: number): boolean {
     if (column < 1 || column > this.columns - 1 || row < 1 || row > this.rows - 1) {
       return false;
     }
@@ -834,7 +835,7 @@ export default class War3MapViewerMap {
   /**
    * Is the tile at the given column and row water?
    */
-  isWater(column: number, row: number) {
+  isWater(column: number, row: number): number {
     const corners = this.corners;
 
     return corners[row][column].water || corners[row][column + 1].water || corners[row + 1][column].water || corners[row + 1][column + 1].water;
@@ -844,7 +845,7 @@ export default class War3MapViewerMap {
    * Given a cliff index, get its ground texture index.
    * This is an index into the tilset textures.
    */
-  cliffGroundIndex(whichCliff: number) {
+  cliffGroundIndex(whichCliff: number): number {
     const whichTileset = this.cliffTilesets[whichCliff]['groundTile'];
     const tilesets = this.tilesets;
 
@@ -860,7 +861,7 @@ export default class War3MapViewerMap {
   /**
    * Get the ground texture of a corner, whether it's normal ground, a cliff, or a blighted corner.
    */
-  cornerTexture(column: number, row: number) {
+  cornerTexture(column: number, row: number): number {
     const corners = this.corners;
     const columns = this.columns;
     const rows = this.rows;
@@ -891,7 +892,7 @@ export default class War3MapViewerMap {
     return corner.groundTexture;
   }
 
-  applyModificationFile(dataMap: MappedData, metadataMap: MappedData, modificationFile: War3MapW3u | War3MapW3d | undefined) {
+  applyModificationFile(dataMap: MappedData, metadataMap: MappedData, modificationFile: War3MapW3u | War3MapW3d | undefined): void {
     if (modificationFile) {
       // Modifications to built-in objects
       this.applyModificationTable(dataMap, metadataMap, modificationFile.originalTable);
@@ -901,7 +902,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  applyModificationTable(dataMap: MappedData, metadataMap: MappedData, modificationTable: ModificationTable) {
+  applyModificationTable(dataMap: MappedData, metadataMap: MappedData, modificationTable: ModificationTable): void {
     for (const modificationObject of modificationTable.objects) {
       let row;
 
@@ -929,7 +930,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  groundNormal(out: vec3, x: number, y: number) {
+  groundNormal(out: vec3, x: number, y: number): vec3 {
     const centerOffset = this.centerOffset;
     const mapSize = this.mapSize;
 

@@ -97,7 +97,7 @@ export default class TerrainModel {
     this.vao = vao;
   }
 
-  render(shader: Shader) {
+  render(shader: Shader): void {
     const viewer = this.map.viewer;
     const gl = viewer.gl;
     const webgl = viewer.webgl;

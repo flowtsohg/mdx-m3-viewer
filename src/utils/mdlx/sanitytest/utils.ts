@@ -27,7 +27,7 @@ import SanityTestData from './data';
 import testTracks from './tracks';
 import { SanityTestNode } from './data';
 
-export function isBetween(x: number, minVal: number, maxVal: number) {
+export function isBetween(x: number, minVal: number, maxVal: number): boolean {
   return x >= minVal && x <= maxVal;
 }
 
@@ -127,7 +127,7 @@ export const animatedTypeNames = new Map([
   ['KCRL', 'Target Translation'],
 ]);
 
-export function hasAnimation(object: AnimatedObject, name: string) {
+export function hasAnimation(object: AnimatedObject, name: string): boolean {
   for (const animation of object.animations) {
     if (animation.name === name) {
       return true;
@@ -139,7 +139,7 @@ export function hasAnimation(object: AnimatedObject, name: string) {
 
 export type MdlxType = Extent | Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | FaceEffect | Animation;
 
-export function getObjectTypeName(object: MdlxType) {
+export function getObjectTypeName(object: MdlxType): string {
   if (object instanceof Extent) {
     return 'Extent';
   } else if (object instanceof Sequence) {
@@ -190,7 +190,7 @@ export function getObjectTypeName(object: MdlxType) {
   }
 }
 
-export function getObjectName(object: MdlxType, index: number) {
+export function getObjectName(object: MdlxType, index: number): string {
   let name = getObjectTypeName(object);
 
   if (!(object instanceof Animation) && !(object instanceof Extent)) {
@@ -220,7 +220,7 @@ export function getObjectName(object: MdlxType, index: number) {
   return name;
 }
 
-export function testObjects<T extends MdlxType>(data: SanityTestData, objects: T[], handler?: (data: SanityTestData, object: T, index: number) => void) {
+export function testObjects<T extends MdlxType>(data: SanityTestData, objects: T[], handler?: (data: SanityTestData, object: T, index: number) => void): void {
   const l = objects.length;
 
   if (l) {
@@ -257,7 +257,7 @@ export function testObjects<T extends MdlxType>(data: SanityTestData, objects: T
   }
 }
 
-export function testAndGetReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
+export function testAndGetReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string): T | undefined {
   if (index >= 0 && index < objects.length) {
     data.addReference(objects[index]);
 
@@ -269,7 +269,7 @@ export function testAndGetReference<T extends MdlxType>(data: SanityTestData, ob
   }
 }
 
-export function testReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
+export function testReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string): boolean {
   // This explicit test against undefined is needed because global sequences are numbers and could be equal to 0.
   return testAndGetReference(data, objects, index, typeNameIfError) !== undefined;
 }
@@ -277,7 +277,7 @@ export function testReference<T extends MdlxType>(data: SanityTestData, objects:
 /**
  * Get all of the texture indices referenced by a layer.
  */
-export function getTextureIds(layer: Layer) {
+export function getTextureIds(layer: Layer): number[] {
   for (const animation of layer.animations) {
     if (animation.name === 'KMTF') {
       return unique(animation.values.map((value) => value[0]));
@@ -287,7 +287,7 @@ export function getTextureIds(layer: Layer) {
   return [layer.textureId];
 }
 
-function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, isHd: boolean) {
+function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, isHd: boolean): void {
   const object = data.objects[bone];
 
   if (isHd) {
@@ -311,7 +311,7 @@ function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, 
 /**
  * Test geoset skinning.
  */
-export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
+export function testGeosetSkinning(data: SanityTestData, geoset: Geoset): void {
   if (data.model.version > 800 && geoset.skin.length) {
     data.assertWarning(geoset.vertexGroups.length === 0, 'This geoset has both skin/weights and vertex groups');
 
@@ -390,7 +390,7 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
 /**
  * Is the given ID a valid generic object?
  */
-function hasGenericObject(data: SanityTestData, id: number) {
+function hasGenericObject(data: SanityTestData, id: number): boolean {
   for (const object of data.objects) {
     if (object.objectId === id) {
       return true;
@@ -400,7 +400,7 @@ function hasGenericObject(data: SanityTestData, id: number) {
   return false;
 }
 
-export function testAnimation(data: SanityTestData, animation: Animation) {
+export function testAnimation(data: SanityTestData, animation: Animation): void {
   const name = animation.name;
   const interpolationType = animation.interpolationType;
 
@@ -416,7 +416,7 @@ export function testAnimation(data: SanityTestData, animation: Animation) {
   testTracks(data, animation);
 }
 
-export function cleanNode(node: SanityTestNode) {
+export function cleanNode(node: SanityTestNode): void {
   const nodes = node.nodes;
 
   for (let i = nodes.length - 1; i >= 0; i--) {
@@ -432,7 +432,7 @@ export function cleanNode(node: SanityTestNode) {
   }
 }
 
-export function getAnimation(object: AnimatedObject, name: string) {
+export function getAnimation(object: AnimatedObject, name: string): Animation | undefined {
   for (const animation of object.animations) {
     if (animation.name === name) {
       return animation;
@@ -442,7 +442,7 @@ export function getAnimation(object: AnimatedObject, name: string) {
   return;
 }
 
-export function testExtent(data: SanityTestData, extent: Extent) {
+export function testExtent(data: SanityTestData, extent: Extent): void {
   data.push(extent, 0);
 
   const { max, min } = extent;

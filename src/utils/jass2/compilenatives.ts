@@ -1,11 +1,11 @@
 import TokenStream from './tokenstream';
 
-function compileGetters(params: { type: string, name: string }[]) {
+function compileGetters(params: { type: string, name: string }[]): string {
   return params.map((p, i) => {
     const type = p.type;
 
     if (type === 'code') {
-      return `let ${p.name} = luaL_ref(L, LUA_REGISTRYINDEX);`;
+      return `let _${p.name} = luaL_ref(L, LUA_REGISTRYINDEX);`;
     } else {
       let func;
 
@@ -21,12 +21,12 @@ function compileGetters(params: { type: string, name: string }[]) {
         func = 'lua_touserdata';
       }
 
-      return `let ${p.name} = ${func}(L, ${i + 1});`;
+      return `let _${p.name} = ${func}(L, ${i + 1});`;
     }
   }).join('\n');
 }
 
-function compileReturn(type: string) {
+function compileReturn(type: string): string {
   if (type === 'nothing') {
     return 'return 0';
   } else {
@@ -56,7 +56,7 @@ function compileReturn(type: string) {
   }
 }
 
-function compileNative(stream: TokenStream, isConstant: boolean) {
+function compileNative(stream: TokenStream, isConstant: boolean): { name: string, decl: string } {
   const name = stream.readSafe();
   const params = [];
 
@@ -75,12 +75,19 @@ function compileNative(stream: TokenStream, isConstant: boolean) {
   }
 
   const returnType = stream.readSafe();
+  let luaParams;
+
+  if (params.length) {
+    luaParams = 'C: Context, L: lua_State';
+  } else {
+    luaParams = '_C: Context, _L: lua_State';
+  }
 
   const decl = `
 /**
  * ${isConstant ? 'constant ' : ''}native ${name} takes ${params.length ? params.map((p) => `${p.type} ${p.name}`).join(', ') : 'nothing'} returns ${returnType}
  */
-function ${name}(C: Context, L: lua_State) {
+function ${name}(${luaParams}): number {
   ${compileGetters(params)}
   console.warn('${name} was called but is not implemented :(');
   ${compileReturn(returnType)}
@@ -89,15 +96,15 @@ function ${name}(C: Context, L: lua_State) {
   return { name, decl };
 }
 
-function compileBindings(names: string[]) {
+function compileBindings(names: string[]): string {
   return `
 /**
  * Bind natives to the given context.
  */
-export default function bind(C: Context) {\nlet L = C.L;\n${names.map((name) => `  lua_register(L, '${name}', ${name}.bind(null, C));`).join('\n')}\n}`;
+export default function bind(C: Context): void {\nlet L = C.L;\n${names.map((name) => `  lua_register(L, '${name}', ${name}.bind(null, C));`).join('\n')}\n}`;
 }
 
-export default function compileNatives(jass: string) {
+export default function compileNatives(jass: string): string {
   const stream = new TokenStream(jass);
   const names = [];
   const decls = [];

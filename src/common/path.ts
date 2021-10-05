@@ -3,7 +3,7 @@
  * 
  * Path/To/My/File.ext => File.ext
  */
-export function basename(path: string) {
+export function basename(path: string): string {
   if (path && path.length) {
     let index = path.lastIndexOf('/');
 
@@ -28,7 +28,7 @@ export function basename(path: string) {
  * 
  * Path/To/My/File.ext => .ext
  */
-export function extname(path: string) {
+export function extname(path: string): string {
   if (path && path.length) {
     const index = path.lastIndexOf('.');
 
@@ -47,7 +47,7 @@ export function extname(path: string) {
  * 
  * Path/To/My/File.ext => File
  */
-export function filename(path: string) {
+export function filename(path: string): string {
   path = basename(path);
 
   const index = path.lastIndexOf('.');

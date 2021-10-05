@@ -58,7 +58,7 @@ export default class SanityTestData {
    * Adds nodes for all of the given objects.
    * Also handles the flat array of generic objects.
    */
-  addObjects(objects: MdlxType[]) {
+  addObjects(objects: MdlxType[]): void {
     if (objects.length) {
       const areGeneric = objects[0] instanceof GenericObject;
 
@@ -84,7 +84,7 @@ export default class SanityTestData {
    * Pushes to the stack the node the given object maps to.
    * If this node does not exist, a new one will be created, which is used by internal nodes like material layers.
    */
-  push(object: MdlxType, index: number) {
+  push(object: MdlxType, index: number): void {
     let node = this.map.get(object);
 
     if (!node) {
@@ -101,7 +101,7 @@ export default class SanityTestData {
   /**
    * Pops the current node from the stack.
    */
-  pop() {
+  pop(): void {
     this.stack.shift();
     this.current = this.stack[0];
   }
@@ -109,7 +109,7 @@ export default class SanityTestData {
   /**
    * Adds a reference to the node the given object maps to.
    */
-  addReference(object: MdlxType) {
+  addReference(object: MdlxType): void {
     const node = <SanityTestNode>this.map.get(object);
 
     if (node.uses !== undefined) {
@@ -120,7 +120,7 @@ export default class SanityTestData {
   /**
    * Add a reference to the current node.
    */
-  addImplicitReference() {
+  addImplicitReference(): void {
     const node = this.current;
 
     if (node.uses !== undefined) {
@@ -128,7 +128,7 @@ export default class SanityTestData {
     }
   }
 
-  addError(message: string) {
+  addError(message: string): void {
     this.current.nodes.push({ type: 'error', message });
 
     for (const node of this.stack) {
@@ -136,7 +136,7 @@ export default class SanityTestData {
     }
   }
 
-  addSevere(message: string) {
+  addSevere(message: string): void {
     this.current.nodes.push({ type: 'severe', message });
 
     for (const node of this.stack) {
@@ -144,7 +144,7 @@ export default class SanityTestData {
     }
   }
 
-  addWarning(message: string) {
+  addWarning(message: string): void {
     this.current.nodes.push({ type: 'warning', message });
 
     for (const node of this.stack) {
@@ -152,7 +152,7 @@ export default class SanityTestData {
     }
   }
 
-  addUnused(message: string) {
+  addUnused(message: string): void {
     this.current.nodes.push({ type: 'unused', message });
 
     for (const node of this.stack) {
@@ -160,25 +160,25 @@ export default class SanityTestData {
     }
   }
 
-  assertError(condition: boolean, message: string) {
+  assertError(condition: boolean, message: string): void {
     if (!condition) {
       this.addError(message);
     }
   }
 
-  assertSevere(condition: boolean, message: string) {
+  assertSevere(condition: boolean, message: string): void {
     if (!condition) {
       this.addSevere(message);
     }
   }
 
-  assertWarning(condition: boolean, message: string) {
+  assertWarning(condition: boolean, message: string): void {
     if (!condition) {
       this.addWarning(message);
     }
   }
 
-  assertUnused(condition: boolean, message: string) {
+  assertUnused(condition: boolean, message: string): void {
     if (!condition) {
       this.addUnused(message);
     }

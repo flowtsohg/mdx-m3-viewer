@@ -19,7 +19,7 @@ export default class Event {
   unknown7 = 0;
   unknown8 = 0;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.name.load(stream, index);
     this.unknown0 = stream.readInt32();

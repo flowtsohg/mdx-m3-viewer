@@ -73,7 +73,7 @@ export class SkeletalNode {
   /**
    * Recalculate this skeletal node.
    */
-  recalculateTransformation(scene: Scene) {
+  recalculateTransformation(scene: Scene): void {
     const localMatrix = this.localMatrix;
     const localRotation = this.localRotation;
     const localScale = this.localScale;
@@ -196,9 +196,26 @@ export class SkeletalNode {
    * 
    * This is needed because the different model formats are in different vector spaces.
    */
-  convertBasis(rotation: quat) {
+  convertBasis(_rotation: quat): void {
 
   }
+}
+
+interface SkeletalNodesData {
+  data: Float32Array;
+  nodes: SkeletalNode[];
+  pivots: Float32Array;
+  localLocations: Float32Array;
+  localRotations: Float32Array;
+  localScales: Float32Array;
+  worldLocations: Float32Array;
+  worldRotations: Float32Array;
+  worldScales: Float32Array;
+  inverseWorldLocations: Float32Array;
+  invereseWorldRotations: Float32Array;
+  inverseWorldScales: Float32Array;
+  localMatrices: Float32Array;
+  worldMatrices: Float32Array;
 }
 
 const NODE_SHARED_SIZE = 65;
@@ -208,7 +225,7 @@ const NODE_SHARED_SIZE = 65;
  * 
  * The returned object contains the node array itself, the backing buffer, and all of the different shared arrays.
  */
-export function createSkeletalNodes(count: number, Node = SkeletalNode) {
+export function createSkeletalNodes(count: number, Node = SkeletalNode): SkeletalNodesData {
   const data = new Float32Array(count * NODE_SHARED_SIZE);
   const nodes = [];
   let offset = 0;

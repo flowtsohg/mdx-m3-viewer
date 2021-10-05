@@ -9,7 +9,7 @@ export default class Bounds {
   z = 0;
   r = 0;
 
-  fromExtents(min: Float32Array, max: Float32Array) {
+  fromExtents(min: Float32Array, max: Float32Array): void {
     const x = min[0];
     const y = min[1];
     const z = min[2];

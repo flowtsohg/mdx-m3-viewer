@@ -6,7 +6,7 @@ export default class MdlView extends Component {
   constructor(parser) {
     super({ className: 'mdl-view' });
 
-    const mdl = mdlStructure(parser);
+    const mdlNodes = mdlStructure(parser);
 
     this.structureElement = createElement({ className: 'mdl-structure', container: this.container });
     this.sourceElement = createElement({ tagName: 'pre', className: 'mdl-source', container: this.container });
@@ -14,7 +14,7 @@ export default class MdlView extends Component {
     this.nodes = [];
     this.visibleNode = null;
 
-    for (let node of mdl.nodes) {
+    for (let node of nodes) {
       this.nodes.push(new MdlViewNode(this, node, this.structureElement));
     }
   }

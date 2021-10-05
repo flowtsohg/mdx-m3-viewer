@@ -4,6 +4,7 @@ import Model from './model';
 import Scene from './scene';
 import Camera from './camera';
 import Texture from './texture';
+import Bounds from './bounds';
 
 /**
  * A model instance.
@@ -40,28 +41,28 @@ export default abstract class ModelInstance extends Node {
   /**
    * This instance should be shown.
    */
-  show() {
+  show(): void {
     this.rendered = true;
   }
 
   /**
    * This instance should be hidden.
    */
-  hide() {
+  hide(): void {
     this.rendered = false;
   }
 
   /**
    * Should the instance be shown?
    */
-  shown() {
+  shown(): boolean {
     return this.rendered;
   }
 
   /**
    * Should the instance be hidden?
    */
-  hidden() {
+  hidden(): boolean {
     return !this.rendered;
   }
 
@@ -70,7 +71,7 @@ export default abstract class ModelInstance extends Node {
    * 
    * Equivalent to scene.removeInstance(instance).
    */
-  detach() {
+  detach(): boolean {
     if (this.scene) {
       return this.scene.removeInstance(this);
     }
@@ -78,7 +79,7 @@ export default abstract class ModelInstance extends Node {
     return false;
   }
 
-  overrideTexture(index: number, texture?: Texture) {
+  overrideTexture(index: number, texture?: Texture): void {
     if (texture) {
       this.textureOverrides.set(index, texture);
     } else {
@@ -89,14 +90,14 @@ export default abstract class ModelInstance extends Node {
   /**
    * Called for instance culling.
    */
-  getBounds() {
+  getBounds(): Bounds {
     return this.model.bounds;
   }
 
   /**
    * Clears any objects that were emitted by this instance.
    */
-  clearEmittedObjects() {
+  clearEmittedObjects(): void {
 
   }
 
@@ -105,11 +106,11 @@ export default abstract class ModelInstance extends Node {
    * 
    * This is equivalent to scene.addInstance(instance).
    */
-  setScene(scene: Scene) {
+  setScene(scene: Scene): boolean {
     return scene.addInstance(this);
   }
 
-  override recalculateTransformation() {
+  override recalculateTransformation(): void {
     super.recalculateTransformation();
 
     if (this.scene) {
@@ -117,7 +118,7 @@ export default abstract class ModelInstance extends Node {
     }
   }
 
-  override update(dt: number) {
+  override update(dt: number): void {
     const scene = this.scene;
 
     if (scene && this.rendered && this.isVisible(scene.camera)) {
@@ -132,19 +133,19 @@ export default abstract class ModelInstance extends Node {
     }
   }
 
-  updateAnimations(dt: number) {
+  updateAnimations(_dt: number): void {
 
   }
 
-  renderOpaque() {
+  renderOpaque(): void {
 
   }
 
-  renderTranslucent() {
+  renderTranslucent(): void {
 
   }
 
-  isVisible(camera: Camera) {
+  isVisible(camera: Camera): boolean {
     const [x, y, z] = this.worldLocation;
     const [sx, sy, sz] = this.worldScale;
     const bounds = this.getBounds();

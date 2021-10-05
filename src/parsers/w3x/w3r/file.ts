@@ -8,7 +8,7 @@ export default class War3MapW3r {
   version = 0;
   regions: Region[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -22,7 +22,7 @@ export default class War3MapW3r {
     }
   }
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
@@ -35,7 +35,7 @@ export default class War3MapW3r {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 8;
 
     for (const region of this.regions) {

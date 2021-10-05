@@ -34,7 +34,7 @@ export default class BinaryStream {
   /**
    * Create a subreader of this reader, at its position, with the given byte length.
    */
-  substream(byteLength: number) {
+  substream(byteLength: number): BinaryStream {
     if (this.remaining < byteLength) {
       throw new Error(`ByteStream: substream: want ${byteLength} bytes but have ${this.remaining}`);
     }
@@ -49,7 +49,7 @@ export default class BinaryStream {
   /**
    * Skip a number of bytes.
    */
-  skip(bytes: number) {
+  skip(bytes: number): void {
     if (this.remaining < bytes) {
       throw new Error(`ByteStream: skip: premature end - want ${bytes} bytes but have ${this.remaining}`);
     }
@@ -61,7 +61,7 @@ export default class BinaryStream {
   /**
    * Set the reader's index.
    */
-  seek(index: number) {
+  seek(index: number): void {
     this.index = index;
     this.remaining = this.byteLength - index;
   }
@@ -74,7 +74,7 @@ export default class BinaryStream {
    * For example, the MDX format has many strings that have a constant maximum size, where any bytes after the string are NULLs.
    * Such strings will be loaded correctly given the maximum size.
    */
-  read(bytes: number) {
+  read(bytes: number): string {
     if (this.remaining < bytes) {
       throw new Error(`ByteStream: read: premature end - want ${bytes} bytes but have ${this.remaining}`);
     }
@@ -96,7 +96,7 @@ export default class BinaryStream {
   /**
    * Read a UTF8 NULL terminated string.
    */
-  readNull() {
+  readNull(): string {
     if (this.remaining < 1) {
       throw new Error(`ByteStream: readNull: premature end - want at least 1 byte but have 0`);
     }
@@ -120,7 +120,7 @@ export default class BinaryStream {
   /**
    * Read a binary string with the given number of bytes.
    */
-  readBinary(bytes: number) {
+  readBinary(bytes: number): string {
     if (this.remaining < bytes) {
       throw new Error(`ByteStream: readBinary: premature end - want ${bytes} bytes but have ${this.remaining}`);
     }
@@ -142,7 +142,7 @@ export default class BinaryStream {
   /**
    * Read a 8 bit signed integer.
    */
-  readInt8() {
+  readInt8(): number {
     if (this.remaining < 1) {
       throw new Error(`ByteStream: readInt8: premature end - want 1 byte but have ${this.remaining}`);
     }
@@ -160,7 +160,7 @@ export default class BinaryStream {
   /**
    * Read a 16 bit signed integer.
    */
-  readInt16() {
+  readInt16(): number {
     if (this.remaining < 2) {
       throw new Error(`ByteStream: readInt16: premature end - want 2 bytes but have ${this.remaining}`);
     }
@@ -178,7 +178,7 @@ export default class BinaryStream {
   /**
    * Read a 32 bit signed integer.
    */
-  readInt32() {
+  readInt32(): number {
     if (this.remaining < 4) {
       throw new Error(`ByteStream: readInt32: premature end - want 4 bytes but have ${this.remaining}`);
     }
@@ -197,7 +197,7 @@ export default class BinaryStream {
   /**
    * Read a 8 bit unsigned integer.
    */
-  readUint8() {
+  readUint8(): number {
     if (this.remaining < 1) {
       throw new Error(`ByteStream: readUint8: premature end - want 1 byte but have ${this.remaining}`);
     }
@@ -213,7 +213,7 @@ export default class BinaryStream {
   /**
    * Read a 16 bit unsigned integer.
    */
-  readUint16() {
+  readUint16(): number {
     if (this.remaining < 2) {
       throw new Error(`ByteStream: readUint16: premature end - want 2 bytes but have ${this.remaining}`);
     }
@@ -231,7 +231,7 @@ export default class BinaryStream {
   /**
    * Read a 32 bit unsigned integer.
    */
-  readUint32() {
+  readUint32(): number {
     if (this.remaining < 4) {
       throw new Error(`ByteStream: readUint32: premature end - want 4 bytes but have ${this.remaining}`);
     }
@@ -249,7 +249,7 @@ export default class BinaryStream {
   /**
    * Read a 32 bit float.
    */
-  readFloat32() {
+  readFloat32(): number {
     if (this.remaining < 4) {
       throw new Error(`ByteStream: readFloat32: premature end - want 4 bytes but have ${this.remaining}`);
     }
@@ -267,7 +267,7 @@ export default class BinaryStream {
   /**
    * Read a 64 bit float.
    */
-  readFloat64() {
+  readFloat64(): number {
     if (this.remaining < 8) {
       throw new Error(`ByteStream: readFloat64: premature end - want 8 bytes but have ${this.remaining}`);
     }
@@ -285,7 +285,7 @@ export default class BinaryStream {
   /**
    * Read an array of 8 bit signed integers.
    */
-  readInt8Array(view: number | Int8Array) {
+  readInt8Array(view: number | Int8Array): Int8Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Int8Array(view);
     }
@@ -310,7 +310,7 @@ export default class BinaryStream {
   /**
    * Read an array of 16 bit signed integers.
    */
-  readInt16Array(view: number | Int16Array) {
+  readInt16Array(view: number | Int16Array): Int16Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Int16Array(view);
     }
@@ -337,7 +337,7 @@ export default class BinaryStream {
   /**
    * Read an array of 32 bit signed integers.
    */
-  readInt32Array(view: number | Int32Array) {
+  readInt32Array(view: number | Int32Array): Int32Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Int32Array(view);
     }
@@ -364,7 +364,7 @@ export default class BinaryStream {
   /**
    * Read an array of 8 bit unsigned integers.
    */
-  readUint8Array(view: number | Uint8Array) {
+  readUint8Array(view: number | Uint8Array): Uint8Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Uint8Array(view);
     }
@@ -389,7 +389,7 @@ export default class BinaryStream {
   /**
    * Read an array of 16 bit unsigned integers.
    */
-  readUint16Array(view: number | Uint16Array) {
+  readUint16Array(view: number | Uint16Array): Uint16Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Uint16Array(view);
     }
@@ -416,7 +416,7 @@ export default class BinaryStream {
   /**
    * Read an array of 32 bit unsigned integers.
    */
-  readUint32Array(view: number | Uint32Array) {
+  readUint32Array(view: number | Uint32Array): Uint32Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Uint32Array(view);
     }
@@ -443,7 +443,7 @@ export default class BinaryStream {
   /**
    * Read an array of 32 bit floats.
    */
-  readFloat32Array(view: number | Float32Array) {
+  readFloat32Array(view: number | Float32Array): Float32Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Float32Array(view);
     }
@@ -470,7 +470,7 @@ export default class BinaryStream {
   /**
    * Read an array of 64 bit floats.
    */
-  readFloat64Array(view: number | Float64Array) {
+  readFloat64Array(view: number | Float64Array): Float64Array {
     if (!ArrayBuffer.isView(view)) {
       view = new Float64Array(view);
     }
@@ -499,7 +499,7 @@ export default class BinaryStream {
    * 
    * Returns the number of bytes that were written,
    */
-  write(utf8: string) {
+  write(utf8: string): number {
     const bytes = encodeUtf8(utf8);
 
     this.writeUint8Array(bytes);
@@ -512,7 +512,7 @@ export default class BinaryStream {
    * 
    * Returns the number of bytes that were written, including the terminating NULL.
    */
-  writeNull(utf8: string) {
+  writeNull(utf8: string): number {
     const bytes = this.write(utf8);
 
     this.index++;
@@ -524,7 +524,7 @@ export default class BinaryStream {
   /**
    * Write a binary string.
    */
-  writeBinary(value: string) {
+  writeBinary(value: string): void {
     const index = this.index;
     const uint8array = this.uint8array;
     const count = value.length;
@@ -539,7 +539,7 @@ export default class BinaryStream {
   /**
    * Write a 8 bit signed integer.
    */
-  writeInt8(value: number) {
+  writeInt8(value: number): void {
     this.uint8array[this.index] = int8ToUint8(value);
     this.index += 1;
   }
@@ -547,7 +547,7 @@ export default class BinaryStream {
   /**
    * Write a 16 bit signed integer.
    */
-  writeInt16(value: number) {
+  writeInt16(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -562,7 +562,7 @@ export default class BinaryStream {
   /**
    * Write a 32 bit signed integer.
    */
-  writeInt32(value: number) {
+  writeInt32(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -579,7 +579,7 @@ export default class BinaryStream {
   /**
    * Write a 8 bit unsigned integer.
    */
-  writeUint8(value: number) {
+  writeUint8(value: number): void {
     this.uint8array[this.index] = value;
     this.index += 1;
   }
@@ -587,7 +587,7 @@ export default class BinaryStream {
   /**
    * Write a 16 bit unsigned integer.
    */
-  writeUint16(value: number) {
+  writeUint16(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -602,7 +602,7 @@ export default class BinaryStream {
   /**
    * Write a 32 bit unsigned integer.
    */
-  writeUint32(value: number) {
+  writeUint32(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -619,7 +619,7 @@ export default class BinaryStream {
   /**
    * Write a 32 bit float.
    */
-  writeFloat32(value: number) {
+  writeFloat32(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -636,7 +636,7 @@ export default class BinaryStream {
   /**
    * Write a 64 bit float.
    */
-  writeFloat64(value: number) {
+  writeFloat64(value: number): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -657,7 +657,7 @@ export default class BinaryStream {
   /**
    * Write an array of 8 bit signed integers.
    */
-  writeInt8Array(view: Int8Array) {
+  writeInt8Array(view: Int8Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -671,7 +671,7 @@ export default class BinaryStream {
   /**
    * Write an array of 16 bit signed integers.
    */
-  writeInt16Array(view: Int16Array) {
+  writeInt16Array(view: Int16Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -690,7 +690,7 @@ export default class BinaryStream {
   /**
    * Write an array of 32 bit signed integers.
    */
-  writeInt32Array(view: Int32Array) {
+  writeInt32Array(view: Int32Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -711,7 +711,7 @@ export default class BinaryStream {
   /**
    * Write an array of 8 bit unsigned integers.
    */
-  writeUint8Array(view: Uint8Array) {
+  writeUint8Array(view: Uint8Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -725,7 +725,7 @@ export default class BinaryStream {
   /**
    * Write an array of 16 bit unsigned integers.
    */
-  writeUint16Array(view: Uint16Array) {
+  writeUint16Array(view: Uint16Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -744,7 +744,7 @@ export default class BinaryStream {
   /**
    * Write an array of 32 bit unsigned integers.
    */
-  writeUint32Array(view: Uint32Array) {
+  writeUint32Array(view: Uint32Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -765,7 +765,7 @@ export default class BinaryStream {
   /**
    * Write an array of 32 bit floats.
    */
-  writeFloat32Array(view: Float32Array) {
+  writeFloat32Array(view: Float32Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 
@@ -786,7 +786,7 @@ export default class BinaryStream {
   /**
    * Write an array of 64 bit floats.
    */
-  writeFloat64Array(view: Float64Array) {
+  writeFloat64Array(view: Float64Array): void {
     const index = this.index;
     const uint8array = this.uint8array;
 

@@ -11,7 +11,7 @@ export default class AttachmentPoint {
   name = new Reference();
   bone = -1;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.unknown = stream.readInt32();
     this.name.load(stream, index);

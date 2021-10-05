@@ -22,7 +22,7 @@ export default class Stc {
     }
   }
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.name.load(stream, index);
     this.runsConcurrent = stream.readUint16();

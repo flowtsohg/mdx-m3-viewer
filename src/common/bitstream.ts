@@ -28,7 +28,7 @@ export default class BitStream {
   /**
    * Peek a number of bits.
    */
-  peekBits(bits: number) {
+  peekBits(bits: number): number {
     this.loadBits(bits);
 
     return this.bitBuffer & ((1 << bits) - 1);
@@ -37,7 +37,7 @@ export default class BitStream {
   /**
    * Read a number of bits.
    */
-  readBits(bits: number) {
+  readBits(bits: number): number {
     const data = this.peekBits(bits);
 
     this.bitBuffer >>>= bits;
@@ -49,7 +49,7 @@ export default class BitStream {
   /**
    * Skip a number of bits.
    */
-  skipBits(bits: number) {
+  skipBits(bits: number): void {
     this.loadBits(bits);
 
     this.bitBuffer >>>= bits;
@@ -59,7 +59,7 @@ export default class BitStream {
   /**
    * Load more bits into the buffer.
    */
-  loadBits(bits: number) {
+  loadBits(bits: number): void {
     while (this.bits < bits) {
       this.bitBuffer += this.uint8array[this.index] << this.bits;
       this.bits += 8;

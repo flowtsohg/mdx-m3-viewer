@@ -8,7 +8,7 @@ import { BlpImage } from '../../parsers/blp/image';
  * Not always though.
  * Sadly I don't quite know the rules.
  */
-function isMipmapFake(whichMipmap: number, mipmapOffsets: Uint32Array) {
+function isMipmapFake(whichMipmap: number, mipmapOffsets: Uint32Array): boolean {
   const offset = mipmapOffsets[whichMipmap];
 
   for (let i = 0; i < whichMipmap; i++) {
@@ -20,10 +20,20 @@ function isMipmapFake(whichMipmap: number, mipmapOffsets: Uint32Array) {
   return false;
 }
 
+export interface SanityTestNode {
+  type: string;
+  message: string;
+}
+
+export interface SanityTestResult {
+  nodes: SanityTestNode[];
+  warnings: number;
+}
+
 /**
  * Tests for issues in BLP textures.
  */
-export default function sanityTest(texture: BlpImage) {
+export default function sanityTest(texture: BlpImage): SanityTestResult {
   const nodes = [];
   const content = texture.content;
   const alphaBits = texture.alphaBits;
@@ -97,5 +107,5 @@ export default function sanityTest(texture: BlpImage) {
     height >>= 1;
   }
 
-  return { warnings: nodes.length, nodes };
+  return { nodes, warnings: nodes.length };
 }

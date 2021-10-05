@@ -272,7 +272,7 @@ export default class MdxModel extends Model {
     return new MdxModelInstance(this);
   }
 
-  setupHierarchy(parent: number) {
+  setupHierarchy(parent: number): void {
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
       const object = this.genericObjects[i];
 

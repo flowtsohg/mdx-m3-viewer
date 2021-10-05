@@ -1,5 +1,5 @@
 declare module 'fengari/src/lstate' {
-  class lua_State {}
+  export class lua_State {}
   // module.exports.CallInfo        = CallInfo;
   // module.exports.CIST_OAH        = (1<<0);  /* original value of 'allowhook' */
   // module.exports.CIST_LUA        = (1<<1);  /* call is running a Lua function */
@@ -13,13 +13,15 @@ declare module 'fengari/src/lstate' {
   // module.exports.EXTRA_STACK     = EXTRA_STACK;
   // module.exports.lua_close       = lua_close;
   // module.exports.lua_newstate    = lua_newstate;
-  const lua_newthread: Function;
+  const lua_newthread: (L: lua_State) => lua_State;
   // module.exports.luaE_extendCI   = luaE_extendCI;
   // module.exports.luaE_freeCI     = luaE_freeCI;
   // module.exports.luaE_freethread = luaE_freethread;
 }
 
 declare module 'fengari/src/lauxlib' {
+  import { lua_State } from 'fengari/src/lstate';
+
   // module.exports.LUA_ERRFILE = LUA_ERRFILE;
   // module.exports.LUA_FILEHANDLE = LUA_FILEHANDLE;
   // module.exports.LUA_LOADED_TABLE = LUA_LOADED_TABLE;
@@ -38,12 +40,12 @@ declare module 'fengari/src/lauxlib' {
   // module.exports.luaL_buffinitsize = luaL_buffinitsize;
   // module.exports.luaL_callmeta = luaL_callmeta;
   // module.exports.luaL_checkany = luaL_checkany;
-  const luaL_checkinteger: Function;
-  const luaL_checklstring: Function;
-  const luaL_checknumber: Function;
+  const luaL_checkinteger: (L: lua_State, arg: number) => number;
+  const luaL_checklstring: (L: lua_State, arg: number) => string;
+  const luaL_checknumber: (L: lua_State, arg: number) => number;
   // module.exports.luaL_checkoption = luaL_checkoption;
   // module.exports.luaL_checkstack = luaL_checkstack;
-  const luaL_checkstring: Function;
+  const luaL_checkstring: (L: lua_State, arg: number) => string;
   // module.exports.luaL_checktype = luaL_checktype;
   // module.exports.luaL_checkudata = luaL_checkudata;
   // module.exports.luaL_checkversion = luaL_checkversion;
@@ -62,11 +64,11 @@ declare module 'fengari/src/lauxlib' {
   // module.exports.luaL_loadbufferx = luaL_loadbufferx;
   // module.exports.luaL_loadfile = luaL_loadfile;
   // module.exports.luaL_loadfilex = luaL_loadfilex;
-  const luaL_loadstring: Function;
+  const luaL_loadstring: (L: lua_State, s: Uint8Array) => string;
   // module.exports.luaL_newlib = luaL_newlib;
   // module.exports.luaL_newlibtable = luaL_newlibtable;
   // module.exports.luaL_newmetatable = luaL_newmetatable;
-  const luaL_newstate: Function;
+  const luaL_newstate: () => lua_State;
   // module.exports.luaL_opt = luaL_opt;
   // module.exports.luaL_optinteger = luaL_optinteger;
   // module.exports.luaL_optlstring = luaL_optlstring;
@@ -76,26 +78,28 @@ declare module 'fengari/src/lauxlib' {
   // module.exports.luaL_prepbuffsize = luaL_prepbuffsize;
   // module.exports.luaL_pushresult = luaL_pushresult;
   // module.exports.luaL_pushresultsize = luaL_pushresultsize;
-  const luaL_ref: Function;
+  const luaL_ref: (L: lua_State, t: number) => number;
   // module.exports.luaL_requiref = luaL_requiref;
   // module.exports.luaL_setfuncs = luaL_setfuncs;
   // module.exports.luaL_setmetatable = luaL_setmetatable;
   // module.exports.luaL_testudata = luaL_testudata;
-  const luaL_tolstring: Function;
+  const luaL_tolstring: (L: lua_State, idx: number) => Uint8Array;
   // module.exports.luaL_traceback = luaL_traceback;
   // module.exports.luaL_typename = luaL_typename;
-  const luaL_unref: Function;
+  const luaL_unref: (L: lua_State, t: number, ref: number) => void;
   // module.exports.luaL_where = luaL_where;
   // module.exports.lua_writestringerror = lua_writestringerror;
 }
 
 declare module 'fengari/src/lapi' {
+  import { lua_State } from 'fengari/src/lstate';
+
   // module.exports.api_incr_top          = api_incr_top;
   // module.exports.api_checknelems       = api_checknelems;
   // module.exports.lua_absindex          = lua_absindex;
   // module.exports.lua_arith             = lua_arith;
   // module.exports.lua_atpanic           = lua_atpanic;
-  const lua_atnativeerror: Function;
+  const lua_atnativeerror: (L: lua_State, errorf: (L: lua_State) => number) => void;
   // module.exports.lua_call              = lua_call;
   // module.exports.lua_callk             = lua_callk;
   // module.exports.lua_checkstack        = lua_checkstack;
@@ -109,7 +113,7 @@ declare module 'fengari/src/lapi' {
   // module.exports.lua_getallocf         = lua_getallocf;
   // module.exports.lua_getextraspace     = lua_getextraspace;
   // module.exports.lua_getfield          = lua_getfield;
-  const lua_getglobal: Function;
+  const lua_getglobal: (L: lua_State, name: string) => unknown;
   // module.exports.lua_geti              = lua_geti;
   // module.exports.lua_getmetatable      = lua_getmetatable;
   // module.exports.lua_gettable          = lua_gettable;
@@ -136,35 +140,35 @@ declare module 'fengari/src/lapi' {
   // module.exports.lua_newtable          = lua_newtable;
   // module.exports.lua_newuserdata       = lua_newuserdata;
   // module.exports.lua_next              = lua_next;
-  const lua_pcall: Function;
+  const lua_pcall: (L: lua_State, n: number, r: number, f: number) => number;
   // module.exports.lua_pcallk            = lua_pcallk;
-  const lua_pop: Function;
-  const lua_pushboolean: Function;
+  const lua_pop: (L: lua_State, n: number) => void;
+  const lua_pushboolean: (L: lua_State, b: boolean) => void;
   // module.exports.lua_pushcclosure      = lua_pushcclosure;
   // module.exports.lua_pushcfunction     = lua_pushcfunction;
   // module.exports.lua_pushfstring       = lua_pushfstring;
   // module.exports.lua_pushglobaltable   = lua_pushglobaltable;
-  const lua_pushinteger: Function;
+  const lua_pushinteger: (L: lua_State, n: number) => void;
   // module.exports.lua_pushjsclosure     = lua_pushjsclosure;
   // module.exports.lua_pushjsfunction    = lua_pushjsfunction;
-  const lua_pushlightuserdata: Function;
+  const lua_pushlightuserdata: (L: lua_State, p: unknown) => void;
   // module.exports.lua_pushliteral       = lua_pushliteral;
   // module.exports.lua_pushlstring       = lua_pushlstring;
-  const lua_pushnil: Function;
-  const lua_pushnumber: Function;
-  const lua_pushstring: Function;
+  const lua_pushnil: (L: lua_State) => void;
+  const lua_pushnumber: (L: lua_State, n: number) => void;
+  const lua_pushstring: (L: lua_State, s: string) => string;
   // module.exports.lua_pushthread        = lua_pushthread;
   // module.exports.lua_pushvalue         = lua_pushvalue;
   // module.exports.lua_pushvfstring      = lua_pushvfstring;
   // module.exports.lua_rawequal          = lua_rawequal;
   // module.exports.lua_rawget            = lua_rawget;
-  const lua_rawgeti: Function;
+  const lua_rawgeti: (L: lua_State, idx: number, n: number) => unknown;
   // module.exports.lua_rawgetp           = lua_rawgetp;
   // module.exports.lua_rawlen            = lua_rawlen;
   // module.exports.lua_rawset            = lua_rawset;
   // module.exports.lua_rawseti           = lua_rawseti;
   // module.exports.lua_rawsetp           = lua_rawsetp;
-  const lua_register: Function;
+  const lua_register: (L: lua_State, n: string, f: (L: lua_State) => number) => void;
   // module.exports.lua_remove            = lua_remove;
   // module.exports.lua_replace           = lua_replace;
   // module.exports.lua_rotate            = lua_rotate;
@@ -179,7 +183,7 @@ declare module 'fengari/src/lapi' {
   // module.exports.lua_setuservalue      = lua_setuservalue;
   // module.exports.lua_status            = lua_status;
   // module.exports.lua_stringtonumber    = lua_stringtonumber;
-  const lua_toboolean: Function;
+  const lua_toboolean: (L: lua_State, idx: number) => boolean;
   // module.exports.lua_tocfunction       = lua_tocfunction;
   // module.exports.lua_todataview        = lua_todataview;
   // module.exports.lua_tointeger         = lua_tointeger;
@@ -192,7 +196,7 @@ declare module 'fengari/src/lapi' {
   // module.exports.lua_toproxy           = lua_toproxy;
   // module.exports.lua_tostring          = lua_tostring;
   // module.exports.lua_tothread          = lua_tothread;
-  const lua_touserdata: Function;
+  const lua_touserdata: (L: lua_State, idx: number) => unknown;
   // module.exports.lua_type              = lua_type;
   // module.exports.lua_typename          = lua_typename;
   // module.exports.lua_upvalueid         = lua_upvalueid;
@@ -202,6 +206,8 @@ declare module 'fengari/src/lapi' {
 }
 
 declare module 'fengari/src/ldo' {
+  import { lua_State } from 'fengari/src/lstate';
+
   // module.exports.adjust_top           = adjust_top;
   // module.exports.luaD_call            = luaD_call;
   // module.exports.luaD_callnoyield     = luaD_callnoyield;
@@ -217,8 +223,8 @@ declare module 'fengari/src/ldo' {
   // module.exports.luaD_reallocstack    = luaD_reallocstack;
   // module.exports.luaD_throw           = luaD_throw;
   // module.exports.lua_isyieldable      = lua_isyieldable;
-  const lua_resume: Function;
-  const lua_yield: Function;
+  const lua_resume: (L: lua_State, from: lua_State, nargs: number) => number;
+  const lua_yield: (L: lua_State, n: number) => void;
   // module.exports.lua_yieldk           = lua_yieldk;
 }
 
@@ -228,9 +234,9 @@ declare module 'fengari/src/defs' {
   // module.exports.luastring_of      = luastring_of;
   // module.exports.is_luastring      = is_luastring;
   // module.exports.luastring_eq      = luastring_eq;
-  const to_jsstring: Function;
+  const to_jsstring: (value: Uint8Array, from?: number, to?: number, replacement_char?: boolean) => string;
   // module.exports.to_uristring      = to_uristring;
-  const to_luastring: Function;
+  const to_luastring: (str: string, cache?: boolean) => Uint8Array;
   // module.exports.from_userstring   = from_userstring;
 
   // module.exports.LUA_SIGNATURE       = LUA_SIGNATURE;

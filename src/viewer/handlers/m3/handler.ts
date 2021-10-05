@@ -11,7 +11,7 @@ export interface M3HandlerObject {
 }
 
 export default {
-  load(viewer: ModelViewer) {
+  load(viewer: ModelViewer): void {
     const gl = viewer.gl;
     const webgl = viewer.webgl;
     const teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
@@ -43,7 +43,7 @@ export default {
 
     viewer.sharedCache.set('m3', handlerData);
   },
-  isValidSource(object: unknown) {
+  isValidSource(object: unknown): boolean {
     if (object instanceof Parser) {
       return true;
     }

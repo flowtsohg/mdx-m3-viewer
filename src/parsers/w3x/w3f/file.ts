@@ -29,7 +29,7 @@ export default class War3CampaignW3f {
   mapTitles: MapTitle[] = [];
   mapOrders: MapOrder[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array) {
+  load(buffer: ArrayBuffer | Uint8Array): void {
     const stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -69,7 +69,7 @@ export default class War3CampaignW3f {
     }
   }
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
@@ -106,7 +106,7 @@ export default class War3CampaignW3f {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 63 + byteLengthUtf8(this.name) + byteLengthUtf8(this.difficulty) + byteLengthUtf8(this.author) + byteLengthUtf8(this.description) + byteLengthUtf8(this.backgroundScreenPath) + byteLengthUtf8(this.minimapImagePath) + byteLengthUtf8(this.ambientSoundPath);
 
     for (const title of this.mapTitles) {

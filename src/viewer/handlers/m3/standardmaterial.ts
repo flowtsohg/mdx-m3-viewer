@@ -61,7 +61,7 @@ export class M3StandardMaterial {
     ];
   }
 
-  bindCommon() {
+  bindCommon(): void {
     const gl = this.gl;
 
     if (this.blendMode === 1) {
@@ -86,7 +86,7 @@ export class M3StandardMaterial {
     gl.depthMask(true);
   }
 
-  bind(shader: Shader, textureOverrides: Map<number, Texture>) {
+  bind(shader: Shader, textureOverrides: Map<number, Texture>): void {
     const gl = this.gl;
 
     this.bindCommon();
@@ -107,7 +107,7 @@ export class M3StandardMaterial {
     layers[12].bind(shader, textureOverrides);
   }
 
-  unbind(shader: Shader) {
+  unbind(shader: Shader): void {
     const gl = this.gl;
 
     gl.disable(gl.BLEND);

@@ -17,7 +17,7 @@ export default class Corner {
   cliffTexture = 0;
   layerHeight = 0;
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.groundHeight = (stream.readInt16() - 8192) / 512;
 
     const waterAndEdge = stream.readInt16();
@@ -45,7 +45,7 @@ export default class Corner {
     this.layerHeight = cliffTextureAndLayer & 0b00001111;
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeInt16(this.groundHeight * 512 + 8192);
     stream.writeInt16(this.waterHeight * 512 + 8192 + this.mapEdge << 14);
     stream.writeUint8((this.ramp << 4) | (this.blight << 5) | (this.water << 6) | (this.boundary << 7) | this.groundTexture);

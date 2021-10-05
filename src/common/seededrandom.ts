@@ -3,7 +3,7 @@
  * See http://indiegamr.com/generate-repeatable-random-numbers-in-js/
  */
 export default function seededRandom(seed: number) {
-  return () => {
+  return (): number => {
     seed = (seed * 9301 + 49297) % 233280;
 
     return seed / 233280;

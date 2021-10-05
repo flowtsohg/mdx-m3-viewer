@@ -16,7 +16,7 @@ export default class ClientBuffer {
     this.reserve(size);
   }
 
-  reserve(size: number) {
+  reserve(size: number): void {
     if (this.size < size) {
       const gl = this.gl;
 
@@ -32,7 +32,7 @@ export default class ClientBuffer {
     }
   }
 
-  bindAndUpdate(size = this.size) {
+  bindAndUpdate(size = this.size): void {
     const gl = this.gl;
     const byteView = <Uint8Array>this.byteView;
 

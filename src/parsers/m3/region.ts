@@ -22,7 +22,7 @@ export default class Region {
   unknown4 = 0;
   unknown5 = new Uint8Array(8);
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, _index: IndexEntry[]): void {
     this.version = version;
     this.unknown0 = stream.readUint32();
     this.unknown1 = stream.readUint32();

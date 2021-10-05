@@ -20,7 +20,7 @@ export default class EventObjectSpn extends EmittedObject {
     this.internalInstance = internalModel.addInstance();
   }
 
-  bind() {
+  bind(): void {
     const emitter = <EventObjectSpnEmitter>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const scene = <Scene>instance.scene;
@@ -35,7 +35,7 @@ export default class EventObjectSpn extends EmittedObject {
     this.health = 1;
   }
 
-  update(dt: number) {
+  update(_dt: number): void{
     const instance = this.internalInstance;
     const model = <MdxModel>instance.model;
 

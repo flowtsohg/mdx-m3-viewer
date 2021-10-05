@@ -8,17 +8,17 @@ export default class Import {
   isCustom = 0;
   path = '';
 
-  load(stream: BinaryStream) {
+  load(stream: BinaryStream): void {
     this.isCustom = stream.readUint8();
     this.path = stream.readNull();
   }
 
-  save(stream: BinaryStream) {
+  save(stream: BinaryStream): void {
     stream.writeUint8(this.isCustom);
     stream.writeNull(this.path);
   }
 
-  getByteLength() {
+  getByteLength(): number {
     return 2 + byteLengthUtf8(this.path);
   }
 }

@@ -10,7 +10,7 @@ export const QUAT_DEFAULT = quat.create();
 
 const vec4Heap = vec4.create();
 
-export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec4) {
+export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec4): vec3 {
   const x = 2 * (v[0] - viewport[0]) / viewport[2] - 1;
   const y = 1 - 2 * (v[1] - viewport[1]) / viewport[3];
   const z = 2 * v[2] - 1;
@@ -27,7 +27,7 @@ export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec
  * 
  *     dot(plane, vec4(point, 1))
  */
-export function distanceToPlane(plane: vec4, point: vec3) {
+export function distanceToPlane(plane: vec4, point: vec3): number {
   return plane[0] * point[0] + plane[1] * point[1] + plane[2] * point[2] + plane[3];
 }
 
@@ -36,7 +36,7 @@ export function distanceToPlane(plane: vec4, point: vec3) {
  * 
  *     dot(plane, vec4(x, y, 0, 1))
  */
-export function distanceToPlane2(plane: vec4, x: number, y: number) {
+export function distanceToPlane2(plane: vec4, x: number, y: number): number {
   return plane[0] * x + plane[1] * y + plane[3];
 }
 
@@ -45,7 +45,7 @@ export function distanceToPlane2(plane: vec4, x: number, y: number) {
  * 
  *     dot(plane, vec4(x, y, z, 1))
  */
-export function distanceToPlane3(plane: vec4, x: number, y: number, z: number) {
+export function distanceToPlane3(plane: vec4, x: number, y: number, z: number): number {
   return plane[0] * x + plane[1] * y + plane[2] * z + plane[3];
 }
 
@@ -56,7 +56,7 @@ export function distanceToPlane3(plane: vec4, x: number, y: number, z: number) {
  *
  * If first is given, the test will begin from the plane at that index.
  */
-export function testSphere(planes: vec4[], x: number, y: number, z: number, r: number, first: number) {
+export function testSphere(planes: vec4[], x: number, y: number, z: number, r: number, first: number): number {
   if (first === -1) {
     first = 0;
   }
@@ -79,7 +79,7 @@ export function testSphere(planes: vec4[], x: number, y: number, z: number, r: n
  *
  * If first is given, the test will begin from the plane at that index.
  */
-export function testCell(planes: vec4[], left: number, right: number, bottom: number, top: number, first: number) {
+export function testCell(planes: vec4[], left: number, right: number, bottom: number, top: number, first: number): number {
   if (first === -1) {
     first = 0;
   }
@@ -99,7 +99,7 @@ export function testCell(planes: vec4[], left: number, right: number, bottom: nu
   return -1;
 }
 
-export function planeLength(plane: vec4) {
+export function planeLength(plane: vec4): number {
   return Math.hypot(plane[0], plane[1], plane[2]);
 }
 
@@ -108,7 +108,7 @@ export function planeLength(plane: vec4) {
  * 
  * Note that this is not the same as normalizing a vec4.
  */
-export function normalizePlane(out: vec4, plane: vec4) {
+export function normalizePlane(out: vec4, plane: vec4): void {
   const len = planeLength(plane);
 
   out[0] = plane[0] / len;
@@ -120,7 +120,7 @@ export function normalizePlane(out: vec4, plane: vec4) {
 /**
  * Unpacks a matrix's planes.
  */
-export function unpackPlanes(planes: vec4[], m: mat4) {
+export function unpackPlanes(planes: vec4[], m: mat4): void {
   // eslint-disable-next-line one-var
   const a00 = m[0], a01 = m[4], a02 = m[8], a03 = m[12],
     a10 = m[1], a11 = m[5], a12 = m[9], a13 = m[13],
@@ -187,7 +187,7 @@ const U = vec3.create();
  * 
  * See https://stackoverflow.com/a/52551983/2503048
  */
-export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3) {
+export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3): quat {
   vec3.normalize(F, vec3.sub(F, to, from));
   vec3.normalize(R, vec3.cross(R, worldUp, F));
   vec3.cross(U, R, F);

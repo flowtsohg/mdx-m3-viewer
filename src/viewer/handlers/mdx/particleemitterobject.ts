@@ -34,31 +34,31 @@ export default class ParticleEmitterObject extends GenericObject {
       });
   }
 
-  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPES', sequence, frame, counter, this.speed);
   }
 
-  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPLTV', sequence, frame, counter, this.latitude);
   }
 
-  getLongitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getLongitude(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPLN', sequence, frame, counter, this.longitude);
   }
 
-  getLifeSpan(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getLifeSpan(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPEL', sequence, frame, counter, this.lifeSpan);
   }
 
-  getGravity(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getGravity(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPEG', sequence, frame, counter, this.gravity);
   }
 
-  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPEE', sequence, frame, counter, this.emissionRate);
   }
 
-  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+  override getVisibility(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KPEV', sequence, frame, counter, 1);
   }
 }

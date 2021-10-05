@@ -14,7 +14,7 @@ export default class War3MapWtg {
   variables: Variable[] = [];
   triggers: Trigger[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array, triggerData: TriggerData) {
+  load(buffer: ArrayBuffer | Uint8Array, triggerData: TriggerData): void {
     const stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'WTG!') {
@@ -54,7 +54,7 @@ export default class War3MapWtg {
     }
   }
 
-  save() {
+  save(): Uint8Array {
     const stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('WTG!');
@@ -81,7 +81,7 @@ export default class War3MapWtg {
     return stream.uint8array;
   }
 
-  getByteLength() {
+  getByteLength(): number {
     let size = 24;
     const version = this.version;
 

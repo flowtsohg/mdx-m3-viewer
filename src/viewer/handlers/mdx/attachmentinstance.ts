@@ -27,7 +27,7 @@ export default class AttachmentInstance {
     this.internalInstance = internalInstance;
   }
 
-  update() {
+  update(): void {
     const instance = this.instance;
     const internalInstance = this.internalInstance;
 

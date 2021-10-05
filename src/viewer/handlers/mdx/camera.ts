@@ -25,15 +25,15 @@ export default class Camera extends AnimatedObject {
     this.targetPosition = camera.targetPosition;
   }
 
-  getTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getTranslation(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getVectorValue(out, 'KCTR', sequence, frame, counter, <Float32Array>VEC3_ZERO);
   }
 
-  getTargetTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+  getTargetTranslation(out: Float32Array, sequence: number, frame: number, counter: number): number {
     return this.getVectorValue(out, 'KTTR', sequence, frame, counter, <Float32Array>VEC3_ZERO);
   }
 
-  getRotation(out: Uint32Array, sequence: number, frame: number, counter: number) {
+  getRotation(out: Uint32Array, sequence: number, frame: number, counter: number): number {
     return this.getScalarValue(out, 'KCRL', sequence, frame, counter, 0);
   }
 }

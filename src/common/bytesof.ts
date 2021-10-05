@@ -5,7 +5,7 @@ import { encodeUtf8 } from './utf8';
  * 
  * Strings are encoded as UTF8.
  */
-export function bytesOf(buffer: ArrayBuffer | Uint8Array | string | number[]) {
+export function bytesOf(buffer: ArrayBuffer | Uint8Array | string | number[]): Uint8Array {
   if (buffer instanceof Uint8Array) {
     return buffer;
   } else if (typeof buffer === 'string') {

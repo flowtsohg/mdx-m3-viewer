@@ -15,7 +15,7 @@ export default class Player {
   allyHighPriorities = 0;
   unknown1 = new Uint8Array(8);
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number): void {
     this.id = stream.readInt32();
     this.type = stream.readInt32();
     this.race = stream.readInt32();
@@ -29,7 +29,7 @@ export default class Player {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeInt32(this.id);
     stream.writeInt32(this.type);
     stream.writeInt32(this.race);
@@ -43,7 +43,13 @@ export default class Player {
     }
   }
 
-  getByteLength(version: number) {
-    return (version > 30 ? 41 : 33) + byteLengthUtf8(this.name);
+  getByteLength(version: number): number {
+    let size = 33 + byteLengthUtf8(this.name);
+
+    if (version > 30) {
+      size += 8;
+    }
+
+    return size;
   }
 }

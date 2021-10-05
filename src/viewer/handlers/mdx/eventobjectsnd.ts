@@ -8,7 +8,7 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
  * An MDX spawned sound object.
  */
 export default class EventObjectSnd extends EmittedObject {
-  bind() {
+  bind(): void {
     const emitter = <EventObjectSndEmitter>this.emitter;
     const instance = <MdxModelInstance>emitter.instance;
     const viewer = instance.model.viewer;
@@ -41,7 +41,7 @@ export default class EventObjectSnd extends EmittedObject {
     }
   }
 
-  update(dt: number) {
+  update(_dt: number): void {
 
   }
 }

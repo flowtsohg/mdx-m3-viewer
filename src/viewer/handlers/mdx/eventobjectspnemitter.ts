@@ -5,7 +5,7 @@ import EventObjectSpn from './eventobjectspn';
  * An MDX model emitter.
  */
 export default class EventObjectSpnEmitter extends EventObjectEmitter {
-  createObject() {
+  createObject(): EventObjectSpn {
     return new EventObjectSpn(this);
   }
 }

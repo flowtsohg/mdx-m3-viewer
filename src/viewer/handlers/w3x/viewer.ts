@@ -14,6 +14,7 @@ import waterFrag from './shaders/water.frag';
 import cliffsVert from './shaders/cliffs.vert';
 import cliffsFrag from './shaders/cliffs.frag';
 import War3MapViewerMap from './map';
+import GenericResource from '../../genericresource';
 
 export default class War3MapViewer extends ModelViewer {
   wc3PathSolver: PathSolver;
@@ -64,7 +65,7 @@ export default class War3MapViewer extends ModelViewer {
     this.loadBaseFiles();
   }
 
-  async loadBaseFiles() {
+  async loadBaseFiles(): Promise<void> {
     const promises = [
       this.loadBaseFile('TerrainArt\\Terrain.slk', 'text'),
       this.loadBaseFile('TerrainArt\\CliffTypes.slk', 'text'),
@@ -125,14 +126,14 @@ export default class War3MapViewer extends ModelViewer {
     this.emit('loadedbasefiles');
   }
 
-  loadBaseFile(path: string, dataType: FetchDataTypeName) {
+  loadBaseFile(path: string, dataType: FetchDataTypeName): Promise<GenericResource | undefined> {
     return super.loadGeneric(this.wc3PathSolver(path), dataType);
   }
 
   /**
    * Load a map from a buffer.
    */
-  loadMap(buffer: ArrayBuffer | Uint8Array) {
+  loadMap(buffer: ArrayBuffer | Uint8Array): void {
     if (this.loadedBaseFiles) {
       if (this.map) {
         this.map.die();
@@ -145,7 +146,7 @@ export default class War3MapViewer extends ModelViewer {
   /**
    * Update the map.
    */
-  override update() {
+  override update(): void {
     if (this.map) {
       super.update();
 
@@ -156,7 +157,7 @@ export default class War3MapViewer extends ModelViewer {
   /**
    * Render the map.
    */
-  override render() {
+  override render(): void {
     if (this.map) {
       this.map.render();
     }

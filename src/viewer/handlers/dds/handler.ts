@@ -4,7 +4,7 @@ import ModelViewer from '../../viewer';
 import Texture from './texture';
 
 export default {
-  load(viewer: ModelViewer) {
+  load(viewer: ModelViewer): void {
     const webgl = viewer.webgl;
 
     // Optionally used when decoding mipmaps.
@@ -12,7 +12,7 @@ export default {
       console.warn('DDS: No compressed textures support! This might reduce performance.');
     }
   },
-  isValidSource(object: unknown) {
+  isValidSource(object: unknown): boolean {
     if (object instanceof DdsImage) {
       return true;
     }

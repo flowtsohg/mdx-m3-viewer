@@ -24,7 +24,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
   path = '';
   animationVisiblityGuide = '';
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -42,7 +42,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -59,7 +59,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     this.writeNonGenericAnimationChunks(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'SortPrimsFarZ') {
         this.flags |= Flags.SortPrimsFarZ;
@@ -101,7 +101,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('ParticleEmitterPopcorn', this.name);
     this.writeGenericHeader(stream);
 
@@ -155,7 +155,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 556 + super.getByteLength();
   }
 }

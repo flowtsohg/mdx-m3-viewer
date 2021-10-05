@@ -11,7 +11,7 @@ export default class TriggerCategory {
   name = '';
   isComment = 0;
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number): void {
     this.id = stream.readInt32();
     this.name = stream.readNull();
 
@@ -20,7 +20,7 @@ export default class TriggerCategory {
     }
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number): void {
     stream.writeInt32(this.id);
     stream.writeNull(this.name);
 
@@ -29,7 +29,7 @@ export default class TriggerCategory {
     }
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number): number {
     let size = 5 + byteLengthUtf8(this.name);
 
     if (version === 7) {

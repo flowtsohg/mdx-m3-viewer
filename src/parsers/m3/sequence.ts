@@ -15,7 +15,7 @@ export default class Sequence {
   frequency = 0;
   boundingSphere = new BoundingSphere();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
 
     stream.skip(8); // ?

@@ -12,7 +12,7 @@ export default class Batch {
   materialReferenceIndex = -1;
   unknown2 = 0;
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, _index: IndexEntry[]): void {
     this.version = version;
     this.unknown0 = stream.readUint32();
     this.regionIndex = stream.readUint16();

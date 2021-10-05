@@ -25,7 +25,7 @@ export class TriggerData {
   externalFunctions: FunctionObject[] = [{}, {}, {}, {}];
   externalPresets: StringObject = {};
 
-  addTriggerData(buffer: string, isExternal: boolean) {
+  addTriggerData(buffer: string, isExternal: boolean): void {
     let types = this.types;
     let functions = this.functions;
     let presets = this.presets;
@@ -71,7 +71,7 @@ export class TriggerData {
     }
   }
 
-  addTriggerTypes(types: StringObject, section: IniSection) {
+  addTriggerTypes(types: StringObject, section: IniSection): void {
     for (const [key, value] of section) {
       // We know the values are going to be strings.
       const tokens = value.split(',');
@@ -80,7 +80,7 @@ export class TriggerData {
     }
   }
 
-  addTriggerDataFunctions(functions: FunctionObject, section: IniSection, skipped: number) {
+  addTriggerDataFunctions(functions: FunctionObject, section: IniSection, skipped: number): void {
     for (const [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
@@ -112,7 +112,7 @@ export class TriggerData {
     }
   }
 
-  addTriggerDataPresets(presets: StringObject, section: IniSection) {
+  addTriggerDataPresets(presets: StringObject, section: IniSection): void {
     for (const [key, value] of section) {
       // We know the values are going to be strings.
       const tokens = value.split(',');
@@ -123,7 +123,7 @@ export class TriggerData {
     }
   }
 
-  addJassFunctions(jass: string) {
+  addJassFunctions(jass: string): void {
     const stream = new TokenStream(jass);
     let token;
 
@@ -178,7 +178,7 @@ export class TriggerData {
    * 
    * Returns the given type if its not a child type.
    */
-  getBaseType(type: string) {
+  getBaseType(type: string): string {
     type = type.toLowerCase();
 
     let base = this.types[type];
@@ -195,7 +195,7 @@ export class TriggerData {
     return base;
   }
 
-  isBaseFunction(type: number, name: string) {
+  isBaseFunction(type: number, name: string): boolean {
     name = name.toLowerCase();
 
     if (this.functions[type][name]) {
@@ -208,7 +208,7 @@ export class TriggerData {
   /**
    * Gets the signature of the given function.
    */
-  getFunction(type: number, name: string) {
+  getFunction(type: number, name: string): FunctionSignature {
     name = name.toLowerCase();
 
     let args = this.functions[type][name];
@@ -224,7 +224,7 @@ export class TriggerData {
    * Get the type of a function given its name.
    * Returns -1 if the function isn't recognized.
    */
-  getFunctionType(name: string) {
+  getFunctionType(name: string): number {
     name = name.toLowerCase();
 
     const functions = this.functions;
@@ -241,7 +241,7 @@ export class TriggerData {
   /**
    * Gets a preset value.
    */
-  getPreset(name: string) {
+  getPreset(name: string): string {
     name = name.toLowerCase();
 
     let preset = this.presets[name];
@@ -256,7 +256,7 @@ export class TriggerData {
   /**
    * Is the given preset a custom or standard one?
    */
-  isCustomPreset(name: string) {
+  isCustomPreset(name: string): boolean {
     name = name.toLowerCase();
 
     if (this.presets[name] !== undefined) {

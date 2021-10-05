@@ -3,7 +3,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import SanityTestData from './data';
 import { testReference } from './utils';
 
-function getSequenceFromFrame(data: SanityTestData, frame: number, globalSequenceId: number) {
+function getSequenceFromFrame(data: SanityTestData, frame: number, globalSequenceId: number): number {
   if (globalSequenceId === -1) {
     const sequences = data.model.sequences;
 
@@ -25,7 +25,7 @@ function getSequenceFromFrame(data: SanityTestData, frame: number, globalSequenc
   return -1;
 }
 
-function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, globalSequenceId: number, separated: number[][]) {
+function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, globalSequenceId: number, separated: number[][]): void {
   let lastFrame = -Infinity;
 
   for (let i = 0, l = frames.length; i < l; i++) {
@@ -60,7 +60,7 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
   }
 }
 
-function getSequenceName(data: SanityTestData, sequence: number, globalSequenceId: number) {
+function getSequenceName(data: SanityTestData, sequence: number, globalSequenceId: number): string {
   if (globalSequenceId === -1) {
     return `sequence "${data.model.sequences[sequence].name}"`;
   } else {
@@ -70,7 +70,7 @@ function getSequenceName(data: SanityTestData, sequence: number, globalSequenceI
 
 const EPSILON = 0.001;
 
-export function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
+export function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array): number {
   let d = 0;
 
   for (let i = 0, l = a.length; i < l; i++) {
@@ -90,7 +90,7 @@ export function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Fl
   return d;
 }
 
-export function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array) {
+export function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array): boolean {
   for (let i = 0, l = a.length; i < l; i++) {
     if (a[i] !== b[i]) {
       return false;
@@ -100,7 +100,7 @@ export function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | F
   return true;
 }
 
-function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, object: Animation, frames: number[] | Uint32Array) {
+function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, object: Animation, frames: number[] | Uint32Array): void {
   const { globalSequenceId, interpolationType, values } = object;
   let start;
 
@@ -147,7 +147,7 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
   }
 }
 
-export default function testTracks(data: SanityTestData, object: Animation | EventObject) {
+export default function testTracks(data: SanityTestData, object: Animation | EventObject): void {
   let framesOrTracks;
 
   if (object instanceof Animation) {

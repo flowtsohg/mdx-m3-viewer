@@ -9,19 +9,19 @@ export default class Extent {
   min = new Float32Array(3);
   max = new Float32Array(3);
 
-  readMdx(stream: BinaryStream) {
+  readMdx(stream: BinaryStream): void {
     this.boundsRadius = stream.readFloat32();
     stream.readFloat32Array(this.min);
     stream.readFloat32Array(this.max);
   }
 
-  writeMdx(stream: BinaryStream) {
+  writeMdx(stream: BinaryStream): void {
     stream.writeFloat32(this.boundsRadius);
     stream.writeFloat32Array(this.min);
     stream.writeFloat32Array(this.max);
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     if (this.min[0] !== 0 || this.min[1] !== 0 || this.min[2] !== 0) {
       stream.writeVectorAttrib('MinimumExtent', this.min);
     }

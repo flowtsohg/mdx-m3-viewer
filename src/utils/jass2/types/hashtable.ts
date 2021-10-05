@@ -6,7 +6,7 @@ import JassAgent from './agent';
 export default class JassHashTable extends JassAgent {
   table: Map<number, Map<number, any>> = new Map();
 
-  save(parentKey: number, childKey: number, value: any) {
+  save(parentKey: number, childKey: number, value: any): void {
     const table = this.table;
     let childTable = table.get(parentKey);
 
@@ -19,7 +19,7 @@ export default class JassHashTable extends JassAgent {
     childTable.set(childKey, value);
   }
 
-  load(parentKey: number, childKey: number, defaultValue?: number) {
+  load(parentKey: number, childKey: number, defaultValue?: any): any {
     const table = this.table;
     const childTable = table.get(parentKey);
 
@@ -34,7 +34,7 @@ export default class JassHashTable extends JassAgent {
     return defaultValue;
   }
 
-  have(parentKey: number, childKey: number) {
+  have(parentKey: number, childKey: number): boolean {
     const table = this.table;
     const childTable = table.get(parentKey);
 
@@ -45,7 +45,7 @@ export default class JassHashTable extends JassAgent {
     return childTable.has(childKey);
   }
 
-  remove(parentKey: number, childKey: number) {
+  remove(parentKey: number, childKey: number): void {
     const table = this.table;
     const childTable = table.get(parentKey);
 
@@ -58,11 +58,11 @@ export default class JassHashTable extends JassAgent {
     }
   }
 
-  flush() {
+  flush(): void {
     this.table.clear();
   }
 
-  flushChild(parentKey: number) {
+  flushChild(parentKey: number): void {
     const child = this.table.get(parentKey);
 
     if (child) {

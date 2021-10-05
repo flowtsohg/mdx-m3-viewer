@@ -24,7 +24,7 @@ export default class Light extends GenericObject {
     super(0x200);
   }
 
-  override readMdx(stream: BinaryStream) {
+  override readMdx(stream: BinaryStream): void {
     const start = stream.index;
     const size = stream.readUint32();
 
@@ -40,7 +40,7 @@ export default class Light extends GenericObject {
     this.readAnimations(stream, size - (stream.index - start));
   }
 
-  override writeMdx(stream: BinaryStream) {
+  override writeMdx(stream: BinaryStream): void {
     stream.writeUint32(this.getByteLength());
 
     super.writeMdx(stream);
@@ -55,7 +55,7 @@ export default class Light extends GenericObject {
     this.writeNonGenericAnimationChunks(stream);
   }
 
-  readMdl(stream: TokenStream) {
+  readMdl(stream: TokenStream): void {
     for (const token of super.readGenericBlock(stream)) {
       if (token === 'Omnidirectional') {
         this.type = LightType.Omnidirectional;
@@ -95,7 +95,7 @@ export default class Light extends GenericObject {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream): void {
     stream.startObjectBlock('Light', this.name);
     this.writeGenericHeader(stream);
 
@@ -137,7 +137,7 @@ export default class Light extends GenericObject {
     stream.endBlock();
   }
 
-  override getByteLength() {
+  override getByteLength(): number {
     return 48 + super.getByteLength();
   }
 }

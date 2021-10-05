@@ -13,7 +13,7 @@ export default class Md34 {
   entries = 0;
   model = new Reference();
 
-  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]): void {
     this.version = version;
     this.tag = reverse(stream.readBinary(4));
     this.offset = stream.readUint32();
