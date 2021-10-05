@@ -10,6 +10,7 @@
     "sourceMap": true,
     "declaration": true,
     "strict": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
@@ -18,5 +19,5 @@
     "noPropertyAccessFromIndexSignature": true,
     "suppressImplicitAnyIndexErrors": true,
   },
-  "exclude": ["clients"]
+  "exclude": ["clients", "clean.js", "webpack.config.js"]
 }
