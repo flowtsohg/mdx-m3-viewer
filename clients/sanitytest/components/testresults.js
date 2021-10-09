@@ -167,9 +167,17 @@ class TestResultsNode extends Component {
       className = node.type;
       textContent = node.message;
       tooltip = getTooltip(textContent);
+
+      if (tooltip.length) {
+        className += ' pointer';
+      }
     }
 
-    createElement({ className, textContent, title: tooltip, container: this.container });
+    const resultElement = createElement({ className, textContent, title: tooltip, container: this.container });
+
+    if (tooltip.length) {
+      createElement({ tagName: 'span', className: 'info_marker', textContent: 'tooltip', container: resultElement });
+    }
 
     this.node = node;
     this.nodes = [];

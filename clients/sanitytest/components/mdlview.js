@@ -14,7 +14,7 @@ export default class MdlView extends Component {
     this.nodes = [];
     this.visibleNode = null;
 
-    for (let node of nodes) {
+    for (let node of mdlNodes) {
       this.nodes.push(new MdlViewNode(this, node, this.structureElement));
     }
   }

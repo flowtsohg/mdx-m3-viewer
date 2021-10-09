@@ -96,7 +96,7 @@ export default class Geoset {
 
     if (skinningType === SkinningType.Skin) {
       this.bindSkin(gl, attribs);
-    } else if (skinningType === SkinningType.VertexGroups) {
+    } else if (skinningType === SkinningType.ExtendedVertexGroups) {
       this.bindVertexGroupsExtended(gl, attribs);
     } else {
       this.bindVertexGroups(gl, attribs);

@@ -34,6 +34,8 @@ Not relevant to portraits.`;
     return 'A keyframe that is not in any animation is useless.';
   } else if (message.includes('is lower than the track before it at')) {
     return 'A keyframe is not supposed to have a frame before the previous keyframe.';
+  } else if (message === 'There are no vertices attached to this bone') {
+    return 'Bones with no attached vertices should preferably be converted to helpers.'
   } else {
     //console.log('getTooltip', message)
   }
