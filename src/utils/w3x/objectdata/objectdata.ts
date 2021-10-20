@@ -2,12 +2,12 @@ import War3MapW3u from '../../../parsers/w3x/w3u/file';
 import { MappedData } from '../../mappeddata';
 import { OEItems, OEUnits } from './containers';
 
-interface ModificationFiles {
+export interface ModificationFiles {
   w3u?: War3MapW3u,
   w3t?: War3MapW3u,
 }
 
-export default class ObjectData {
+export class ObjectData {
   units: OEUnits;
   items: OEItems;
 
