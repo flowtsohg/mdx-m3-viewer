@@ -1,6 +1,6 @@
-import ObjectModifications from './objectmodifications';
+import { OEObject } from './object';
 
-export default class UnitModifications extends ObjectModifications {
+export class OEUnit extends OEObject {
   get requiredAnimationNames(): string { return <string>this.get('uani'); }
   set requiredAnimationNames(value: string | undefined) { this.set('uani', value); }
   

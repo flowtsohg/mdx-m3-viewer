@@ -29,7 +29,7 @@ export default class ViewerControls extends Component {
       this.teamColorsElement.add(createElement({ tagName: 'option', textContent: teamColor.name }));
     }
 
-    // Extent.
+    // Extents.
     container = createElement({ container: this.container });
 
     createElement({ textContent: 'Show extents:', container });
@@ -41,7 +41,15 @@ export default class ViewerControls extends Component {
     this.extentElement.add(createElement({ tagName: 'option', textContent: 'Box' }));
     this.extentElement.add(createElement({ tagName: 'option', textContent: 'Sphere' }));
     this.extentElement.add(createElement({ tagName: 'option', textContent: 'Both' }));
-    this.extentElement.selectedIndex = 1;
+    this.extentElement.selectedIndex = 0;
+
+    // Collision shapes.
+    container = createElement({ container: this.container });
+
+    createElement({ textContent: 'Show collisions:', container });
+    this.collisionsToggle = new Toggle('No', 'Yes', (e) => {
+      this.viewer.showCollisions(e.clicked);
+    }, { className: 'controls', container });
 
     // Run animations.
     container = createElement({ container: this.container });

@@ -1,9 +1,9 @@
 import convertWeu from './weu/weu';
 import generateListfile from './generatelistfile';
-import MapModifications from './modifications/mapmodifications';
+import ObjectData from './objectdata/objectdata';
 
 export default {
   convertWeu,
   generateListfile,
-  MapModifications,
+  ObjectData,
 };

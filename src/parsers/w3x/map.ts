@@ -64,18 +64,14 @@ export default class War3Map {
    * Save this map.
    * If the archive is in readonly mode, returns null.
    */
-  save(): Uint8Array | null {
-    if (this.readonly) {
-      return null;
-    }
-
+  save(): Uint8Array {
     // Update the imports if needed.
     this.setImportsFile();
 
     const archiveBuffer = this.archive.save();
 
     if (!archiveBuffer) {
-      return null;
+      throw Error('Failed to save the map MPQ archive');
     }
 
     const information = this.getMapInformation();

@@ -13,6 +13,8 @@ import { createUnitRectangle, createUnitCube, createUnitSphere } from '../../../
 import { filename } from '../../../src/common/path';
 import Model from '../../../src/viewer/model';
 import Texture from '../../../src/viewer/texture';
+import MdxModel from '../../../src/viewer/handlers/mdx/model';
+import { Shape } from '../../../src/parsers/mdlx/collisionshape';
 
 export default class Viewer extends Component {
   constructor(tester, options) {
@@ -143,7 +145,7 @@ export default class Viewer extends Component {
 
     let instance;
 
-    if (modelOrTexture instanceof Model) {
+    if (modelOrTexture instanceof MdxModel) {
       instance = modelOrTexture.addInstance();
       instance.setTeamColor(this.teamColor);
 
@@ -182,6 +184,40 @@ export default class Viewer extends Component {
       //       test.cameras.push(instance);
       //     }
       //   });
+
+      for (let shape of modelOrTexture.collisionShapes) {
+        if (shape.type === 0) {
+          const shapeInstance = this.boxModel.addInstance();
+          const [min, max] = shape.vertices;
+
+          let x = (max[0] + min[0]) / 2;
+          let y = (max[1] + min[1]) / 2;
+          let z = (max[2] + min[2]) / 2;
+          let w = (max[0] - min[0]) / 2;
+          let d = (max[1] - min[1]) / 2;
+          let h = (max[2] - min[2]) / 2;
+
+          shapeInstance.hide();
+          shapeInstance.setLocation([x, y, z]);
+          shapeInstance.setScale([w, d, h]);
+          shapeInstance.dontInheritScaling = false;
+          shapeInstance.setParent(instance.nodes[shape.index]);
+          shapeInstance.setScene(this.scene);
+
+          test.collisions.push(shapeInstance);
+        } else if (shape.type === 2) {
+          const shapeInstance = this.sphereModel.addInstance();
+
+          shapeInstance.hide();
+          shapeInstance.setParent(instance.nodes[shape.index]);
+          shapeInstance.uniformScale(shape.boundsRadius);
+          shapeInstance.setScene(this.scene);
+
+          test.collisions.push(shapeInstance);
+        } else {
+          console.log('COLLISION SHAPE NOT SUPPOTED', shape)
+        }
+      }
     } else {
       instance = this.textureModel.addInstance();
 
@@ -216,6 +252,10 @@ export default class Viewer extends Component {
         // for (let camera of this.visibleTest.cameras) {
         //   camera.hide();
         // }
+
+        for (const collision of this.visibleTest.collisions) {
+          collision.hide();
+        }
       }
 
       this.visibleTest = test;
@@ -243,6 +283,12 @@ export default class Viewer extends Component {
       // for (let camera of test.cameras) {
       //   camera.show();
       // }
+
+      if (this.controls.collisionsToggle.clicked) {
+        for (const collision of test.collisions) {
+          collision.show();
+        }
+      }
     }
   }
 
@@ -260,6 +306,18 @@ export default class Viewer extends Component {
         this.visibleTest.boundingSphere.hide();
       } else {
         this.visibleTest.boundingSphere.show();
+      }
+    }
+  }
+
+  showCollisions(show) {
+    if (this.visibleTest) {
+      for (const collision of this.visibleTest.collisions) {
+        if (show) {
+          collision.show();
+        } else {
+          collision.hide();
+        }
       }
     }
   }

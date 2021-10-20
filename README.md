@@ -53,15 +53,7 @@ These include things like...
 npm install mdx-m3-viewer
 npm run build
 ```
-This will generate `dist/viewer.min.js`.
-
-If you are using Typescript, you can also import anything in the library directly.\
-For example, if you only care about an MDX viewer, you could do the following:
-```javascript
-import ModelViewer from 'mdx-m3-viewer/src/viewer/viewer';
-import mdxHandler from 'mdx-m3-viewer/src/viewer/handlers/mdx/handler';
-```
-This way, you don't import any parsers/handlers/utilities that are not needed.
+This will generate the CommonJS, UMD, and the packed clients under `dist`.
 
 ------------------------
 
@@ -78,12 +70,12 @@ You can also check out the other available clients.
 
 ------------------------
 
-#### Usage
+#### Importing
 
 You can import the viewer in different ways:
 ```javascript
-// webpack export in the browser.
-new ModelViewer.default.viewer.ModelViewer(canvas);
+// UMD export in the browser.
+new ModelViewer.viewer.ModelViewer(canvas);
 
 // require/import the library.
 const ModelViewer = require('mdx-m3-viewer'); // CommonJS.
@@ -94,10 +86,16 @@ new ModelViewer.viewer.ModelViewer(canvas);
 const ModelViewer = require('mdx-m3-viewer/src/viewer/viewer'); // CommonJS.
 import ModelViewer from 'mdx-m3-viewer/src/viewer/viewer'; // ES6.
 new ModelViewer(canvas);
-
 ```
 
+When developing with TypeScript, nothing needs to be done to get correct typings.
+This is true also when importing specific files, which means a client can import only what it needs from the library.
+
 All code snippets will use the names as if you imported them directly to avoid some mess. See the examples for actual namespacing.
+
+------------------------
+
+#### Usage
 
 First, let's create the viewer:
 ```javascript

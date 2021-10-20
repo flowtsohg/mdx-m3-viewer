@@ -1,5 +1,5 @@
 import BinaryStream from '../../common/binarystream';
-import { decodeUtf8 } from '../../common/utf8';
+import { decodeUtf8, encodeUtf8 } from '../../common/utf8';
 import TokenStream from './tokenstream';
 import Extent from './extent';
 import Sequence from './sequence';
@@ -94,13 +94,17 @@ export default class Model {
    */
   load(buffer: ArrayBuffer | Uint8Array | string): void {
     if (isMdx(buffer)) {
-      this.loadMdx(<ArrayBuffer | Uint8Array>buffer);
-    } else if (isMdl(buffer)) {
       if (typeof buffer === 'string') {
-        this.loadMdl(buffer);
-      } else {
-        this.loadMdl(decodeUtf8(buffer));
+        buffer = encodeUtf8(buffer);
       }
+
+      this.loadMdx(buffer);
+    } else if (isMdl(buffer)) {
+      if (typeof buffer !== 'string') {
+        buffer = decodeUtf8(buffer);
+      }
+
+      this.loadMdl(buffer);
     } else {
       throw new Error('Not a valid MDX/MDL buffer');
     }

@@ -27,6 +27,7 @@ export default class Test {
     this.boundingBox = null;
     this.boundingSphere = null;
     // this.cameras = [];
+    this.collisions = [];
 
     if (isMdlx) {
       this.parser = new MdlxModel();

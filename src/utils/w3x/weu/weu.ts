@@ -6,13 +6,13 @@ import WeuData, { WEUChange } from './data';
 import { processTrigger } from './processing';
 import { convertTrigger } from './conversions';
 
-interface Return {
+export interface WeuConversionResult {
   ok: boolean;
   error?: string;
   changes?: WEUChange[];
 }
 
-export default function convertWeu(map: War3Map, customTriggerData: TriggerData, weTriggerData: TriggerData): Return {
+export default function convertWeu(map: War3Map, customTriggerData: TriggerData, weTriggerData: TriggerData): WeuConversionResult {
   let wts;
   let wtg;
   let wct;

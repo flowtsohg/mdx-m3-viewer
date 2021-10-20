@@ -1,6 +1,6 @@
-import ObjectModifications from './objectmodifications';
+import { OEObject } from './object';
 
-export default class ItemModifications extends ObjectModifications {
+export class OEItem extends OEObject {
   get abilities(): string { return <string>this.get('iabi'); }
   set abilities(value: string | undefined) { this.set('iabi', value); }
   

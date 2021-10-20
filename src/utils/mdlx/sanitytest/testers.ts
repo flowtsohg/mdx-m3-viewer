@@ -306,11 +306,7 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 }
 
 export function testParticleEmitterPopcorn(data: SanityTestData, emitter: ParticleEmitterPopcorn): void {
-  const path = emitter.path;
-
-  if (path.length) {
-    data.assertError(path.endsWith('.pkfx'), `Corrupted path: "${path}"`);
-  }
+  data.assertSevere(emitter.animationVisiblityGuide.length > 0, 'No animation visibility guide');
 }
 
 export function testRibbonEmitter(data: SanityTestData, emitter: RibbonEmitter): void {

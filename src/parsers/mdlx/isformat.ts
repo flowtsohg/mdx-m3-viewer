@@ -14,6 +14,10 @@ export function isMdx(bytes: unknown): boolean {
     }
   }
 
+  if (typeof bytes === 'string' && bytes.startsWith('MDLX')) {
+    return true;
+  }
+
   return false;
 }
 

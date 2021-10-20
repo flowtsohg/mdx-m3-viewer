@@ -142,6 +142,9 @@ h1 {
 }
 
 .viewer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     z-index: 1;
     pointer-events: none;
     background-color: transparent;

@@ -1,13 +1,13 @@
 import Modification from '../../../parsers/w3x/w3u/modification';
-import Objects from './objects';
+import { OEContainer } from './containers';
 
-export default class ObjectModifications {
-  parent: Objects<any>;
+export abstract class OEObject {
+  parent: OEContainer<OEObject>;
   oldId: string;
   newId: string;
   modifications = new Map<string, string | number>();
 
-  constructor(parent: Objects<any>, oldId: string, newId: string, modifications: Modification[]) {
+  constructor(parent: OEContainer<OEObject>, oldId: string, newId: string, modifications: Modification[]) {
     this.parent = parent;
     this.oldId = oldId;
     this.newId = newId;
