@@ -29,11 +29,11 @@ export default class Unit extends Widget {
     instance.setScene(map.worldScene);
 
     if (row) {
-      heapZ[2] = <number>row['moveHeight'];
+      heapZ[2] = row.number('moveHeight');
 
       instance.move(heapZ);
-      instance.setVertexColor([<number>row['red'] / 255, <number>row['green'] / 255, <number>row['blue'] / 255, 1]);
-      instance.uniformScale(<number>row['modelScale']);
+      instance.setVertexColor([row.number('red') / 255, row.number('green') / 255, row.number('blue') / 255, 1]);
+      instance.uniformScale(row.number('modelScale'));
     }
 
     this.instance = instance;

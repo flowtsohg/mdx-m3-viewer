@@ -335,7 +335,7 @@ export default {
       }
 
       if (row) {
-        for (const fileName of (<string>row['FileNames']).split(',')) {
+        for (const fileName of (row.string('FileNames')).split(',')) {
           const file = this.getEventObjectSoundFile(fileName, reforged, isHd, tables);
 
           if (file) {
@@ -349,9 +349,9 @@ export default {
 
       if (row) {
         if (type === 'SPN') {
-          promises.push(viewer.load((<string>row['Model']).replace('.mdl', '.mdx'), safePathSolver, params));
+          promises.push(viewer.load((row.string('Model')).replace('.mdl', '.mdx'), safePathSolver, params));
         } else if (type === 'SPL' || type === 'UBR') {
-          promises.push(viewer.load(`ReplaceableTextures\\Splats\\${row['file']}${reforged ? '.dds' : '.blp'}`, safePathSolver, params));
+          promises.push(viewer.load(`ReplaceableTextures\\Splats\\${row.string('file')}${reforged ? '.dds' : '.blp'}`, safePathSolver, params));
         }
       }
     }

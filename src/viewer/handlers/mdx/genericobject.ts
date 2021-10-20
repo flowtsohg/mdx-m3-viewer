@@ -13,14 +13,14 @@ export default class GenericObject extends AnimatedObject {
   objectId: number;
   parentId: number;
   pivot: vec3;
-  dontInheritTranslation: number;
-  dontInheritRotation: number;
-  dontInheritScaling: number;
-  billboarded: number;
-  billboardedX: number;
-  billboardedY: number;
-  billboardedZ: number;
-  cameraAnchored: number;
+  dontInheritTranslation: boolean;
+  dontInheritRotation: boolean;
+  dontInheritScaling: boolean;
+  billboarded: boolean;
+  billboardedX: boolean;
+  billboardedY: boolean;
+  billboardedZ: boolean;
+  cameraAnchored: boolean;
   anyBillboarding: boolean;
 
   constructor(model: MdxModel, object: MdlxGenericObject, index: number) {
@@ -33,16 +33,15 @@ export default class GenericObject extends AnimatedObject {
     this.pivot = <vec3>model.pivotPoints[object.objectId] || vec3.create();
 
     const flags = object.flags;
-    this.dontInheritTranslation = flags & Flags.DontInheritTranslation;
-    this.dontInheritRotation = flags & Flags.DontInheritRotation;
-    this.dontInheritScaling = flags & Flags.DontInheritScaling;
-    this.billboarded = flags & Flags.Billboarded;
-    this.billboardedX = flags & Flags.BillboardedLockX;
-    this.billboardedY = flags & Flags.BillboardedLockY;
-    this.billboardedZ = flags & Flags.BillboardedLockZ;
-    this.cameraAnchored = flags & Flags.CameraAnchored;
-
-    this.anyBillboarding = (this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ) !== 0;
+    this.dontInheritTranslation = (flags & Flags.DontInheritTranslation) > 0;
+    this.dontInheritRotation = (flags & Flags.DontInheritRotation) > 0;
+    this.dontInheritScaling = (flags & Flags.DontInheritScaling) > 0;
+    this.billboarded = (flags & Flags.Billboarded) > 0;
+    this.billboardedX = (flags & Flags.BillboardedLockX) > 0;
+    this.billboardedY = (flags & Flags.BillboardedLockY) > 0;
+    this.billboardedZ = (flags & Flags.BillboardedLockZ) > 0;
+    this.cameraAnchored = (flags & Flags.CameraAnchored) > 0;
+    this.anyBillboarding = this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ;
 
     if (object.objectId === object.parentId) {
       this.parentId = -1;

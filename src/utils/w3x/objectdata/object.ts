@@ -5,7 +5,7 @@ export abstract class OEObject {
   parent: OEContainer<OEObject>;
   oldId: string;
   newId: string;
-  modifications = new Map<string, string | number>();
+  modifications = new Map<string, string>();
 
   constructor(parent: OEContainer<OEObject>, oldId: string, newId: string, modifications: Modification[]) {
     this.parent = parent;
@@ -13,26 +13,69 @@ export abstract class OEObject {
     this.newId = newId;
 
     for (const modification of modifications) {
-      this.modifications.set(modification.id, modification.value);
+      let value = modification.value;
+
+      if (typeof value !== 'string') {
+        value = value.toString();
+      }
+
+      this.modifications.set(modification.id, value);
     }
   }
 
-  get(id: string): string | number {
+  string(id: string): string {
     let value = this.modifications.get(id);
 
     if (value === undefined) {
-      const name = <string>this.parent.metaData.getProperty(id, 'field');
+      const row = this.parent.data.getRow(this.oldId);
+      const name = this.parent.metaData.getProperty(id, 'field');
+      
+      value = row.string(name);
 
-      value = <string | number>this.parent.data.getProperty(this.oldId, name);
+      if (value === undefined) {
+        return '_';
+      }
+    }
+
+    if (value === '-' || value === ' - ') {
+      return '_';
     }
 
     return value;
   }
 
-  set(id: string, value: string | number | undefined): void {
+  number(id: string): number {
+    const number = parseFloat(this.string(id));
+
+    if (isNaN(number)) {
+      return 0;
+    }
+
+    return number;
+  }
+
+  boolean(id: string): boolean {
+    const string = this.string(id);
+
+    if (string === '1' || string === 'TRUE') {
+      return true;
+    }
+
+    return false;
+  }
+
+  set(id: string, value: string | number | boolean | undefined): void {
     if (value === undefined) {
       this.modifications.delete(id);
     } else {
+      if (value === true) {
+        value = '1';
+      } else if (value === false) {
+        value = '0';
+      } else if (typeof value !== 'string') {
+        value = value.toString();
+      }
+
       this.modifications.set(id, value);  
     }
   }

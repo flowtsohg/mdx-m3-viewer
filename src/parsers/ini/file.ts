@@ -25,7 +25,7 @@ export class IniFile {
         let match = line.match(/^\[(.+?)\]/);
 
         if (match) {
-          const name = match[1].trim().toLowerCase();
+          const name = match[1].trim();
 
           section = <IniSection | null>sections.get(name);
 
@@ -38,7 +38,13 @@ export class IniFile {
           match = line.match(/^(.+?)=(.*?)$/);
 
           if (match) {
-            section.set(match[1], match[2]);
+            let value = match[2];
+
+            if (value[0] === '"') {
+              value = value.slice(1, -1);
+            }
+
+            section.set(match[1], value);
           }
         }
       }
@@ -64,6 +70,6 @@ export class IniFile {
   }
 
   getSection(name: string): IniSection | undefined {
-    return this.sections.get(name.toLowerCase());
+    return this.sections.get(name);
   }
 }

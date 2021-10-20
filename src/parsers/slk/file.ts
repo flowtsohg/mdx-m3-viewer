@@ -2,7 +2,7 @@
  * A SLK table file.
  */
 export default class SlkFile {
-  rows: (string | number | boolean)[][] = [];
+  rows: string[][] = [];
 
   load(buffer: string): void {
     if (!buffer.startsWith('ID')) {
@@ -32,17 +32,9 @@ export default class SlkFile {
             }
 
             if (valueString[0] === '"') {
-              value = valueString.substring(1, valueString.length - 1);
-            } else if (valueString === 'TRUE') {
-              value = true;
-            } else if (valueString === 'FALSE') {
-              value = false;
+              value = valueString.slice(1, -1);
             } else {
-              value = parseFloat(valueString);
-
-              if (isNaN(value)) {
-                value = valueString;
-              }
+              value = valueString;
             }
 
             rows[y][x] = value;

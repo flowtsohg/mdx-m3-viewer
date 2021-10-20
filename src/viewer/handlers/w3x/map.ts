@@ -187,7 +187,8 @@ export default class War3MapViewerMap {
       const row = viewer.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
-      tilesetTextures.push(this.load(`${row['dir']}\\${row['file']}${texturesExt}`));
+      
+      tilesetTextures.push(this.load(`${row.string('dir')}\\${row.string('file')}${texturesExt}`));
     }
 
     const blights = {
@@ -218,21 +219,21 @@ export default class War3MapViewerMap {
       const row = viewer.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
-      cliffTextures.push(this.load(`${row['texDir']}\\${row['texFile']}${texturesExt}`));
+      cliffTextures.push(this.load(`${row.string('texDir')}\\${row.string('texFile')}${texturesExt}`));
     }
 
     const waterRow = viewer.waterData.getRow(`${tileset}Sha`);
 
-    this.waterHeightOffset = <number>waterRow['height'];
-    this.waterIncreasePerFrame = <number>waterRow['texRate'] / 60;
+    this.waterHeightOffset = waterRow.number('height');
+    this.waterIncreasePerFrame = waterRow.number('texRate') / 60;
     this.waterTextures.length = 0;
-    this.maxDeepColor.set([<number>waterRow['Dmax_R'], <number>waterRow['Dmax_G'], <number>waterRow['Dmax_B'], <number>waterRow['Dmax_A']]);
-    this.minDeepColor.set([<number>waterRow['Dmin_R'], <number>waterRow['Dmin_G'], <number>waterRow['Dmin_B'], <number>waterRow['Dmin_A']]);
-    this.maxShallowColor.set([<number>waterRow['Smax_R'], <number>waterRow['Smax_G'], <number>waterRow['Smax_B'], <number>waterRow['Smax_A']]);
-    this.minShallowColor.set([<number>waterRow['Smin_R'], <number>waterRow['Smin_G'], <number>waterRow['Smin_B'], <number>waterRow['Smin_A']]);
+    this.maxDeepColor.set([waterRow.number('Dmax_R'), waterRow.number('Dmax_G'), waterRow.number('Dmax_B'), waterRow.number('Dmax_A')]);
+    this.minDeepColor.set([waterRow.number('Dmin_R'), waterRow.number('Dmin_G'), waterRow.number('Dmin_B'), waterRow.number('Dmin_A')]);
+    this.maxShallowColor.set([waterRow.number('Smax_R'), waterRow.number('Smax_G'), waterRow.number('Smax_B'), waterRow.number('Smax_A')]);
+    this.minShallowColor.set([waterRow.number('Smin_R'), waterRow.number('Smin_G'), waterRow.number('Smin_B'), waterRow.number('Smin_A')]);
 
-    for (let i = 0, l = waterRow['numTex']; i < l; i++) {
-      waterTextures.push(this.load(`${waterRow['texFile']}${i < 10 ? '0' : ''}${i}${texturesExt}`));
+    for (let i = 0, l = waterRow.number('numTex'); i < l; i++) {
+      waterTextures.push(this.load(`${waterRow.string('texFile')}${i < 10 ? '0' : ''}${i}${texturesExt}`));
     }
 
     this.tilesetTextures = <Texture[]>await Promise.all(tilesetTextures);
@@ -285,7 +286,7 @@ export default class War3MapViewerMap {
               }
 
               const cliffRow = this.cliffTilesets[cliffTexture];
-              const dir = <string>cliffRow['cliffModelDir'];
+              const dir = cliffRow.string('cliffModelDir');
               const path = `Doodads\\Terrain\\${dir}\\${dir}${fileName}${getCliffVariation(dir, fileName, bottomLeft.cliffVariation)}.mdx`;
 
               if (!cliffs[path]) {
@@ -427,10 +428,10 @@ export default class War3MapViewerMap {
     for (const doodad of parser.doodads) {
       try {
         const row = this.viewer.doodadsData.getRow(doodad.id);
-        let file = <string>row['file'];
+        let file = row.string('file');
 
         if (file) {
-          const numVar = <number>row['numVar'];
+          const numVar = row.number('numVar');
 
           if (file.endsWith('.mdl')) {
             file = file.slice(0, -4);
@@ -475,7 +476,7 @@ export default class War3MapViewerMap {
       try {
         const row = this.viewer.doodadsData.getRow(doodad.id);
 
-        this.load(`${row['file']}.mdx`)
+        this.load(`${row.string('file')}.mdx`)
           .then((model) => {
             if (model) {
               this.terrainDoodads.push(new TerrainDoodad(this, <MdxModel>model, row, doodad));
@@ -533,7 +534,7 @@ export default class War3MapViewerMap {
           path = 'Objects\\StartLocation\\StartLocation.mdx';
         } else {
           row = this.viewer.unitsData.getRow(unit.id);
-          path = <string>row['file'];
+          path = row.string('file');
 
           if (path) {
             if (path.endsWith('.mdl')) {
@@ -910,7 +911,9 @@ export default class War3MapViewerMap {
         row = dataMap.getRow(modificationObject.newId);
 
         if (!row) {
-          row = { ...dataMap.getRow(modificationObject.oldId) };
+          row = new MappedDataRow();
+
+          row.map = Object.assign({}, dataMap.getRow(modificationObject.oldId).map);
 
           dataMap.setRow(modificationObject.newId, row);
         }
@@ -922,7 +925,7 @@ export default class War3MapViewerMap {
         const metadata = metadataMap.getRow(modification.id);
 
         if (metadata) {
-          row[<string>metadata['field']] = modification.value;
+          row.set(metadata.string('field'), modification.value);
         } else {
           console.warn('Unknown modification ID', modification);
         }

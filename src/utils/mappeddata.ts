@@ -1,12 +1,28 @@
 import SlkFile from '../parsers/slk/file';
 import { IniFile } from '../parsers/ini/file';
 
-export type MappedDataValue = string | number | boolean;
-
 /**
  * A MappedData row.
  */
-export type MappedDataRow = {[key: string]: MappedDataValue };
+export class MappedDataRow {
+  map: {[key: string]: string } = {};
+
+  set(key: string, value: string | number): void {
+    if (typeof value !== 'string') {
+      value = value.toString();
+    }
+
+    this.map[key] = value;
+  }
+
+  string(key: string): string {
+    return this.map[key];
+  }
+
+  number(key: string): number {
+    return parseFloat(this.map[key]);
+  }
+}
 
 /**
  * A structure that holds mapped data from INI and SLK files.
@@ -41,14 +57,12 @@ export class MappedData {
 
         // DialogueDemonBase.slk has an empty row.
         if (row) {
-          let name = <string>row[0];
+          const name = row[0];
 
           // DialogueDemonBase.slk also has rows containing only a single underline.
           if (name && name !== '_') {
-            name = name.toLowerCase();
-
             if (!map[name]) {
-              map[name] = {};
+              map[name] = new MappedDataRow();
             }
 
             const mapped = map[name];
@@ -61,7 +75,7 @@ export class MappedData {
                 key = `column${j}`;
               }
 
-              mapped[`${key}`] = row[j];
+              mapped.map[`${key}`] = row[j];
             }
           }
         }
@@ -75,33 +89,33 @@ export class MappedData {
 
       for (const [row, properties] of sections.entries()) {
         if (!map[row]) {
-          map[row] = {};
+          map[row] = new MappedDataRow();
         }
 
         const mapped = map[row];
 
         for (const [name, property] of properties) {
-          mapped[name] = property;
+          mapped.map[name] = property;
         }
       }
     }
   }
 
   getRow(key: string): MappedDataRow {
-    return this.map[key.toLowerCase()];
+    return this.map[key];
   }
 
-  getProperty(key: string, name: string): MappedDataValue {
-    return this.map[key.toLowerCase()][name];
+  getProperty(key: string, name: string): string {
+    return this.map[key].map[name];
   }
 
   setRow(key: string, values: MappedDataRow): void {
-    this.map[key.toLowerCase()] = values;
+    this.map[key] = values;
   }
 
-  findRow(key: string, expectedValue: MappedDataValue): MappedDataRow | undefined {
+  findRow(key: string, expectedValue: string): MappedDataRow | undefined {
     for (const row of Object.values(this.map)) {
-      if (row[key] === expectedValue) {
+      if (row.string(key) === expectedValue) {
         return row;
       }
     }

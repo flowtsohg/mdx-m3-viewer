@@ -95,42 +95,42 @@ export default class EventObjectEmitterObject extends GenericObject {
             this.internalTexture = new MdxTexture(0, WrapMode.WrapBoth);
             this.internalTexture.texture = <Texture>resources[0];
 
-            this.scale = <number>row['Scale'];
-            this.colors[0] = new Float32Array([<number>row['StartR'], <number>row['StartG'], <number>row['StartB'], <number>row['StartA']]);
-            this.colors[1] = new Float32Array([<number>row['MiddleR'], <number>row['MiddleG'], <number>row['MiddleB'], <number>row['MiddleA']]);
-            this.colors[2] = new Float32Array([<number>row['EndR'], <number>row['EndG'], <number>row['EndB'], <number>row['EndA']]);
+            this.scale = row.number('Scale');
+            this.colors[0] = new Float32Array([row.number('StartR'), row.number('StartG'), row.number('StartB'), row.number('StartA')]);
+            this.colors[1] = new Float32Array([row.number('MiddleR'), row.number('MiddleG'), row.number('MiddleB'), row.number('MiddleA')]);
+            this.colors[2] = new Float32Array([row.number('EndR'), row.number('EndG'), row.number('EndB'), row.number('EndA')]);
 
             if (type === 'SPL') {
-              this.columns = <number>row['Columns'];
-              this.rows = <number>row['Rows'];
-              this.lifeSpan = <number>row['Lifespan'] + <number>row['Decay'];
+              this.columns = row.number('Columns');
+              this.rows = row.number('Rows');
+              this.lifeSpan = row.number('Lifespan') + row.number('Decay');
 
-              this.intervalTimes[0] = <number>row['Lifespan'];
-              this.intervalTimes[1] = <number>row['Decay'];
+              this.intervalTimes[0] = row.number('Lifespan');
+              this.intervalTimes[1] = row.number('Decay');
 
-              this.intervals[0] = new Float32Array([<number>row['UVLifespanStart'], <number>row['UVLifespanEnd'], <number>row['LifespanRepeat']]);
-              this.intervals[1] = new Float32Array([<number>row['UVDecayStart'], <number>row['UVDecayEnd'], <number>row['DecayRepeat']]);
+              this.intervals[0] = new Float32Array([row.number('UVLifespanStart'), row.number('UVLifespanEnd'), row.number('LifespanRepeat')]);
+              this.intervals[1] = new Float32Array([row.number('UVDecayStart'), row.number('UVDecayEnd'), row.number('DecayRepeat')]);
             } else {
               this.columns = 1;
               this.rows = 1;
-              this.lifeSpan = <number>row['BirthTime'] + <number>row['PauseTime'] + <number>row['Decay'];
+              this.lifeSpan = row.number('BirthTime') + row.number('PauseTime') + row.number('Decay');
 
-              this.intervalTimes[0] = <number>row['BirthTime'];
-              this.intervalTimes[1] = <number>row['PauseTime'];
-              this.intervalTimes[2] = <number>row['Decay'];
+              this.intervalTimes[0] = row.number('BirthTime');
+              this.intervalTimes[1] = row.number('PauseTime');
+              this.intervalTimes[2] = row.number('Decay');
             }
 
-            const blendModes = emitterFilterMode(<number>row['BlendMode'], viewer.gl);
+            const blendModes = emitterFilterMode(row.number('BlendMode'), viewer.gl);
 
             this.blendSrc = blendModes[0];
             this.blendDst = blendModes[1];
           } else {
-            this.distanceCutoff = <number>row['DistanceCutoff'];
-            this.maxDistance = <number>row['MaxDistance'];
-            this.minDistance = <number>row['MinDistance'];
-            this.pitch = <number>row['Pitch'];
-            this.pitchVariance = <number>row['PitchVariance'];
-            this.volume = <number>row['Volume'];
+            this.distanceCutoff = row.number('DistanceCutoff');
+            this.maxDistance = row.number('MaxDistance');
+            this.minDistance = row.number('MinDistance');
+            this.pitch = row.number('Pitch');
+            this.pitchVariance = row.number('PitchVariance');
+            this.volume = row.number('Volume');
 
             for (const resource of resources) {
               this.decodedBuffers.push(<AudioBuffer>(<GenericResource>resource).data);

@@ -230,6 +230,10 @@ export default class MdxModelInstance extends ModelInstance {
     } else {
       node.parent = nodes[genericObject.parentId];
     }
+
+    node.dontInheritTranslation = genericObject.dontInheritTranslation;
+    node.dontInheritRotation = genericObject.dontInheritRotation;
+    node.dontInheritScaling = genericObject.dontInheritScaling;
     
     if (genericObject.billboarded) {
       node.billboarded = true;

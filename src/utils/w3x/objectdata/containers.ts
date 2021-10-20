@@ -41,6 +41,14 @@ export abstract class OEContainer<T extends OEObject> {
           mod.id = modId;
           mod.value = modValue;
 
+          if (typeof modValue === 'string') {
+            mod.variableType = 3;
+          } else if ((modValue | 0) !== modValue) {
+            mod.variableType = 2;
+          } else {
+            mod.variableType = 0;
+          }
+
           objectMod.modifications.push(mod);
         }
 
