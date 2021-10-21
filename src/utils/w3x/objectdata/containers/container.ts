@@ -1,12 +1,12 @@
-import Modification from '../../../parsers/w3x/w3u/modification';
-import ModificationTable from '../../../parsers/w3x/w3u/modificationtable';
-import ModifiedObject from '../../../parsers/w3x/w3u/modifiedobject';
-import { MappedData } from '../../mappeddata';
-import { OEItem } from './item';
-import { OEObject } from './object';
-import { OEUnit } from './unit';
+import { randomInRange } from '../../../../common/math';
+import Modification from '../../../../parsers/w3x/w3u/modification';
+import ModificationTable from '../../../../parsers/w3x/w3u/modificationtable';
+import ModifiedObject from '../../../../parsers/w3x/w3u/modifiedobject';
+import { MappedData } from '../../../mappeddata';
+import { OEObject } from '../objects/object';
 
 const NULL = '\0\0\0\0';
+const GENERATE_ID_ATTEMPTS = 10000;
 
 export abstract class OEContainer<T extends OEObject> {
   metaData: MappedData;
@@ -64,21 +64,66 @@ export abstract class OEContainer<T extends OEObject> {
     }
   }
 
-  copy(baseIdOrObject: string | T): T | undefined {
-    const id = 'asd1';
+  /**
+   * Given an object ID, get the object it refers to.
+   * 
+   * If a map's object data was loaded, it will be checked first.
+   * 
+   * If the object wasn't found, or map object data wasn't loaded, the base game data will be checked.
+   */
+  get(id: string): T | undefined {
+    let object = this.objects.get(id);
+
+    // If this object exists in the base data, get it and add it to the objects list in case it is modified by the caller.
+    if (!object && !!this.data.getRow(id)) {
+      object = this.addObject(id, NULL, []);
+
+      this.objects.set(id, object);
+    }
+
+    return object;
+  }
+
+  /**
+   * Checks if this collection has an object with the given ID.
+   * 
+   * Does not check the base game data.
+   */
+  has(id: string): boolean {
+    return !!this.objects.get(id);
+  }
+
+  /**
+   * Copy an existing object.
+   * 
+   * The source object can either be given as a string ID, or an object returned from previous get/copy calls.
+   * 
+   * If newId is supplied, it will be used as the new object's ID, otherwise a random ID is generated.
+   * 
+   * If a random ID is generated, its first letter will be capitalized if the base ID's first letter is capitalized, to support hero units.
+   */
+  copy(baseIdOrObject: string | T, newId?: string): T | undefined {
     let baseId;
     let modifications;
 
     if (typeof baseIdOrObject === 'string') {
       baseId = baseIdOrObject;
 
-      const baseObject = this.objects.get(id);
+      const baseObject = this.objects.get(baseId);
       if (baseObject) {
         modifications = baseObject.modifications;
       }
     } else {
       baseId = baseIdOrObject.oldId;
       modifications = baseIdOrObject.modifications;
+    }
+
+    let id;
+
+    if (newId) {
+      id = newId;
+    } else {
+      id = this.generateId(baseId[0] === baseId[0].toUpperCase());
     }
 
     const object = this.addObject(baseId, id, []);
@@ -94,17 +139,22 @@ export abstract class OEContainer<T extends OEObject> {
     return object;
   }
 
-  get(id: string): T | undefined {
-    let object = this.objects.get(id);
+  generateId(capitalize: boolean): string {
+    let first = 97;
 
-    // If this object exists in the base data, get it and add it to the objects list in case it is modified by the caller.
-    if (!object && !!this.data.getRow(id)) {
-      object = this.addObject(id, NULL, []);
-
-      this.objects.set(id, object);
+    if (capitalize) {
+      first = 65;
     }
 
-    return object;
+    for (let i = 0; i < GENERATE_ID_ATTEMPTS; i++) {
+      const id = String.fromCharCode(randomInRange(first, first + 25), randomInRange(97, 122), randomInRange(97, 122), randomInRange(97, 122));
+
+      if (!this.has(id)) {
+        return id;
+      }
+    }
+
+    throw Error('FAILED TO GENERATE A UNIQUE ID');
   }
 
   hasModifications(): boolean {
@@ -115,17 +165,5 @@ export abstract class OEContainer<T extends OEObject> {
     }
 
     return false;
-  }
-}
-
-export class OEUnits extends OEContainer<OEUnit> {
-  addObject(oldId: string, newId: string, modifications: Modification[]): OEUnit {
-    return new OEUnit(this, oldId, newId, modifications);
-  }
-}
-
-export class OEItems extends OEContainer<OEItem> {
-  addObject(oldId: string, newId: string, modifications: Modification[]): OEItem {
-    return new OEItem(this, oldId, newId, modifications);
   }
 }

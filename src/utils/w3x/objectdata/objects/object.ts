@@ -1,5 +1,5 @@
-import Modification from '../../../parsers/w3x/w3u/modification';
-import { OEContainer } from './containers';
+import Modification from '../../../../parsers/w3x/w3u/modification';
+import { OEContainer } from '../containers/container';
 
 export abstract class OEObject {
   parent: OEContainer<OEObject>;

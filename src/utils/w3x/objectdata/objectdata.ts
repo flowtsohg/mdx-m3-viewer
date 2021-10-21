@@ -1,6 +1,7 @@
 import War3MapW3u from '../../../parsers/w3x/w3u/file';
 import { MappedData } from '../../mappeddata';
-import { OEItems, OEUnits } from './containers';
+import { OEItemContainer } from './containers/itemcontainer';
+import { OEUnitContainer } from './containers/unitcontainer';
 
 export interface ModificationFiles {
   w3u?: War3MapW3u,
@@ -8,12 +9,12 @@ export interface ModificationFiles {
 }
 
 export class ObjectData {
-  units: OEUnits;
-  items: OEItems;
+  units: OEUnitContainer;
+  items: OEItemContainer;
 
   constructor(unitAndItemMeta: MappedData, unitData: MappedData, itemData: MappedData) {
-    this.units = new OEUnits(unitAndItemMeta, unitData);
-    this.items = new OEItems(unitAndItemMeta, itemData);
+    this.units = new OEUnitContainer(unitAndItemMeta, unitData);
+    this.items = new OEItemContainer(unitAndItemMeta, itemData);
   }
 
   load({ w3u, w3t }: ModificationFiles): void {
