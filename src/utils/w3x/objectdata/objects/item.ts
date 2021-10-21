@@ -1,6 +1,43 @@
 import { OEObject } from './object';
 
-export class OEItem extends OEObject {
+export interface FetchType {
+  abilities: string,
+  armorType: string,
+  classification: string,
+  tintingColor3Blue: number,
+  tintingColor2Green: number,
+  tintingColor1Red: number,
+  cooldownGroup: string,
+  droppedWhenCarrierDies: boolean,
+  canBeDropped: boolean,
+  modelUsed: string,
+  goldCost: number,
+  hitPoints: number,
+  ignoreCooldown: boolean,
+  level: number,
+  lumberCost: number,
+  validTargetForTransformation: boolean,
+  levelUnclassified: number,
+  perishable: boolean,
+  includeAsRandomChoice: boolean,
+  useAutomaticallyWhenAcquired: boolean,
+  priority: number,
+  scalingValue: number,
+  selectionSizeEditor: number,
+  canBeSoldByMerchants: boolean,
+  canBeSoldToMerchants: boolean,
+  stockMaximum: number,
+  stockReplenishInterval: number,
+  stockStartDelay: number,
+  stockInitialAfterStartDelay: number,
+  activelyUsed: boolean,
+  numberOfCharges: number,
+  maxStacks: number,
+  interfaceIcon: string,
+  description: string
+}
+
+export class OEItem extends OEObject<FetchType> {
   get abilities(): string { return this.string('iabi'); }
   set abilities(value: string | undefined) { this.set('iabi', value); }
 
@@ -102,4 +139,6 @@ export class OEItem extends OEObject {
 
   get description(): string { return this.string('ides'); }
   set description(value: string | undefined) { this.set('ides', value); }
+
+  fetch(): FetchType { return { abilities: this.abilities, armorType: this.armorType, classification: this.classification, tintingColor3Blue: this.tintingColor3Blue, tintingColor2Green: this.tintingColor2Green, tintingColor1Red: this.tintingColor1Red, cooldownGroup: this.cooldownGroup, droppedWhenCarrierDies: this.droppedWhenCarrierDies, canBeDropped: this.canBeDropped, modelUsed: this.modelUsed, goldCost: this.goldCost, hitPoints: this.hitPoints, ignoreCooldown: this.ignoreCooldown, level: this.level, lumberCost: this.lumberCost, validTargetForTransformation: this.validTargetForTransformation, levelUnclassified: this.levelUnclassified, perishable: this.perishable, includeAsRandomChoice: this.includeAsRandomChoice, useAutomaticallyWhenAcquired: this.useAutomaticallyWhenAcquired, priority: this.priority, scalingValue: this.scalingValue, selectionSizeEditor: this.selectionSizeEditor, canBeSoldByMerchants: this.canBeSoldByMerchants, canBeSoldToMerchants: this.canBeSoldToMerchants, stockMaximum: this.stockMaximum, stockReplenishInterval: this.stockReplenishInterval, stockStartDelay: this.stockStartDelay, stockInitialAfterStartDelay: this.stockInitialAfterStartDelay, activelyUsed: this.activelyUsed, numberOfCharges: this.numberOfCharges, maxStacks: this.maxStacks, interfaceIcon: this.interfaceIcon, description: this.description }; }
 }

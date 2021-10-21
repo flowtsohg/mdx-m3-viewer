@@ -1,13 +1,15 @@
 import Modification from '../../../../parsers/w3x/w3u/modification';
 import { OEContainer } from '../containers/container';
 
-export abstract class OEObject {
-  parent: OEContainer<OEObject>;
+export abstract class OEObject<FetchType> {
+  parent: OEContainer<OEObject<unknown>, unknown>;
   oldId: string;
   newId: string;
   modifications = new Map<string, string>();
 
-  constructor(parent: OEContainer<OEObject>, oldId: string, newId: string, modifications: Modification[]) {
+  abstract fetch(): FetchType;
+
+  constructor(parent: OEContainer<OEObject<unknown>, unknown>, oldId: string, newId: string, modifications: Modification[]) {
     this.parent = parent;
     this.oldId = oldId;
     this.newId = newId;
@@ -28,9 +30,18 @@ export abstract class OEObject {
 
     if (value === undefined) {
       const row = this.parent.data.getRow(this.oldId);
-      const name = this.parent.metaData.getProperty(id, 'field');
+
+      if (row === undefined) {
+        return '_';
+      }
+
+      const nameRow = this.parent.metaData.getRow(id);
       
-      value = row.string(name);
+      if (nameRow === undefined) {
+        return '_';
+      }
+
+      value = row.string(nameRow.string('field'));
 
       if (value === undefined) {
         return '_';

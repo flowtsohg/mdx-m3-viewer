@@ -238,8 +238,8 @@ export default {
       const raceRow = (<MappedData>tables[i].data).getRow(file);
 
       if (raceRow) {
-        const flags = <string>raceRow['Flags'];
-        const filePath = <string>raceRow['Filepath'];
+        const flags = raceRow.string('Flags');
+        const filePath = raceRow.string('Filepath');
 
         if (flags === 'SD_ONLY') {
           if (!isHd) {
@@ -330,7 +330,7 @@ export default {
         const lookupRow = (<MappedData>tables[1].data).getRow(id);
 
         if (lookupRow) {
-          row = mappedData.getRow(<string>lookupRow['SoundLabel']);
+          row = mappedData.getRow(lookupRow.string('SoundLabel'));
         }
       }
 

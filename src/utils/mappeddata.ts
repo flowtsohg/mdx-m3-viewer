@@ -101,7 +101,7 @@ export class MappedData {
     }
   }
 
-  getRow(key: string): MappedDataRow {
+  getRow(key: string): MappedDataRow | undefined {
     return this.map[key];
   }
 

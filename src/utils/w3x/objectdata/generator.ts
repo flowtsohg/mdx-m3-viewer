@@ -49,9 +49,16 @@ function generateObjectsEnum(data: MappedData): string[] {
   return flat;
 }
 
-function generateObjectFunctions(weStrings: MappedData, metaData: MappedData): { unitFuncs: string[], itemFuncs: string[] } {
-  const unitFuncs = [];
-  const itemFuncs = [];
+interface ObjectProperty {
+  name: string;
+  tsType: string;
+  getter: string;
+  setter: string;
+}
+
+function generateObjectFunctions(weStrings: MappedData, metaData: MappedData): { unitProps: ObjectProperty[], itemProps: ObjectProperty[] } {
+  const unitProps = [];
+  const itemProps = [];
 
   for (const [id, row] of Object.entries(metaData.map)) {
     const type = row.string('type');
@@ -75,26 +82,38 @@ function generateObjectFunctions(weStrings: MappedData, metaData: MappedData): {
     const setter = `set ${name}(value: ${tsType} | undefined) { this.set('${id}', value); }`;
 
     if (id[0] === 'u') {
-      unitFuncs.push(getter, setter, '');
+      unitProps.push({ name, tsType, getter, setter });
     } else {
-      itemFuncs.push(getter, setter, '');
+      itemProps.push({ name, tsType, getter, setter });
     }
   }
 
-  return { unitFuncs, itemFuncs };
+  return { unitProps, itemProps };
+}
+
+function generateFetchType(props: ObjectProperty[]): string {
+  return `export type FetchType = {\n${props.map((prop) => `  ${prop.name}: ${prop.tsType}`).join(',\n')}\n};`;
+}
+
+function generateFetch(props: ObjectProperty[]): string {
+  return `fetch(): FetchType { return { ${props.map((prop) => `${prop.name}: this.${prop.name}`).join(', ')} }; }`;
 }
 
 export async function objectDataDefinitionsGenerator(weStrings: MappedData, unitAndItemMetaData: MappedData, unitStrings: MappedData, itemStrings: MappedData): Promise<void> {
-  const { unitFuncs, itemFuncs } = generateObjectFunctions(weStrings, unitAndItemMetaData);
+  const { unitProps, itemProps } = generateObjectFunctions(weStrings, unitAndItemMetaData);
   const unitEnums = generateObjectsEnum(unitStrings);
   const itemEnums = generateObjectsEnum(itemStrings);
 
   console.groupCollapsed('Unit Functions');
-  console.log(unitFuncs.join('\n'));
+  console.log(generateFetchType(unitProps));
+  console.log(unitProps.map((prop) => [prop.getter, prop.setter, '']).flat().join('\n'));
+  console.log(generateFetch(unitProps));
   console.groupEnd();
 
   console.groupCollapsed('Item Functions');
-  console.log(itemFuncs.join('\n'));
+  console.log(generateFetchType(itemProps));
+  console.log(itemProps.map((prop) => [prop.getter, prop.setter, '']).flat().join('\n'));
+  console.log(generateFetch(itemProps));
   console.groupEnd();
 
   console.groupCollapsed('Units Enum');

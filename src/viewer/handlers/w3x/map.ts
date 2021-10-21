@@ -184,7 +184,7 @@ export default class War3MapViewerMap {
     const waterTextures = [];
 
     for (const groundTileset of parser.groundTilesets) {
-      const row = viewer.terrainData.getRow(groundTileset);
+      const row = <MappedDataRow>viewer.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
       
@@ -216,13 +216,13 @@ export default class War3MapViewerMap {
     tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
 
     for (const cliffTileset of parser.cliffTilesets) {
-      const row = viewer.cliffTypesData.getRow(cliffTileset);
+      const row = <MappedDataRow>viewer.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
       cliffTextures.push(this.load(`${row.string('texDir')}\\${row.string('texFile')}${texturesExt}`));
     }
 
-    const waterRow = viewer.waterData.getRow(`${tileset}Sha`);
+    const waterRow = <MappedDataRow>viewer.waterData.getRow(`${tileset}Sha`);
 
     this.waterHeightOffset = waterRow.number('height');
     this.waterIncreasePerFrame = waterRow.number('texRate') / 60;
@@ -428,43 +428,46 @@ export default class War3MapViewerMap {
     for (const doodad of parser.doodads) {
       try {
         const row = this.viewer.doodadsData.getRow(doodad.id);
-        let file = row.string('file');
 
-        if (file) {
-          const numVar = row.number('numVar');
+        if (row) {
+          let file = row.string('file');
 
-          if (file.endsWith('.mdl')) {
-            file = file.slice(0, -4);
-          }
+          if (file) {
+            const numVar = row.number('numVar');
 
-          let fileVar = file;
-
-          file += '.mdx';
-
-          if (numVar > 1) {
-            fileVar += Math.min(doodad.variation, numVar - 1);
-          }
-
-          fileVar += '.mdx';
-
-          // First see if the model is local.
-          // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
-          const mpqFile = this.map.get(fileVar) || this.map.get(file);
-          let promise;
-
-          if (mpqFile) {
-            promise = this.load(mpqFile.name);
-          } else {
-            promise = this.load(fileVar);
-          }
-
-          promise.then((model) => {
-            if (model) {
-              this.doodads.push(new Doodad(this, <MdxModel>model, row, doodad));
+            if (file.endsWith('.mdl')) {
+              file = file.slice(0, -4);
             }
-          });
-        } else {
-          console.log('Unknown doodad ID', doodad.id, doodad);
+
+            let fileVar = file;
+
+            file += '.mdx';
+
+            if (numVar > 1) {
+              fileVar += Math.min(doodad.variation, numVar - 1);
+            }
+
+            fileVar += '.mdx';
+
+            // First see if the model is local.
+            // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
+            const mpqFile = this.map.get(fileVar) || this.map.get(file);
+            let promise;
+
+            if (mpqFile) {
+              promise = this.load(mpqFile.name);
+            } else {
+              promise = this.load(fileVar);
+            }
+
+            promise.then((model) => {
+              if (model) {
+                this.doodads.push(new Doodad(this, <MdxModel>model, row, doodad));
+              }
+            });
+          } else {
+            console.log('Unknown doodad ID', doodad.id, doodad);
+          }
         }
       } catch (e) {
         console.warn(`Failed to load doodad/destructible ID ${doodad.id}: ${e}`);
@@ -474,7 +477,7 @@ export default class War3MapViewerMap {
     // Cliff/Terrain doodads.
     for (const doodad of parser.terrainDoodads) {
       try {
-        const row = this.viewer.doodadsData.getRow(doodad.id);
+        const row = <MappedDataRow>this.viewer.doodadsData.getRow(doodad.id);
 
         this.load(`${row.string('file')}.mdx`)
           .then((model) => {
@@ -534,14 +537,17 @@ export default class War3MapViewerMap {
           path = 'Objects\\StartLocation\\StartLocation.mdx';
         } else {
           row = this.viewer.unitsData.getRow(unit.id);
-          path = row.string('file');
 
-          if (path) {
-            if (path.endsWith('.mdl')) {
-              path = path.slice(0, -4);
+          if (row) {
+            path = row.string('file');
+
+            if (path) {
+              if (path.endsWith('.mdl')) {
+                path = path.slice(0, -4);
+              }
+
+              path += '.mdx';
             }
-
-            path += '.mdx';
           }
         }
 
@@ -847,11 +853,11 @@ export default class War3MapViewerMap {
    * This is an index into the tilset textures.
    */
   cliffGroundIndex(whichCliff: number): number {
-    const whichTileset = this.cliffTilesets[whichCliff]['groundTile'];
+    const whichTileset = this.cliffTilesets[whichCliff].string('groundTile');
     const tilesets = this.tilesets;
 
     for (let i = 0, l = tilesets.length; i < l; i++) {
-      if (tilesets[i]['tileID'] === whichTileset) {
+      if (tilesets[i].string('tileID') === whichTileset) {
         return i;
       }
     }
@@ -913,12 +919,12 @@ export default class War3MapViewerMap {
         if (!row) {
           row = new MappedDataRow();
 
-          row.map = Object.assign({}, dataMap.getRow(modificationObject.oldId).map);
+          row.map = Object.assign({}, (<MappedDataRow>dataMap.getRow(modificationObject.oldId)).map);
 
           dataMap.setRow(modificationObject.newId, row);
         }
       } else {
-        row = dataMap.getRow(modificationObject.oldId);
+        row = <MappedDataRow>dataMap.getRow(modificationObject.oldId);
       }
 
       for (const modification of modificationObject.modifications) {

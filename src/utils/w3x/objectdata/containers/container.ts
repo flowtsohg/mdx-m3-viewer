@@ -8,7 +8,7 @@ import { OEObject } from '../objects/object';
 const NULL = '\0\0\0\0';
 const GENERATE_ID_ATTEMPTS = 10000;
 
-export abstract class OEContainer<T extends OEObject> {
+export abstract class OEContainer<T extends OEObject<unknown>, FetchType extends unknown> {
   metaData: MappedData;
   data: MappedData;
   objects = new Map<string, T>();
@@ -62,6 +62,16 @@ export abstract class OEContainer<T extends OEObject> {
         }
       }
     }
+  }
+
+  fetch(): FetchType {
+    const objects = {};
+
+    for (const [id, object] of this.objects) {
+      objects[id] = object.fetch();
+    }
+
+    return <FetchType>objects;
   }
 
   /**
