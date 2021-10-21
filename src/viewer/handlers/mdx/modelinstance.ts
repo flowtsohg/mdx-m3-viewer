@@ -2,7 +2,6 @@ import { vec3, quat } from 'gl-matrix';
 import ModelInstance from '../../modelinstance';
 import { createSkeletalNodes, SkeletalNode } from '../../skeletalnode';
 import DataTexture from '../../gl/datatexture';
-import Scene from '../../scene';
 import Texture from '../../texture';
 import MdxNode from './node';
 import AttachmentInstance from './attachmentinstance';
@@ -270,7 +269,6 @@ export default class MdxModelInstance extends ModelInstance {
     const sortedNodes = this.sortedNodes;
     const model = <MdxModel>this.model;
     const sortedGenericObjects = model.sortedGenericObjects;
-    const scene = <Scene>this.scene;
 
     // Update the nodes
     for (let i = 0, l = sortedNodes.length; i < l; i++) {
@@ -305,7 +303,7 @@ export default class MdxModelInstance extends ModelInstance {
 
       // If this is a forced update, or this node's local data was updated, or the parent node was updated, do a full world update.
       if (wasDirty) {
-        node.recalculateTransformation(scene);
+        node.recalculateTransformation(this);
       }
 
       // If there is an instance object associated with this node (emitter/attachment), and it is visible, update it.

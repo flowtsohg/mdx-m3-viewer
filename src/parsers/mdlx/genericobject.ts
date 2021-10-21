@@ -6,8 +6,8 @@ import { Animation } from './animations';
 export const enum Flags {
   None = 0x0,
   DontInheritTranslation = 0x1,
-  DontInheritRotation = 0x2,
-  DontInheritScaling = 0x4,
+  DontInheritScaling = 0x2,
+  DontInheritRotation = 0x4,
   Billboarded = 0x8,
   BillboardedLockX = 0x10,
   BillboardedLockY = 0x20,

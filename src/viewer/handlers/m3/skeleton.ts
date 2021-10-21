@@ -1,6 +1,5 @@
 import { AnimationReference } from '../../../parsers/m3/animationreference';
 import { createSkeletalNodes } from '../../skeletalnode';
-import Scene from '../../scene';
 import M3Node from './node';
 import M3ModelInstance from './modelinstance';
 import M3Bone from './bone';
@@ -59,7 +58,6 @@ export default class M3Skeleton {
 
   update(dt: number): void {
     const instance = this.instance;
-    const scene = <Scene>instance.scene;
     const nodes = this.nodes;
     const modelNodes = this.modelNodes;
 
@@ -71,7 +69,7 @@ export default class M3Skeleton {
       this.getValue3(<Float32Array>node.localLocation, modelNode.location, instance);
       this.getValue3(<Float32Array>node.localScale, modelNode.scale, instance);
 
-      node.recalculateTransformation(scene);
+      node.recalculateTransformation(instance);
 
       // Recalculate and update child nodes.
       // Note that this only affects normal nodes such as instances, and not skeletal nodes.

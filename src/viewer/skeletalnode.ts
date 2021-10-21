@@ -2,7 +2,9 @@ import { vec3, quat, mat4 } from 'gl-matrix';
 import { VEC3_UNIT_X, VEC3_UNIT_Y, VEC3_UNIT_Z } from '../common/gl-matrix-addon';
 import Scene from './scene';
 import { Node } from './node';
+import ModelInstance from './modelinstance';
 
+const locationHeap = vec3.create();
 const rotationHeap = quat.create();
 const scalingHeap = vec3.create();
 const cameraRayHeap = vec3.create();
@@ -73,8 +75,10 @@ export class SkeletalNode {
   /**
    * Recalculate this skeletal node.
    */
-  recalculateTransformation(scene: Scene): void {
+  recalculateTransformation(instance: ModelInstance): void {
+    const scene = <Scene>instance.scene;
     const localMatrix = this.localMatrix;
+    const localLocation = this.localLocation;
     const localRotation = this.localRotation;
     const localScale = this.localScale;
     const worldMatrix = this.worldMatrix;
@@ -86,27 +90,24 @@ export class SkeletalNode {
     const inverseWorldRotation = this.inverseWorldRotation;
     const inverseWorldScale = this.inverseWorldScale;
     const parent = <SkeletalNode | Node>this.parent;
+    let computedLocation;
     let computedRotation;
     let computedScaling;
 
+    if (this.dontInheritTranslation) {
+      vec3.add(locationHeap, parent.inverseWorldLocation, worldLocation);
+
+      computedLocation = vec3.add(locationHeap, locationHeap, localLocation);
+    } else {
+      computedLocation = localLocation;
+    }
+
     if (this.dontInheritScaling) {
-      computedScaling = scalingHeap;
+      vec3.mul(locationHeap, parent.inverseWorldScale, instance.worldScale);
 
-      const parentInverseScale = parent.inverseWorldScale;
-      computedScaling[0] = parentInverseScale[0] * localScale[0];
-      computedScaling[1] = parentInverseScale[1] * localScale[1];
-      computedScaling[2] = parentInverseScale[2] * localScale[2];
-
-      worldScale[0] = localScale[0];
-      worldScale[1] = localScale[1];
-      worldScale[2] = localScale[2];
+      computedScaling = vec3.mul(locationHeap, locationHeap, localScale);
     } else {
       computedScaling = localScale;
-
-      const parentScale = parent.worldScale;
-      worldScale[0] = parentScale[0] * localScale[0];
-      worldScale[1] = parentScale[1] * localScale[1];
-      worldScale[2] = parentScale[2] * localScale[2];
     }
 
     if (this.billboarded) {
@@ -159,22 +160,16 @@ export class SkeletalNode {
       }
     }
 
-    mat4.fromRotationTranslationScaleOrigin(localMatrix, computedRotation, this.localLocation, computedScaling, pivot);
+    if (this.dontInheritRotation) {
+      quat.mul(rotationHeap2, parent.inverseWorldRotation, instance.worldRotation);
+      computedRotation = quat.mul(rotationHeap, rotationHeap2, computedRotation);
+    }
 
+    // Local matrix
+    mat4.fromRotationTranslationScaleOrigin(localMatrix, computedRotation, computedLocation, computedScaling, pivot);
+
+    // World matrix
     mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
-
-    quat.mul(worldRotation, parent.worldRotation, computedRotation);
-
-    // Inverse world rotation
-    inverseWorldRotation[0] = -worldRotation[0];
-    inverseWorldRotation[1] = -worldRotation[1];
-    inverseWorldRotation[2] = -worldRotation[2];
-    inverseWorldRotation[3] = worldRotation[3];
-
-    // Inverse world scale
-    inverseWorldScale[0] = 1 / worldScale[0];
-    inverseWorldScale[1] = 1 / worldScale[1];
-    inverseWorldScale[2] = 1 / worldScale[2];
 
     // World location
     // vec3.transformMat4(worldLocation, pivot, worldMatrix);
@@ -189,6 +184,26 @@ export class SkeletalNode {
     inverseWorldLocation[0] = -worldLocation[0];
     inverseWorldLocation[1] = -worldLocation[1];
     inverseWorldLocation[2] = -worldLocation[2];
+
+    // World rotation
+    quat.mul(worldRotation, parent.worldRotation, computedRotation);
+
+    // Inverse world rotation
+    inverseWorldRotation[0] = -worldRotation[0];
+    inverseWorldRotation[1] = -worldRotation[1];
+    inverseWorldRotation[2] = -worldRotation[2];
+    inverseWorldRotation[3] = worldRotation[3];
+
+    // World scale
+    const parentScale = parent.worldScale;
+    worldScale[0] = parentScale[0] * computedScaling[0];
+    worldScale[1] = parentScale[1] * computedScaling[1];
+    worldScale[2] = parentScale[2] * computedScaling[2];
+      
+    // Inverse world scale
+    inverseWorldScale[0] = 1 / worldScale[0];
+    inverseWorldScale[1] = 1 / worldScale[1];
+    inverseWorldScale[2] = 1 / worldScale[2];
   }
 
   /**
