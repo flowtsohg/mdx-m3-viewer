@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2017",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2020", "dom"],
     "outDir": "./dist/cjs",
     "moduleResolution": "node",
     "typeRoots": ["./types", "./node_modules/@types"],
@@ -17,7 +17,7 @@
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
-    "suppressImplicitAnyIndexErrors": true,
+    "suppressImplicitAnyIndexErrors": true
   },
-  "exclude": ["clients", "clean.js", "webpack.config.js"]
+  "exclude": ["clients", "clean.js", "webpack.config.js", "dist"]
 }

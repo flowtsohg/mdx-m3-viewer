@@ -12,15 +12,21 @@ export class MappedDataRow {
       value = value.toString();
     }
 
-    this.map[key] = value;
+    this.map[key.toLowerCase()] = value;
   }
 
-  string(key: string): string {
-    return this.map[key];
+  string(key: string): string | undefined {
+    return this.map[key.toLowerCase()];
   }
 
   number(key: string): number {
-    return parseFloat(this.map[key]);
+    const string = this.string(key);
+
+    if (!string) {
+      return 0;
+    }
+    
+    return parseFloat(string);
   }
 }
 
@@ -75,7 +81,7 @@ export class MappedData {
                 key = `column${j}`;
               }
 
-              mapped.map[`${key}`] = row[j];
+              mapped.map[key.toLowerCase()] = row[j];
             }
           }
         }
@@ -95,7 +101,7 @@ export class MappedData {
         const mapped = map[row];
 
         for (const [name, property] of properties) {
-          mapped.map[name] = property;
+          mapped.map[name.toLowerCase()] = property;
         }
       }
     }

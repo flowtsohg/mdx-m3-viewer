@@ -330,12 +330,12 @@ export default {
         const lookupRow = (<MappedData>tables[1].data).getRow(id);
 
         if (lookupRow) {
-          row = mappedData.getRow(lookupRow.string('SoundLabel'));
+          row = mappedData.getRow(<string>lookupRow.string('SoundLabel'));
         }
       }
 
       if (row) {
-        for (const fileName of (row.string('FileNames')).split(',')) {
+        for (const fileName of (<string>row.string('FileNames')).split(',')) {
           const file = this.getEventObjectSoundFile(fileName, reforged, isHd, tables);
 
           if (file) {
@@ -349,7 +349,7 @@ export default {
 
       if (row) {
         if (type === 'SPN') {
-          promises.push(viewer.load((row.string('Model')).replace('.mdl', '.mdx'), safePathSolver, params));
+          promises.push(viewer.load((<string>row.string('Model')).replace('.mdl', '.mdx'), safePathSolver, params));
         } else if (type === 'SPL' || type === 'UBR') {
           promises.push(viewer.load(`ReplaceableTextures\\Splats\\${row.string('file')}${reforged ? '.dds' : '.blp'}`, safePathSolver, params));
         }

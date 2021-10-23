@@ -286,7 +286,7 @@ export default class War3MapViewerMap {
               }
 
               const cliffRow = this.cliffTilesets[cliffTexture];
-              const dir = cliffRow.string('cliffModelDir');
+              const dir = <string>cliffRow.string('cliffModelDir');
               const path = `Doodads\\Terrain\\${dir}\\${dir}${fileName}${getCliffVariation(dir, fileName, bottomLeft.cliffVariation)}.mdx`;
 
               if (!cliffs[path]) {
@@ -931,7 +931,7 @@ export default class War3MapViewerMap {
         const metadata = metadataMap.getRow(modification.id);
 
         if (metadata) {
-          row.set(metadata.string('field'), modification.value);
+          row.set(<string>metadata.string('field'), modification.value);
         } else {
           console.warn('Unknown modification ID', modification);
         }
