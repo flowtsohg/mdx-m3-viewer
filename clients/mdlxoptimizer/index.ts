@@ -87,7 +87,7 @@ function optimizeAnimation(model: MdlxModel, animation: Animation) {
   const finalEntries: Entry[] = [];
 
   // Now that all of the entries are valid in sequences, we can check for values.
-  if (keptEntries.length > 2) {
+  if (keptEntries.length >= 2) {
     for (let i = 0, l = keptEntries.length; i < l; i++) {
       const entry = keptEntries[i];
       const frame = entry[FRAME];
