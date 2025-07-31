@@ -31,7 +31,13 @@ void main() {
   vec3 normal = a_normal;
 
   if (u_hasBones) {
-    transformVertexGroups(position, normal);
+    #ifdef SKIN
+      vec3 tangent = vec3(0.0);
+      vec3 binormal = vec3(0.0);
+      transformSkin(position, normal, tangent, binormal);
+    #else
+      transformVertexGroups(position, normal);
+    #endif
   }
 
   v_uv = a_uv;
