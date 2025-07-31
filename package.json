@@ -1,6 +1,6 @@
 {
-  "name": "mdx-m3-viewer",
-  "version": "5.12.0",
+  "name": "@pqhuy98/mdx-m3-viewer",
+  "version": "5.12.1",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/flowtsohg/mdx-m3-viewer.git"
+    "url": "git+https://github.com/flowtsohg/mdx-m3-viewer.git"
   },
   "author": "Chananya Freiman",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
     "eslint": "^7.29.0",
+    "file-saver": "^2.0.5",
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.5",
     "webpack": "^5.0.0",
