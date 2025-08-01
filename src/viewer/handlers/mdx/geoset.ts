@@ -75,7 +75,11 @@ export default class Geoset {
     const attribs = shader.attribs;
 
     this.bindShared(gl, attribs, coordId);
-    this.bindVertexGroups(gl, attribs);
+    if (attribs['a_weights'] !== undefined) {
+      this.bindSkin(gl, attribs);
+    } else {
+      this.bindVertexGroups(gl, attribs);
+    }
   }
 
   bindExtended(shader: Shader, coordId: number): void{

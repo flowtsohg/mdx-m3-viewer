@@ -30,6 +30,7 @@ export interface MdxHandlerObject {
   pathSolver?: PathSolver;
   reforged: boolean;
   sdShader: Shader;
+  sdSkinShader: Shader;
   sdExtendedShader: Shader;
   hdShader: Shader;
   hdExtendedShader: Shader;
@@ -85,6 +86,8 @@ export default {
     
     const sdShader = webgl.createShader(sdVert, sdFrag);
     const sdExtendedShader = webgl.createShader(sdExtendedVert, sdFrag);
+    const sdSkinVert = '#define SKIN\n' + sdVert;
+    const sdSkinShader = webgl.createShader(sdSkinVert, sdFrag);
     const hdShader = webgl.createShader(hdVert, hdFrag);
     const hdExtendedShader = webgl.createShader(hdExtendedVert, hdFrag);
     const hdSkinShader = webgl.createShader(hdSkinVert, hdFrag);
@@ -154,6 +157,7 @@ export default {
       reforged,
       // Shaders.
       sdShader,
+      sdSkinShader,
       sdExtendedShader,
       hdShader,
       hdExtendedShader,
@@ -402,7 +406,9 @@ export default {
         }
       }
 
-      if (skinningType === SkinningType.VertexGroups) {
+      if (skinningType === SkinningType.Skin) {
+        return mdxCache.sdSkinShader;
+      } else if (skinningType === SkinningType.VertexGroups) {
         return mdxCache.sdShader;
       } else {
         return mdxCache.sdExtendedShader;
