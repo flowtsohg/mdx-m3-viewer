@@ -187,7 +187,7 @@ export default class War3MapViewerMap {
       const row = <MappedDataRow>viewer.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
-      
+
       tilesetTextures.push(this.load(`${row.string('dir')}\\${row.string('file')}${texturesExt}`));
     }
 
@@ -219,7 +219,8 @@ export default class War3MapViewerMap {
       const row = <MappedDataRow>viewer.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
-      cliffTextures.push(this.load(`${row.string('texDir')}\\${row.string('texFile')}${texturesExt}`));
+      const tilesetPrefix = tileset === 'L' ? '' : `${tileset}_`;
+      cliffTextures.push(this.load(`${row.string('texDir')}\\${tilesetPrefix}${row.string('texFile')}${texturesExt}`));
     }
 
     const waterRow = <MappedDataRow>viewer.waterData.getRow(`${tileset}Sha`);
