@@ -207,9 +207,7 @@ void onlyDiffuse() {
   vec3 tc = getTeamColor();
   float tcFactor = getOrmColor().a;
 
-  if (tcFactor > 0.1) {
-    baseColor.rgb *= tc * tcFactor;
-  }
+  baseColor.rgb *= (1.0 - tcFactor) + tc * tcFactor;
 
   gl_FragColor = baseColor;
 }
@@ -263,10 +261,8 @@ void lambert() {
   float lambertFactor = clamp(dot(normal, v_lightDir), 0.0, 1.0);
   vec3 color = baseColor.rgb;
 
-  if (tcFactor > 0.1) {
-    color *= tc * tcFactor;
-  }
-  
+  color *= (1.0 - tcFactor) + tc * tcFactor;
+
   color *= clamp(lambertFactor * aoFactor + 0.1, 0.0, 1.0);
   color += emissive;
 
