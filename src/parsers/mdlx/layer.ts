@@ -1,6 +1,7 @@
 import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
+import { Animation, UintAnimation } from './animations';
 
 export const enum FilterMode {
   None = 0,
@@ -48,6 +49,55 @@ function modeToString(m: FilterMode): string {
 }
 
 /**
+ * A single HD texture slot of a layer.
+ *
+ * @since 1100
+ */
+export class LayerTexture {
+  /**
+   * An index into the model's textures.
+   */
+  id = -1;
+  /**
+   * Which HD slot this texture fills (e.g. diffuse, normal, ORM, ...).
+   */
+  type = 0;
+  /**
+   * An optional flipbook (KMTF) animation that animates this slot's texture id.
+   */
+  animation: Animation | null = null;
+
+  readMdx(stream: BinaryStream): void {
+    this.id = stream.readInt32();
+    this.type = stream.readUint32();
+
+    // The texture id can be animated by an optional flipbook track.
+    if (stream.readBinary(4) === 'KMTF') {
+      const animation = new UintAnimation();
+
+      animation.readMdx(stream, 'KMTF');
+
+      this.animation = animation;
+    } else {
+      stream.skip(-4);
+    }
+  }
+
+  writeMdx(stream: BinaryStream): void {
+    stream.writeInt32(this.id);
+    stream.writeUint32(this.type);
+
+    if (this.animation) {
+      this.animation.writeMdx(stream);
+    }
+  }
+
+  getByteLength(): number {
+    return 8 + (this.animation ? this.animation.getByteLength() : 0);
+  }
+}
+
+/**
  * A layer.
  */
 export default class Layer extends AnimatedObject {
@@ -69,10 +119,25 @@ export default class Layer extends AnimatedObject {
    * @since 1000
    */
   fresnelOpacity = 0;
-  /** 
+  /**
    * @since 1000
    */
   fresnelTeamColor = 0;
+  /**
+   * 0 or 1.
+   *
+   * @since 1100
+   */
+  shaderTypeId = 0;
+  /**
+   * The HD texture slots.
+   *
+   * Introduced in version 1100, where the per-material HD layers were merged
+   * into a single layer that carries all of its textures.
+   *
+   * @since 1100
+   */
+  textures: LayerTexture[] = [];
 
   readMdx(stream: BinaryStream, version: number): void {
     const start = stream.index;
@@ -93,6 +158,19 @@ export default class Layer extends AnimatedObject {
       this.fresnelTeamColor = stream.readFloat32();
     }
 
+    // Since version 1100 the HD layers of a material are merged into one, which carries all of its textures.
+    if (version > 1000) {
+      this.shaderTypeId = stream.readUint32();
+
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        const texture = new LayerTexture();
+
+        texture.readMdx(stream);
+
+        this.textures.push(texture);
+      }
+    }
+
     this.readAnimations(stream, size - (stream.index - start));
   }
 
@@ -111,6 +189,15 @@ export default class Layer extends AnimatedObject {
       stream.writeFloat32Array(this.fresnelColor);
       stream.writeFloat32(this.fresnelOpacity);
       stream.writeFloat32(this.fresnelTeamColor);
+    }
+
+    if (version > 1000) {
+      stream.writeUint32(this.shaderTypeId);
+      stream.writeUint32(this.textures.length);
+
+      for (const texture of this.textures) {
+        texture.writeMdx(stream);
+      }
     }
 
     this.writeAnimations(stream);
@@ -246,6 +333,14 @@ export default class Layer extends AnimatedObject {
     // See note above in readMdx.
     if (version > 800) {
       size += 24;
+    }
+
+    if (version > 1000) {
+      size += 8;
+
+      for (const texture of this.textures) {
+        size += texture.getByteLength();
+      }
     }
 
     return size;
