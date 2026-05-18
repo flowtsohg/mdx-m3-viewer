@@ -65,6 +65,8 @@ export default class BatchGroup {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
     if (isHd) {
+      const geosetColors = instance.geosetColors;
+
       gl.uniform1i(uniforms['u_diffuseMap'], 0);
       gl.uniform1i(uniforms['u_normalsMap'], 1);
       gl.uniform1i(uniforms['u_ormMap'], 2);
@@ -89,7 +91,8 @@ export default class BatchGroup {
         const geoset = batch.geoset;
         const material = <Material>batch.material;
         const [diffuseLayer, normalsLayer, ormLayer, emissiveLayer, teamColorLayer, environmentMapLayer] = material.layers;
-        const layerAlpha = layerAlphas[diffuseLayer.index];
+        const geosetColor = geosetColors[geoset.index];
+        const layerAlpha = layerAlphas[diffuseLayer.index] * geosetColor[3];
 
         if (layerAlpha > 0) {
           gl.uniform1f(uniforms['u_layerAlpha'], layerAlpha);
