@@ -145,7 +145,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]): vo
         model.geosets.push(vGeoset);
 
         const material = model.materials[geoset.materialId];
-        const isHd = material.shader === 'Shader_HD_DefaultUnit';
+        const isHd = material.isHd;
 
         if (isHd) {
           model.batches.push(new Batch(model.batches.length, vGeoset, material, skinType, true));
