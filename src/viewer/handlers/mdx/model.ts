@@ -126,17 +126,51 @@ export default class MdxModel extends Model {
     for (const material of parser.materials) {
       const layers = [];
 
+      // Pre-1100 the HD-ness of a material is signalled by its shader string.
+      let isHd = material.shader === 'Shader_HD_DefaultUnit';
+
       for (const layer of material.layers) {
-        const vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
+        if (layer.textures.length) {
+          // Version 1100 merged the HD layers of a material into a single layer that carries every texture slot.
+          // The layer's shader type is 0 for SD and 1 for HD, and the HD slots follow ShaderTextureTypeHD:
+          // 0 Diffuse, 1 Normal, 2 ORM, 3 Emissive, 4 TeamColor, 5 Reflections.
+          if (layer.shaderTypeId === 1) {
+            isHd = true;
 
-        layers.push(vLayer);
+            const slotTextureIds = [-1, -1, -1, -1, -1, -1];
 
-        this.layers.push(vLayer);
+            for (const texture of layer.textures) {
+              if (texture.type < slotTextureIds.length) {
+                slotTextureIds[texture.type] = texture.id;
+              }
+            }
+
+            // Expand into one handler layer per slot, so the HD render path sees the same shape as a pre-1100 HD material.
+            for (let slot = 0; slot < slotTextureIds.length; slot++) {
+              const vLayer = new Layer(this, layer, layerId++, material.priorityPlane, slotTextureIds[slot]);
+
+              layers.push(vLayer);
+              this.layers.push(vLayer);
+            }
+          } else {
+            // An SD material in a 1100 model - only the diffuse slot is used.
+            const diffuse = layer.textures.find((texture) => texture.type === 0);
+            const vLayer = new Layer(this, layer, layerId++, material.priorityPlane, diffuse ? diffuse.id : -1);
+
+            layers.push(vLayer);
+            this.layers.push(vLayer);
+          }
+        } else {
+          const vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
+
+          layers.push(vLayer);
+          this.layers.push(vLayer);
+        }
       }
 
-      this.materials.push(new Material(this, material.shader, layers));
+      this.materials.push(new Material(this, material.shader, layers, isHd));
 
-      if (material.shader !== '') {
+      if (isHd) {
         this.hd = true;
       }
     }

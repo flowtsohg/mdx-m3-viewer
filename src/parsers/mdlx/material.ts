@@ -29,7 +29,8 @@ export default class Material {
     this.priorityPlane = stream.readInt32();
     this.flags = stream.readUint32();
 
-    if (version > 800) {
+    // Since version 1100 the shader string is gone - each layer carries its own HD texture slots instead.
+    if (version > 800 && version < 1100) {
       this.shader = stream.read(80);
     }
 
@@ -49,7 +50,8 @@ export default class Material {
     stream.writeInt32(this.priorityPlane);
     stream.writeUint32(this.flags);
 
-    if (version > 800) {
+    // See note above in readMdx.
+    if (version > 800 && version < 1100) {
       stream.skip(80 - stream.write(this.shader));
     }
 
@@ -132,7 +134,8 @@ export default class Material {
   getByteLength(version: number): number {
     let size = 20;
 
-    if (version > 800) {
+    // See note above in readMdx.
+    if (version > 800 && version < 1100) {
       size += 80;
     }
 

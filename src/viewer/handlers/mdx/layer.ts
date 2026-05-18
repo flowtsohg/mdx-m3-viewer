@@ -27,7 +27,7 @@ export default class Layer extends AnimatedObject {
   blended = false;
   textureAnimation: TextureAnimation | null = null;
 
-  constructor(model: MdxModel, layer: MdlxLayer, layerId: number, priorityPlane: number) {
+  constructor(model: MdxModel, layer: MdlxLayer, layerId: number, priorityPlane: number, textureId?: number) {
     super(model, layer);
 
     let filterMode = layer.filterMode;
@@ -43,7 +43,11 @@ export default class Layer extends AnimatedObject {
 
     this.filterMode = filterMode;
 
-    if (layer.textureId !== -1) {
+    // Since version 1100 a single parser layer carries all of an HD material's
+    // texture slots, so each slot's texture id is passed in explicitly here.
+    if (textureId !== undefined && textureId !== -1) {
+      this.textureId = textureId;
+    } else if (layer.textureId !== -1) {
       this.textureId = layer.textureId;
     }
 
