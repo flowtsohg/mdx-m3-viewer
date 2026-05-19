@@ -3,6 +3,8 @@ import ModelInstance from '../../modelinstance';
 import { createSkeletalNodes, SkeletalNode } from '../../skeletalnode';
 import DataTexture from '../../gl/datatexture';
 import Texture from '../../texture';
+import MdxTexture from './texture';
+import type { MdxHandlerObject } from './handler';
 import MdxNode from './node';
 import AttachmentInstance from './attachmentinstance';
 import ParticleEmitter from './particleemitter';
@@ -46,6 +48,15 @@ export default class MdxModelInstance extends ModelInstance {
   sequenceLoopMode = 0;
   sequenceEnded = false;
   teamColor = 0;
+  /**
+   * Resolves a replaceable texture id to the texture to use for it.
+   *
+   * Set by the application. The default handles team color (1) and team glow
+   * (2) from this instance's team color, and returns undefined for anything
+   * else so the texture as loaded is used. Replace or wrap it to handle other
+   * ids, such as tree textures, which need tileset context the model lacks.
+   */
+  replaceableTextureResolver: (replaceableId: number) => Texture | undefined;
   vertexColor = new Float32Array([1, 1, 1, 1]);
   // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
   allowParticleSpawn = false;
@@ -167,6 +178,49 @@ export default class MdxModelInstance extends ModelInstance {
     if (model.bones.length) {
       this.boneTexture = new DataTexture(model.viewer.gl, 4, model.bones.length * 4, 1);
     }
+
+    this.replaceableTextureResolver = (replaceableId): Texture | undefined => this.defaultReplaceableTexture(replaceableId);
+  }
+
+  /**
+   * The default replaceable texture resolver: team color (1) and team glow (2).
+   *
+   * Team color is application logic, so it lives here in the handler rather
+   * than in the render pipeline.
+   */
+  defaultReplaceableTexture(replaceableId: number): Texture | undefined {
+    const mdxCache = <MdxHandlerObject>this.model.viewer.sharedCache.get('mdx');
+
+    if (replaceableId === 1) {
+      return mdxCache.teamColors[this.teamColor].texture || undefined;
+    } else if (replaceableId === 2) {
+      return mdxCache.teamGlows[this.teamColor].texture || undefined;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Resolve the texture to bind for one of the model's textures.
+   *
+   * Checks, in order: an explicit per-index override, the replaceable texture
+   * resolver (for textures that have a replaceable id), and finally the
+   * texture as it was loaded.
+   */
+  resolveTexture(texture: MdxTexture, index: number): Texture | null {
+    const override = this.textureOverrides.get(index);
+    if (override) {
+      return override;
+    }
+
+    if (texture.replaceableId !== 0) {
+      const resolved = this.replaceableTextureResolver(texture.replaceableId);
+      if (resolved) {
+        return resolved;
+      }
+    }
+
+    return texture.texture;
   }
 
 
