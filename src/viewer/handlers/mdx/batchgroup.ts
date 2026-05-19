@@ -1,9 +1,8 @@
 import Scene from '../../scene';
-import Texture from '../../texture';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
 import Material from './material';
-import mdxHandler, { MdxHandlerObject } from './handler';
+import mdxHandler from './handler';
 import { SkinningType } from './batch';
 
 /**
@@ -24,19 +23,15 @@ export default class BatchGroup {
   render(instance: MdxModelInstance): void {
     const scene = <Scene>instance.scene;
     const camera = scene.camera;
-    const textureOverrides = instance.textureOverrides;
     const layerAlphas = instance.layerAlphas;
     const model = this.model;
     const textures = model.textures;
     const batches = model.batches;
     const viewer = model.viewer;
-    const mdxCache = <MdxHandlerObject>viewer.sharedCache.get('mdx');
     const gl = viewer.gl;
     const webgl = viewer.webgl;
     const skinningType = this.skinningType;
     const isHd = this.isHd;
-    const teamColors = mdxCache.teamColors;
-    const teamGlows = mdxCache.teamGlows;
     const shader = mdxHandler.getBatchShader(viewer, skinningType, isHd);
 
     shader.use();
@@ -106,19 +101,17 @@ export default class BatchGroup {
           const normalsTexture = textures[normalsId];
           const ormTexture = textures[ormId];
           const emissiveTexture = textures[emissiveId];
-          let teamColorTexture = textures[teamColorId];
+          const teamColorTexture = textures[teamColorId];
           const environmentMapTexture = textures[environmentMapId];
 
-          if (teamColorTexture.replaceableId === 0 || teamColorTexture.replaceableId === 1) {
-            teamColorTexture = teamColors[instance.teamColor];
-          }
-          
-          const actualDiffuseTexture = textureOverrides.get(diffuseId) || diffuseTexture.texture;
-          const actualNormalsTexture = textureOverrides.get(normalsId) || normalsTexture.texture;
-          const actualOrmTexture = textureOverrides.get(ormId) || ormTexture.texture;
-          const actualEmissiveTexture = textureOverrides.get(emissiveId) || emissiveTexture.texture;
-          const actualTeamColorTexture = textureOverrides.get(teamColorId) || teamColorTexture.texture;
-          const actualEnvironmentMapTexture = textureOverrides.get(environmentMapId) || environmentMapTexture.texture;
+          // Every slot goes through the same resolver - the render path does not
+          // know that any particular replaceable id means team color.
+          const actualDiffuseTexture = instance.resolveTexture(diffuseTexture, diffuseId);
+          const actualNormalsTexture = instance.resolveTexture(normalsTexture, normalsId);
+          const actualOrmTexture = instance.resolveTexture(ormTexture, ormId);
+          const actualEmissiveTexture = instance.resolveTexture(emissiveTexture, emissiveId);
+          const actualTeamColorTexture = instance.resolveTexture(teamColorTexture, teamColorId);
+          const actualEnvironmentMapTexture = instance.resolveTexture(environmentMapTexture, environmentMapId);
 
           webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
           webgl.bindTextureAndWrap(actualNormalsTexture, 1, normalsTexture.wrapS, normalsTexture.wrapT);
@@ -171,24 +164,7 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let texture: Texture | null | undefined = textureOverrides.get(textureIndex);
-
-          if (!texture) {
-            const replaceable = layerTexture.replaceableId;
-            let mdxTexture;
-
-            if (replaceable === 1) {
-              mdxTexture = teamColors[instance.teamColor];
-            } else if (replaceable === 2) {
-              mdxTexture = teamGlows[instance.teamColor];
-            } else {
-              mdxTexture = layerTexture;
-            }
-
-            if (mdxTexture) {
-              texture = mdxTexture.texture;
-            }
-          }
+          const texture = instance.resolveTexture(layerTexture, textureIndex);
 
           webgl.bindTextureAndWrap(texture, 0, layerTexture.wrapS, layerTexture.wrapT);
 
